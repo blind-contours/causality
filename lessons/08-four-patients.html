@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Causality: Four Patients. Compute the influence function and the TMLE step by hand on four patients.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<title>Four Patients</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
+  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
+:root[data-theme="dark"]{
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{max-width:68ch;margin:0 0 12px}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
+@media(max-width:820px){.scene{grid-template-columns:1fr}}
+.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
+canvas{width:100%;height:auto;display:block;max-width:100%}
+.ctl{display:flex;flex-direction:column;gap:13px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--purple)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
+button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
+.readout .k{color:var(--muted)}
+.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
+.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
+.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
+.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
+</style>
+
+<style>
+table.fp{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:13px;margin:12px 0;width:100%;max-width:760px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+table.fp th,table.fp td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+table.fp th{font-weight:500;color:var(--muted);font-size:11.5px;text-align:right}
+table.fp td:first-child,table.fp th:first-child{text-align:left}
+table.fp input{font:inherit;width:6.5em;padding:4px 6px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink);text-align:right}
+table.fp input.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--paper))}
+table.fp input.no{border-color:var(--red)}
+table.fp tr.sum td{border-top:2px solid var(--rule);font-weight:500}
+.fp-msg{font-size:13.5px;margin:6px 0 0;min-height:1.4em}
+.fp-msg.ok{color:var(--green)}.fp-msg.no{color:var(--red)}
+.fp-wrap{overflow-x:auto}
+</style>
+<link rel="stylesheet" href="../shared/course.css">
+</head>
+<body data-lesson="four-patients">
+<div class="wrap">
+<div class="eyebrow">Compute it yourself</div>
+<h1>Four Patients</h1>
+<p class="lede">Every number in the earlier units came out of a simulation you watched. Here there are four patients, and you do the arithmetic. Type each value, check it, and see the mean of your four numbers equal the one-step correction. Then fit ε by hand for four residuals. If you can do this page from a blank sheet, you understand the estimator.</p>
+
+<!-- PART 1 -->
+<div class="eyebrow">Part 1</div>
+<h2>The influence function of E[Y(1)], one patient at a time</h2>
+<p>The target is ψ = E[μ<sub>1</sub>(X)], the mean outcome if everyone were treated. The initial fit gives μ̂<sub>1</sub>(x) for each patient and a propensity π(x). The influence function at the fit has two pieces: the X-piece μ̂<sub>1</sub>(X<sub>i</sub>) − ψ̂, which is filled in for you and sums to zero, and the Y-piece H<sub>i</sub>·(Y<sub>i</sub> − μ̂<sub>1</sub>(X<sub>i</sub>)) with H<sub>i</sub> = A<sub>i</sub>/π(X<sub>i</sub>), which you compute. Untreated patients have H = 0: they say nothing about μ<sub>1</sub>. Then average the Y-pieces. That average is the one-step correction, and ψ̂ plus it is the one-step estimate.</p>
+<div class="eq">D̂(Zᵢ) = [μ̂₁(Xᵢ) − ψ̂]  +  Hᵢ (Yᵢ − μ̂₁(Xᵢ)),    Hᵢ = Aᵢ / π(Xᵢ),    ψ̂ = mean of μ̂₁(Xᵢ)<br>one-step = ψ̂ + (1/n) Σᵢ Hᵢ (Yᵢ − μ̂₁(Xᵢ))</div>
+<div class="fp-wrap"><table class="fp" id="t1">
+<thead><tr><th>Patient</th><th>Stratum</th><th>A</th><th>Y</th><th>π(X)</th><th>μ̂₁(X)</th><th>X-piece</th><th>H = A/π</th><th>Y − μ̂₁</th><th>H·(Y − μ̂₁)</th></tr></thead>
+<tbody id="t1b"></tbody>
+</table></div>
+<div class="btns"><button class="primary" id="chk1">Check</button><button id="new1">New numbers</button><button id="show1">Show answers</button></div>
+<div class="fp-msg" id="msg1"></div>
+<div class="note" id="note1">Fill the three right-hand columns for each patient, then the sums and the mean at the bottom.</div>
+<div class="say"><b>In one sentence</b>Each treated patient contributes its residual scaled by 1/π, each untreated patient contributes nothing to the outcome piece, and the average of those contributions is exactly the correction the one-step adds to the plug-in.</div>
+
+<!-- PART 2 -->
+<div class="eyebrow">Part 2</div>
+<h2>ε̂ by hand: four treated residuals, two strata</h2>
+<p>Now the TMLE step. Four treated patients, two young with H = 1.25 and two old with H = 4. Fluctuate μ<sub>ε</sub> = μ̂ + εH and pick ε by least squares: ε̂ = ΣH<sub>i</sub>r<sub>i</sub> / ΣH<sub>i</sub>². Compute the two sums, divide, and then the shift each stratum's curve gets, ε̂·H. Notice which stratum's residuals dominate the numerator even though there are the same number of them.</p>
+<div class="eq">ε̂ = Σ Hᵢ rᵢ / Σ Hᵢ²        shift of stratum s = ε̂ · Hₛ        check: Σ Hᵢ (rᵢ − ε̂ Hᵢ) = 0</div>
+<div class="fp-wrap"><table class="fp" id="t2">
+<thead><tr><th>Patient</th><th>Stratum</th><th>H</th><th>r = Y − μ̂</th><th>H·r</th><th>H²</th></tr></thead>
+<tbody id="t2b"></tbody>
+</table></div>
+<div class="fp-wrap"><table class="fp" id="t2s">
+<tbody>
+<tr><td>ε̂ = ΣHr / ΣH²</td><td><input id="e2" inputmode="decimal"></td><td>young shift ε̂·1.25</td><td><input id="sy2" inputmode="decimal"></td><td>old shift ε̂·4</td><td><input id="so2" inputmode="decimal"></td></tr>
+</tbody></table></div>
+<div class="btns"><button class="primary" id="chk2">Check</button><button id="new2">New numbers</button><button id="show2">Show answers</button></div>
+<div class="fp-msg" id="msg2"></div>
+<div class="say"><b>In one sentence</b>ε̂ is the no-intercept least-squares slope of the residuals on the clever covariate. The old stratum’s two residuals enter the numerator with weight 4 against 1.25, which is the reweighting that gives every stratum evidence in proportion to its share of ψ.</div>
+</div>
+
+<script>
+(function(){
+const r1=v=>Math.round(v*1000)/1000;
+const close=(a,b,tol)=>Math.abs(a-b)<=(tol||0.011);
+function mark(inp,ok){inp.classList.remove('ok','no');inp.classList.add(ok?'ok':'no');}
+function num(inp){const v=parseFloat(String(inp.value).replace(',','.'));return Number.isFinite(v)?v:NaN;}
+// ---- Part 1 ----
+let P1=[];
+function gen1(){const ys=[[4.0,2.0,2.5,1.0],[3.6,2.4,2.9,0.8],[4.4,1.8,2.2,1.4],[3.2,2.6,3.1,1.2]][Math.floor(Math.random()*4)];
+  P1=[{s:'young',a:1,y:ys[0],pi:0.8,mu:3.0},{s:'young',a:0,y:ys[1],pi:0.8,mu:3.0},{s:'old',a:1,y:ys[2],pi:0.25,mu:2.0},{s:'old',a:0,y:ys[3],pi:0.25,mu:2.0}];}
+function ans1(){const psi=P1.reduce((a,p)=>a+p.mu,0)/4;return P1.map(p=>({x:r1(p.mu-psi),H:r1(p.a/p.pi),r:r1(p.y-p.mu),hr:r1(p.a/p.pi*(p.y-p.mu))})).concat([{psi}]);}
+function render1(){const A=ans1(),psi=A[4].psi;const tb=document.getElementById('t1b');tb.innerHTML='';
+  P1.forEach((p,i)=>{tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.s}</td><td>${p.a}</td><td>${p.y.toFixed(1)}</td><td>${p.pi}</td><td>${p.mu.toFixed(1)}</td><td>${A[i].x>0?'+':''}${A[i].x.toFixed(2)}</td><td><input data-k="H" data-i="${i}" inputmode="decimal"></td><td><input data-k="r" data-i="${i}" inputmode="decimal"></td><td><input data-k="hr" data-i="${i}" inputmode="decimal"></td></tr>`;});
+  tb.innerHTML+=`<tr class="sum"><td>sum</td><td></td><td></td><td></td><td></td><td>ψ̂ = ${psi.toFixed(2)}</td><td>0.00</td><td></td><td></td><td><input data-k="sum" inputmode="decimal"></td></tr>`;
+  tb.innerHTML+=`<tr class="sum"><td>mean (÷ 4) = correction</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><input data-k="mean" inputmode="decimal"></td></tr>`;
+  tb.innerHTML+=`<tr class="sum"><td>one-step = ψ̂ + correction</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><input data-k="os" inputmode="decimal"></td></tr>`;
+  document.getElementById('msg1').textContent='';document.getElementById('msg1').className='fp-msg';}
+function check1(show){const A=ans1(),psi=A[4].psi;let okAll=true,filled=0;const sum=A.slice(0,4).reduce((a,x)=>a+x.hr,0),mean=sum/4;
+  document.querySelectorAll('#t1 input').forEach(inp=>{const k=inp.getAttribute('data-k'),i=+inp.getAttribute('data-i');let target=k==='sum'?sum:k==='mean'?mean:k==='os'?psi+mean:A[i][k];
+    if(show){inp.value=target.toFixed(k==='H'?2:3);mark(inp,true);return;}
+    const v=num(inp);if(Number.isNaN(v)){inp.classList.remove('ok','no');okAll=false;return;}filled++;const ok=close(v,target);mark(inp,ok);okAll=okAll&&ok;});
+  const m=document.getElementById('msg1');
+  if(show){m.textContent=`Filled in. Correction = ${mean.toFixed(3)}, one-step = ${(psi+mean).toFixed(3)}.`;m.className='fp-msg';return;}
+  if(filled===0){m.textContent='Type some values first.';m.className='fp-msg no';return;}
+  m.textContent=okAll?`All correct. The mean of your four Y-pieces, ${mean.toFixed(3)}, is the one-step correction; ψ̂ + it = ${(psi+mean).toFixed(3)}.`:'Red cells are off (tolerance ±0.01). Untreated patients have H = 0; treated ones have H = 1/π.';m.className='fp-msg '+(okAll?'ok':'no');}
+document.getElementById('chk1').onclick=()=>check1(false);document.getElementById('show1').onclick=()=>check1(true);document.getElementById('new1').onclick=()=>{gen1();render1();};
+gen1();render1();
+// ---- Part 2 ----
+let P2=[];
+function gen2(){const rs=[[1.0,0.6,0.5,1.5],[0.8,1.2,1.0,0.6],[0.4,1.0,1.4,0.8],[1.2,0.4,0.9,1.1]][Math.floor(Math.random()*4)];P2=[{s:'young',H:1.25,r:rs[0]},{s:'young',H:1.25,r:rs[1]},{s:'old',H:4,r:rs[2]},{s:'old',H:4,r:rs[3]}];}
+function render2(){const tb=document.getElementById('t2b');tb.innerHTML='';P2.forEach((p,i)=>{tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.s}</td><td>${p.H}</td><td>${p.r.toFixed(1)}</td><td><input data-k="hr" data-i="${i}" inputmode="decimal"></td><td><input data-k="h2" data-i="${i}" inputmode="decimal"></td></tr>`;});
+  tb.innerHTML+=`<tr class="sum"><td>sum</td><td></td><td></td><td></td><td><input data-k="shr" inputmode="decimal"></td><td><input data-k="sh2" inputmode="decimal"></td></tr>`;
+  ['e2','sy2','so2'].forEach(id=>{const e=document.getElementById(id);e.value='';e.classList.remove('ok','no');});document.getElementById('msg2').textContent='';document.getElementById('msg2').className='fp-msg';}
+function check2(show){const shr=P2.reduce((a,p)=>a+p.H*p.r,0),sh2=P2.reduce((a,p)=>a+p.H*p.H,0),e=shr/sh2;let okAll=true,filled=0;
+  const test=(inp,target,dec)=>{if(show){inp.value=target.toFixed(dec||3);mark(inp,true);return;}const v=num(inp);if(Number.isNaN(v)){inp.classList.remove('ok','no');okAll=false;return;}filled++;const ok=close(v,target);mark(inp,ok);okAll=okAll&&ok;};
+  document.querySelectorAll('#t2 input').forEach(inp=>{const k=inp.getAttribute('data-k'),i=+inp.getAttribute('data-i');test(inp,k==='hr'?P2[i].H*P2[i].r:k==='h2'?P2[i].H*P2[i].H:k==='shr'?shr:sh2,k==='h2'?4:3);});
+  test(document.getElementById('e2'),e,4);test(document.getElementById('sy2'),e*1.25,3);test(document.getElementById('so2'),e*4,3);
+  const m=document.getElementById('msg2');
+  if(show){m.textContent=`ε̂ = ${shr.toFixed(2)} / ${sh2.toFixed(2)} = ${e.toFixed(4)}. Old residuals contribute ${(P2[2].H*P2[2].r+P2[3].H*P2[3].r).toFixed(2)} of the numerator, young ${(P2[0].H*P2[0].r+P2[1].H*P2[1].r).toFixed(2)}.`;m.className='fp-msg';return;}
+  if(filled===0){m.textContent='Type some values first.';m.className='fp-msg no';return;}
+  m.textContent=okAll?`All correct. ε̂ = ${e.toFixed(4)}; the old curve moves ${(e*4).toFixed(3)} and the young curve ${(e*1.25).toFixed(3)}, a ratio of 3.2 = 4/1.25.`:'Red cells are off (tolerance ±0.01). ε̂ is one number for both strata; the shifts differ because H does.';m.className='fp-msg '+(okAll?'ok':'no');}
+document.getElementById('chk2').onclick=()=>check2(false);document.getElementById('show2').onclick=()=>check2(true);document.getElementById('new2').onclick=()=>{gen2();render2();};
+gen2();render2();
+})();
+</script>
+<script src="../shared/course.js"></script>
+</body>
+</html>

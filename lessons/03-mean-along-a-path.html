@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Causality: The Mean Along a Path. An interactive lesson in semiparametric causal inference.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<title>The Mean Along a Path</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
+  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --pen:#1B2530;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; } }
+:root[data-theme="dark"]{
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{max-width:68ch;margin:0 0 12px}
+.m{font-family:"Fraunces",Georgia,serif;font-style:italic}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
+.eq .hl{background:rgba(224,128,26,.18);padding:1px 4px;border-radius:3px}
+.eq .hp{background:rgba(106,63,181,.16);padding:1px 4px;border-radius:3px}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
+@media(max-width:820px){.scene{grid-template-columns:1fr}}
+.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
+canvas{width:100%;height:auto;display:block;max-width:100%}
+.ctl{display:flex;flex-direction:column;gap:13px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--purple)}
+select{font:inherit;font-size:13px;padding:4px 6px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
+button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
+.readout .k{color:var(--muted)}
+.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
+.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
+.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
+.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
+</style>
+<link rel="stylesheet" href="../shared/course.css">
+</head>
+<body data-lesson="mean-along-a-path">
+<div class="wrap">
+<div class="eyebrow">One derivation, six moves, each one drawn</div>
+<h1>The Mean Along a Path</h1>
+<p class="lede">The claim to be understood: for the mean ψ(P) = ∫ z p(z) dz, the rate of change along any path with score h is E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). Every step of the algebra is a picture, and every picture is computed from the same density p(z). Each scene animates exactly one line of the derivation.</p>
+
+<div class="eq">ψ(P_ε) = ∫ z · p(z)(1 + ε h(z)) dz<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ∫ z p(z) dz  +  ε ∫ z h(z) p(z) dz          <span style="color:var(--muted)">(move 3: split)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ψ(P)  +  ε ∫ (z − c) h(z) p(z) dz   for any c    <span style="color:var(--muted)">(move 4: ∫ h p = 0)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ψ(P)  +  ε <span class="hp">∫ ϕ(z) h(z) p(z) dz</span>,   ϕ(z) = z − ψ(P)   <span style="color:var(--muted)">(move 5: choose c = ψ)</span><br>
+⇒  dψ(P_ε)/dε |₀ = <span class="hp">E_P[ϕ h]</span></div>
+
+<!-- MOVE 1 -->
+<div class="eyebrow">Move 1</div>
+<h2>ψ(P) = ∫ z p(z) dz is a weighted sum: position times mass, added up</h2>
+<p>Cut the line into small bins of width dz. Each bin holds mass p(z)dz. The mean is the sum over bins of (position of the bin) × (mass in the bin). Watch the bins being added one at a time; the running total lands on the balance point of the density.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c1" width="800" height="400"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p1">Play</button></div>
+    <label>Scrub <span class="v" id="v1">0.00</span><input type="range" id="t1" min="0" max="1" step="0.002" value="0"></label>
+    <label>Bin width dz (coarser is easier to see) <span class="v" id="v1d">0.25</span><input type="range" id="d1" min="0.05" max="0.5" step="0.05" value="0.25"></label>
+    <div class="readout" id="ro1"></div>
+    <div class="note">Negative positions contribute negative terms. That's why the running total can go down before it goes up.</div>
+  </div>
+</div>
+
+<!-- MOVE 2 -->
+<div class="eyebrow">Move 2</div>
+<h2>Along the path the masses change; the positions do not</h2>
+<p>On the path p<sub>ε</sub>(z) = p(z)(1 + εh(z)), each bin's mass becomes p(z)(1 + εh(z))dz. The bin positions z are the same as before. So the mean along the path is the same weighted sum with new weights. Move ε and watch the bar heights change and the balance point slide.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p2">Play</button></div>
+    <label>ε <span class="v" id="v2e">0.30</span><input type="range" id="e2" min="-0.5" max="0.5" step="0.005" value="0.3"></label>
+    <label>Direction h <select id="h2"><option value="tilt">tilt (h ∝ z − μ)</option><option value="bump" selected>bump near z = 1</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro2"></div>
+  </div>
+</div>
+
+<!-- MOVE 3 -->
+<div class="eyebrow">Move 3</div>
+<h2>Split each bin's contribution into "the old part" and "ε times the new part"</h2>
+<p>z·p(z)(1 + εh(z)) = z·p(z) + ε·z·h(z)·p(z). Bin by bin, the integrand is the old integrand plus ε times a second integrand that does not depend on ε. Summing gives ψ(P) + ε·(a fixed number). That is why ψ(P<sub>ε</sub>) is exactly a straight line in ε for this path: the slope is that fixed number, ∫ z h p dz.</p>
+<div class="eq">z·p·(1+εh) = <span class="hl">z·p</span> + ε·<span class="hp">z·h·p</span>     ⇒     ψ(P_ε) = <span class="hl">ψ(P)</span> + ε·<span class="hp">∫ z h p dz</span></div>
+<div class="predict" data-options="It changes by ε times the old total|It changes by ε times ∫ z h p dz; the old part stays put|Both parts change" data-answer="1" data-hint="Each bin's mass is p(1+εh); the z's don't move, so the new part is ε·z·h·p per bin.">Split each bin's contribution into an old part and an ε part. What happens to ψ as ε grows?</div>
+<div class="scene">
+  <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p3">Play</button></div>
+    <label>ε <span class="v" id="v3e">0.30</span><input type="range" id="e3" min="-0.5" max="0.5" step="0.005" value="0.3"></label>
+    <label>Direction h <select id="h3"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro3"></div>
+  </div>
+</div>
+
+<!-- MOVE 4 -->
+<div class="eyebrow">Move 4</div>
+<h2>You may subtract any constant from z inside the second integral</h2>
+<p>∫ (z − c)·h·p dz = ∫ z·h·p dz − c·∫ h·p dz, and the last integral is zero because h is a score. So the slope doesn't care which c you subtract. Drag c: the shaded product changes shape everywhere, but its signed area is fixed. This is the step that turns "z" into "z minus something."</p>
+<div class="eq">∫ (z − c) h p dz = ∫ z h p dz − c·<span class="hl">∫ h p dz</span> = ∫ z h p dz − c·<span class="hl">0</span></div>
+<div class="scene">
+  <div class="paper"><canvas id="c4" width="800" height="460"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p4">Play</button></div>
+    <label>Constant c <span class="v" id="v4c">-1.50</span><input type="range" id="cc4" min="-3" max="3" step="0.01" value="-1.5"></label>
+    <label>Direction h <select id="h4"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro4"></div>
+    <div class="note">Try c far from the data: the product grows huge and lopsided, and the area still doesn't move. The cancellation is exact because ∫ h p = 0 is exact.</div>
+  </div>
+</div>
+
+<!-- MOVE 5 -->
+<div class="eyebrow">Move 5</div>
+<h2>Choose c = ψ(P). The thing multiplying h is now ϕ(z) = z − ψ(P)</h2>
+<p>Any c works, so pick the one that makes the multiplier mean zero: c = ψ(P). Then the slope is ∫ ϕ h p dz = E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). On a grid this is a dot product: the vector of ϕ values, times the vector of h values, times the weights p, summed. The scene shows the three rows of bars, their elementwise product, and the sum, next to the slope of ψ(P<sub>ε</sub>) that it equals.</p>
+<div class="eq">dψ/dε = Σᵢ ϕ(zᵢ) · h(zᵢ) · p(zᵢ) dz  =  ⟨ϕ, h⟩_P</div>
+<div class="scene">
+  <div class="paper"><canvas id="c5" width="800" height="520"></canvas><div class="cap" id="cap5"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p5">Play</button></div>
+    <label>Scrub <span class="v" id="v5">0.00</span><input type="range" id="t5" min="0" max="1" step="0.002" value="0"></label>
+    <label>Direction h <select id="h5"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro5"></div>
+    <div class="note">Only 24 bins are drawn so you can see each product; the readout uses the fine grid. Same number either way, up to discretization.</div>
+  </div>
+</div>
+
+<!-- MOVE 6 -->
+<div class="eyebrow">Move 6</div>
+<h2>Why this ϕ and not another: it must work for every h, and have mean zero</h2>
+<p>Could a different function ϕ̃ give the same slope? Suppose ϕ̃ = ϕ + g. Then ∫ ϕ̃ h p − ∫ ϕ h p = ∫ g h p. For this to vanish for every mean-zero h, g has to be constant (a constant is orthogonal to all mean-zero h, and nothing else is). And the convention that influence functions have mean zero pins the constant to 0. So in the nonparametric model ϕ(z) = z − ψ(P) is the only influence function of the mean: the efficient one, with variance Var(Z). Pick a g and watch ∫ g h p fail to vanish for some h, unless g is constant.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c6" width="800" height="400"></canvas><div class="cap" id="cap6"></div></div>
+  <div class="ctl">
+    <label>Perturbation g <select id="g6"><option value="const">constant (g = 0.8)</option><option value="lin" selected>linear (g = 0.5 z)</option><option value="bump">bump (g = exp(−(z−1)²))</option><option value="sq">quadratic (g = 0.3 z²)</option></select></label>
+    <div class="readout" id="ro6"></div>
+    <div class="note">In a smaller model (fewer allowed h) the test is weaker, so more g pass it and there are several influence functions; the efficient one is the projection onto the allowed directions. In the nonparametric model the test is as strong as it gets and ϕ is unique.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>Differentiating the mean along a path with score h gives ∫ z h p, and since scores have mean zero I can center z at the mean for free: dψ/dε = E[(Z − μ) h]. That identifies ϕ(z) = z − μ as the gradient; it's unique in the nonparametric model because it has to reproduce the derivative for every mean-zero h.</div>
+</div>
+
+<script>
+(function(){
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const F='"IBM Plex Sans",sans-serif',FM='"IBM Plex Mono",monospace',FS='"Fraunces",Georgia,serif';
+let C={};function readC(){C={p:css('--p'),or:css('--or'),teal:css('--teal'),green:css('--green'),purple:css('--purple'),red:css('--red'),pen:css('--pen'),grid:css('--grid'),muted:css('--muted'),paper:css('--paper'),soft:css('--soft')};}
+readC();
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),ease=t=>t<0?0:t>1?1:t*t*(3-2*t),seg=(t,a,b)=>ease((t-a)/(b-a));
+function line(g,x1,y1,x2,y2,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();g.setLineDash([]);}
+function poly(g,pts,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.setLineDash([]);}
+function rect(g,x,y,w,h,col,a){g.fillStyle=col;g.globalAlpha=a==null?1:a;g.fillRect(x,y,w,h);g.globalAlpha=1;}
+function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();if(ring){g.strokeStyle=C.paper;g.lineWidth=2;g.stroke();}}
+function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
+function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
+function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
+function axis(g,L,R,y,col){line(g,L,y,R,y,col,1.2);}
+// numerics
+const N=481,ZL=-4,ZR=4,dz=(ZR-ZL)/(N-1);const Z=new Float64Array(N);for(let i=0;i<N;i++)Z[i]=ZL+i*dz;
+const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+const P0=new Float64Array(N);for(let i=0;i<N;i++)P0[i]=0.55*nrm(Z[i],-0.4,0.7)+0.45*nrm(Z[i],1.6,0.8);
+const MU=(()=>{let s=0;for(let i=0;i<N;i++)s+=Z[i]*P0[i]*dz;return s;})();
+const pAt=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);
+function hFn(kind){let raw=z=>kind==='tilt'?(z-MU):kind==='bump'?Math.exp(-Math.pow(z-1,2)):kind==='wave'?Math.sin(1.6*z):Math.pow(z-MU,2);
+  let m=0,mass=0,mx=0;for(let i=0;i<N;i++){m+=raw(Z[i])*P0[i]*dz;mass+=P0[i]*dz;}m/=mass;for(let i=0;i<N;i++)mx=Math.max(mx,Math.abs(raw(Z[i])-m));const s=1.4/mx;return z=>(raw(z)-m)*s;}
+const integ=f=>{let s=0;for(let i=0;i<N;i++)s+=f(Z[i])*dz;return s;};
+function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
+  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}if(opts&&opts.onT)opts.onT(S.t);S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
+  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
+  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const f=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=f;el.onchange=f;if(lab)lab.textContent=fmt(+el.value);}
+// bins helper
+function bins(width){const out=[];for(let z=-3.5+width/2;z<3.5;z+=width)out.push(z);return out;}
+
+// ================= MOVE 1 =================
+const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);const bw=+document.getElementById('d1').value;const B=bins(bw);
+  const L=60,R=540,T=40,Bt=260;const xs=z=>L+(R-L)*(z+4)/8,ys=v=>Bt-(Bt-T)*v/0.5,xw=bw*(R-L)/8;
+  axis(g,L,R,Bt,C.pen);for(const z of [-3,-2,-1,0,1,2,3])txt(g,z,xs(z),Bt+14,C.muted,11,'center',FM);
+  const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(P0[i])]);poly(g,pts,C.muted,1.4,[4,3]);
+  const k=Math.floor(seg(t,0,0.85)*B.length);let run=0;
+  B.forEach((z,i)=>{const m=pAt(z)*bw;const on=i<k;rect(g,xs(z)-xw/2+1,ys(pAt(z)),xw-2,Bt-ys(pAt(z)),on?(z<0?C.red:C.green):C.grid,on?0.55:0.6);if(on)run+=z*m;});
+  txt(g,'p(z) · dz  = mass in each bin',L+10,T-14,C.pen,13,'left',FS,true);
+  if(k>0&&k<=B.length){const z=B[k-1];txt(g,`bin at z = ${z.toFixed(2)}:  z × mass = ${z.toFixed(2)} × ${(pAt(z)*bw).toFixed(3)} = ${(z*pAt(z)*bw).toFixed(4)}`,L,Bt+40,C.pen,12.5,'left',FM);}
+  // running sum on right
+  const RL=600,RR=770,RT=60,RB=260;line(g,RL,RT,RL,RB,C.pen,1.2);txt(g,'running sum',RL+8,RT-14,C.pen,13,'left',FS,true);
+  const ry=v=>RB-(RB-RT)*(v+0.4)/1.4;line(g,RL-4,ry(0),RL+4,ry(0),C.pen,1);txt(g,'0',RL-10,ry(0),C.muted,11,'right',FM);
+  const barCol=run<0?C.red:C.green;rect(g,RL+20,Math.min(ry(0),ry(run)),60,Math.abs(ry(0)-ry(run)),barCol,0.55);txt(g,run.toFixed(3),RL+50,ry(run)+(run<0?14:-12),C.pen,12.5,'center',FM);
+  line(g,RL+10,ry(MU),RR,ry(MU),C.p,1.2,[4,3]);txt(g,'ψ(P) = '+MU.toFixed(3),RL+90,ry(MU),C.p,12,'left',FM);
+  // balance point marker on axis
+  if(k>=B.length){line(g,xs(MU),Bt,xs(MU),Bt-16,C.p,3);txt(g,'ψ(P): balance point',xs(MU),Bt+30,C.p,12.5,'center',FS,true);}
+  document.getElementById('ro1').innerHTML=`<span class="k">bins</span><span>${B.length}</span><span class="k">Σ z·p(z)·dz so far</span><span>${run.toFixed(4)}</span><span class="k">exact ψ(P)</span><span>${MU.toFixed(4)}</span>`;
+  document.getElementById('cap1').textContent=k<B.length?'Adding one bin at a time. Red bins pull the sum down (negative position), green bins pull it up.':'All bins added: the sum is the mean, the point where the density would balance.';
+});
+bind('d1','v1d',v=>v.toFixed(2),()=>S1.draw());
+
+// ================= MOVE 2 =================
+const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e2').value,h=hFn(document.getElementById('h2').value);const bw=0.25,B=bins(bw);
+  const L=60,R=540,T=40,Bt=260;const xs=z=>L+(R-L)*(z+4)/8,ys=v=>Bt-(Bt-T)*v/0.5,xw=bw*(R-L)/8;
+  axis(g,L,R,Bt,C.pen);for(const z of [-3,-2,-1,0,1,2,3])txt(g,z,xs(z),Bt+14,C.muted,11,'center',FM);
+  let me=0,mass=0;B.forEach(z=>{const p0=pAt(z),pe=p0*(1+e*h(z));rect(g,xs(z)-xw/2+1,ys(p0),xw-2,Bt-ys(p0),C.grid,0.9);
+    const col=pe>p0?C.green:C.red;rect(g,xs(z)-xw/2+1,Math.min(ys(p0),ys(pe)),xw-2,Math.abs(ys(p0)-ys(pe)),col,0.6);line(g,xs(z)-xw/2+1,ys(pe),xs(z)+xw/2-1,ys(pe),C.p,2);me+=z*pe*bw;mass+=pe*bw;});
+  me/=mass;
+  txt(g,'grey: old mass p·dz.  blue tops: new mass p(1+εh)·dz',L+10,T-14,C.pen,12.5,'left',FS,true);
+  line(g,xs(MU),Bt,xs(MU),Bt-18,C.muted,3);txt(g,'ψ(P)',xs(MU)-6,Bt+32,C.muted,12.5,'right',FS,true);line(g,xs(me),Bt,xs(me),Bt-24,C.p,3);txt(g,'ψ(P_ε)',xs(me)+6,Bt+32,C.p,12.5,'left',FS,true);
+  if(Math.abs(me-MU)>0.01)arrow(g,xs(MU),Bt-30,xs(me),Bt-30,C.or,1.8);
+  // h panel
+  const hT=322,hB=392,mid=(hT+hB)/2;line(g,L,mid,R,mid,C.grid,1);const hp=[];for(let i=0;i<N;i++)hp.push([xs(Z[i]),mid-h(Z[i])*24]);poly(g,hp,C.green,1.8);txt(g,'h(z): where mass is added (+) or removed (−)',L+10,hT-2,C.green,12.5,'left',FS,true);
+  // right: table of a few bins
+  const RL=590;txt(g,'bin z     old mass   new mass',RL,50,C.muted,11.5,'left',FM);let row=0;for(const z of [-1.5,-0.5,0.5,1.5]){const p0=pAt(z)*bw,pe=p0*(1+e*h(z));txt(g,`${z>=0?' ':''}${z.toFixed(1)}      ${p0.toFixed(3)}     ${pe.toFixed(3)}`,RL,74+row*20,pe>p0?C.green:C.red,12,'left',FM);row++;}
+  txt(g,`ψ(P_ε) = Σ z · new mass`,RL,180,C.pen,12.5,'left',FM);txt(g,`= ${me.toFixed(4)}`,RL,200,C.p,14,'left',FM);txt(g,`ψ(P) = ${MU.toFixed(4)}`,RL,224,C.muted,12.5,'left',FM);
+  document.getElementById('ro2').innerHTML=`<span class="k">ε</span><span>${e.toFixed(2)}</span><span class="k">ψ(P_ε)</span><span>${me.toFixed(4)}</span><span class="k">ψ(P_ε) − ψ(P)</span><span>${(me-MU).toFixed(4)}</span>`;
+  document.getElementById('cap2').textContent='Same bins, same positions, new masses. The balance point moves toward where mass was added.';
+},{onT:t=>{const el=document.getElementById('e2');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v2e').textContent=(+el.value).toFixed(2);}});
+bind('e2','v2e',v=>v.toFixed(2),()=>S2.draw());bind('h2',null,v=>v,()=>S2.draw());
+
+// ================= MOVE 3 =================
+const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e3').value,h=hFn(document.getElementById('h3').value);const bw=0.25,B=bins(bw);
+  const L=60,R=540,xs=z=>L+(R-L)*(z+4)/8,xw=bw*(R-L)/8;
+  // three stacked strips: z*p (old), eps*z*h*p (new), total
+  const strips=[['old part:  z · p(z) · dz',z=>z*pAt(z)*bw,C.or,70],['ε × new part:  ε · z · h(z) · p(z) · dz',z=>e*z*h(z)*pAt(z)*bw,C.purple,200],['total:  z · p(z)(1+εh(z)) · dz',z=>z*pAt(z)*(1+e*h(z))*bw,C.p,330]];
+  const sc=650;let sums=[0,0,0];
+  strips.forEach(([lab,f,col,y],k)=>{const mid=y+40;line(g,L,mid,R,mid,C.grid,1);txt(g,lab,L,y,col,13,'left',FS,true);B.forEach(z=>{const v=f(z);sums[k]+=v;rect(g,xs(z)-xw/2+1,Math.min(mid,mid-v*sc),xw-2,Math.abs(v*sc),col,0.5);});
+    txt(g,`Σ = ${sums[k].toFixed(4)}`,R+12,mid,col,12.5,'left',FM);});
+  // plus and equals signs
+  txt(g,'+',R+40,155,C.pen,22,'center',FS);txt(g,'=',R+40,285,C.pen,22,'center',FS);
+  // right: line in eps
+  const RL=640,RR=770,RT=60,RB=200;line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'ψ(P_ε)',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
+  let slope=0;for(let i=0;i<N;i++)slope+=Z[i]*h(Z[i])*P0[i]*dz;const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-MU)/1.0);
+  line(g,ex(-0.5),ey(MU-0.5*slope),ex(0.5),ey(MU+0.5*slope),C.p,2);dot(g,ex(0),ey(MU),C.pen,4,true);dot(g,ex(e),ey(MU+e*slope),C.or,6,true);
+  txt(g,`slope = ∫ z h p = ${slope.toFixed(3)}`,RL,RB+18,C.purple,12,'left',FM);txt(g,'a straight line in ε',RL,RB+36,C.muted,11.5,'left');
+  document.getElementById('ro3').innerHTML=`<span class="k">Σ old</span><span>${sums[0].toFixed(4)}  (= ψ(P))</span><span class="k">Σ ε·new</span><span>${sums[1].toFixed(4)}</span><span class="k">Σ total</span><span>${sums[2].toFixed(4)}</span><span class="k">∫ z h p (slope)</span><span>${slope.toFixed(4)}</span>`;
+  document.getElementById('cap3').textContent='Bin by bin, orange + purple = blue. The purple strip is ε times a shape that does not depend on ε, so its sum is ε times a fixed slope.';
+},{onT:t=>{const el=document.getElementById('e3');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v3e').textContent=(+el.value).toFixed(2);}});
+bind('e3','v3e',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>S3.draw());
+
+// ================= MOVE 4 =================
+const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('cc4').value,h=hFn(document.getElementById('h4').value);
+  const L=60,R=540,xs=z=>L+(R-L)*(z+4)/8;
+  const T1=40,B1=150,m1=(T1+B1)/2;txt(g,'(z − c) · h(z) · p(z)',L,T1-14,C.pen,13,'left',FS,true);line(g,L,m1,R,m1,C.grid,1);
+  const X=[],Y=[];let A=0;for(let i=0;i<N;i++){const v=(Z[i]-c)*h(Z[i])*P0[i];A+=v*dz;X.push(xs(Z[i]));Y.push(m1-v*70);}
+  g.fillStyle=C.green;g.globalAlpha=.4;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Math.min(Y[i],m1)):g.moveTo(x,Math.min(Y[i],m1)));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m1);g.closePath();g.fill();
+  g.fillStyle=C.red;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Math.max(Y[i],m1)):g.moveTo(x,Math.max(Y[i],m1)));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m1);g.closePath();g.fill();g.globalAlpha=1;poly(g,X.map((x,i)=>[x,Y[i]]),C.pen,1.2);
+  line(g,xs(c),T1,xs(c),B1,C.or,1.4,[4,3]);txt(g,`c = ${c.toFixed(2)}`,xs(c),B1+12,C.or,12,'center',FM);
+  // decomposition strips
+  const T2=200,B2=290,m2=(T2+B2)/2;txt(g,'= z·h·p   (the slope integrand, fixed)',L,T2-14,C.pen,13,'left',FS,true);line(g,L,m2,R,m2,C.grid,1);
+  let A1=0;const Y1=[];for(let i=0;i<N;i++){const v=Z[i]*h(Z[i])*P0[i];A1+=v*dz;Y1.push(m2-v*70);}poly(g,X.map((x,i)=>[x,Y1[i]]),C.purple,1.8);
+  const T3=330,B3=420,m3=(T3+B3)/2;txt(g,'− c · h·p   (area exactly 0, whatever c)',L,T3-14,C.pen,13,'left',FS,true);line(g,L,m3,R,m3,C.grid,1);
+  let A2=0;const Y2=[];for(let i=0;i<N;i++){const v=-c*h(Z[i])*P0[i];A2+=v*dz;Y2.push(m3-v*70);}
+  g.fillStyle=C.or;g.globalAlpha=.3;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Y2[i]):g.moveTo(x,Y2[i]));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m3);g.closePath();g.fill();g.globalAlpha=1;poly(g,X.map((x,i)=>[x,Y2[i]]),C.or,1.4);
+  // right readouts
+  const RL=590;txt(g,'signed area',RL,60,C.muted,12,'left');txt(g,A.toFixed(4),RL,84,C.pen,20,'left',FM);txt(g,'(does not move as c moves)',RL,108,C.muted,11.5,'left');
+  txt(g,'∫ z h p',RL,235,C.purple,12,'left',FM);txt(g,A1.toFixed(4),RL,255,C.purple,16,'left',FM);
+  txt(g,'− c · ∫ h p',RL,360,C.or,12,'left',FM);txt(g,`= −(${c.toFixed(2)}) × ${(A2/(-c||1)).toFixed(5)}`,RL,380,C.or,12,'left',FM);txt(g,`= ${A2.toFixed(5)}`,RL,400,C.or,16,'left',FM);
+  document.getElementById('ro4').innerHTML=`<span class="k">∫(z−c)hp</span><span>${A.toFixed(5)}</span><span class="k">∫ z h p</span><span>${A1.toFixed(5)}</span><span class="k">c·∫hp</span><span>${(-A2).toFixed(6)}</span>`;
+  document.getElementById('cap4').textContent='Top: the product changes shape as c moves. Bottom: the part that depends on c is c times the score-times-density, whose area is always zero. So the top area equals the middle area, for any c.';
+},{onT:t=>{const el=document.getElementById('cc4');el.value=(Math.sin(t*6.283)*3).toFixed(2);document.getElementById('v4c').textContent=(+el.value).toFixed(2);}});
+bind('cc4','v4c',v=>v.toFixed(2),()=>S4.draw());bind('h4',null,v=>v,()=>S4.draw());
+
+// ================= MOVE 5 =================
+const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const h=hFn(document.getElementById('h5').value);const bw=0.3,B=bins(bw);
+  const L=60,R=520,xs=z=>L+(R-L)*(z+4)/8,xw=bw*(R-L)/8;
+  const rows=[['ϕ(zᵢ) = zᵢ − ψ',z=>z-MU,C.purple,40,11],['h(zᵢ)',h,C.green,140,22],['p(zᵢ)·dz  (weights)',z=>pAt(z)*bw,C.muted,240,300],['product  ϕ·h·p·dz',z=>(z-MU)*h(z)*pAt(z)*bw,C.or,340,600]];
+  const k=Math.floor(seg(t,0,0.8)*B.length);let sum=0;
+  rows.forEach(([lab,f,col,y,sc],r)=>{const mid=y+40;line(g,L,mid,R,mid,C.grid,1);txt(g,lab,L,y,col,12.5,'left',FS,true);B.forEach((z,i)=>{const v=f(z);const on=i<k||r<3;rect(g,xs(z)-xw/2+1,Math.min(mid,mid-v*sc),xw-2,Math.abs(v*sc),on?col:C.grid,on?0.55:0.5);if(r===3&&i<k)sum+=v;});});
+  for(let i=0;i<k&&i<B.length;i++){/* highlight column */}
+  if(k>0&&k<=B.length){const z=B[k-1];line(g,xs(z),30,xs(z),440,C.or,1,[3,3]);txt(g,`zᵢ = ${z.toFixed(2)}:  (${(z-MU).toFixed(2)}) × (${h(z).toFixed(2)}) × ${(pAt(z)*bw).toFixed(3)} = ${((z-MU)*h(z)*pAt(z)*bw).toFixed(4)}`,L,470,C.pen,12.5,'left',FM);}
+  // right: running sum and slope check
+  const RL=580,RR=770;txt(g,'Σ products so far',RL,50,C.muted,12,'left');txt(g,sum.toFixed(4),RL,74,C.or,20,'left',FM);
+  let ex=0;for(let i=0;i<N;i++)ex+=(Z[i]-MU)*h(Z[i])*P0[i]*dz;txt(g,'fine-grid E[ϕh]',RL,110,C.muted,12,'left');txt(g,ex.toFixed(4),RL,132,C.purple,16,'left',FM);
+  // psi(eps) line with slope
+  const T=190,Bt=330;line(g,RL,Bt,RR,Bt,C.pen,1.2);line(g,RL,Bt,RL,T,C.pen,1.2);txt(g,'ψ(P_ε)',RL,T-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,Bt,C.pen,13,'left',FS,true);
+  const exx=v=>RL+(RR-RL)*(v+0.5),eyy=v=>Bt-(Bt-T)*(0.5+(v-MU)/1.0);line(g,exx(-0.5),eyy(MU-0.5*ex),exx(0.5),eyy(MU+0.5*ex),C.p,2);dot(g,exx(0),eyy(MU),C.pen,4,true);
+  // slope triangle
+  line(g,exx(0),eyy(MU),exx(0.4),eyy(MU),C.purple,1.2,[3,3]);line(g,exx(0.4),eyy(MU),exx(0.4),eyy(MU+0.4*ex),C.purple,1.2,[3,3]);txt(g,'slope',exx(0.42),eyy(MU+0.2*ex),C.purple,11.5,'left',FS,true);
+  txt(g,'the same number two ways:',RL,360,C.muted,11.5,'left');txt(g,'a dot product of three vectors,',RL,376,C.muted,11.5,'left');txt(g,'and the slope of the parameter.',RL,392,C.muted,11.5,'left');
+  document.getElementById('ro5').innerHTML=`<span class="k">Σ ϕ·h·p·dz (24 bins)</span><span>${sum.toFixed(4)}</span><span class="k">E[ϕh] (fine grid)</span><span>${ex.toFixed(4)}</span><span class="k">Var(ϕ) = E[ϕ²]</span><span>${(()=>{let v=0;for(let i=0;i<N;i++)v+=(Z[i]-MU)**2*P0[i]*dz;return v.toFixed(3)})()}</span>`;
+  document.getElementById('cap5').textContent=k<B.length?'Column by column: ϕ times h times weight, added to the running sum.':'The sum of the products is the derivative of the mean along this path. That is what ⟨ϕ, h⟩ means.';
+});
+bind('h5',null,v=>v,()=>S5.draw());
+
+// ================= MOVE 6 =================
+const S6=scene(6,(g,W,H)=>{clear(g,W,H);const kind=document.getElementById('g6').value;const gf=z=>kind==='const'?0.8:kind==='lin'?0.5*z:kind==='bump'?Math.exp(-Math.pow(z-1,2)):0.3*z*z;
+  const L=60,R=440,xs=z=>L+(R-L)*(z+4)/8;const T=40,B=200,mid=(T+B)/2;line(g,L,mid,R,mid,C.grid,1);
+  const ph=[],gp=[];for(let i=0;i<N;i++){ph.push([xs(Z[i]),mid-(Z[i]-MU)*18]);gp.push([xs(Z[i]),mid-((Z[i]-MU)+gf(Z[i]))*18]);}poly(g,ph,C.purple,2.2);poly(g,gp,C.red,1.8,[5,4]);
+  txt(g,'ϕ = z − ψ (purple)   vs   ϕ̃ = ϕ + g (red dashed)',L,T-14,C.pen,13,'left',FS,true);
+  // test against the four h
+  const HN=['tilt','bump','wave','spread'];txt(g,'direction h      ∫ g h p     same slope?',480,50,C.muted,11.5,'left',FM);line(g,480,62,770,62,C.grid,1);let allzero=true;
+  HN.forEach((k,j)=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;const ok=Math.abs(s)<1e-3;if(!ok)allzero=false;txt(g,`${k.padEnd(10)}   ${s>=0?' ':''}${s.toFixed(4)}     ${ok?'yes':'no'}`,480,84+j*22,ok?C.green:C.red,12.5,'left',FM);});
+  txt(g,allzero?'g passes for every h: g is a constant.':'g fails for some h: ϕ̃ is not a gradient.',480,190,allzero?C.green:C.red,13,'left',FS,true);
+  // mean-zero test
+  let mg=0;for(let i=0;i<N;i++)mg+=((Z[i]-MU)+gf(Z[i]))*P0[i]*dz;txt(g,`E[ϕ̃] = ${mg.toFixed(3)}`,480,230,C.pen,12.5,'left',FM);txt(g,allzero?(Math.abs(mg)<1e-3?'and mean zero: ϕ̃ = ϕ.':'a valid gradient but not mean zero; centering it gives ϕ back.'):'',480,250,C.muted,11.5,'left');
+  // bottom: g h p for the worst h
+  const T2=240,B2=360,m2=(T2+B2)/2;line(g,L,m2,R,m2,C.grid,1);let worst='tilt',wv=0;HN.forEach(k=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;if(Math.abs(s)>Math.abs(wv)){wv=s;worst=k;}});const hw=hFn(worst);
+  const X=[],Y=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y.push(m2-gf(Z[i])*hw(Z[i])*P0[i]*260);}
+  g.fillStyle=wv>=0?C.green:C.red;g.globalAlpha=.35;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Y[i]):g.moveTo(x,Y[i]));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m2);g.closePath();g.fill();g.globalAlpha=1;poly(g,X.map((x,i)=>[x,Y[i]]),C.pen,1.2);
+  txt(g,`g · h · p  for h = ${worst}:  area ${wv.toFixed(4)}`,L,T2-12,C.pen,12.5,'left',FS,true);
+  document.getElementById('ro6').innerHTML=HN.map(k=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;return `<span class="k">∫ g h p (${k})</span><span>${s.toFixed(4)}</span>`;}).join('');
+  document.getElementById('cap6').textContent=allzero?'A constant g is orthogonal to every mean-zero h, so it changes no derivative. The mean-zero convention then removes it.':'This g changes the derivative along at least one allowed direction, so ϕ + g does not reproduce ψ\'s derivatives. It is not a gradient of the mean.';
+});
+bind('g6',null,v=>v,()=>S6.draw());
+
+function all(){readC();[S1,S2,S3,S4,S5,S6].forEach(s=>s.draw());}
+all();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script src="../shared/course.js"></script>
+</body>
+</html>

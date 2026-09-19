@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Causality: One-Step Estimator. An interactive lesson in semiparametric causal inference.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<title>One-Step Estimator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EEF2F5; --panel:#FFFFFF; --ink:#17232B; --muted:#5E6E7B; --rule:#CBD5DD;
+  --truth:#2F7D5B; --plug:#6E7F8D; --step:#3E4EA8; --rem:#C08A2E; --treated:#3E4EA8; --control:#B5502B;
+  --grid:#E1E7EC; --accent-soft:#E4E7F6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A20; --panel:#1C242C; --ink:#E6E9EC; --muted:#9AA8B4; --rule:#34414C;
+    --truth:#5FC496; --plug:#9DB0BF; --step:#8C9BF0; --rem:#E0B25A; --treated:#8C9BF0; --control:#E28A66;
+    --grid:#26303A; --accent-soft:#262E4A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A20; --panel:#1C242C; --ink:#E6E9EC; --muted:#9AA8B4; --rule:#34414C;
+  --truth:#5FC496; --plug:#9DB0BF; --step:#8C9BF0; --rem:#E0B25A; --treated:#8C9BF0; --control:#E28A66;
+  --grid:#26303A; --accent-soft:#262E4A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.55;padding:32px 20px 64px}
+.wrap{max-width:1080px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:38px;line-height:1.1;margin:0 0 8px;text-wrap:balance;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:62ch;margin:0 0 36px}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:24px;margin:48px 0 6px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{max-width:66ch;margin:0 0 12px}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:13.5px;background:var(--panel);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:12px 0 18px;overflow-x:auto;white-space:nowrap}
+.eq b{font-weight:500}
+.act{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start;margin-top:16px}
+@media(max-width:820px){.act{grid-template-columns:1fr}}
+.stage{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:12px;overflow:hidden}
+canvas{width:100%;height:auto;display:block;max-width:100%}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--step)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer}
+button.primary{background:var(--step);border-color:var(--step);color:#fff}
+button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
+.readout .k{color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:14px 0}
+.caption{font-size:13px;color:var(--muted);margin-top:8px;min-height:2.4em}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:8px}
+@media (prefers-reduced-motion: reduce){ .anim{transition:none} }
+</style>
+<link rel="stylesheet" href="../shared/course.css">
+</head>
+<body data-lesson="one-step-estimator">
+<div class="wrap">
+<div class="eyebrow">Semiparametric efficiency, drawn</div>
+<h1>The one-step estimator, as a shape</h1>
+<p class="lede">Three acts. First the geometry: a plug-in is a point on a curve, the influence function is the tangent, and one Newton step lands you within the curvature of the truth. Then the same thing on simulated data, one operation at a time. Then 300 repeats, so you can see the bias go and the width stay.</p>
+
+<!-- ============ ACT 1 ============ -->
+<div class="eyebrow">Act 1</div>
+<h2>The curve ψ(P<sub>ε</sub>) along the path from your estimate to the truth</h2>
+<p>Put the fitted distribution P̂ at ε = 0 and the true P at ε = 1, and walk the straight line between them, P<sub>ε</sub> = P̂ + ε(P − P̂). The parameter traced along that walk is a curve. Its value at the left end is the plug-in; at the right end, the truth. The tangent at the left end has slope P D(P̂) = ∫ D(P̂) d(P − P̂), the pathwise derivative in the direction of the truth; the plug-in's first-order bias is its negative. Extending the tangent to ε = 1 is the one-step estimator. What the tangent misses is the curvature: the second-order remainder R<sub>2</sub>.</p>
+<div class="eq">ψ(P̂) − ψ(P) = −P D(P̂) + R<sub>2</sub>(P̂, P)     ⇒     <b>ψ<sub>one-step</sub> = ψ(P̂) + P<sub>n</sub> D(P̂)</b>  ≈  ψ(P) + R<sub>2</sub> + (P<sub>n</sub> − P) D</div>
+<div class="act">
+  <div class="stage">
+    <canvas id="c1" width="760" height="420"></canvas>
+    <div class="caption" id="cap1"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--plug)"></i>plug-in ψ(P̂)</span>
+      <span><i class="sw" style="background:var(--step)"></i>tangent → one-step</span>
+      <span><i class="sw" style="background:var(--rem)"></i>remainder R<sub>2</sub></span>
+      <span><i class="sw" style="background:var(--truth)"></i>truth ψ(P)</span>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="play1">Play</button><button id="reset1">Reset</button></div>
+    <label>Nuisance error δ = ‖P̂ − P‖ <span class="v" id="dv">0.60</span>
+      <input type="range" id="delta" min="0.05" max="1" step="0.01" value="0.6"></label>
+    <label>Sample size n (sets the size of the (Pₙ − P)D noise) <span class="v" id="nv">400</span>
+      <input type="range" id="n1" min="50" max="5000" step="50" value="400"></label>
+    <div class="readout" id="ro1"></div>
+    <div class="note">Drag δ down and watch: the plug-in bias (first order) shrinks like δ, the remainder shrinks like δ². That gap between "like δ" and "like δ²" is the whole reason nuisances at n<sup>−1/4</sup> give a target at n<sup>−1/2</sup>.</div>
+  </div>
+</div>
+
+<!-- ============ ACT 2 ============ -->
+<div class="eyebrow">Act 2</div>
+<h2>One step on data: g-computation, then the correction</h2>
+<p>Simulated cohort. Treatment is more likely for higher X, the outcome is nonlinear in X, and the true average treatment effect is exactly 2. The outcome model is an S-learner: one linear regression of Y on (X, A). The slider shrinks its treatment coefficient toward zero, the way a regularized learner would. The propensity model can be made anywhere from correct to useless. Step through and watch where the correction comes from: it is the inverse-propensity-weighted average of the outcome model's own residuals.</p>
+<div class="eq">ψ̂<sub>one-step</sub> = P<sub>n</sub>[ μ̂<sub>1</sub>(X) − μ̂<sub>0</sub>(X) ]  +  P<sub>n</sub>[ A/π̂(X) · (Y − μ̂<sub>1</sub>(X))  −  (1−A)/(1−π̂(X)) · (Y − μ̂<sub>0</sub>(X)) ]</div>
+<div class="predict" data-options="Toward the truth, by about the size of the bias|Away from the truth|It doesn't move; the correction averages to zero" data-answer="0" data-hint="The correction PₙD(P̂) estimates −(plug-in bias) up to second order, so it moves the estimate most of the way back.">The S-learner plug-in is below the truth. When you add the correction PₙD(P̂), which way does the estimate move?</div>
+<div class="act">
+  <div class="stage">
+    <canvas id="c2" width="760" height="520"></canvas>
+    <div class="caption" id="cap2"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--treated)"></i>treated (A=1)</span>
+      <span><i class="sw" style="background:var(--control)"></i>control (A=0)</span>
+      <span><i class="sw" style="background:var(--plug)"></i>plug-in</span>
+      <span><i class="sw" style="background:var(--step)"></i>one-step</span>
+      <span><i class="sw" style="background:var(--truth)"></i>truth = 2</span>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="step2">Next step</button><button id="play2">Play all</button><button id="reset2">Reset</button><button id="new2">New sample</button></div>
+    <label>Shrinkage on the treatment coefficient λ <span class="v" id="lv">0.50</span>
+      <input type="range" id="lam" min="0" max="1" step="0.05" value="0.5"></label>
+    <label>Propensity fidelity κ (1 = correct, 0 = constant ½) <span class="v" id="kv">1.00</span>
+      <input type="range" id="kap" min="0" max="1" step="0.05" value="1"></label>
+    <label>Sample size n <span class="v" id="n2v">400</span>
+      <input type="range" id="n2" min="100" max="2000" step="100" value="400"></label>
+    <div class="readout" id="ro2"></div>
+    <div class="note">Double robustness, live: set λ = 0 (outcome model nearly right) and κ = 0 (propensity useless); the correction is tiny and the one-step is still fine. Set λ = 1 and κ = 1: the outcome model is badly wrong and the weights fix it. Set both wrong and nothing saves you.</div>
+  </div>
+</div>
+
+<!-- ============ ACT 3 ============ -->
+<div class="eyebrow">Act 3</div>
+<h2>Repeat it 300 times</h2>
+<p>Same generator, same sliders as Act 2, fresh sample each time. The plug-in's distribution sits where its bias puts it; the one-step's sits on the truth with about the same spread. That is what "removing first-order bias without paying in variance" looks like. Below the histogram, the empirical SE of the one-step is compared to the efficiency bound √(Var D / n), so you can see it is not just unbiased but efficient.</p>
+<div class="act">
+  <div class="stage">
+    <canvas id="c3" width="760" height="360"></canvas>
+    <div class="caption" id="cap3"></div>
+  </div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="run3">Run 300 samples</button></div>
+    <div class="readout" id="ro3"></div>
+    <div class="note">Try n = 100 vs n = 2000 with λ = 0.5, κ = 1. The plug-in's bias does not move with n. The one-step's spread narrows like 1/√n around the truth.</div>
+  </div>
+</div>
+
+<h2>What to say when Alec asks</h2>
+<p>"The plug-in sits on a curve; its first-order bias is minus the mean of the influence function at the estimate, taken under the truth. I can't compute that mean, but I can estimate it with the sample mean, so I add it back: that is the one-step, one Newton iterate. What's left is the empirical-process term, which is order n<sup>−1/2</sup> and gives the efficient asymptotic variance, plus a second-order remainder that is a product of the nuisance errors. For the ATE that remainder is ∫(π̂ − π)(μ̂ − μ)/π̂ dP, so n<sup>−1/4</sup> nuisances suffice, and if either one is exactly right the remainder vanishes, which is double robustness. TMLE removes the same first-order term by fluctuating P̂ until the influence-function equation is solved exactly, so it lands on the same expansion as a substitution estimator."</p>
+</div>
+
+<script>
+(function(){
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = (x,d=3)=> (x>=0?' ':'') + x.toFixed(d);
+
+// ---------- shared math ----------
+function expit(z){return 1/(1+Math.exp(-z));}
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+// Data generator. ATE = 2 exactly (E[0.4 X] = 0 for X ~ U(-2,2)).
+function gen(n){
+  const X=new Float64Array(n),A=new Uint8Array(n),Y=new Float64Array(n),PI=new Float64Array(n);
+  for(let i=0;i<n;i++){
+    const x=-2+4*Math.random(); X[i]=x;
+    const p=expit(0.9*x); PI[i]=p;
+    const a=Math.random()<p?1:0; A[i]=a;
+    Y[i]=0.5+x+0.6*x*x+a*(2+0.4*x)+0.8*randn();
+  }
+  return {X,A,Y,PI,n};
+}
+// OLS of Y on (1, X, A) -> [b0,b1,b2]
+function ols(d){
+  const n=d.n; let S=[[0,0,0],[0,0,0],[0,0,0]], r=[0,0,0];
+  for(let i=0;i<n;i++){const v=[1,d.X[i],d.A[i]];
+    for(let a=0;a<3;a++){r[a]+=v[a]*d.Y[i];for(let b=0;b<3;b++)S[a][b]+=v[a]*v[b];}}
+  // gaussian elimination
+  const M=S.map((row,i)=>[...row,r[i]]);
+  for(let c=0;c<3;c++){let p=c;for(let k=c+1;k<3;k++)if(Math.abs(M[k][c])>Math.abs(M[p][c]))p=k;[M[c],M[p]]=[M[p],M[c]];
+    for(let k=0;k<3;k++){if(k===c)continue;const f=M[k][c]/M[c][c];for(let j=c;j<4;j++)M[k][j]-=f*M[c][j];}}
+  return [M[0][3]/M[0][0],M[1][3]/M[1][1],M[2][3]/M[2][2]];
+}
+// Fit nuisances under the sliders and compute the pieces of the one-step.
+function estimate(d,lam,kap){
+  const b=ols(d); const bA=(1-lam)*b[2];
+  const mu=(x,a)=>b[0]+b[1]*x+bA*a;
+  const pih=x=>expit(0.9*kap*x);
+  let plug=0,corr=0,varD=0; const phi=new Float64Array(d.n);
+  for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];
+    const m1=mu(x,1),m0=mu(x,0),p=pih(x);
+    const c = a? (y-m1)/p : -(y-m0)/(1-p);
+    plug+=m1-m0; corr+=c; phi[i]=m1-m0+c;}
+  plug/=d.n;corr/=d.n; const os=plug+corr;
+  for(let i=0;i<d.n;i++)varD+=(phi[i]-os)**2; varD/=(d.n-1);
+  return {b,bA,mu,pih,plug,corr,os,se:Math.sqrt(varD/d.n)};
+}
+
+// ---------- ACT 1: the curve ----------
+const c1=document.getElementById('c1'),g1=c1.getContext('2d');
+const delta=document.getElementById('delta'),n1=document.getElementById('n1');
+let t1=0, raf1=null, noise1=0;
+function curveParams(){
+  const dl=+delta.value, n=+n1.value;
+  const truth=2.0, first=1.2*dl, rem=0.9*dl*dl;   // plug-in = truth - first - rem
+  const plug=truth-first-rem;
+  return {dl,n,truth,first,rem,plug,noise:noise1*1.1/Math.sqrt(n)};
+}
+function draw1(){
+  const P=curveParams(); const W=c1.width,H=c1.height;
+  const L=70,R=W-40,T=30,B=H-50;
+  g1.clearRect(0,0,W,H);
+  const ymin=0.9,ymax=2.35; const xs=e=>L+(R-L)*e, ys=v=>B-(B-T)*(v-ymin)/(ymax-ymin);
+  // grid
+  g1.strokeStyle=css('--grid');g1.lineWidth=1;
+  for(let v=1;v<=2.25;v+=0.25){g1.beginPath();g1.moveTo(L,ys(v));g1.lineTo(R,ys(v));g1.stroke();}
+  g1.fillStyle=css('--muted');g1.font='12px "IBM Plex Mono",monospace';g1.textAlign='right';
+  for(let v=1;v<=2.25;v+=0.25)g1.fillText(v.toFixed(2),L-8,ys(v)+4);
+  g1.textAlign='left';g1.fillText('ε = 0  (P̂, your fit)',xs(0),B+20);g1.textAlign='right';g1.fillText('ε = 1  (P, the truth)',xs(1),B+20);
+  g1.textAlign='center';g1.fillText('ψ(P̂ + ε(P − P̂))',(L+R)/2,B+38);
+  // truth line
+  g1.setLineDash([4,4]);g1.strokeStyle=css('--truth');g1.beginPath();g1.moveTo(L,ys(P.truth));g1.lineTo(R,ys(P.truth));g1.stroke();g1.setLineDash([]);
+  // curve: psi(e) = plug + first*e + rem*e^2
+  const psi=e=>P.plug+P.first*e+P.rem*e*e;
+  g1.strokeStyle=css('--ink');g1.lineWidth=2.2;g1.beginPath();
+  for(let k=0;k<=100;k++){const e=k/100;const x=xs(e),y=ys(psi(e));k?g1.lineTo(x,y):g1.moveTo(x,y);}g1.stroke();
+  // plug-in point
+  dot(g1,xs(0),ys(P.plug),css('--plug'),6);label(g1,'plug-in  ψ(P̂)',xs(0)+10,ys(P.plug)+18,css('--plug'),'left');
+  // tangent grows with t1 in [0,1]
+  const tEnd=Math.min(1,t1*1.6);
+  if(tEnd>0){g1.strokeStyle=css('--step');g1.lineWidth=2.2;g1.beginPath();g1.moveTo(xs(0),ys(P.plug));g1.lineTo(xs(tEnd),ys(P.plug+P.first*tEnd));g1.stroke();}
+  const osPop=P.plug+P.first; // population one-step (no noise)
+  if(t1>0.62){
+    dot(g1,xs(1),ys(osPop),css('--step'),6);
+    label(g1,'one-step = ψ(P̂) + Pₙ D(P̂)',xs(1)-12,ys(osPop)+18,css('--step'),'right');
+  }
+  if(t1>0.8){ // remainder arrow
+    arrow(g1,xs(1)+18,ys(osPop),xs(1)+18,ys(P.truth),css('--rem'));
+    label(g1,'R₂ ∝ δ²',xs(1)-12,(ys(osPop)+ys(P.truth))/2+4,css('--rem'),'right');
+  }
+  if(t1>0.95 && P.noise){ // sample noise
+    const osN=osPop+P.noise; dot(g1,xs(1)-6,ys(osN),css('--step'),4);
+    label(g1,'+ (Pₙ−P)D  ~ 1/√n',xs(1)-24,ys(osN)-8,css('--muted'),'right');
+  }
+  dot(g1,xs(1),ys(P.truth),css('--truth'),6);label(g1,'truth  ψ(P)',xs(1)-12,ys(P.truth)-12,css('--truth'),'right');
+  // first-order bias brace
+  if(t1>0.3){arrow(g1,xs(0)-26,ys(P.plug),xs(0)-26,ys(osPop),css('--plug'));label(g1,'+P D(P̂)',xs(0)-30,(ys(P.plug)+ys(osPop))/2+4,css('--plug'),'right');}
+  document.getElementById('ro1').innerHTML=
+    `<span class="k">plug-in bias</span><span>${fmt(P.plug-P.truth)}</span>
+     <span class="k">first order +PD(P̂)</span><span>${fmt(P.first)}   (∝ δ)</span>
+     <span class="k">remainder R₂</span><span>${fmt(-P.rem)}   (∝ δ²)</span>
+     <span class="k">one-step bias</span><span>${fmt(-P.rem)}</span>
+     <span class="k">noise sd ≈ 1/√n</span><span>${fmt(1.1/Math.sqrt(P.n))}</span>`;
+  document.getElementById('cap1').textContent = t1<0.3? 'The plug-in ψ(P̂) is a point on the curve, below the truth.' :
+    t1<0.62? 'The influence function gives the tangent at P̂. Its rise over the interval is P D(P̂); the plug-in bias is −P D(P̂).' :
+    t1<0.8? 'Extend the tangent to ε = 1: that value is the one-step estimator.' :
+    'What the tangent cannot see is the curvature, R₂. It is second order: shrink δ and it vanishes faster than the first-order term.';
+}
+function anim1(){t1=Math.min(1,t1+(reduce?1:0.012));draw1();if(t1<1)raf1=requestAnimationFrame(anim1);}
+document.getElementById('play1').onclick=()=>{cancelAnimationFrame(raf1);t1=0;noise1=randn();anim1();};
+document.getElementById('reset1').onclick=()=>{cancelAnimationFrame(raf1);t1=0;draw1();};
+[delta,n1].forEach(el=>el.oninput=()=>{document.getElementById('dv').textContent=(+delta.value).toFixed(2);document.getElementById('nv').textContent=n1.value;draw1();});
+
+// ---------- drawing helpers ----------
+function dot(g,x,y,col,r){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();}
+function label(g,s,x,y,col,al){g.fillStyle=col;g.font='13px "IBM Plex Sans",sans-serif';g.textAlign=al;g.fillText(s,x,y);}
+function arrow(g,x1,y1,x2,y2,col){g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-8*Math.cos(a-0.4),y2-8*Math.sin(a-0.4));g.lineTo(x2-8*Math.cos(a+0.4),y2-8*Math.sin(a+0.4));g.closePath();g.fill();}
+
+// ---------- ACT 2: one step on data ----------
+const c2=document.getElementById('c2'),g2=c2.getContext('2d');
+const lam=document.getElementById('lam'),kap=document.getElementById('kap'),n2=document.getElementById('n2');
+let D2=gen(+n2.value), E2=null, s2=0, raf2=null;
+const STEPS=['Here is the cohort. Treated patients are concentrated at high X, which is also where outcomes are high: confounding by indication.',
+ 'Fit the outcome model μ̂(x, a) and take P n[μ̂₁ − μ̂₀]. That is g-computation, the plug-in. The shrunk treatment coefficient makes it too small.',
+ 'The model leaves residuals, Y − μ̂(X, A). Those residuals are what the model got wrong, and they are not centered where the arms are imbalanced.',
+ 'Weight each residual by 1/π̂ (treated) or −1/(1−π̂) (control). Thick sticks are patients whose arm was unlikely: they stand in for the people we did not see.',
+ 'Average the weighted residuals. That single number is P n D(P̂), the correction. Add it to the plug-in: the one-step. Compare to the truth on the number line.'];
+function draw2(){
+  E2=estimate(D2,+lam.value,+kap.value);
+  const W=c2.width,H=c2.height; g2.clearRect(0,0,W,H);
+  const L=60,R=W-30,T=20,B=H-150; // scatter area
+  const ymin=-4,ymax=12; const xs=x=>L+(R-L)*(x+2)/4, ys=y=>B-(B-T)*(y-ymin)/(ymax-ymin);
+  g2.strokeStyle=css('--grid');g2.lineWidth=1;for(let v=-4;v<=12;v+=2){g2.beginPath();g2.moveTo(L,ys(v));g2.lineTo(R,ys(v));g2.stroke();}
+  g2.fillStyle=css('--muted');g2.font='12px "IBM Plex Mono",monospace';g2.textAlign='right';for(let v=-4;v<=12;v+=4)g2.fillText(v,L-8,ys(v)+4);
+  g2.textAlign='center';g2.fillText('X',(L+R)/2,B+16);
+  const tr=css('--treated'),co=css('--control');
+  // sticks (steps 2,3)
+  if(s2>=2){
+    for(let i=0;i<D2.n;i++){const x=D2.X[i],a=D2.A[i],y=D2.Y[i];const m=E2.mu(x,a);
+      let w=1; if(s2>=3){const p=E2.pih(x);w=a?1/p:1/(1-p);}
+      g2.strokeStyle=a?tr:co;g2.globalAlpha=s2>=3?0.35:0.5;g2.lineWidth=s2>=3?Math.min(6,0.6*w):1;
+      g2.beginPath();g2.moveTo(xs(x),ys(m));g2.lineTo(xs(x),ys(y));g2.stroke();}
+    g2.globalAlpha=1;
+  }
+  // points
+  for(let i=0;i<D2.n;i++){g2.fillStyle=D2.A[i]?tr:co;g2.globalAlpha=0.7;g2.beginPath();g2.arc(xs(D2.X[i]),ys(D2.Y[i]),2.4,0,6.283);g2.fill();}
+  g2.globalAlpha=1;
+  // fitted lines (step >=1)
+  if(s2>=1){
+    for(const a of [1,0]){g2.strokeStyle=a?tr:co;g2.lineWidth=2.4;g2.beginPath();
+      for(let k=0;k<=40;k++){const x=-2+4*k/40;const y=E2.mu(x,a);k?g2.lineTo(xs(x),ys(y)):g2.moveTo(xs(x),ys(y));}g2.stroke();}
+    label(g2,'μ̂₁(x)',xs(-1.9),ys(E2.mu(-1.9,1))-8,tr,'left');label(g2,'μ̂₀(x)',xs(-1.9),ys(E2.mu(-1.9,0))+16,co,'left');
+  }
+  // number line
+  const NL=B+60, nx=v=>L+(R-L)*(v-0)/4; // range 0..4
+  g2.strokeStyle=css('--rule');g2.lineWidth=1.5;g2.beginPath();g2.moveTo(L,NL);g2.lineTo(R,NL);g2.stroke();
+  g2.fillStyle=css('--muted');g2.textAlign='center';for(let v=0;v<=4;v+=0.5){g2.beginPath();g2.moveTo(nx(v),NL-4);g2.lineTo(nx(v),NL+4);g2.strokeStyle=css('--rule');g2.stroke();g2.fillText(v.toFixed(1),nx(v),NL+20);}
+  g2.fillText('average treatment effect',(L+R)/2,NL+40);
+  // truth marker
+  g2.strokeStyle=css('--truth');g2.lineWidth=2;g2.beginPath();g2.moveTo(nx(2),NL-22);g2.lineTo(nx(2),NL+8);g2.stroke();label(g2,'truth 2.00',nx(2),NL-28,css('--truth'),'center');
+  if(s2>=1){dot(g2,nx(E2.plug),NL,css('--plug'),7);label(g2,'plug-in '+E2.plug.toFixed(2),nx(E2.plug),NL-40+(Math.abs(E2.plug-2)<0.25?-14:0),css('--plug'),'center');}
+  if(s2>=4){arrow(g2,nx(E2.plug),NL-12,nx(E2.os),NL-12,css('--step'));dot(g2,nx(E2.os),NL,css('--step'),7);
+    label(g2,'one-step '+E2.os.toFixed(2)+'  (± '+(1.96*E2.se).toFixed(2)+')',nx(E2.os),NL+58,css('--step'),'center');
+    // CI bar
+    g2.strokeStyle=css('--step');g2.lineWidth=3;g2.beginPath();g2.moveTo(nx(E2.os-1.96*E2.se),NL+10);g2.lineTo(nx(E2.os+1.96*E2.se),NL+10);g2.stroke();}
+  document.getElementById('cap2').textContent=STEPS[s2];
+  document.getElementById('ro2').innerHTML=
+    `<span class="k">Â coefficient</span><span>${fmt(E2.b[2],2)} → ${fmt(E2.bA,2)} shrunk</span>
+     <span class="k">plug-in</span><span>${fmt(E2.plug)}</span>
+     <span class="k">correction PₙD</span><span>${s2>=4?fmt(E2.corr):'—'}</span>
+     <span class="k">one-step</span><span>${s2>=4?fmt(E2.os):'—'}</span>
+     <span class="k">SE (IF-based)</span><span>${s2>=4?fmt(E2.se):'—'}</span>
+     <span class="k">truth</span><span> 2.000</span>`;
+}
+document.getElementById('step2').onclick=()=>{s2=Math.min(4,s2+1);draw2();};
+document.getElementById('reset2').onclick=()=>{cancelAnimationFrame(raf2);s2=0;draw2();};
+document.getElementById('new2').onclick=()=>{D2=gen(+n2.value);draw2();};
+document.getElementById('play2').onclick=()=>{cancelAnimationFrame(raf2);s2=0;draw2();let k=0;const tick=()=>{k++;if(k%(reduce?1:110)===0){s2++;draw2();}if(s2<4)raf2=requestAnimationFrame(tick);};raf2=requestAnimationFrame(tick);};
+lam.oninput=()=>{document.getElementById('lv').textContent=(+lam.value).toFixed(2);draw2();};
+kap.oninput=()=>{document.getElementById('kv').textContent=(+kap.value).toFixed(2);draw2();};
+n2.oninput=()=>{document.getElementById('n2v').textContent=n2.value;D2=gen(+n2.value);draw2();};
+
+// ---------- ACT 3: repeat ----------
+const c3=document.getElementById('c3'),g3=c3.getContext('2d');
+let R3=null;
+function run3(){
+  const n=+n2.value,l=+lam.value,k=+kap.value; const P=[],O=[],SE=[];
+  for(let r=0;r<300;r++){const e=estimate(gen(n),l,k);P.push(e.plug);O.push(e.os);SE.push(e.se);}
+  const mean=a=>a.reduce((s,v)=>s+v,0)/a.length, sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1));};
+  // efficiency bound with true nuisances, estimated from one big sample
+  const big=gen(20000); let v=0,m=0; const phi=new Float64Array(big.n);
+  for(let i=0;i<big.n;i++){const x=big.X[i],a=big.A[i],y=big.Y[i];const m1=0.5+x+0.6*x*x+2+0.4*x,m0=0.5+x+0.6*x*x,p=big.PI[i];phi[i]=m1-m0+(a?(y-m1)/p:-(y-m0)/(1-p));m+=phi[i];}
+  m/=big.n;for(let i=0;i<big.n;i++)v+=(phi[i]-m)**2;v/=big.n;
+  R3={P,O,mP:mean(P),mO:mean(O),sP:sd(P),sO:sd(O),bound:Math.sqrt(v/n),mSE:mean(SE),n};
+  draw3();
+}
+function draw3(){
+  const W=c3.width,H=c3.height;g3.clearRect(0,0,W,H);
+  if(!R3){g3.fillStyle=css('--muted');g3.font='14px "IBM Plex Sans",sans-serif';g3.textAlign='center';g3.fillText('Press "Run 300 samples" to draw the two sampling distributions.',W/2,H/2);return;}
+  const L=50,R=W-30,T=30,B=H-40; const lo=0.6,hi=3.4,bins=56;
+  const hist=a=>{const h=new Array(bins).fill(0);for(const v of a){const b=Math.floor((v-lo)/(hi-lo)*bins);if(b>=0&&b<bins)h[b]++;}return h;};
+  const hP=hist(R3.P),hO=hist(R3.O);const mx=Math.max(...hP,...hO)||1;
+  const xs=v=>L+(R-L)*(v-lo)/(hi-lo), ys=c=>B-(B-T)*c/mx, bw=(R-L)/bins;
+  g3.strokeStyle=css('--grid');g3.beginPath();g3.moveTo(L,B);g3.lineTo(R,B);g3.stroke();
+  g3.fillStyle=css('--muted');g3.font='12px "IBM Plex Mono",monospace';g3.textAlign='center';for(let v=1;v<=3;v+=0.5)g3.fillText(v.toFixed(1),xs(v),B+18);
+  for(let b=0;b<bins;b++){
+    g3.globalAlpha=0.55;g3.fillStyle=css('--plug');g3.fillRect(xs(lo+b*(hi-lo)/bins)+1,ys(hP[b]),bw-2,B-ys(hP[b]));
+    g3.fillStyle=css('--step');g3.fillRect(xs(lo+b*(hi-lo)/bins)+1,ys(hO[b]),bw-2,B-ys(hO[b]));}
+  g3.globalAlpha=1;
+  g3.strokeStyle=css('--truth');g3.lineWidth=2;g3.setLineDash([5,4]);g3.beginPath();g3.moveTo(xs(2),T);g3.lineTo(xs(2),B);g3.stroke();g3.setLineDash([]);
+  label(g3,'truth',xs(2),T-8,css('--truth'),'center');
+  label(g3,'plug-in  mean '+R3.mP.toFixed(2),xs(R3.mP),T+14,css('--plug'),R3.mP<2?'right':'left');
+  label(g3,'one-step  mean '+R3.mO.toFixed(2),xs(R3.mO),T+32,css('--step'),R3.mO<2?'right':'left');
+  document.getElementById('cap3').textContent=`n = ${R3.n}, λ = ${(+lam.value).toFixed(2)}, κ = ${(+kap.value).toFixed(2)}. 300 samples each.`;
+  document.getElementById('ro3').innerHTML=
+    `<span class="k">plug-in bias</span><span>${fmt(R3.mP-2)}</span>
+     <span class="k">plug-in sd</span><span>${fmt(R3.sP)}</span>
+     <span class="k">one-step bias</span><span>${fmt(R3.mO-2)}</span>
+     <span class="k">one-step sd</span><span>${fmt(R3.sO)}</span>
+     <span class="k">mean IF-based SE</span><span>${fmt(R3.mSE)}</span>
+     <span class="k">efficiency bound</span><span>${fmt(R3.bound)}  √(Var D/n)</span>`;
+}
+document.getElementById('run3').onclick=run3;
+
+// ---------- boot & theme ----------
+function all(){draw1();draw2();draw3();}
+all();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script src="../shared/course.js"></script>
+</body>
+</html>

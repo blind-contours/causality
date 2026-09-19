@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Causality: Where the Clever Covariate Comes From. An interactive lesson in semiparametric causal inference.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<title>Where the Clever Covariate Comes From</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
+  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
+:root[data-theme="dark"]{
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{max-width:68ch;margin:0 0 12px}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
+@media(max-width:820px){.scene{grid-template-columns:1fr}}
+.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
+canvas{width:100%;height:auto;display:block;max-width:100%}
+.ctl{display:flex;flex-direction:column;gap:13px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--purple)}
+select{font:inherit;font-size:13px;padding:4px 6px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
+button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
+.readout .k{color:var(--muted)}
+.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
+.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
+.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
+.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
+</style>
+<link rel="stylesheet" href="../shared/course.css">
+</head>
+<body data-lesson="clever-covariate">
+<div class="wrap">
+<div class="eyebrow">From "any direction h" to "the direction we use"</div>
+<h1>Where the Clever Covariate Comes From</h1>
+<p class="lede">So far h was anything with mean zero, and ϕ told you the slope of ψ along it. Now the question flips: you have an initial fit P̂ that is wrong, and you want to move it. Which direction? This page shows that the answer is h = ϕ<sub>P̂</sub>, the influence function at your current fit, for three reasons that are each a picture. The last picture is the ATE, and the direction there is the clever covariate.</p>
+
+<!-- SCENE 1 -->
+<div class="eyebrow">Scene 1</div>
+<h2>Why ϕ is centered: the uncentered version fails two jobs</h2>
+<p>Take ϕ(z) = z − ψ and the uncentered candidate ϕ̃(z) = z. Job one: predict how much the mean moves when you add ε of mass at z₀. The true move is ε(z₀ − ψ); ϕ̃ predicts εz₀ and is off by εψ. Job two: measure how far a sample is from a fit. Pₙϕ = (sample mean − fitted mean), which is zero exactly when the fit matches; Pₙϕ̃ = sample mean, which is never a measure of misfit. Both jobs are what the next scenes need.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c1" width="800" height="400"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="ctl">
+    <label>Point mass at z₀ <span class="v" id="v1z">2.20</span><input type="range" id="z1" min="-3" max="3" step="0.01" value="2.2"></label>
+    <label>Fitted mean of P̂ (how wrong the initial fit is) <span class="v" id="v1m">-0.40</span><input type="range" id="m1" min="-1.5" max="1.5" step="0.01" value="-0.4"></label>
+    <div class="readout" id="ro1"></div>
+    <div class="note">A mean-zero ϕ is also the only version that is itself a legitimate direction: p̂(1 + εϕ) integrates to one only if E<sub>P̂</sub>[ϕ] = 0. That matters in scene 3, where we move along ϕ.</div>
+  </div>
+</div>
+
+<!-- SCENE 2 -->
+<div class="eyebrow">Scene 2</div>
+<h2>Among directions of equal size, ϕ changes ψ the most</h2>
+<p>Compare directions fairly: fix E[h²] = 1 (same "length" for every h) and ask which one gives the largest slope E[ϕh]. By Cauchy–Schwarz, E[ϕh] ≤ √E[ϕ²]·√E[h²], with equality when h is a multiple of ϕ. So ϕ is the steepest-ascent direction for ψ. Rotate h between ϕ and something orthogonal to it and watch the slope trace a cosine.</p>
+<div class="eq">max over h with E[h²]=1 of  dψ/dε = E[ϕh]   is attained at   h = ϕ / √E[ϕ²],   giving   √Var(ϕ)</div>
+<div class="predict" data-options="When h is orthogonal to ϕ|When h is a multiple of ϕ|It is the same for every h of unit length" data-answer="1" data-hint="Cauchy–Schwarz: E[ϕh] ≤ √E[ϕ²]√E[h²], with equality only when h ∝ ϕ.">Among directions h with E[h²] = 1, when is the slope dψ/dε = E[ϕh] largest?</div>
+<div class="scene">
+  <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p2">Play</button></div>
+    <label>Angle between h and ϕ <span class="v" id="v2">35°</span><input type="range" id="a2" min="0" max="180" step="1" value="35"></label>
+    <div class="readout" id="ro2"></div>
+    <div class="note">"Least favorable" and "steepest" are the same fact from two sides: the direction in which ψ moves most per unit of likelihood is the direction in which the data are least able to pin ψ down. That's why its Cramér–Rao bound is the largest, and equals Var(ϕ).</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The influence function is the gradient of the parameter, so it's the steepest direction: per unit of movement in the model, ψ changes most along ϕ. That's the direction TMLE fluctuates in.</div>
+
+<!-- SCENE 3 -->
+<div class="eyebrow">Scene 3</div>
+<h2>Move along ϕ by maximum likelihood, and the score equation is Pₙϕ = 0</h2>
+<p>Start from a wrong fit p̂ (its mean μ̂ is off). Fluctuate along its own influence function with an exponential tilt, p̂<sub>ε</sub>(z) ∝ p̂(z)·exp(ε·ϕ̂(z)) with ϕ̂(z) = z − μ̂; its score at ε = 0 is ϕ̂ (the linear tilt from earlier pages works the same way but can't take large steps). Choose ε by maximizing the log-likelihood of the sample, Σ log p̂<sub>ε</sub>(Z<sub>i</sub>). The derivative of that in ε at ε = 0 is Σ ϕ̂(Z<sub>i</sub>) = n·Pₙϕ̂. So the likelihood pushes ε in the direction that reduces Pₙϕ̂, and stops where Pₙϕ̂<sub>P̂*</sub> = 0. That quantity Pₙϕ̂ is the one-step's correction term; TMLE spends it inside the model instead of adding it to the number.</p>
+<div class="eq">p̂_ε(z) = p̂(z) exp(ε ϕ̂(z)) / c(ε)        L(ε) = Σᵢ log p̂_ε(Zᵢ) = ε Σᵢ ϕ̂(Zᵢ) − n log c(ε)<br>L'(ε) = Σᵢ ϕ̂(Zᵢ) − n·E_{p̂_ε}[ϕ̂]        L'(0) = n · Pₙϕ̂        ε̂: Pₙϕ̂ = E_{p̂_ε̂}[ϕ̂]  ⇒  mean(p̂_ε̂) = z̄</div>
+<div class="scene">
+  <div class="paper"><canvas id="c3" width="800" height="520"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p3">Play</button><button id="n3">New sample</button></div>
+    <label>Scrub <span class="v" id="v3">0.00</span><input type="range" id="t3" min="0" max="1" step="0.002" value="0"></label>
+    <label>Initial fit's mean μ̂ (wrong on purpose) <span class="v" id="v3m">-0.50</span><input type="range" id="m3" min="-1.2" max="1.2" step="0.01" value="-0.5"></label>
+    <label>Sample size n <span class="v" id="v3n">60</span><input type="range" id="n3s" min="20" max="400" step="10" value="60"></label>
+    <div class="readout" id="ro3"></div>
+    <div class="note">One-step: μ̂ + Pₙϕ̂ = z̄. TMLE: mean of p̂<sub>ε̂</sub> = z̄ as well, because for the mean the score equation says exactly "fitted mean equals sample mean." For nonlinear parameters they differ by a second-order amount.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>Fluctuating along the influence function and fitting ε by maximum likelihood solves the empirical efficient-score equation, Pₙϕ = 0, because the score of the fluctuation at ε = 0 is ϕ itself. That's the targeting step.</div>
+
+<!-- SCENE 4 -->
+<div class="eyebrow">Scene 4</div>
+<h2>For the ATE, the direction on the outcome regression is the clever covariate</h2>
+<p>Now Z = (X, A, Y). The influence function has two pieces. The X-piece, μ<sub>1</sub>(X) − μ<sub>0</sub>(X) − ψ, is already solved by using the empirical distribution of X, so nothing needs to move there. The Y-piece is H(A, X)·(Y − μ<sub>A</sub>(X)) with H = A/π(X) − (1−A)/(1−π(X)). Fluctuating the outcome regression in the direction of its influence function means μ<sub>ε</sub>(a, x) = μ̂(a, x) + ε·H(a, x). H is the clever covariate. Fit ε by least squares (Gaussian likelihood) and the score equation Σ H<sub>i</sub>(Y<sub>i</sub> − μ<sub>ε</sub>(A<sub>i</sub>, X<sub>i</sub>)) = 0 is solved. The regression is pulled hardest where H is large: where the observed arm is rare. That is your pseudopopulation, arriving as a consequence.</p>
+<div class="eq">ϕ(X,A,Y) = [μ₁(X) − μ₀(X) − ψ]  +  H(A,X)·(Y − μ_A(X)),     H(A,X) = A/π(X) − (1−A)/(1−π(X))<br>fluctuation:  μ_ε(a,x) = μ̂(a,x) + ε·H(a,x)       score equation:  Σᵢ Hᵢ (Yᵢ − μ_ε(Aᵢ,Xᵢ)) = 0</div>
+<div class="scene">
+  <div class="paper"><canvas id="c4" width="800" height="560"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p4">Play</button><button id="n4">New sample</button></div>
+    <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
+    <label>Shrinkage on the initial outcome model's treatment effect λ <span class="v" id="v4l">0.60</span><input type="range" id="l4" min="0" max="1" step="0.05" value="0.6"></label>
+    <div class="readout" id="ro4"></div>
+    <div class="note">With a Gaussian outcome the fluctuation is linear and ε̂ = Σ H(Y − μ̂) / Σ H². For binary Y it's on the logit scale, which keeps μ<sub>ε</sub> in [0, 1]; the score equation is the same.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The clever covariate is the coefficient of the outcome residual in the efficient influence function. Fluctuating the outcome regression along it, with ε chosen by likelihood, solves the empirical EIF equation for the ATE. The inverse-propensity weights are in it because that's how much each observation's residual moves the parameter.</div>
+</div>
+
+<script>
+(function(){
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const F='"IBM Plex Sans",sans-serif',FM='"IBM Plex Mono",monospace',FS='"Fraunces",Georgia,serif';
+let C={};function readC(){C={p:css('--p'),or:css('--or'),teal:css('--teal'),green:css('--green'),purple:css('--purple'),red:css('--red'),phat:css('--phat'),pen:css('--pen'),grid:css('--grid'),muted:css('--muted'),paper:css('--paper'),soft:css('--soft')};}
+readC();
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),ease=t=>t<0?0:t>1?1:t*t*(3-2*t),seg=(t,a,b)=>ease((t-a)/(b-a));
+function line(g,x1,y1,x2,y2,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();g.setLineDash([]);}
+function poly(g,pts,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.setLineDash([]);}
+function rect(g,x,y,w,h,col,a){g.fillStyle=col;g.globalAlpha=a==null?1:a;g.fillRect(x,y,w,h);g.globalAlpha=1;}
+function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();if(ring){g.strokeStyle=C.paper;g.lineWidth=2;g.stroke();}}
+function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
+function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
+function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
+function axes(g,L,R,T,B,col){line(g,L,B,R,B,col,1.2);line(g,L,B,L,T,col,1.2);}
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+// true density (skewed mixture) and grid
+const N=481,ZL=-4,ZR=4,dz=(ZR-ZL)/(N-1);const Z=new Float64Array(N);for(let i=0;i<N;i++)Z[i]=ZL+i*dz;
+const pTrue=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);let MU=0,MS=0;for(let i=0;i<N;i++){MU+=Z[i]*pTrue(Z[i])*dz;MS+=pTrue(Z[i])*dz;}MU/=MS;
+function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
+  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}if(opts&&opts.onT)opts.onT(S.t);S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
+  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
+  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const fn=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=fn;el.onchange=fn;if(lab)lab.textContent=fmt(+el.value);}
+function densityAxes(g,L,R,T,B,ymax){const xs=z=>L+(R-L)*(z-ZL)/(ZR-ZL),ys=v=>B-(B-T)*v/ymax;axes(g,L,R,T,B,C.pen);for(const z of [-3,-2,-1,0,1,2,3]){line(g,xs(z),B,xs(z),B+4,C.pen,1);txt(g,z,xs(z),B+14,C.muted,11,'center',FM);}return {xs,ys};}
+
+// ================= SCENE 1 =================
+const S1=scene(1,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z1').value,mh=+document.getElementById('m1').value;const eps=0.15;
+  // fitted density p-hat: shifted version of true (mean mh)
+  const ph=z=>pTrue(z-(mh-MU));
+  const {xs,ys}=densityAxes(g,60,480,40,220,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(ph(Z[i])*(1-eps))]);poly(g,pts,C.phat,2);txt(g,'(1−ε) p̂(z) + ε δ_{z₀}',70,30,C.pen,13,'left',FS,true);
+  line(g,xs(z0),220,xs(z0),220-eps*600,C.or,6);txt(g,'ε at z₀',xs(z0),206-eps*600,C.or,12,'center',FS,true);
+  const me=(1-eps)*mh+eps*z0;line(g,xs(mh),220,xs(mh),200,C.phat,2.4);txt(g,'μ̂',xs(mh)-6,236,C.phat,13,'right',FS,true);line(g,xs(me),220,xs(me),195,C.p,2.4);txt(g,'actual',xs(me)+6,236,C.p,12,'left',FS,true);
+  // predictions
+  const predC=mh+eps*(z0-mh),predU=mh+eps*z0;
+  dot(g,xs(predC),190,C.teal,5,true);txt(g,'ϕ predicts (= actual)',xs(predC),176,C.teal,11.5,'center');dot(g,xs(predU),250,C.red,5,true);txt(g,'ϕ̃ = z predicts',xs(predU),264,C.red,11.5,'center');
+  // right: job 2
+  const RL=540;txt(g,'Job 1: predict the pull of z₀',RL,50,C.pen,13,'left',FS,true);txt(g,`true move   ${(me-mh).toFixed(4)}`,RL,74,C.pen,12,'left',FM);txt(g,`ε·ϕ(z₀)     ${(eps*(z0-mh)).toFixed(4)}  ✓`,RL,94,C.teal,12,'left',FM);txt(g,`ε·ϕ̃(z₀)     ${(eps*z0).toFixed(4)}  off by εμ̂`,RL,114,C.red,12,'left',FM);
+  txt(g,'Job 2: measure misfit of p̂ to data',RL,160,C.pen,13,'left',FS,true);txt(g,'sample with mean z̄ = '+MU.toFixed(3),RL,182,C.muted,11.5,'left');
+  txt(g,`Pₙϕ̂ = z̄ − μ̂ = ${(MU-mh).toFixed(3)}`,RL,204,C.teal,12,'left',FM);txt(g,mh>MU-0.02&&mh<MU+0.02?'zero: fit matches data ✓':'nonzero: p̂ is off by this much',RL,224,C.teal,11.5,'left');
+  txt(g,`Pₙϕ̃ = z̄ = ${MU.toFixed(3)}`,RL,254,C.red,12,'left',FM);txt(g,'never zero; says nothing about the fit',RL,274,C.red,11.5,'left');
+  // bottom
+  const BL=60;txt(g,'Legitimacy: p̂(1 + εϕ) integrates to 1 + ε·E_p̂[ϕ].  With ϕ centered that is 1.  With ϕ̃ = z it is 1 + εμ̂: not a density.',BL,320,C.muted,12,'left');
+  txt(g,`E_p̂[ϕ̂] = 0.000     E_p̂[ϕ̃] = μ̂ = ${mh.toFixed(2)}`,BL,345,C.pen,12,'left',FM);
+  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">Pₙϕ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
+  document.getElementById('cap1').textContent='Teal (centered) predicts the pull of a point mass correctly and measures misfit; red (uncentered) does neither. Move μ̂ onto the sample mean and Pₙϕ̂ hits zero.';
+});
+bind('z1','v1z',v=>v.toFixed(2),()=>S1.draw());bind('m1','v1m',v=>v.toFixed(2),()=>S1.draw());
+
+// ================= SCENE 2 =================
+const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a2').value*Math.PI/180;
+  const phi=new Float64Array(N);for(let i=0;i<N;i++)phi[i]=Z[i]-MU;let pp=0;for(let i=0;i<N;i++)pp+=phi[i]*phi[i]*pTrue(Z[i])*dz;
+  // orthogonal direction: centered sin, orthogonalized
+  const w=new Float64Array(N);let wm=0;for(let i=0;i<N;i++){w[i]=Math.sin(1.6*Z[i]);wm+=w[i]*pTrue(Z[i])*dz;}for(let i=0;i<N;i++)w[i]-=wm/MS;let ip=0;for(let i=0;i<N;i++)ip+=w[i]*phi[i]*pTrue(Z[i])*dz;const gp=new Float64Array(N);let gg=0;for(let i=0;i<N;i++){gp[i]=w[i]-ip/pp*phi[i];gg+=gp[i]*gp[i]*pTrue(Z[i])*dz;}
+  const un=new Float64Array(N),ug=new Float64Array(N);for(let i=0;i<N;i++){un[i]=phi[i]/Math.sqrt(pp);ug[i]=gp[i]/Math.sqrt(gg);}
+  const h=new Float64Array(N);for(let i=0;i<N;i++)h[i]=Math.cos(ang)*un[i]+Math.sin(ang)*ug[i];
+  let slope=0,hh=0;for(let i=0;i<N;i++){slope+=phi[i]*h[i]*pTrue(Z[i])*dz;hh+=h[i]*h[i]*pTrue(Z[i])*dz;}
+  const {xs,ys}=densityAxes(g,60,440,40,130,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(pTrue(Z[i]))]);poly(g,pts,C.muted,1.4);
+  const T=190,B=320,mid=(T+B)/2;line(g,60,mid,440,mid,C.grid,1);const a=[],b=[];for(let i=0;i<N;i++){a.push([xs(Z[i]),mid-un[i]*30]);b.push([xs(Z[i]),mid-h[i]*30]);}poly(g,a,C.purple,2.2);poly(g,b,C.green,1.8,[4,3]);
+  txt(g,'ϕ (normalized, purple)  and  h (green), both with E[h²] = 1',60,T-12,C.pen,12.5,'left',FS,true);
+  // right: slope vs angle
+  const RL=520,RR=770,RT=60,RB=280;axes(g,RL,RR,RT,RB,C.pen);txt(g,'slope E[ϕh] vs angle',RL,RT-14,C.pen,13,'left',FS,true);
+  const ax=d=>RL+(RR-RL)*d/180,ay=v=>RB-(RB-RT)*(v+Math.sqrt(pp))/(2*Math.sqrt(pp));const cur=[];for(let d=0;d<=180*seg(t,0,1);d+=2)cur.push([ax(d),ay(Math.sqrt(pp)*Math.cos(d*Math.PI/180))]);if(cur.length>1)poly(g,cur,C.teal,2);
+  line(g,RL,ay(0),RR,ay(0),C.grid,1);dot(g,ax(+document.getElementById('a2').value),ay(slope),C.or,6,true);for(const d of [0,90,180])txt(g,d+'°',ax(d),RB+12,C.muted,10.5,'center',FM);
+  txt(g,'max = √Var(ϕ) at 0°',RL+6,ay(Math.sqrt(pp))+12,C.purple,11.5,'left',FS,true);txt(g,'0 at 90°: orthogonal directions do not move ψ',RL+6,ay(0)-12,C.muted,11,'left');
+  txt(g,`E[ϕh] = √Var(ϕ) · cos θ = ${slope.toFixed(3)}`,RL,RB+34,C.pen,12,'left',FM);
+  document.getElementById('ro2').innerHTML=`<span class="k">E[h²]</span><span>${hh.toFixed(3)}</span><span class="k">E[ϕh] (slope)</span><span>${slope.toFixed(4)}</span><span class="k">√Var(ϕ)</span><span>${Math.sqrt(pp).toFixed(4)}</span><span class="k">fraction of max</span><span>${(slope/Math.sqrt(pp)*100).toFixed(0)}%</span>`;
+  document.getElementById('cap2').textContent=ang<0.03?'h = ϕ: the steepest direction. This is the least-favorable submodel, the one TMLE moves along.':'A unit step in this direction moves ψ by cos θ of the maximum. Only the component along ϕ counts.';
+},{onT:t=>{const el=document.getElementById('a2');el.value=Math.round(180*t);document.getElementById('v2').textContent=el.value+'°';}});
+bind('a2','v2',v=>v+'°',()=>S2.draw());
+
+// ================= SCENE 3 =================
+let Z3=null;function sample3(){const n=+document.getElementById('n3s').value;Z3=[];while(Z3.length<n){const z=Math.random()<0.55?-0.4+0.7*randn():1.6+0.8*randn();if(z>-3.8&&z<3.8)Z3.push(z);}}sample3();
+const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const mh=+document.getElementById('m3').value;const n=Z3.length;const zbar=Z3.reduce((s,v)=>s+v,0)/n;
+  const ph=z=>pTrue(z-(mh-MU));const phi=z=>z-mh;
+  // exponential tilt p_eps ∝ p̂ exp(eps*phi). normalizer and tilted mean on the grid
+  const norm=e=>{let c=0;for(let i=0;i<N;i++)c+=ph(Z[i])*Math.exp(e*phi(Z[i]))*dz;return c;};
+  const tiltMeanPhi=e=>{let c=0,m=0;for(let i=0;i<N;i++){const w=ph(Z[i])*Math.exp(e*phi(Z[i]))*dz;c+=w;m+=phi(Z[i])*w;}return m/c;};
+  const sumPhi=Z3.reduce((s,z)=>s+phi(z),0);
+  const scoreAt=e=>sumPhi-n*tiltMeanPhi(e);   // L'(eps)
+  let a=-3,b=3;for(let i=0;i<60;i++){const m=(a+b)/2;if(scoreAt(a)*scoreAt(m)<=0)b=m;else a=m;}const ehat=(a+b)/2;
+  const eps=ehat*seg(t,0.35,0.8);
+  const cE=norm(eps);const pe=z=>ph(z)*Math.exp(eps*phi(z))/cE;let meanE=0;for(let i=0;i<N;i++)meanE+=Z[i]*pe(Z[i])*dz;
+  const cH=norm(ehat);let meanHat=0;for(let i=0;i<N;i++)meanHat+=Z[i]*ph(Z[i])*Math.exp(ehat*phi(Z[i]))/cH*dz;
+  // top: densities and sample
+  const {xs,ys}=densityAxes(g,60,520,40,240,0.5);const p0=[],p1=[];for(let i=0;i<N;i++){p0.push([xs(Z[i]),ys(ph(Z[i]))]);p1.push([xs(Z[i]),ys(pe(Z[i]))]);}poly(g,p0,C.phat,1.6,[5,4]);poly(g,p1,C.purple,2.2);
+  txt(g,'p̂ (dashed)   →   p̂_ε ∝ p̂ · exp(ε ϕ̂)  (solid)',70,30,C.pen,13,'left',FS,true);
+  const st=seg(t,0,0.3);Z3.forEach((z,i)=>{if(i<st*n){dot(g,xs(z),240-6,C.teal,2.5);}});
+  line(g,xs(mh),240,xs(mh),222,C.phat,2.4);txt(g,'μ̂',xs(mh)-6,256,C.phat,12.5,'right',FS,true);line(g,xs(zbar),240,xs(zbar),216,C.teal,2.4);txt(g,'z̄',xs(zbar)+6,256,C.teal,12.5,'left',FS,true);
+  if(eps!==0){line(g,xs(meanE),240,xs(meanE),210,C.purple,2.4);txt(g,'mean of p̂_ε',xs(meanE)+6,272,C.purple,12,'left',FS,true);}
+  // bottom-left: the direction and the per-point scores of the fluctuated model
+  const T=290,B=380,mid=(T+B)/2;g.save();g.beginPath();g.rect(60,T,460,B-T);g.clip();line(g,60,mid,520,mid,C.grid,1);const pp=[];for(let i=0;i<N;i++)pp.push([xs(Z[i]),mid-phi(Z[i])*10]);poly(g,pp,C.purple,1.8);
+  const mPhi=tiltMeanPhi(eps);Z3.forEach((z,i)=>{if(i<st*n){const v=phi(z)-mPhi;line(g,xs(z),mid,xs(z),mid-v*10,C.teal,1);}});g.restore();
+  txt(g,'ϕ̂(z) = z − μ̂ (the direction); sticks: score of p̂_ε at each Zᵢ',60,T-8,C.purple,12.5,'left',FS,true);
+  // right: log-likelihood in eps
+  const RL=580,RR=770,RT=60,RB=240;axes(g,RL,RR,RT,RB,C.pen);txt(g,'L(ε) = Σ log p̂_ε(Zᵢ)',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
+  const L=e=>e*sumPhi-n*Math.log(norm(e));const eL=Math.min(0,ehat)-0.6,eR=Math.max(0,ehat)+0.6;const ex=e=>RL+(RR-RL)*(e-eL)/(eR-eL);const Lmax=L(ehat),Lmin=Math.min(L(eL),L(eR));const ey=v=>RB-(RB-RT)*(v-Lmin)/(Lmax-Lmin+1e-9);
+  const lc=[];for(let e=eL;e<=eR;e+=(eR-eL)/60)lc.push([ex(e),ey(L(e))]);poly(g,lc,C.p,2);line(g,ex(0),RT,ex(0),RB,C.grid,1,[3,3]);dot(g,ex(0),ey(L(0)),C.phat,5,true);txt(g,'ε=0',ex(0),RB+12,C.phat,10.5,'center',FM);
+  const s0=scoreAt(0);const dEy=(ey(L(0.05))-ey(L(-0.05)))/(ex(0.05)-ex(-0.05));line(g,ex(0)-50,ey(L(0))-dEy*50,ex(0)+50,ey(L(0))+dEy*50,C.teal,1.6);txt(g,`L'(0) = n·Pₙϕ̂ = ${s0.toFixed(2)}`,RL,RB+30,C.teal,11.5,'left',FM);
+  if(eps!==0){dot(g,ex(eps),ey(L(eps)),C.purple,6,true);}if(t>0.8){txt(g,`ε̂ = ${ehat.toFixed(3)}`,ex(ehat),RT-2,C.purple,11.5,'center',FM);}
+  txt(g,'score at current ε:',RL,RB+52,C.muted,11.5,'left');txt(g,`Pₙϕ̂ − E_p̂ε[ϕ̂] = ${(scoreAt(eps)/n).toFixed(4)}`,RL,RB+70,C.purple,11.5,'left',FM);
+  const os=mh+(zbar-mh);txt(g,`plug-in μ̂ = ${mh.toFixed(3)}    Pₙϕ̂ = z̄ − μ̂ = ${(zbar-mh).toFixed(3)}`,60,410,C.pen,12,'left',FM);txt(g,`one-step μ̂ + Pₙϕ̂ = ${os.toFixed(3)}    TMLE mean(p̂_ε̂) = ${meanHat.toFixed(3)}    z̄ = ${zbar.toFixed(3)}`,60,432,C.pen,12,'left',FM);
+  txt(g,'The likelihood is climbed in the ϕ̂-direction until the empirical score is zero; the fitted mean lands on the sample mean.',60,462,C.muted,12,'left');
+  document.getElementById('ro3').innerHTML=`<span class="k">n</span><span>${n}</span><span class="k">Pₙϕ̂ at start</span><span>${(zbar-mh).toFixed(4)}</span><span class="k">ε̂ (MLE)</span><span>${ehat.toFixed(4)}</span><span class="k">score at ε̂</span><span>${(scoreAt(ehat)/n).toExponential(1)}</span><span class="k">mean(p̂_ε̂) − z̄</span><span>${(meanHat-zbar).toExponential(1)}</span>`;
+  document.getElementById('cap3').textContent=t<0.3?'Sample points arrive (teal). The initial fit p̂ has the wrong mean.':t<0.8?'Climb the likelihood along ϕ̂. Its slope at ε = 0 is n·Pₙϕ̂, so the climb is in the direction that reduces the empirical score.':'At ε̂ the empirical score is zero and the fluctuated density\'s mean equals the sample mean exactly: the one-step and TMLE agree here.';
+});
+document.getElementById('n3').onclick=()=>{sample3();S3.draw();};bind('m3','v3m',v=>v.toFixed(2),()=>S3.draw());bind('n3s','v3n',v=>v,()=>{sample3();S3.draw();});
+
+// ================= SCENE 4 =================
+const expit=z=>1/(1+Math.exp(-z));let D4=null;
+function gen4(){const n=300;const X=[],A=[],Y=[];for(let i=0;i<n;i++){const x=-2+4*Math.random();const a=Math.random()<expit(0.9*x)?1:0;X.push(x);A.push(a);Y.push(0.5+x+0.6*x*x+a*(2+0.4*x)+0.8*randn());}D4={X,A,Y,n};}gen4();
+function ols4(d){const n=d.n;let S=[[0,0,0],[0,0,0],[0,0,0]],r=[0,0,0];for(let i=0;i<n;i++){const v=[1,d.X[i],d.A[i]];for(let a=0;a<3;a++){r[a]+=v[a]*d.Y[i];for(let b=0;b<3;b++)S[a][b]+=v[a]*v[b];}}const M=S.map((row,i)=>[...row,r[i]]);for(let c=0;c<3;c++){let p=c;for(let k=c+1;k<3;k++)if(Math.abs(M[k][c])>Math.abs(M[p][c]))p=k;[M[c],M[p]]=[M[p],M[c]];for(let k=0;k<3;k++){if(k===c)continue;const f=M[k][c]/M[c][c];for(let j=c;j<4;j++)M[k][j]-=f*M[c][j];}}return [M[0][3]/M[0][0],M[1][3]/M[1][1],M[2][3]/M[2][2]];}
+const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const lam=+document.getElementById('l4').value;const d=D4;const b=ols4(d);const bA=(1-lam)*b[2];
+  const mu=(x,a)=>b[0]+b[1]*x+bA*a;const pi=x=>expit(0.9*x);const Hc=(a,x)=>a?1/pi(x):-1/(1-pi(x));
+  // eps-hat by least squares
+  let num=0,den=0;for(let i=0;i<d.n;i++){const Hi=Hc(d.A[i],d.X[i]);num+=Hi*(d.Y[i]-mu(d.X[i],d.A[i]));den+=Hi*Hi;}const ehat=num/den;const eps=ehat*seg(t,0.4,0.85);
+  const muE=(x,a)=>mu(x,a)+eps*Hc(a,x);
+  const L=60,R=520,T=40,B=330;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);
+  // points with residual sticks weighted by |H|
+  const st=seg(t,0,0.35);for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];const col=a?C.p:C.red;if(st>0.5){const Hi=Math.abs(Hc(a,x));g.globalAlpha=0.35;line(g,xs(x),ys(muE(x,a)),xs(x),ys(y),col,Math.min(7,0.7*Hi));g.globalAlpha=1;}dot(g,xs(x),ys(y),col,2.2);}
+  // regression curves before/after
+  for(const a of [1,0]){const c0=[],c1=[];for(let x=-2;x<=2.001;x+=0.05){c0.push([xs(x),ys(mu(x,a))]);c1.push([xs(x),ys(muE(x,a))]);}poly(g,c0,a?C.p:C.red,1.4,[5,4]);poly(g,c1,a?C.p:C.red,2.4);}
+  txt(g,'dashed: initial μ̂_a(x)   solid: μ̂_a(x) + ε·H(a,x)',L+10,T-14,C.pen,12.5,'left',FS,true);txt(g,'stick width ∝ |H| = 1/P(observed arm | x)',L+10,B+34,C.muted,12,'left');
+  // H strip
+  const HT=360,HB=420;txt(g,'clever covariate H(a,x) for each arm',L,HT-10,C.pen,12.5,'left',FS,true);line(g,L,(HT+HB)/2,R,(HT+HB)/2,C.grid,1);const h1=[],h0=[];for(let x=-2;x<=2.001;x+=0.05){h1.push([xs(x),(HT+HB)/2-Math.min(6,1/pi(x))*4]);h0.push([xs(x),(HT+HB)/2+Math.min(6,1/(1-pi(x)))*4]);}poly(g,h1,C.p,1.8);poly(g,h0,C.red,1.8);txt(g,'A=1: 1/π(x)',R-8,HT+4,C.p,11,'right',FS,true);txt(g,'A=0: −1/(1−π(x))',R-8,HB-4,C.red,11,'right',FS,true);
+  // psi values
+  let plug=0,tm=0,corr=0;for(let i=0;i<d.n;i++){const x=d.X[i];plug+=mu(x,1)-mu(x,0);tm+=muE(x,1)-muE(x,0);corr+=Hc(d.A[i],x)*(d.Y[i]-mu(x,d.A[i]));}plug/=d.n;tm/=d.n;corr/=d.n;
+  let scoreE=0;for(let i=0;i<d.n;i++)scoreE+=Hc(d.A[i],d.X[i])*(d.Y[i]-muE(d.X[i],d.A[i]));scoreE/=d.n;
+  const RL=560;txt(g,'score equation',RL,60,C.pen,13,'left',FS,true);txt(g,'Pₙ[ H · (Y − μ_ε) ]',RL,82,C.muted,12,'left',FM);txt(g,`at ε = 0:  ${corr.toFixed(4)}`,RL,104,C.teal,12,'left',FM);txt(g,`at ε = ${eps.toFixed(3)}:  ${scoreE.toFixed(4)}`,RL,124,C.purple,12,'left',FM);
+  txt(g,'ε̂ = Σ H(Y−μ̂) / Σ H²',RL,156,C.muted,11.5,'left',FM);txt(g,`= ${ehat.toFixed(4)}`,RL,176,C.purple,13,'left',FM);
+  txt(g,'ATE estimates',RL,222,C.pen,13,'left',FS,true);txt(g,`plug-in       ${plug.toFixed(3)}`,RL,244,C.phat,12,'left',FM);txt(g,`one-step      ${(plug+corr).toFixed(3)}`,RL,264,C.teal,12,'left',FM);txt(g,`TMLE (ε now)  ${tm.toFixed(3)}`,RL,284,C.purple,12,'left',FM);txt(g,'truth         2.000',RL,304,C.p,12,'left',FM);
+  // number line
+  const NL=470,nx=v=>60+(520-60)*(v-0.5)/3;line(g,60,NL,520,NL,C.pen,1.2);for(let v=1;v<=3;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,v.toFixed(1),nx(v),NL+14,C.muted,10.5,'center',FM);}
+  line(g,nx(2),NL-20,nx(2),NL+6,C.p,2);txt(g,'truth',nx(2),NL-30,C.p,11.5,'center',FS,true);dot(g,nx(plug),NL,C.phat,6,true);txt(g,'plug-in',nx(plug),NL+30,C.phat,11.5,'center',FS,true);dot(g,nx(tm),NL,C.purple,6,true);if(t>0.85)txt(g,'TMLE',nx(tm),NL-30,C.purple,11.5,'center',FS,true);dot(g,nx(plug+corr),NL-12,C.teal,4,true);
+  txt(g,'The pull is largest where H is largest: controls at high x, treated at low x. The regression moves most where the arm is rare.',60,515,C.muted,12,'left');
+  document.getElementById('ro4').innerHTML=`<span class="k">Pₙ H(Y−μ̂)</span><span>${corr.toFixed(4)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Pₙ H(Y−μ_ε̂)</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=Hc(d.A[i],d.X[i])*(d.Y[i]-mu(d.X[i],d.A[i])-ehat*Hc(d.A[i],d.X[i]));return (s/d.n).toExponential(1)})()}</span><span class="k">plug-in</span><span>${plug.toFixed(3)}</span><span class="k">TMLE</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=mu(d.X[i],1)+ehat*Hc(1,d.X[i])-mu(d.X[i],0)-ehat*Hc(0,d.X[i]);return (s/d.n).toFixed(3)})()}</span>`;
+  document.getElementById('cap4').textContent=t<0.35?'Cohort and the initial (shrunk) outcome model. Residual sticks are as wide as the clever covariate is large.':t<0.85?'Fluctuate μ̂ along H by ε. Where H is large the curve moves a lot; where the arm is common it barely moves.':'At ε̂ the score equation Pₙ H(Y − μ_ε) = 0 holds. Plug the fluctuated regression into g-computation: that is the TMLE.';
+});
+document.getElementById('n4').onclick=()=>{gen4();S4.draw();};bind('l4','v4l',v=>v.toFixed(2),()=>S4.draw());
+
+function all(){readC();[S1,S2,S3,S4].forEach(s=>s.draw());}
+all();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script src="../shared/course.js"></script>
+</body>
+</html>

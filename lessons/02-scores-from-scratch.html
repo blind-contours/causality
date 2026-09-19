@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Causality: Scores and Influence, From Scratch. An interactive lesson in semiparametric causal inference.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<title>Scores and Influence, From Scratch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
+  --phat:#B0287F; --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --pen:#1B2530;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --phat:#E36AB8; --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; } }
+:root[data-theme="dark"]{
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --phat:#E36AB8; --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 20px;font-size:17px}
+.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:0 0 40px;padding:0;list-style:none}
+.toc li a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--rule)}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:26px;margin:56px 0 6px;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{max-width:68ch;margin:0 0 12px}
+.m{font-family:"Fraunces",Georgia,serif;font-style:italic}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:13.5px;background:var(--paper);border:1px solid var(--rule);padding:10px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
+@media(max-width:820px){.scene{grid-template-columns:1fr}}
+.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
+canvas{width:100%;height:auto;display:block;max-width:100%}
+.ctl{display:flex;flex-direction:column;gap:13px}
+.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--purple)}
+select{font:inherit;font-size:13px;padding:4px 6px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
+button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
+.readout .k{color:var(--muted)}
+.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
+.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
+.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
+.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
+.src{font-size:12.5px;color:var(--muted);margin-top:40px}
+</style>
+<link rel="stylesheet" href="../shared/course.css">
+</head>
+<body data-lesson="scores-from-scratch">
+<div class="wrap">
+<div class="eyebrow">Foundations · everything computed from a density you can see</div>
+<h1>Scores and Influence, From Scratch</h1>
+<p class="lede">The efficiency-theory pictures use four words as if they were obvious: a <em>path</em> through the model, its <em>score</em> h, the <em>pathwise derivative</em> of a parameter, and the <em>influence function</em>. Here each one is built from a single concrete density p(z) on the line. Nothing is abstract: every curve is computed numerically and every number in the readouts is an integral you can check.</p>
+<ul class="toc">
+<li><a href="#s1">1 · A distribution is a point</a></li><li><a href="#s2">2 · A path through the model</a></li><li><a href="#s3">3 · The score is a slope</a></li><li><a href="#s4">4 · Scores have mean zero</a></li><li><a href="#s5">5 · The parameter along the path</a></li><li><a href="#s6">6 · One ϕ for every h</a></li><li><a href="#s7">7 · Why it's called influence</a></li><li><a href="#s8">8 · Influence for the ATE</a></li><li><a href="#s9">9 · The hardest direction</a></li>
+</ul>
+
+<!-- 1 -->
+<div class="eyebrow" id="s1">Scene 1</div>
+<h2>A distribution is a point; the model is the set of points you allow</h2>
+<p>On the left is a density <span class="m">p(z)</span>. The whole curve is one point in the model. In a parametric model, say Normal(μ, σ), two numbers pin the curve down, so the model is a two-dimensional sheet and the point has coordinates. In a nonparametric model the curve can be any shape, so there are infinitely many coordinates: the model is the whole blob and "a point" is a full function. Move the dials and watch both views.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c1" width="800" height="380"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="ctl">
+    <label>μ (parametric coordinate) <span class="v" id="v1a">0.00</span><input type="range" id="a1" min="-1.5" max="1.5" step="0.01" value="0"></label>
+    <label>σ (parametric coordinate) <span class="v" id="v1b">1.00</span><input type="range" id="b1" min="0.5" max="1.8" step="0.01" value="1"></label>
+    <label>Nonparametric bump (a direction a Normal can't move in) <span class="v" id="v1c">0.00</span><input type="range" id="c1s" min="0" max="1" step="0.01" value="0"></label>
+    <div class="note">The bump slider adds a shape that no choice of (μ, σ) can produce. In the parametric picture the point can't move that way at all; in the nonparametric picture it's just another direction. That difference is the whole reason tangent spaces have different sizes.</div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="eyebrow" id="s2">Scene 2</div>
+<h2>A path: a one-parameter family of densities starting at p</h2>
+<p>Pick a direction function <span class="m">h(z)</span> and define <span class="m">p<sub>ε</sub>(z) = p(z)·(1 + ε h(z))</span>. At ε = 0 this is p itself; as ε grows the density is tilted, up where h is positive and down where h is negative. This is a <em>submodel</em>: a one-dimensional slice of the model through the point p. The dashed curve is p, the solid curve is p<sub>ε</sub>, and the shading shows the mass being moved.</p>
+<div class="eq">p_ε(z) = p(z) · (1 + ε·h(z))        (h chosen so that ∫ h p = 0, which keeps ∫ p_ε = 1)</div>
+<div class="scene">
+  <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p2">Play</button></div>
+    <label>ε <span class="v" id="v2e">0.00</span><input type="range" id="e2" min="-0.5" max="0.5" step="0.005" value="0"></label>
+    <label>Direction h <select id="h2"><option value="tilt">tilt: h ∝ z − μ (shift the mean)</option><option value="bump">bump: h ∝ exp(−(z−1)²) − c (add mass near 1)</option><option value="wave">wave: h ∝ sin(1.6 z) − c</option><option value="spread">spread: h ∝ (z−μ)² − c (widen)</option></select></label>
+    <div class="readout" id="ro2"></div>
+    <div class="note">A parametric model has only a few of these paths (shift, widen). A nonparametric model has one for every mean-zero h. The set of all allowed h is the tangent space.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>A submodel is a one-dimensional path through the distribution I'm at. In the nonparametric model I can go in any direction h with mean zero; in a parametric model only along its coordinates.</div>
+
+<!-- 3 -->
+<div class="eyebrow" id="s3">Scene 3</div>
+<h2>The score is the slope of log p<sub>ε</sub>(z) in ε, one number per z</h2>
+<p>Fix a value z. As ε moves, the density at that z goes up or down. The score at z is the rate: <span class="m">h(z) = d/dε log p<sub>ε</sub>(z)</span> at ε = 0. For the linear tilt that's exactly the h you chose, since log(1 + εh) ≈ εh. So "the score" isn't a mysterious object: it's the collection of these per-z slopes, which is a function of z. Drag the probe to any z and watch the log-density-versus-ε plot on the right; its slope at zero is the value of the score curve below.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p3">Play</button></div>
+    <label>Probe position z₀ <span class="v" id="v3z">1.20</span><input type="range" id="z3" min="-3" max="3" step="0.01" value="1.2"></label>
+    <label>Direction h <select id="h3"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro3"></div>
+    <div class="note">For a Normal(μ, σ²) moved along μ, log p_ε(z) = const − (z − μ − ε)²/2σ², whose ε-derivative at 0 is (z − μ)/σ². That's the familiar parametric score, and it is the "tilt" direction here up to scale.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The score of a path is the derivative of the log-likelihood along it, as a function of the observation. For a parametric model it's the usual score vector; for a nonparametric path it's whatever mean-zero function h I tilted by.</div>
+
+<!-- 4 -->
+<div class="eyebrow" id="s4">Scene 4</div>
+<h2>Scores have mean zero, because total mass is always one</h2>
+<p><span class="m">∫ p<sub>ε</sub>(z) dz = 1</span> for every ε. Differentiate in ε: <span class="m">∫ h(z) p(z) dz = 0</span>. Geometrically, the positive part of h (weighted by p) exactly balances the negative part. That is the fact drawn as "scores are orthogonal to √p" on the sphere. Watch the two shaded areas being measured and cancelled.</p>
+<div class="eq">d/dε ∫ p_ε = ∫ d/dε [p(1+εh)] = ∫ p·h = E_P[h] = 0</div>
+<div class="scene">
+  <div class="paper"><canvas id="c4" width="800" height="360"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p4">Play</button></div>
+    <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
+    <label>Direction h <select id="h4"><option value="tilt">tilt</option><option value="bump">bump</option><option value="wave" selected>wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro4"></div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="eyebrow" id="s5">Scene 5</div>
+<h2>What the parameter does along the path, computed by hand</h2>
+<p>Take the simplest functional, the mean: <span class="m">ψ(P) = ∫ z p(z) dz</span>. Along the path, <span class="m">ψ(P<sub>ε</sub>) = ∫ z p(z)(1 + εh(z)) dz = ψ(P) + ε ∫ z h(z) p(z) dz</span>. Because ∫ h p = 0 you can subtract any constant from z inside that integral, so <span class="m">dψ/dε = ∫ (z − ψ) h(z) p(z) dz = E<sub>P</sub>[ϕ h]</span> with <span class="m">ϕ(z) = z − ψ(P)</span>. That ϕ is the influence function of the mean, and it appeared with no estimator in sight: it is a property of the parameter. The scene draws the product ϕ·h·p and integrates it while the mean marker moves.</p>
+<div class="eq">dψ/dε |₀ = ∫ ϕ(z) h(z) p(z) dz = E_P[ϕ h],    ϕ(z) = z − E_P[Z]</div>
+<div class="scene">
+  <div class="paper"><canvas id="c5" width="800" height="460"></canvas><div class="cap" id="cap5"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p5">Play</button></div>
+    <label>ε <span class="v" id="v5e">0.00</span><input type="range" id="e5" min="-0.5" max="0.5" step="0.005" value="0"></label>
+    <label>Direction h <select id="h5"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
+    <div class="readout" id="ro5"></div>
+    <div class="note">Compare the two numbers: the finite difference (ψ(P_ε) − ψ(P))/ε and the inner product E[ϕ h]. For this linear path they agree exactly, because the mean is linear in p. For nonlinear parameters they agree to first order.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The pathwise derivative of a parameter along a submodel with score h is E[ϕ h], where ϕ is the gradient of the parameter. For the mean, ϕ(z) = z − μ. I get it by differentiating ψ(P_ε) under the integral, not from any estimator.</div>
+
+<!-- 6 -->
+<div class="eyebrow" id="s6">Scene 6</div>
+<h2>The same ϕ works for every direction</h2>
+<p>This is the point of calling ϕ a gradient. Change h and the derivative changes, but you never have to recompute ϕ: the derivative is always ⟨ϕ, h⟩. The scene overlays several directions, shows the derivative in each one as an inner product with the one fixed ϕ, and checks it against the finite difference for each. If a parameter has such a ϕ for all directions in the tangent space, it is pathwise differentiable, and that is the entrance requirement for the whole theory.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c6" width="800" height="400"></canvas><div class="cap" id="cap6"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p6">Play</button></div>
+    <label>Scrub <span class="v" id="v6">0.00</span><input type="range" id="t6" min="0" max="1" step="0.002" value="0"></label>
+    <div class="readout" id="ro6"></div>
+    <div class="note">In the nonparametric model the tangent space is all mean-zero functions, so the gradient is unique: that's why the efficient influence function of the mean is z − μ with no alternatives. In a smaller model there are several gradients, all agreeing on the tangent space; the efficient one is the projection.</div>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="eyebrow" id="s7">Scene 7</div>
+<h2>Why it's called "influence": one observation's pull on the parameter</h2>
+<p>Take a special path: contaminate P with a tiny point mass at z₀, <span class="m">P<sub>ε</sub> = (1 − ε)P + ε δ<sub>z₀</sub></span>. Its score is <span class="m">h(z) = 𝟙{z = z₀}/p(z₀) − 1</span> (a spike minus one), and plugging that into E[ϕ h] gives exactly <span class="m">ϕ(z₀)</span>. So <span class="m">ψ(P<sub>ε</sub>) ≈ ψ(P) + ε ϕ(z₀)</span>: the influence function at z₀ is how much the parameter moves when you add a little mass at z₀. Move the spike and watch the mean move by ε(z₀ − μ). That's also why an estimator's error is P<sub>n</sub>ϕ: the empirical distribution is P contaminated by 1/n of mass at each observation.</p>
+<div class="scene">
+  <div class="paper"><canvas id="c7" width="800" height="400"></canvas><div class="cap" id="cap7"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p7">Play</button></div>
+    <label>Spike position z₀ <span class="v" id="v7z">2.00</span><input type="range" id="z7" min="-3" max="3" step="0.01" value="2"></label>
+    <label>Contamination ε <span class="v" id="v7e">0.10</span><input type="range" id="e7" min="0" max="0.3" step="0.005" value="0.1"></label>
+    <div class="readout" id="ro7"></div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The influence function evaluated at z is the Gateaux derivative of the parameter toward a point mass at z: how much one extra observation there would pull the estimate. Averaging it over the sample is the first-order error of any regular estimator.</div>
+
+<!-- 8 -->
+<div class="eyebrow" id="s8">Scene 8</div>
+<h2>The same construction for the ATE, term by term</h2>
+<p>Now the observation is <span class="m">Z = (X, A, Y)</span> and the parameter is <span class="m">ψ = ∫ [μ<sub>1</sub>(x) − μ<sub>0</sub>(x)] p(x) dx</span>. Contaminate with a point mass at one observation <span class="m">(x₀, a₀, y₀)</span> and ask how ψ moves. Two things change: the distribution of X gets a little more mass at x₀, which moves ψ by <span class="m">μ<sub>1</sub>(x₀) − μ<sub>0</sub>(x₀) − ψ</span>; and the regression μ<sub>a₀</sub> at x₀ gets pulled toward y₀, by the residual scaled by how rare that arm is at x₀, <span class="m">(y₀ − μ<sub>a₀</sub>(x₀)) / P(A = a₀ | x₀)</span>, with a sign depending on the arm. Add them and you have the efficient influence function of the ATE, derived by asking "what does one observation do" rather than by looking it up.</p>
+<div class="eq">ϕ(x₀,a₀,y₀) = [μ₁(x₀) − μ₀(x₀) − ψ]  +  (2a₀ − 1) · (y₀ − μ_{a₀}(x₀)) / P(A = a₀ | x₀)</div>
+<div class="scene">
+  <div class="paper"><canvas id="c8" width="800" height="460"></canvas><div class="cap" id="cap8"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p8">Play</button></div>
+    <label>x₀ <span class="v" id="v8x">1.20</span><input type="range" id="x8" min="-1.9" max="1.9" step="0.01" value="1.2"></label>
+    <label>a₀ <select id="a8"><option value="1">treated (A = 1)</option><option value="0">control (A = 0)</option></select></label>
+    <label>y₀ (drag the observation up and down) <span class="v" id="v8y">6.00</span><input type="range" id="y8" min="-3" max="12" step="0.05" value="6"></label>
+    <div class="readout" id="ro8"></div>
+    <div class="note">Move x₀ to where the chosen arm is rare (a control at high x, say). The residual term grows because 1/P(A = a₀ | x₀) grows: that one observation stands in for many. That is where the inverse-propensity weight comes from, and why positivity matters.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The EIF of the ATE has two parts because one observation influences the parameter two ways: through the distribution of X, giving μ₁ − μ₀ − ψ, and through the outcome regression at its own x, giving the residual divided by the probability of its arm. The second part is the correction term in AIPW.</div>
+
+<!-- 9 -->
+<div class="eyebrow" id="s9">Scene 9</div>
+<h2>The hardest direction, and why its variance is the bound</h2>
+<p>Along any one path the problem is parametric in ε, so Cramér–Rao applies: no regular estimator of ψ can have asymptotic variance below <span class="m">(dψ/dε)² / I</span>, with Fisher information <span class="m">I = E[h²]</span>. Substitute dψ/dε = E[ϕ h]: the bound along direction h is <span class="m">E[ϕh]² / E[h²]</span>. By Cauchy–Schwarz that is at most <span class="m">E[ϕ²]</span>, with equality when h ∝ ϕ. So the path with score ϕ is the hardest one-dimensional problem hiding inside the nonparametric one, its bound is Var(ϕ), and no estimator can beat it because it can't even beat it on that one path. Rotate h between ϕ and something orthogonal and watch the bound.</p>
+<div class="eq">bound along h = (E[ϕh])² / E[h²]  ≤  E[ϕ²] = Var(ϕ),   equality iff h ∝ ϕ   (the least-favorable submodel)</div>
+<div class="scene">
+  <div class="paper"><canvas id="c9" width="800" height="400"></canvas><div class="cap" id="cap9"></div></div>
+  <div class="ctl">
+    <div class="btns"><button class="primary" id="p9">Play</button></div>
+    <label>Angle between h and ϕ <span class="v" id="v9">30°</span><input type="range" id="a9" min="0" max="90" step="1" value="30"></label>
+    <div class="readout" id="ro9"></div>
+    <div class="note">This is what "least favorable" means, and why TMLE fluctuates along a submodel whose score is the efficient influence function: it is the direction in which the data are least informative about ψ per unit of likelihood, so solving the score equation there is what a maximum-likelihood step would do if it could see ψ.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>On any one-dimensional submodel Cramér–Rao gives a bound of (E[ϕh])²/E[h²]. Maximizing over directions gives Var(ϕ), attained when the score is ϕ itself. That's the efficiency bound and the least-favorable submodel in one sentence.</div>
+
+<p class="src">Construction follows Tsiatis, <em>Semiparametric Theory and Missing Data</em> (ch. 3–4), and Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a> (§3.1–3.3). The point-mass derivation of the ATE influence function is the Gateaux-derivative route in Hines et al. (2022), "Demystifying statistical learning based on efficient influence functions."</p>
+</div>
+
+<script>
+(function(){
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const F='"IBM Plex Sans",sans-serif',FM='"IBM Plex Mono",monospace',FS='"Fraunces",Georgia,serif';
+let C={};function readC(){C={phat:css('--phat'),p:css('--p'),or:css('--or'),teal:css('--teal'),green:css('--green'),purple:css('--purple'),red:css('--red'),pen:css('--pen'),grid:css('--grid'),muted:css('--muted'),paper:css('--paper'),soft:css('--soft')};}
+readC();
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),ease=t=>t<0?0:t>1?1:t*t*(3-2*t),seg=(t,a,b)=>ease((t-a)/(b-a));
+function line(g,x1,y1,x2,y2,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();g.setLineDash([]);}
+function poly(g,pts,col,w,dash,close){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));if(close)g.closePath();g.stroke();g.setLineDash([]);}
+function fillBetween(g,xs,y1,y2,col,alpha){g.fillStyle=col;g.globalAlpha=alpha;g.beginPath();xs.forEach((x,i)=>i?g.lineTo(x,y1[i]):g.moveTo(x,y1[i]));for(let i=xs.length-1;i>=0;i--)g.lineTo(xs[i],y2[i]);g.closePath();g.fill();g.globalAlpha=1;}
+function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();if(ring){g.strokeStyle=C.paper;g.lineWidth=2;g.stroke();}}
+function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
+function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
+function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
+function axes(g,L,R,T,B,col){line(g,L,B,R,B,col,1.2);line(g,L,B,L,T,col,1.2);}
+// ---------- numerics on a grid ----------
+const N=481,ZL=-4,ZR=4,dz=(ZR-ZL)/(N-1);const Z=new Float64Array(N);for(let i=0;i<N;i++)Z[i]=ZL+i*dz;
+const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+const P0=new Float64Array(N);for(let i=0;i<N;i++)P0[i]=0.6*nrm(Z[i],-0.8,0.7)+0.4*nrm(Z[i],1.2,0.9);
+const integ=f=>{let s=0;for(let i=0;i<N;i++)s+=f[i]*dz;return s;};
+const MU0=(()=>{let s=0;for(let i=0;i<N;i++)s+=Z[i]*P0[i]*dz;return s;})();
+function hOf(kind,p){p=p||P0;const raw=new Float64Array(N);for(let i=0;i<N;i++){const z=Z[i];raw[i]=kind==='tilt'?(z-MU0):kind==='bump'?Math.exp(-Math.pow(z-1,2)):kind==='wave'?Math.sin(1.6*z):(z-MU0)**2;}
+  // center to mean zero under p, then scale so max |h| = 1.4
+  let m=0;for(let i=0;i<N;i++)m+=raw[i]*p[i]*dz;let mx=0;for(let i=0;i<N;i++){raw[i]-=m;mx=Math.max(mx,Math.abs(raw[i]));}for(let i=0;i<N;i++)raw[i]*=1.4/mx;return raw;}
+function pEps(h,e){const q=new Float64Array(N);for(let i=0;i<N;i++)q[i]=P0[i]*Math.max(0,1+e*h[i]);return q;}
+const meanOf=p=>{let s=0,m=0;for(let i=0;i<N;i++){s+=p[i]*dz;m+=Z[i]*p[i]*dz;}return m/s;};
+const HN=['tilt','bump','wave','spread'];
+// ---------- scene scaffold ----------
+function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={cv,g,t:tEl?+tEl.value:(opts&&opts.t0!==undefined?opts.t0:1),draw:()=>draw(g,cv.width,cv.height,S.t),
+  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}if(opts&&opts.onT)opts.onT(S.t);S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
+  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
+  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const f=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=f;el.onchange=f;if(lab)lab.textContent=fmt(+el.value);}
+// density panel helper
+function densityPanel(g,L,R,T,B,curves,opts){ // curves: [{p, col, w, dash, fill}]
+  const xs=z=>L+(R-L)*(z-ZL)/(ZR-ZL),ys=v=>B-(B-T)*v/((opts&&opts.ymax)||0.5);
+  for(const v of [0.1,0.2,0.3,0.4])line(g,L,ys(v),R,ys(v),C.grid,1);axes(g,L,R,T,B,C.pen);
+  for(const z of [-3,-2,-1,0,1,2,3]){line(g,xs(z),B,xs(z),B+4,C.pen,1);txt(g,z,xs(z),B+14,C.muted,11,'center',FM);}
+  for(const c of curves){const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(c.p[i])]);if(c.fill){g.fillStyle=c.col;g.globalAlpha=0.1;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.lineTo(xs(ZR),B);g.lineTo(xs(ZL),B);g.closePath();g.fill();g.globalAlpha=1;}poly(g,pts,c.col,c.w||2,c.dash);}
+  return {xs,ys};}
+
+// ================= SCENE 1 =================
+const S1=scene(1,(g,W,H)=>{clear(g,W,H);const mu=+document.getElementById('a1').value,sd=+document.getElementById('b1').value,bp=+document.getElementById('c1s').value;
+  const p=new Float64Array(N);for(let i=0;i<N;i++){p[i]=nrm(Z[i],mu,sd)+bp*0.18*(Math.exp(-Math.pow((Z[i]-1.8)/0.35,2))-0.35*Math.exp(-Math.pow((Z[i]+0.2)/1.2,2)));}
+  const {xs,ys}=densityPanel(g,60,440,40,300,[{p,col:C.p,w:2.2,fill:true}],{ymax:0.9});txt(g,'p(z)',70,30,C.pen,14,'left',FS,true);txt(g,'z',450,300,C.pen,14,'left',FS,true);
+  if(bp>0.02)txt(g,'not a Normal any more',xs(1.8),ys(0.75),C.or,12,'center',FS,true);
+  // parametric sheet
+  const L=520,R=770,T=50,B=200;g.fillStyle=C.soft;g.fillRect(L,T,R-L,B-T);poly(g,[[L,T],[R,T],[R,B],[L,B]],C.rule||C.grid,1,null,true);txt(g,'parametric model: (μ, σ)',L,T-12,C.muted,12,'left');
+  const px=L+(R-L)*(mu+1.5)/3,py=B-(B-T)*(sd-0.5)/1.3;txt(g,'μ',R+8,B,C.muted,12,'left',FS,true);txt(g,'σ',L-10,T+4,C.muted,12,'right',FS,true);
+  if(bp>0.02){dot(g,px,py,C.grid,6);txt(g,'no coordinate for the bump',L+(R-L)/2,B+16,C.or,11.5,'center');}else dot(g,px,py,C.p,6,true);
+  // nonparametric blob
+  const bx=645,by=300,rx=120,ry=48;g.fillStyle=C.soft;g.beginPath();g.ellipse(bx,by,rx,ry,0,0,6.283);g.fill();g.strokeStyle=C.pen;g.lineWidth=1.4;g.stroke();txt(g,'nonparametric model',L,by-ry-12,C.muted,12,'left');
+  // 2-D sheet inside blob as a thin band; point moves off it with bump
+  line(g,bx-90,by+10,bx+90,by-10,C.grid,10);txt(g,'the Normal sheet',bx,by+30,C.muted,10.5,'center');
+  const qx=bx-90+180*(mu+1.5)/3,qy=by+10-20*(mu+1.5)/3-(sd-1)*18-bp*38;dot(g,qx,qy,C.p,6,true);
+  document.getElementById('cap1').textContent=bp>0.02?'The bump moved the point off the two-dimensional sheet. The parametric model cannot represent it; the nonparametric model has a direction for it.':'Move μ and σ: the curve changes and the point slides across the sheet. Every curve is one point.';
+});
+bind('a1','v1a',v=>v.toFixed(2),()=>S1.draw());bind('b1','v1b',v=>v.toFixed(2),()=>S1.draw());bind('c1s','v1c',v=>v.toFixed(2),()=>S1.draw());
+
+// ================= SCENE 2 =================
+const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e2').value,h=hOf(document.getElementById('h2').value);const q=pEps(h,e);
+  const {xs,ys}=densityPanel(g,60,540,40,300,[{p:P0,col:C.muted,w:1.6,dash:[5,4]},{p:q,col:C.p,w:2.4}],{ymax:0.5});
+  // shading of moved mass
+  const X=[],Y1=[],Y2=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y1.push(ys(P0[i]));Y2.push(ys(q[i]));}
+  const up=Y2.map((y,i)=>Math.min(y,Y1[i])),dn=Y2.map((y,i)=>Math.max(y,Y1[i]));fillBetween(g,X,Y1,up,C.green,0.35);fillBetween(g,X,Y1,dn,C.red,0.35);
+  txt(g,'p_ε(z) = p(z)(1 + ε h(z))',70,30,C.pen,14,'left',FS,true);txt(g,`ε = ${e.toFixed(2)}`,530,30,C.p,13,'right',FM);
+  // h panel
+  const L=60,R=540,T=330,B=390;line(g,L,(T+B)/2,R,(T+B)/2,C.grid,1);const hp=[];for(let i=0;i<N;i++)hp.push([xs(Z[i]),(T+B)/2-h[i]*16]);poly(g,hp,C.green,1.8);txt(g,'direction h(z)',L+10,T+2,C.green,12.5,'left',FS,true);
+  // model space with path
+  const bx=670,by=180,rx=100,ry=110;g.fillStyle=C.soft;g.beginPath();g.ellipse(bx,by,rx,ry,0,0,6.283);g.fill();g.strokeStyle=C.pen;g.lineWidth=1.4;g.stroke();txt(g,'model',bx,by-ry-12,C.muted,12,'center');
+  const path=[];for(let s=-0.5;s<=0.5;s+=0.02)path.push([bx+s*120,by-s*s*60+s*30]);poly(g,path,C.grid,3);poly(g,path,C.p,1,[3,3]);
+  const pp=[bx+e*120,by-e*e*60+e*30];dot(g,bx,by,C.muted,4);txt(g,'P',bx-12,by+12,C.muted,13,'right',FS,true);dot(g,pp[0],pp[1],C.p,6,true);txt(g,'P_ε',pp[0]+10,pp[1]-10,C.p,13,'left',FS,true);
+  txt(g,'the path {P_ε}',bx,by+ry+14,C.muted,12,'center');
+  document.getElementById('ro2').innerHTML=`<span class="k">∫ p_ε</span><span>${integ(q).toFixed(4)}</span><span class="k">∫ h p</span><span>${(()=>{let s=0;for(let i=0;i<N;i++)s+=h[i]*P0[i]*dz;return s.toFixed(4)})()}</span><span class="k">mean of P_ε</span><span>${meanOf(q).toFixed(3)}</span>`;
+  document.getElementById('cap2').textContent=Math.abs(e)<0.01?'At ε = 0 the path sits at p. Green and red will show where mass is added and removed.':'Mass moves from red to green. The density is still a density (total mass 1) because h has mean zero.';
+},{onT:t=>{const el=document.getElementById('e2');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v2e').textContent=(+el.value).toFixed(2);},dur:6000});
+bind('e2','v2e',v=>v.toFixed(2),()=>S2.draw());bind('h2',null,v=>v,()=>S2.draw());
+
+// ================= SCENE 3 =================
+const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z3').value,h=hOf(document.getElementById('h3').value);const i0=Math.round((z0-ZL)/dz);
+  const e=(Math.sin(t*6.283)*0.4);const q=pEps(h,e);
+  const {xs,ys}=densityPanel(g,60,440,40,250,[{p:P0,col:C.muted,w:1.6,dash:[5,4]},{p:q,col:C.p,w:2.2}],{ymax:0.5});txt(g,'p_ε(z)',70,30,C.pen,14,'left',FS,true);txt(g,`ε = ${e.toFixed(2)}`,430,30,C.p,12.5,'right',FM);
+  line(g,xs(z0),250,xs(z0),40,C.or,1.2,[4,3]);dot(g,xs(z0),ys(q[i0]),C.or,6,true);dot(g,xs(z0),ys(P0[i0]),C.muted,4);txt(g,'z₀',xs(z0),262,C.or,13,'center',FS,true);
+  // score panel below
+  const L=60,R=440,T=290,B=440;line(g,L,(T+B)/2,R,(T+B)/2,C.grid,1);axes(g,L,R,T,B,C.pen);const hp=[];for(let i=0;i<N;i++)hp.push([xs(Z[i]),(T+B)/2-h[i]*45]);poly(g,hp,C.green,2);txt(g,'score h(z) = d/dε log p_ε(z)',L+10,T+10,C.green,13,'left',FS,true);
+  dot(g,xs(z0),(T+B)/2-h[i0]*45,C.or,6,true);line(g,xs(z0),(T+B)/2,xs(z0),(T+B)/2-h[i0]*45,C.or,1.2);txt(g,`h(z₀) = ${h[i0].toFixed(2)}`,xs(z0)+10,(T+B)/2-h[i0]*45-12,C.or,12.5,'left',FM);
+  // right: log p_eps(z0) vs eps
+  const RL=520,RR=770,RT=60,RB=250;axes(g,RL,RR,RT,RB,C.pen);txt(g,'log p_ε(z₀)  as ε varies',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
+  const ex=v=>RL+(RR-RL)*(v+0.5),base=Math.log(P0[i0]);const ey=v=>RB-(RB-RT)*(0.5+(v-base)/1.6);
+  const pts=[];for(let v=-0.5;v<=0.5;v+=0.01){const val=Math.log(Math.max(1e-9,P0[i0]*(1+v*h[i0])));pts.push([ex(v),ey(val)]);}poly(g,pts,C.p,2);
+  line(g,ex(0),RT,ex(0),RB,C.grid,1);
+  // tangent at 0 with slope h(z0)
+  line(g,ex(-0.45),ey(base-0.45*h[i0]),ex(0.45),ey(base+0.45*h[i0]),C.green,1.8);dot(g,ex(0),ey(base),C.pen,4,true);
+  dot(g,ex(e),ey(Math.log(Math.max(1e-9,P0[i0]*(1+e*h[i0])))),C.or,6,true);
+  txt(g,'slope at 0 = h(z₀)',ex(0.05),ey(base)+(h[i0]>0?22:-22),C.green,12.5,'left',FS,true);
+  txt(g,`ε=${e.toFixed(2)}`,ex(e),RB+16,C.or,11,'center',FM);
+  document.getElementById('ro3').innerHTML=`<span class="k">p(z₀)</span><span>${P0[i0].toFixed(4)}</span><span class="k">p_ε(z₀)</span><span>${q[i0].toFixed(4)}</span><span class="k">h(z₀) exact</span><span>${h[i0].toFixed(3)}</span><span class="k">finite diff</span><span>${e!==0?((Math.log(q[i0])-Math.log(P0[i0]))/e).toFixed(3):'—'}</span>`;
+  document.getElementById('cap3').textContent='Left: the density at the probe rises and falls with ε. Right: log p_ε(z₀) against ε; its slope at zero is the score at z₀. Do this for every z₀ and you have the score function (bottom).';
+},{dur:6000,t0:0.12});
+bind('z3','v3z',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>S3.draw());
+
+// ================= SCENE 4 =================
+const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const h=hOf(document.getElementById('h4').value);
+  const {xs,ys}=densityPanel(g,60,540,40,200,[{p:P0,col:C.muted,w:1.6}],{ymax:0.5});txt(g,'p(z)',70,30,C.pen,14,'left',FS,true);
+  const L=60,R=540,T=220,B=340;const mid=(T+B)/2;line(g,L,mid,R,mid,C.pen,1);txt(g,'h(z) · p(z)',L+10,T+8,C.pen,13,'left',FS,true);
+  const prod=new Float64Array(N);for(let i=0;i<N;i++)prod[i]=h[i]*P0[i];
+  const X=[],Y0=[],Y=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y0.push(mid);Y.push(mid-prod[i]*260);}
+  const k=Math.floor(seg(t,0,0.7)*N);const Xk=X.slice(0,k),Yk=Y.slice(0,k),Y0k=Y0.slice(0,k);
+  if(k>1){const up=Yk.map((y,i)=>Math.min(y,mid)),dn=Yk.map((y,i)=>Math.max(y,mid));fillBetween(g,Xk,Y0k,up,C.green,0.45);fillBetween(g,Xk,Y0k,dn,C.red,0.45);poly(g,Xk.map((x,i)=>[x,Yk[i]]),C.pen,1.4);}
+  let pos=0,neg=0;for(let i=0;i<k;i++){if(prod[i]>0)pos+=prod[i]*dz;else neg+=prod[i]*dz;}
+  // tally bars
+  const TL=600,TR=770;txt(g,'running integral',TL,60,C.muted,12,'left');const sc=200;
+  g.fillStyle=C.green;g.fillRect(TL,90,Math.min(TR-TL,pos*sc),16);txt(g,'+'+pos.toFixed(3),TL,120,C.green,12.5,'left',FM);
+  g.fillStyle=C.red;g.fillRect(TL,140,Math.min(TR-TL,-neg*sc),16);txt(g,neg.toFixed(3),TL,170,C.red,12.5,'left',FM);
+  const tot=pos+neg;txt(g,'sum',TL,205,C.muted,12,'left');txt(g,(k>=N?tot:tot).toFixed(4),TL,225,C.pen,15,'left',FM);
+  if(t>0.75){txt(g,'= E_P[h] = 0',TL,250,C.pen,14,'left',FS,true);txt(g,'⇔ ⟨h√p, √p⟩ = 0',TL,272,C.muted,12.5,'left',FS,true);txt(g,'the score is ⟂ to √p',TL,290,C.muted,12.5,'left',FS,true);}
+  document.getElementById('ro4').innerHTML=`<span class="k">∫ h p (positive part)</span><span>${pos.toFixed(4)}</span><span class="k">∫ h p (negative part)</span><span>${neg.toFixed(4)}</span><span class="k">total</span><span>${tot.toFixed(5)}</span>`;
+  document.getElementById('cap4').textContent=t<0.7?'Integrating h·p from left to right: green area counts up, red area counts down.':'They cancel exactly. Any direction you can move in without leaking mass has this property, and every score is such a direction.';
+});
+bind('h4',null,v=>v,()=>S4.draw());
+
+// ================= SCENE 5 =================
+const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e5').value,h=hOf(document.getElementById('h5').value);const q=pEps(h,e);
+  const {xs,ys}=densityPanel(g,60,540,40,220,[{p:P0,col:C.muted,w:1.6,dash:[5,4]},{p:q,col:C.p,w:2.2}],{ymax:0.5});txt(g,'p_ε(z)',70,30,C.pen,14,'left',FS,true);
+  const m0=MU0,me=meanOf(q);line(g,xs(m0),220,xs(m0),200,C.muted,2);txt(g,'ψ(P)',xs(m0)-6,238,C.muted,12,'right',FS,true);line(g,xs(me),220,xs(me),195,C.p,2.4);txt(g,'ψ(P_ε)',xs(me)+6,252,C.p,12.5,'left',FS,true);
+  if(Math.abs(me-m0)>0.01)arrow(g,xs(m0),190,xs(me),190,C.or,1.6);
+  // product panel phi*h*p
+  const L=60,R=540,T=280,B=440,mid=(T+B)/2;line(g,L,mid,R,mid,C.pen,1);txt(g,'ϕ(z) · h(z) · p(z),   ϕ(z) = z − ψ(P)',L+10,T+8,C.pen,13,'left',FS,true);
+  const prod=new Float64Array(N);for(let i=0;i<N;i++)prod[i]=(Z[i]-m0)*h[i]*P0[i];
+  const X=[],Y0=[],Y=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y0.push(mid);Y.push(mid-prod[i]*200);}
+  const up=Y.map(y=>Math.min(y,mid)),dn=Y.map(y=>Math.max(y,mid));fillBetween(g,X,Y0,up,C.green,0.45);fillBetween(g,X,Y0,dn,C.red,0.45);poly(g,X.map((x,i)=>[x,Y[i]]),C.pen,1.4);
+  // phi line overlay (scaled)
+  const ph=[];for(let i=0;i<N;i++)ph.push([xs(Z[i]),mid-(Z[i]-m0)*14]);poly(g,ph,C.purple,1.2,[3,3]);txt(g,'ϕ(z) = z − ψ  (dashed)',R-10,T+8,C.purple,12,'right',FS,true);
+  const dpsi=integ(prod);const fd=Math.abs(e)>1e-9?(me-m0)/e:NaN;
+  // right: psi vs eps
+  const RL=600,RR=770,RT=60,RB=220;axes(g,RL,RR,RT,RB,C.pen);txt(g,'ψ(P_ε) vs ε',RL,RT-14,C.pen,13,'left',FS,true);const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-m0)/0.8);
+  const pts=[];for(let v=-0.5;v<=0.5;v+=0.02)pts.push([ex(v),ey(meanOf(pEps(h,v)))]);poly(g,pts,C.p,2);line(g,ex(-0.45),ey(m0-0.45*dpsi),ex(0.45),ey(m0+0.45*dpsi),C.green,1.6);dot(g,ex(e),ey(me),C.or,6,true);dot(g,ex(0),ey(m0),C.pen,4,true);
+  txt(g,'slope = E[ϕh]',RL+6,RB+16,C.green,12.5,'left',FS,true);
+  document.getElementById('ro5').innerHTML=`<span class="k">E_P[ϕ h] = ∫ϕhp</span><span>${dpsi.toFixed(4)}</span><span class="k">(ψ(P_ε)−ψ(P))/ε</span><span>${isNaN(fd)?'—':fd.toFixed(4)}</span><span class="k">ψ(P)</span><span>${m0.toFixed(4)}</span><span class="k">ψ(P_ε)</span><span>${me.toFixed(4)}</span>`;
+  document.getElementById('cap5').textContent='The signed area of ϕ·h·p is the rate at which the mean moves along this path. Change h: the area changes, ϕ does not.';
+},{onT:t=>{const el=document.getElementById('e5');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v5e').textContent=(+el.value).toFixed(2);},dur:6000});
+bind('e5','v5e',v=>v.toFixed(2),()=>S5.draw());bind('h5',null,v=>v,()=>S5.draw());
+
+// ================= SCENE 6 =================
+const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const cols=[C.green,C.or,C.teal,C.red];
+  const {xs,ys}=densityPanel(g,60,440,40,200,[{p:P0,col:C.muted,w:1.6}],{ymax:0.5});txt(g,'p(z) and four directions h',70,30,C.pen,14,'left',FS,true);
+  const L=60,R=440,T=220,B=360,mid=(T+B)/2;line(g,L,mid,R,mid,C.grid,1);
+  // phi line
+  const ph=[];for(let i=0;i<N;i++)ph.push([xs(Z[i]),mid-(Z[i]-MU0)*20]);poly(g,ph,C.purple,2.2);txt(g,'ϕ(z) = z − ψ   (fixed)',L+10,T+8,C.purple,13,'left',FS,true);
+  const rows=[];HN.forEach((k,j)=>{const show=seg(t,j*0.2,j*0.2+0.2);if(show<=0)return;const h=hOf(k);const pts=[];for(let i=0;i<N*show;i++)pts.push([xs(Z[i]),mid-h[i]*30]);poly(g,pts,cols[j],1.4,[4,3]);
+    let ip=0;for(let i=0;i<N;i++)ip+=(Z[i]-MU0)*h[i]*P0[i]*dz;const fd=(meanOf(pEps(h,0.01))-MU0)/0.01;rows.push([k,ip,fd,cols[j]]);});
+  // table
+  const TL=490;txt(g,'direction',TL,60,C.muted,11.5,'left',FM);txt(g,'⟨ϕ,h⟩',TL+110,60,C.muted,11.5,'left',FM);txt(g,'finite diff',TL+200,60,C.muted,11.5,'left',FM);line(g,TL,72,770,72,C.grid,1);
+  rows.forEach((r,j)=>{txt(g,r[0],TL,92+j*26,r[3],13,'left',FM);txt(g,r[1].toFixed(4),TL+110,92+j*26,C.pen,13,'left',FM);txt(g,r[2].toFixed(4),TL+200,92+j*26,C.pen,13,'left',FM);});
+  if(t>0.9){txt(g,'one ϕ, every derivative',TL,220,C.purple,14,'left',FS,true);txt(g,'dψ/dε along h = E_P[ϕ h]',TL,242,C.pen,12.5,'left',FM);}
+  document.getElementById('ro6').innerHTML=rows.map(r=>`<span class="k">${r[0]}</span><span>${r[1].toFixed(3)}</span>`).join('');
+  document.getElementById('cap6').textContent='Each dashed curve is a direction h; the table shows the derivative of the mean along it computed two ways. They agree, and the purple ϕ never changed.';
+});
+
+// ================= SCENE 7 =================
+const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z7').value,e=+document.getElementById('e7').value*Math.max(0.001,seg(t,0,0.6));
+  const {xs,ys}=densityPanel(g,60,540,40,260,[{p:P0,col:C.muted,w:1.8,fill:true}],{ymax:0.5});txt(g,'(1−ε) p(z)  +  ε · δ_{z₀}',70,30,C.pen,14,'left',FS,true);
+  // scaled density
+  const sc=[];for(let i=0;i<N;i++)sc.push([xs(Z[i]),ys(P0[i]*(1-e))]);poly(g,sc,C.p,2);
+  // spike
+  const sh=Math.min(200,e*700);line(g,xs(z0),260,xs(z0),260-sh,C.or,6);txt(g,'ε at z₀',xs(z0),245-sh,C.or,12.5,'center',FS,true);
+  const m0=MU0,me=(1-e)*m0+e*z0;line(g,xs(m0),260,xs(m0),238,C.muted,2);txt(g,'ψ(P)',xs(m0)-6,276,C.muted,12,'right',FS,true);line(g,xs(me),260,xs(me),232,C.p,2.4);txt(g,'ψ(P_ε)',xs(me)+6,292,C.p,12.5,'left',FS,true);
+  if(Math.abs(me-m0)>0.005)arrow(g,xs(m0),226,xs(me),226,C.or,1.6);
+  // phi panel
+  const L=60,R=540,T=312,B=390,mid=(T+B)/2;line(g,L,mid,R,mid,C.grid,1);const ph=[];for(let i=0;i<N;i++)ph.push([xs(Z[i]),mid-(Z[i]-m0)*12]);poly(g,ph,C.purple,2);txt(g,'ϕ(z) = z − ψ',L+10,T+6,C.purple,13,'left',FS,true);
+  dot(g,xs(z0),mid-(z0-m0)*12,C.or,6,true);txt(g,`ϕ(z₀) = ${(z0-m0).toFixed(2)}`,xs(z0)+10,mid-(z0-m0)*12-12,C.or,12.5,'left',FM);
+  // right: text derivation
+  const RL=590;txt(g,'ψ(P_ε) − ψ(P)',RL,70,C.pen,13,'left',FM);txt(g,`= (1−ε)ψ + ε z₀ − ψ`,RL,92,C.muted,12.5,'left',FM);txt(g,`= ε (z₀ − ψ)`,RL,114,C.muted,12.5,'left',FM);txt(g,`= ε · ϕ(z₀)`,RL,140,C.purple,14,'left',FM);
+  txt(g,`ε·ϕ(z₀) = ${(e*(z0-m0)).toFixed(4)}`,RL,180,C.pen,12.5,'left',FM);txt(g,`ψ(P_ε) − ψ(P) = ${(me-m0).toFixed(4)}`,RL,200,C.pen,12.5,'left',FM);
+  txt(g,'Now put mass 1/n at each of the',RL,250,C.muted,12,'left');txt(g,'n observations (that is Pₙ):',RL,266,C.muted,12,'left');txt(g,'ψ̂ − ψ ≈ (1/n) Σ ϕ(Zᵢ) = Pₙϕ',RL,290,C.pen,12.5,'left',FM);
+  document.getElementById('ro7').innerHTML=`<span class="k">z₀</span><span>${z0.toFixed(2)}</span><span class="k">ϕ(z₀) = z₀ − ψ</span><span>${(z0-m0).toFixed(3)}</span><span class="k">Δψ / ε</span><span>${e>0?((me-m0)/e).toFixed(3):'—'}</span>`;
+  document.getElementById('cap7').textContent='A little mass at z₀ pulls the mean toward z₀ by ε·(z₀ − ψ). The influence function is the pull per unit of mass.';
+});
+bind('z7','v7z',v=>v.toFixed(2),()=>S7.draw());bind('e7','v7e',v=>v.toFixed(2),()=>S7.draw());
+
+// ================= SCENE 8 =================
+const expit=z=>1/(1+Math.exp(-z));const mu1=x=>0.5+x+0.6*x*x+2+0.4*x,mu0=x=>0.5+x+0.6*x*x,pi=x=>expit(0.9*x);
+const XG=[];for(let x=-2;x<=2.0001;x+=0.02)XG.push(x);const pX=x=>0.25; // uniform on [-2,2]
+const ATE=(()=>{let s=0;for(const x of XG)s+=(mu1(x)-mu0(x))*pX(x)*0.02;return s;})();
+const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const x0=+document.getElementById('x8').value,a0=+document.getElementById('a8').value,y0=+document.getElementById('y8').value;const eps=0.1*seg(t,0,0.6);
+  const L=60,R=490,T=40,B=300;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);txt(g,'Y',L-6,T-12,C.pen,13,'left',FS,true);
+  // regressions
+  const c1=[],c0=[];for(const x of XG){c1.push([xs(x),ys(mu1(x))]);c0.push([xs(x),ys(mu0(x))]);}poly(g,c1,C.p,2.2);poly(g,c0,C.red,2.2);txt(g,'μ₁(x)',xs(-1.9),ys(mu1(-1.9))-12,C.p,13,'left',FS,true);txt(g,'μ₀(x)',xs(-1.9),ys(mu0(-1.9))+14,C.red,13,'left',FS,true);
+  // propensity strip
+  const PT=318,PB=348;for(let i=0;i<XG.length-1;i++){const x=XG[i];g.fillStyle=C.p;g.globalAlpha=0.15+0.6*pi(x);g.fillRect(xs(x),PT,xs(XG[i+1])-xs(x)+0.5,PB-PT);}g.globalAlpha=1;txt(g,'P(A=1 | x)  (darker = more treated)',L,PB+14,C.muted,11.5,'left');
+  // the observation
+  const col=a0?C.p:C.red;const mu=a0?mu1(x0):mu0(x0);const pa=a0?pi(x0):1-pi(x0);
+  line(g,xs(x0),ys(mu),xs(x0),ys(y0),C.or,2.2);dot(g,xs(x0),ys(y0),col,7,true);txt(g,'(x₀, a₀, y₀)',xs(x0)+12,ys(y0),col,13,'left',FS,true);
+  // pulled regression (local bump) to visualize influence on mu_a
+  const pull=[];for(const x of XG){const w=Math.exp(-Math.pow((x-x0)/0.25,2));const base=a0?mu1(x):mu0(x);pull.push([xs(x),ys(base+eps/pa*(y0-mu)*w*0.6)]);}if(eps>0)poly(g,pull,col,1.4,[4,3]);
+  // terms
+  const t1=mu1(x0)-mu0(x0)-ATE,t2=(2*a0-1)*(y0-mu)/pa,phi=t1+t2;
+  const RL=545;txt(g,'influence of this observation',RL,50,C.muted,12,'left');
+  txt(g,'through the X-distribution:',RL,80,C.pen,12,'left');txt(g,`μ₁(x₀) − μ₀(x₀) − ψ = ${t1.toFixed(2)}`,RL,98,C.teal,12.5,'left',FM);
+  txt(g,'through the regression at x₀:',RL,130,C.pen,12,'left');txt(g,`±(y₀ − μ_a₀(x₀)) / P(a₀|x₀)`,RL,148,C.or,12,'left',FM);txt(g,`= ${(2*a0-1)>0?'+':'−'}${Math.abs(y0-mu).toFixed(2)} / ${pa.toFixed(2)} = ${t2.toFixed(2)}`,RL,166,C.or,12.5,'left',FM);
+  txt(g,`ϕ(x₀,a₀,y₀) = ${phi.toFixed(2)}`,RL,204,C.purple,15,'left',FM);
+  // bars
+  const bx=RL,by=250,sc=6;const draw=(v,y,c,lab)=>{g.fillStyle=c;g.fillRect(bx+90,y-7,v*sc,14);txt(g,lab,bx,y,C.muted,11.5,'left',FM);};line(g,bx+90,235,bx+90,320,C.grid,1);draw(t1,250,C.teal,'X-part');draw(t2,275,C.or,'regr.');draw(phi,300,C.purple,'total');
+  txt(g,`ψ = ${ATE.toFixed(2)} → ψ_ε ≈ ${(ATE+eps*phi).toFixed(2)}`,RL,345,C.pen,12,'left',FM);txt(g,`(ε = ${eps.toFixed(2)})`,RL,363,C.muted,11.5,'left',FM);
+  document.getElementById('ro8').innerHTML=`<span class="k">P(A=a₀ | x₀)</span><span>${pa.toFixed(3)}</span><span class="k">1 / P(a₀|x₀)</span><span>${(1/pa).toFixed(2)}</span><span class="k">residual y₀−μ</span><span>${(y0-mu).toFixed(2)}</span><span class="k">ϕ</span><span>${phi.toFixed(3)}</span>`;
+  document.getElementById('cap8').textContent=eps<0.02?'One observation. Its influence on the ATE has two pieces: where its x sits, and how far its y is from the regression for its arm.':'The dashed curve is the regression being pulled toward y₀ at x₀. The pull is the residual divided by the probability of that arm at x₀, so rare arms pull harder.';
+});
+bind('x8','v8x',v=>v.toFixed(2),()=>S8.draw());bind('y8','v8y',v=>v.toFixed(2),()=>S8.draw());bind('a8',null,v=>v,()=>S8.draw());
+
+// ================= SCENE 9 =================
+const S9=scene(9,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a9').value*Math.PI/180;
+  // phi and an orthogonal direction g_perp (orthogonalized wave)
+  const phi=new Float64Array(N);for(let i=0;i<N;i++)phi[i]=Z[i]-MU0;let w=hOf('wave');let ip=0,pp=0;for(let i=0;i<N;i++){ip+=w[i]*phi[i]*P0[i]*dz;pp+=phi[i]*phi[i]*P0[i]*dz;}
+  const gp=new Float64Array(N);let gg=0;for(let i=0;i<N;i++){gp[i]=w[i]-ip/pp*phi[i];gg+=gp[i]*gp[i]*P0[i]*dz;}for(let i=0;i<N;i++)gp[i]*=Math.sqrt(pp/gg); // same norm as phi
+  const h=new Float64Array(N);for(let i=0;i<N;i++)h[i]=Math.cos(ang)*phi[i]+Math.sin(ang)*gp[i];
+  let Eph=0,Ehh=0;for(let i=0;i<N;i++){Eph+=phi[i]*h[i]*P0[i]*dz;Ehh+=h[i]*h[i]*P0[i]*dz;}const bound=Eph*Eph/Ehh;
+  const {xs,ys}=densityPanel(g,60,440,40,180,[{p:P0,col:C.muted,w:1.6}],{ymax:0.5});txt(g,'p(z), ϕ (purple), h (green)',70,30,C.pen,14,'left',FS,true);
+  const L=60,R=440,T=200,B=340,mid=(T+B)/2;line(g,L,mid,R,mid,C.grid,1);const php=[],hp=[];for(let i=0;i<N;i++){php.push([xs(Z[i]),mid-phi[i]*22]);hp.push([xs(Z[i]),mid-h[i]*22]);}poly(g,php,C.purple,2.2);poly(g,hp,C.green,1.8,[4,3]);
+  // right: bound vs angle
+  const RL=520,RR=770,RT=60,RB=300;axes(g,RL,RR,RT,RB,C.pen);txt(g,'Cramér–Rao bound along h',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'angle to ϕ',RR,RB+16,C.muted,11.5,'right');
+  const ax=a=>RL+(RR-RL)*a/90,ay=v=>RB-(RB-RT)*v/(pp*1.1);const pts=[];for(let a=0;a<=90*seg(t,0,1);a+=1){const r=a*Math.PI/180;const hh=Math.cos(r),bb=(hh*pp)**2/(pp);pts.push([ax(a),ay(bb)]);}if(pts.length>1)poly(g,pts,C.teal,2.2);
+  line(g,RL,ay(pp),RR,ay(pp),C.purple,1.2,[5,4]);txt(g,'Var(ϕ) = E[ϕ²]',RL+6,ay(pp)-10,C.purple,12.5,'left',FS,true);
+  dot(g,ax(+document.getElementById('a9').value),ay(bound),C.or,6,true);for(const a of [0,30,60,90])txt(g,a+'°',ax(a),RB+8,C.muted,10.5,'center',FM);
+  txt(g,'(E[ϕh])² / E[h²] = |ϕ|² cos²θ',RL,RB+34,C.pen,12,'left',FM);
+  document.getElementById('ro9').innerHTML=`<span class="k">E[ϕ h]</span><span>${Eph.toFixed(4)}</span><span class="k">E[h²] (Fisher info)</span><span>${Ehh.toFixed(4)}</span><span class="k">bound along h</span><span>${bound.toFixed(4)}</span><span class="k">Var(ϕ)</span><span>${pp.toFixed(4)}</span><span class="k">fraction</span><span>${(bound/pp*100).toFixed(0)}%</span>`;
+  document.getElementById('cap9').textContent=ang<0.05?'h = ϕ: the hardest direction. The one-dimensional bound equals Var(ϕ), the full efficiency bound.':ang>1.5?'h orthogonal to ϕ: moving this way doesn\'t change ψ at all, so that path says nothing about it. Bound 0.':'Between: the bound is Var(ϕ)·cos²θ. Every path gives a lower bound; the largest one is the true bound.';
+});
+bind('a9','v9',v=>v+'°',()=>S9.draw());
+
+function all(){readC();[S1,S2,S3,S4,S5,S6,S7,S8,S9].forEach(s=>s.draw());}
+all();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script src="../shared/course.js"></script>
+</body>
+</html>

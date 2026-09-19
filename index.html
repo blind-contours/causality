@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Causality</title>
+<meta name="description" content="Interactive lessons in semiparametric causal inference: one-step estimators, influence functions, TMLE and the clever covariate, derived on screen.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#6A3FB5">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
+  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
+:root[data-theme="dark"]{
+  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
+  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:44px 20px 72px}
+.wrap{max-width:960px;margin:0 auto}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:54px;line-height:1;margin:6px 0 14px;letter-spacing:-.015em}
+.lede{color:var(--muted);max-width:60ch;font-size:18px;margin:0 0 40px}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:26px;margin:44px 0 4px}
+.chsub{color:var(--muted);margin:0 0 18px;max-width:64ch}
+.progress{display:flex;align-items:center;gap:12px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted);margin:0 0 20px}
+.progress .bar{flex:1;height:8px;background:var(--grid);border-radius:4px;overflow:hidden;max-width:320px}
+.progress .bar i{display:block;height:100%;background:var(--purple);width:0}
+.cont{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--purple);border-radius:12px;padding:16px 18px;margin:0 0 8px;box-shadow:0 0 0 3px color-mix(in srgb,var(--purple) 14%,transparent)}
+.cont .k{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--purple)}
+.cont h3{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:22px;margin:2px 0 2px}
+.cont .m{font-size:13.5px;color:var(--muted)}
+.cont a.go{font:inherit;font-weight:500;font-size:15px;padding:11px 18px;border-radius:8px;background:var(--purple);color:#fff;text-decoration:none;white-space:nowrap}
+.unit .mins{color:var(--muted)}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;list-style:none;padding:0;margin:0}
+.unit{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:8px;position:relative;transition:transform .12s,border-color .12s}
+.unit:hover{transform:translateY(-2px);border-color:var(--purple)}
+.unit .num{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
+.unit .num .done{color:var(--green)}
+.unit .num .next{color:var(--purple)}
+.unit h3{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:19px;margin:0;line-height:1.2}
+.unit h3 a{color:inherit;text-decoration:none}
+.unit h3 a::after{content:"";position:absolute;inset:0}
+.unit p{margin:0;font-size:13.5px;color:var(--muted);flex:1}
+.unit.is-done{border-color:color-mix(in srgb,var(--green) 55%,var(--rule))}
+.unit.is-next{border-color:var(--purple);box-shadow:0 0 0 3px color-mix(in srgb,var(--purple) 18%,transparent)}
+.soon{opacity:.6}
+.soon .unit:hover{transform:none;border-color:var(--rule)}
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.foot a{color:inherit}
+.foot button{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Interactive lessons in causal inference</div>
+  <h1>Causality</h1>
+  <p class="lede">Every idea is something you drag, scrub or play, and every formula is derived on screen from a picture you already understand. Built for epidemiologists, trial statisticians, and anyone who runs analyses and wants the rigor underneath them.</p>
+
+  <div id="continue"></div>
+  <div id="chapters"></div>
+
+  <h2 class="soon-h">Coming later</h2>
+  <p class="chsub">Sketched in the curriculum map, not yet built.</p>
+  <ul class="units soon">
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>Asking a causal question</h3><p>Potential outcomes, the fundamental problem, ATE / ATT / CATE as different averages of one table, estimands as contracts.</p></li>
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>Identification</h3><p>Exchangeability, positivity, consistency, DAGs and backdoor paths, when adjustment helps and when it hurts.</p></li>
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>Estimators you already use</h3><p>Regression adjustment as g-computation, IPW as a pseudopopulation, and why the logistic coefficient is not the effect.</p></li>
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>What the influence function is, and why it wins</h3><p>An estimator's error is an average; three terms, three sizes; cross-fitting; the product of rates; multiply by √n and watch it shine through.</p></li>
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>Heterogeneous effects</h3><p>Meta-learners and where each fails, pseudo-outcome loss, calibration, Qini, and the RCT interaction test.</p></li>
+    <li class="unit"><div class="num"><span>Chapter</span></div><h3>Time and intercurrent events</h3><p>Censoring as a second treatment, IPCW, treatment switching, hypothetical vs treatment-policy estimands.</p></li>
+  </ul>
+
+  <div class="foot">
+    <span>Progress is stored in this browser only.</span>
+    <button id="reset">Reset progress</button>
+    <a href="glossary.html">Symbols</a>
+    <a href="https://github.com/" id="repo">Source on GitHub</a>
+  </div>
+</div>
+<script src="shared/course.js"></script>
+<script>
+(function(){
+  const {COURSE, units, isDone, loadProgress} = window.Causality;
+  const root = document.getElementById('chapters');
+  const doneCount = units.filter(u => isDone(u.id)).length;
+  const nextUnit = units.find(u => !isDone(u.id));
+  const cont = document.getElementById('continue');
+  if (nextUnit) {
+    const ni = units.indexOf(nextUnit);
+    cont.innerHTML = `<div><div class="k">${doneCount ? 'Continue' : 'Start here'}</div><h3>${nextUnit.title}</h3><div class="m">Unit ${ni + 1} of ${units.length} · about ${nextUnit.minutes || 15} min · ${nextUnit.blurb}</div></div><a class="go" href="lessons/${nextUnit.file}">${doneCount ? 'Continue →' : 'Begin →'}</a>`;
+    cont.className = 'cont';
+  } else { cont.innerHTML = `<div><div class="k">All units complete</div><h3>You finished chapter 1.</h3><div class="m">Revisit any unit below, or reset progress to run it again.</div></div>`; cont.className = 'cont'; }
+  COURSE.chapters.forEach((c, ci) => {
+    const h = document.createElement('h2'); h.textContent = `Chapter ${ci + 1}. ${c.title}`; root.appendChild(h);
+    const sub = document.createElement('p'); sub.className = 'chsub';
+    sub.textContent = 'From "a plug-in estimate is biased" to "I can derive the clever covariate," in nine units. Start at unit 1; unit 9 is the big-picture geometry and lands best last. Each unit opens with a quick check on the one before, and completes itself once you have answered its predictions and reached the last scene.';
+    root.appendChild(sub);
+    const prog = document.createElement('div'); prog.className = 'progress';
+    const n = c.units.filter(u => isDone(u.id)).length;
+    prog.innerHTML = `<span>${n} of ${c.units.length} complete</span><div class="bar"><i style="width:${100 * n / c.units.length}%"></i></div>`;
+    root.appendChild(prog);
+    const ul = document.createElement('ul'); ul.className = 'units';
+    c.units.forEach((u, i) => {
+      const done = isDone(u.id), isNext = nextUnit && nextUnit.id === u.id;
+      const li = document.createElement('li'); li.className = 'unit' + (done ? ' is-done' : '') + (isNext ? ' is-next' : '');
+      li.innerHTML = `<div class="num"><span>Unit ${i + 1} <span class="mins">· ${u.minutes || 15} min</span></span>${done ? '<span class="done">Complete</span>' : isNext ? '<span class="next">Up next</span>' : ''}</div>` +
+        `<h3><a href="lessons/${u.file}">${u.title}</a></h3><p>${u.blurb}</p>`;
+      ul.appendChild(li);
+    });
+    root.appendChild(ul);
+  });
+  document.getElementById('reset').onclick = () => { try { localStorage.removeItem('causality.progress.v1'); } catch (e) {} location.reload(); };
+})();
+</script>
+</body>
+</html>
