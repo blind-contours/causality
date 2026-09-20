@@ -120,25 +120,27 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z1').
   // fitted density p-hat: shifted version of true (mean mh)
   const ph=z=>pTrue(z-(mh-MU));
   const {xs,ys}=densityAxes(g,60,480,40,220,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(ph(Z[i])*(1-eps))]);poly(g,pts,C.phat,2);txt(g,'(1−ε) p̂(z) + ε δ_{z₀}',70,30,C.pen,13,'left',FS,true);
-  line(g,xs(z0),220,xs(z0),220-eps*600,C.or,6);txt(g,'ε at z₀',xs(z0),206-eps*600,C.or,12,'center',FS,true);
+  // the point mass is a needle: its height is a marker, not a density value
+  arrow(g,xs(z0),220,xs(z0),146,C.or,2.2);txt(g,'↑ orange needle: point mass ε = 0.15 at z₀',480,46,C.or,11.5,'right',FS,true);txt(g,'its height is a marker, not a density value',480,60,C.muted,10,'right');
   const me=(1-eps)*mh+eps*z0;line(g,xs(mh),220,xs(mh),200,C.phat,2.4);txt(g,'μ̂',xs(mh)-6,236,C.phat,13,'right',FS,true);line(g,xs(me),220,xs(me),195,C.p,2.4);txt(g,'actual',xs(me)+6,236,C.p,12,'left',FS,true);
   // predictions
   const predC=mh+eps*(z0-mh),predU=mh+eps*z0;
   dot(g,xs(predC),190,C.teal,5,true);txt(g,'ϕ predicts (= actual)',xs(predC),176,C.teal,11.5,'center');dot(g,xs(predU),250,C.red,5,true);txt(g,'ϕ̃ = z predicts',xs(predU),264,C.red,11.5,'center');
   // right: job 2
   const RL=540;txt(g,'Job 1: predict the pull of z₀',RL,50,C.pen,13,'left',FS,true);txt(g,`true move   ${(me-mh).toFixed(4)}`,RL,74,C.pen,12,'left',FM);txt(g,`ε·ϕ(z₀)     ${(eps*(z0-mh)).toFixed(4)}  ✓`,RL,94,C.teal,12,'left',FM);txt(g,`ε·ϕ̃(z₀)     ${(eps*z0).toFixed(4)}  off by εμ̂`,RL,114,C.red,12,'left',FM);
-  txt(g,'Job 2: measure misfit of p̂ to data',RL,160,C.pen,13,'left',FS,true);txt(g,'sample with mean z̄ = '+MU.toFixed(3),RL,182,C.muted,11.5,'left');
-  txt(g,`Pₙϕ̂ = z̄ − μ̂ = ${(MU-mh).toFixed(3)}`,RL,204,C.teal,12,'left',FM);txt(g,mh>MU-0.02&&mh<MU+0.02?'zero: fit matches data ✓':'nonzero: p̂ is off by this much',RL,224,C.teal,11.5,'left');
-  txt(g,`Pₙϕ̃ = z̄ = ${MU.toFixed(3)}`,RL,254,C.red,12,'left',FM);txt(g,'never zero; says nothing about the fit',RL,274,C.red,11.5,'left');
+  txt(g,'Job 2: measure misfit of p̂ to the truth P',RL,160,C.pen,13,'left',FS,true);txt(g,'no sample here: P stands in, with mean μ = '+MU.toFixed(3),RL,182,C.muted,11.5,'left');
+  txt(g,`E_P[ϕ̂] = μ − μ̂ = ${(MU-mh).toFixed(3)}`,RL,204,C.teal,12,'left',FM);txt(g,mh>MU-0.02&&mh<MU+0.02?'zero: fit matches the truth ✓':'nonzero: p̂ is off by this much',RL,224,C.teal,11.5,'left');
+  txt(g,`E_P[ϕ̃] = μ = ${MU.toFixed(3)}`,RL,254,C.red,12,'left',FM);txt(g,'never zero; says nothing about the fit',RL,274,C.red,11.5,'left');txt(g,'(with data, μ becomes z̄: Pₙϕ̂ = z̄ − μ̂)',RL,294,C.muted,10.5,'left');
   // bottom
   const BL=60;txt(g,'Legitimacy: p̂(1 + εϕ) integrates to 1 + ε·E_p̂[ϕ].  With ϕ centered that is 1.  With ϕ̃ = z it is 1 + εμ̂: not a density.',BL,320,C.muted,12,'left');
   txt(g,`E_p̂[ϕ̂] = 0.000     E_p̂[ϕ̃] = μ̂ = ${mh.toFixed(2)}`,BL,345,C.pen,12,'left',FM);
-  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">Pₙϕ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
-  document.getElementById('cap1').textContent='Teal (centered) predicts the pull of a point mass correctly and measures misfit; red (uncentered) does neither. Move μ̂ onto the sample mean and Pₙϕ̂ hits zero.';
+  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">E_P[ϕ̂] = μ − μ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
+  document.getElementById('cap1').textContent='Teal (centered) predicts the pull of a point mass correctly and measures misfit; red (uncentered) does neither. Move μ̂ onto the population mean μ and E_P[ϕ̂] hits zero.';
 });
 bind('z1','v1z',v=>v.toFixed(2),()=>S1.draw());bind('m1','v1m',v=>v.toFixed(2),()=>S1.draw());
 
 // ================= SCENE 2 =================
+let trace2=[]; // (θ in degrees, E[ϕh]) pairs visited by the sweep
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a2').value*Math.PI/180;
   const phi=new Float64Array(N);for(let i=0;i<N;i++)phi[i]=Z[i]-referenceGrid.mean;let pp=0;for(let i=0;i<N;i++)pp+=phi[i]*phi[i]*referenceGrid.p[i]*dz;
   // orthogonal direction: centered sin, orthogonalized
@@ -151,13 +153,16 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a2
   txt(g,'ϕ (normalized, purple)  and  h (green), both with E[h²] = 1',60,T-12,C.pen,12.5,'left',FS,true);
   // right: slope vs angle
   const RL=520,RR=770,RT=60,RB=280;axes(g,RL,RR,RT,RB,C.pen);txt(g,'slope E[ϕh] vs angle',RL,RT-14,C.pen,13,'left',FS,true);
-  const ax=d=>RL+(RR-RL)*d/180,ay=v=>RB-(RB-RT)*(v+Math.sqrt(pp))/(2*Math.sqrt(pp));const cur=[];for(let d=0;d<=180*seg(t,0,1);d+=2)cur.push([ax(d),ay(Math.sqrt(pp)*Math.cos(d*Math.PI/180))]);if(cur.length>1)poly(g,cur,C.teal,2);
-  line(g,RL,ay(0),RR,ay(0),C.grid,1);dot(g,ax(+document.getElementById('a2').value),ay(slope),C.or,6,true);for(const d of [0,90,180])txt(g,d+'°',ax(d),RB+12,C.muted,10.5,'center',FM);
+  const deg=+document.getElementById('a2').value;const ax=d=>RL+(RR-RL)*d/180,ay=v=>RB-(RB-RT)*(v+Math.sqrt(pp))/(2*Math.sqrt(pp));
+  const cur=[];for(let d=0;d<=180;d+=2)cur.push([ax(d),ay(Math.sqrt(pp)*Math.cos(d*Math.PI/180))]);poly(g,cur,C.grid,1.2,[3,3]);
+  if(S2.sweeping)trace2.push([deg,slope]);if(trace2.length>1)poly(g,trace2.map(q=>[ax(q[0]),ay(q[1])]),C.teal,2.6);
+  line(g,RL,ay(0),RR,ay(0),C.grid,1);dot(g,ax(deg),ay(slope),C.or,6,true);for(const d of [0,90,180])txt(g,d+'°',ax(d),RB+12,C.muted,10.5,'center',FM);
+  txt(g,trace2.length?'traced: the computed E[ϕh] as θ swept':'Play sweeps θ and traces the computed E[ϕh]',RL,RB+52,C.muted,11,'left');
   txt(g,'max = √Var(ϕ) at 0°',RL+6,ay(Math.sqrt(pp))+12,C.purple,11.5,'left',FS,true);txt(g,'0 at 90°: orthogonal directions do not move ψ',RL+6,ay(0)-12,C.muted,11,'left');
   txt(g,`E[ϕh] = √Var(ϕ) · cos θ = ${slope.toFixed(3)}`,RL,RB+34,C.pen,12,'left',FM);
   document.getElementById('ro2').innerHTML=`<span class="k">E[h²]</span><span>${hh.toFixed(3)}</span><span class="k">E[ϕh] (slope)</span><span>${slope.toFixed(4)}</span><span class="k">√Var(ϕ)</span><span>${Math.sqrt(pp).toFixed(4)}</span><span class="k">fraction of max</span><span>${(slope/Math.sqrt(pp)*100).toFixed(0)}%</span>`;
   document.getElementById('cap2').textContent=ang<0.03?'h = ϕ: the steepest direction. This is the least-favorable submodel, the one TMLE moves along.':'A unit step in this direction moves ψ by cos θ of the maximum. Only the component along ϕ counts.';
-},{onT:t=>{const el=document.getElementById('a2');el.value=Math.round(180*t);document.getElementById('v2').textContent=el.value+'°';}});
+},{t0:0,sweep:{id:'a2',at:t=>Math.round(180*t),label:'v2',fmt:v=>v+'°'},onT:t=>{if(t===0)trace2.length=0;}});
 bind('a2','v2',v=>v+'°',()=>S2.draw());
 
 // ================= SCENE 3 =================

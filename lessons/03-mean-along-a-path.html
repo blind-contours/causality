@@ -49,7 +49,6 @@
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p2">Play</button></div>
     <label>ε <span class="v" id="v2e">0.30</span><input type="range" id="e2" min="-0.5" max="0.5" step="0.005" value="0.3"></label>
     <label>Direction h <select id="h2"><option value="tilt">tilt (h ∝ z − μ)</option><option value="bump" selected>bump near z = 1</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
     <div class="readout" id="ro2"></div>
@@ -189,10 +188,11 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e2')
   txt(g,`ψ(P_ε) = Σ z · new mass`,RL,180,C.pen,12.5,'left',FM);txt(g,`= ${me.toFixed(4)}`,RL,200,C.p,14,'left',FM);txt(g,`ψ(P) = ${MU.toFixed(4)}`,RL,224,C.muted,12.5,'left',FM);
   document.getElementById('ro2').innerHTML=`<span class="k">ε</span><span>${e.toFixed(2)}</span><span class="k">ψ(P_ε)</span><span>${me.toFixed(4)}</span><span class="k">ψ(P_ε) − ψ(P)</span><span>${(me-MU).toFixed(4)}</span>`;
   document.getElementById('cap2').textContent='Same bins, same positions, new masses. The balance point moves toward where mass was added.';
-},{onT:t=>{const el=document.getElementById('e2');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v2e').textContent=(+el.value).toFixed(2);}});
+},{noplay:true});
 bind('e2','v2e',v=>v.toFixed(2),()=>S2.draw());bind('h2',null,v=>v,()=>S2.draw());
 
 // ================= MOVE 3 =================
+let trace3=[]; // (ε, Σ total) pairs visited by the sweep
 const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e3').value,h=hFn(document.getElementById('h3').value);const bw=0.25,B=bins(bw);
   const L=60,R=540,xs=z=>L+(R-L)*(z+4)/8,xw=bw*(R-L)/8;
   // three stacked strips: z*p (old), eps*z*h*p (new), total
@@ -204,15 +204,20 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e3')
   txt(g,'+',R+40,155,C.pen,22,'center',FS);txt(g,'=',R+40,285,C.pen,22,'center',FS);
   // right: line in eps
   const RL=640,RR=770,RT=60,RB=200;line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'ψ(P_ε)',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
-  let slope=0;for(let i=0;i<N;i++)slope+=Z[i]*h(Z[i])*P0[i]*dz;const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-MU)/1.0);
-  line(g,ex(-0.5),ey(MU-0.5*slope),ex(0.5),ey(MU+0.5*slope),C.p,2);dot(g,ex(0),ey(MU),C.pen,4,true);dot(g,ex(e),ey(MU+e*slope),C.or,6,true);
-  txt(g,`slope = ∫ z h p = ${slope.toFixed(3)}`,RL,RB+18,C.purple,12,'left',FM);txt(g,'a straight line in ε',RL,RB+36,C.muted,11.5,'left');
+  let slope=0;for(let i=0;i<N;i++)slope+=Z[i]*h(Z[i])*P0[i]*dz;let cslope=0;B.forEach(z=>{cslope+=z*h(z)*pAt(z)*bw;});const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-sums[0])/1.0);
+  if(S3.sweeping)trace3.push([e,sums[2]]);
+  line(g,ex(-0.5),ey(sums[0]-0.5*cslope),ex(0.5),ey(sums[0]+0.5*cslope),C.grid,1.2,[3,3]);
+  if(trace3.length>1)poly(g,trace3.map(q=>[ex(q[0]),ey(q[1])]),C.p,2.6);
+  dot(g,ex(0),ey(sums[0]),C.pen,4,true);dot(g,ex(e),ey(sums[2]),C.or,6,true);
+  txt(g,`slope (bins) = ${cslope.toFixed(3)}`,RL,RB+18,C.purple,12,'left',FM);txt(g,`fine grid = ${slope.toFixed(3)}`,RL,RB+34,C.purple,11,'left',FM);txt(g,trace3.length?'traced: a straight line in ε':'Play sweeps ε and traces Σ total',RL,RB+52,C.muted,11,'left');
   document.getElementById('ro3').innerHTML=`<span class="k">Σ old</span><span>${sums[0].toFixed(4)}  (= ψ(P))</span><span class="k">Σ ε·new</span><span>${sums[1].toFixed(4)}</span><span class="k">Σ total</span><span>${sums[2].toFixed(4)}</span><span class="k">∫ z h p (slope)</span><span>${slope.toFixed(4)}</span>`;
   document.getElementById('cap3').textContent='Bin by bin, orange + purple = blue. The purple strip is ε times a shape that does not depend on ε, so its sum is ε times a fixed slope.';
-},{onT:t=>{const el=document.getElementById('e3');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v3e').textContent=(+el.value).toFixed(2);}});
-bind('e3','v3e',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>S3.draw());
+},{t0:0,sweep:{id:'e3',at:t=>(-0.5+t).toFixed(3),label:'v3e',fmt:v=>v.toFixed(2)},onT:t=>{if(t===0)trace3.length=0;}});
+bind('e3','v3e',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>{trace3.length=0;S3.draw();});
 
 // ================= MOVE 4 =================
+let trace4=[]; // (c, signed area) pairs visited by the sweep
+const f5=v=>(Math.abs(v)<5e-6?0:v).toFixed(5);
 const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('cc4').value,h=hFn(document.getElementById('h4').value);
   const L=60,R=540,xs=z=>L+(R-L)*(z+4)/8;
   const T1=40,B1=150,m1=(T1+B1)/2;txt(g,'(z − c) · h(z) · p(z)',L,T1-14,C.pen,13,'left',FS,true);line(g,L,m1,R,m1,C.grid,1);
@@ -229,11 +234,20 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('cc4'
   // right readouts
   const RL=590;txt(g,'signed area',RL,60,C.muted,12,'left');txt(g,A.toFixed(4),RL,84,C.pen,20,'left',FM);txt(g,'(does not move as c moves)',RL,108,C.muted,11.5,'left');
   txt(g,'∫ z h p',RL,235,C.purple,12,'left',FM);txt(g,A1.toFixed(4),RL,255,C.purple,16,'left',FM);
-  txt(g,'− c · ∫ h p',RL,360,C.or,12,'left',FM);txt(g,`= −(${c.toFixed(2)}) × ${(A2/(-c||1)).toFixed(5)}`,RL,380,C.or,12,'left',FM);txt(g,`= ${A2.toFixed(5)}`,RL,400,C.or,16,'left',FM);
+  let I=0;for(let i=0;i<N;i++)I+=h(Z[i])*P0[i]*dz;
+  txt(g,'− c · ∫ h p',RL,360,C.or,12,'left',FM);txt(g,c===0?'= 0 × 0':`= −(${c.toFixed(2)}) × ${f5(I)}`,RL,380,C.or,12,'left',FM);txt(g,c===0?'= 0':`= ${f5(A2)}`,RL,400,C.or,16,'left',FM);
+  // trace panel: signed area against c
+  const PL=600,PR=770,PT=132,PB=196;const cx=v=>PL+(PR-PL)*(v+3)/6,cy=v=>PB-(PB-PT)*(0.5+(v-A1)/0.6);
+  line(g,PL,PB,PR,PB,C.pen,1);line(g,PL,PB,PL,PT,C.pen,1);txt(g,'signed area against c',PL,PT-10,C.muted,11,'left');txt(g,'−3',PL,PB+10,C.muted,9.5,'center',FM);txt(g,'0',cx(0),PB+10,C.muted,9.5,'center',FM);txt(g,'3',PR,PB+10,C.muted,9.5,'center',FM);
+  line(g,PL,cy(A1),PR,cy(A1),C.grid,1,[3,3]);
+  if(S4.sweeping)trace4.push([c,A]);
+  if(trace4.length>1)poly(g,trace4.map(q=>[cx(q[0]),cy(q[1])]),C.green,2.6);
+  dot(g,cx(c),cy(A),C.or,5,true);
+  txt(g,trace4.length?'flat: the area does not depend on c':'Play sweeps c and traces the area',PL,PB+24,C.muted,10.5,'left');
   document.getElementById('ro4').innerHTML=`<span class="k">∫(z−c)hp</span><span>${A.toFixed(5)}</span><span class="k">∫ z h p</span><span>${A1.toFixed(5)}</span><span class="k">c·∫hp</span><span>${(-A2).toFixed(6)}</span>`;
   document.getElementById('cap4').textContent='Top: the product changes shape as c moves. Bottom: the part that depends on c is c times the score-times-density, whose area is always zero. So the top area equals the middle area, for any c.';
-},{onT:t=>{const el=document.getElementById('cc4');el.value=(Math.sin(t*6.283)*3).toFixed(2);document.getElementById('v4c').textContent=(+el.value).toFixed(2);}});
-bind('cc4','v4c',v=>v.toFixed(2),()=>S4.draw());bind('h4',null,v=>v,()=>S4.draw());
+},{t0:0,sweep:{id:'cc4',at:t=>(-3+6*t).toFixed(2),label:'v4c',fmt:v=>v.toFixed(2)},onT:t=>{if(t===0)trace4.length=0;}});
+bind('cc4','v4c',v=>v.toFixed(2),()=>S4.draw());bind('h4',null,v=>v,()=>{trace4.length=0;S4.draw();});
 
 // ================= MOVE 5 =================
 const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const h=hFn(document.getElementById('h5').value);const bw=0.3,B=bins(bw);

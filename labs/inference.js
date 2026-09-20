@@ -1,44 +1,705 @@
+/* Inference laboratory: three error terms, nuisance rates, cross-fitting, repeated samples.
+ * Figures follow the kit rule: playback changes a mathematical state and leaves a trace. */
 (function () {
-  const { S, V, store, control, tools, guided, table, fmt } = CausalLab,
+  const { S, store, control, tools, guided, table, fmt } = CausalLab,
+    { el, html, ease, Plot, player } = CausalAnim,
     root = document.querySelector("[data-lab]"),
     state = store(
       "inference",
       { step: 0, alpha: 0.25, beta: 0.25, n: 10000 },
       { step: [0, 3], alpha: [0, 0.6], beta: [0, 0.6], n: [100, 1000000] },
+    ),
+    big = (n) => Math.round(n).toLocaleString("en-US"),
+    readout = (box, pairs) =>
+      box.replaceChildren(
+        ...pairs.flatMap(([k, v]) => [
+          html("span", { class: "k" }, k),
+          html("span", {}, v),
+        ]),
+      ),
+    labelled = (text, input) => {
+      const id = "fig-" + Math.random().toString(36).slice(2, 8);
+      input.id = id;
+      return html("label", { for: id }, text + " ", input);
+    },
+    range = (value, min = 0, max = 0.6, step = 0.01) =>
+      html("input", { type: "range", min, max, step, value }),
+    regimeOf = (sum) =>
+      sum > 0.5 + 1e-9 ? "fast" : sum < 0.5 - 1e-9 ? "slow" : "boundary";
+
+  /* ---------- Figure: double-robustness plane ---------- */
+  CausalFigures.register("dr-plane", (mount, ds) => {
+    const cfg = {
+      alpha: Number.isFinite(+ds.alpha) ? +ds.alpha : 0.25,
+      beta: Number.isFinite(+ds.beta) ? +ds.beta : 0.25,
+      exact: "none",
+    };
+    mount.classList.add("figure");
+    const plane = el("svg", {
+        role: "img",
+        "aria-label":
+          "Plane of propensity error against outcome error. The current errors form a rectangle whose area bounds the remainder; a horizontal band shows the sampling scale. Values are listed beside the figure.",
+      }),
+      trace = el("svg", {
+        role: "img",
+        "aria-label":
+          "Square-root-n times the rectangle area, traced against log sample size.",
+      }),
+      out = html("div", { class: "fig-readout" }),
+      cap = html("p", { class: "fig-caption", role: "status" }),
+      main = html("div", {}, plane),
+      side = html("div", {}, trace, out),
+      controls = html("div", { class: "fig-controls" }),
+      aIn = range(cfg.alpha),
+      bIn = range(cfg.beta),
+      exactIn = html("select", {});
+    for (const [v, t] of [
+      ["none", "neither: both nuisances carry error"],
+      ["g", "propensity ĝ exactly right (‖ĝ−g‖ = 0)"],
+      ["m", "outcome m̂ exactly right (‖m̂−m‖ = 0)"],
+    ])
+      exactIn.append(html("option", { value: v }, t));
+    controls.append(
+      labelled("Outcome rate α (‖m̂−m‖ ∝ n^−α)", aIn),
+      labelled("Propensity rate β (‖ĝ−g‖ ∝ n^−β)", bIn),
+      labelled("One nuisance exactly right?", exactIn),
     );
-  root.innerHTML = `<section class="lab-step" data-title="Three terms"><h2 tabindex="-1">A correction leaves three different sources of error</h2><p>The leading error is an average of true influence-function values. A second term comes from estimating that influence function. A third term is nonlinear bias: the remainder. Each needs its own argument.</p><div class="math">ψ̂ − ψ₀ = (Pₙ−P₀)D*(P₀)<br>+ (Pₙ−P₀)[D*(P̂)−D*(P₀)]<br>+ R₂(P̂,P₀)</div><p>The first term gives the efficient variance. Cross-fitting helps control the second. Appropriate nuisance accuracy makes the last negligible. Identification is needed before any of these terms can describe a causal answer.</p><details><summary>Exact ATE remainder and its sign convention</summary><p class="math">Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂<br>R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]</p><p>Under positivity and bounded inverse estimated propensities, its magnitude is bounded by a constant times the product of L² nuisance errors. A rectangle of side lengths “outcome error” and “propensity error” depicts a bound on magnitude, not the signed exact remainder.</p></details></section>
-<section class="lab-step" data-title="Rates"><h2 tabindex="-1">The boundary matters: one quarter plus one quarter</h2><label>Outcome convergence exponent α <input id="alpha" type="range" min="0" max=".6" step=".01"></label><label>Propensity convergence exponent β <input id="beta" type="range" min="0" max=".6" step=".01"></label><svg id="rate-plot" role="img" aria-label="Square-root-n scaled remainder bound versus log10 sample size. Values and interpretation follow."></svg><p id="rate-status" class="math" role="status"></p><div id="rate-table"></div><p>If the errors are exactly n⁻¹⁄⁴ each, their product is n⁻¹⁄². Multiplication by √n leaves a constant. For centered efficient inference, require a little-o remainder: √n R₂ → 0. A rate sum strictly greater than ½ is sufficient under the other conditions; equality is not enough by itself.</p><p class="note">This plot sets bounding constants to one and uses exact power laws. It illustrates rates, not a finite-sample guarantee. One nuisance can be slower if the other is faster.</p></section>
-<section class="lab-step" data-title="Cross-fitting"><h2 tabindex="-1">Make a prediction before seeing that patient's outcome</h2><p>Imagine a learner that memorizes the training outcomes. Its training residuals are all zero, even if it predicts new patients poorly. For cross-fitting, fit on one fold and evaluate on the other, then swap. Every patient receives a prediction from a model trained without that patient's observation.</p><div id="fold-table"></div><p class="math">Fit fold A → evaluate fold B<br>Fit fold B → evaluate fold A<br>Combine the held-out influence-function contributions.</p><p>Conditional on the training fold, independent validation observations make the empirical-process term easier to control. Consistency in L² and suitable moments are still needed. Cross-fitting does not correct a persistently wrong model, weak overlap, confounding that was not measured, or a remainder that fails to vanish.</p><p class="note">In the table, “memorizing” means predicting each training outcome exactly; the held-out example uses the training-fold mean. Neither is advertised as an adequate nuisance learner. The purpose is to expose data reuse.</p></section>
+    mount.append(html("div", { class: "fig-row" }, main, side), cap, controls);
+    const P = new Plot(plane, {
+        x: [0, 0.6],
+        y: [0, 0.6],
+        width: 420,
+        height: 380,
+        margin: { l: 56, r: 16, t: 26, b: 48 },
+        xlabel: "propensity error ‖ĝ − g‖",
+        ylabel: "outcome error ‖m̂ − m‖",
+      }),
+      C = 2.5,
+      T = new Plot(trace, {
+        x: [2, 5],
+        y: [0, 2 * C],
+        width: 280,
+        height: 240,
+        margin: { l: 40, r: 14, t: 24, b: 40 },
+        xlabel: "log₁₀ n",
+        ylabel: "√n · area",
+        yticks: [0, 1.25, 2.5, 3.75, 5],
+      });
+    const band = el("rect", { fill: "var(--or)", "fill-opacity": 0.2 }),
+      bandLab = el("text", { class: "fig-text", "text-anchor": "end" }),
+      pathAll = P.line([[0, 0]], {
+        stroke: "var(--purple)",
+        "stroke-opacity": 0.35,
+        "stroke-width": 1.5,
+        "stroke-dasharray": "3 3",
+      }),
+      pathDone = P.line([[0, 0]], {
+        stroke: "var(--purple)",
+        "stroke-width": 2.5,
+      }),
+      rect = el("rect", {
+        fill: "var(--purple)",
+        "fill-opacity": 0.18,
+        stroke: "var(--purple)",
+        "stroke-width": 1.5,
+      }),
+      dot = el("circle", { r: 6, fill: "var(--purple)" }),
+      areaLab = el("text", { class: "fig-text ink", "text-anchor": "middle" }),
+      nLab = el("text", { class: "fig-text ink", "text-anchor": "end" });
+    P.marks.prepend(band);
+    P.marks.append(rect, dot);
+    P.fg.append(bandLab, areaLab, nLab);
+    T.hline(C, { stroke: "var(--or)" }, "band scale c");
+    const tracePath = T.line([[2, 0]], { stroke: "var(--purple)" }),
+      traceDot = el("circle", { r: 4, fill: "var(--purple)" });
+    T.marks.append(traceDot);
+    const at = (n) =>
+      S.ratePath(n, {
+        alpha: cfg.alpha,
+        beta: cfg.beta,
+        c: C,
+        exactG: cfg.exact === "g",
+        exactM: cfg.exact === "m",
+      });
+    const samples = (t0, t1, k = 40) =>
+      Array.from({ length: k + 1 }, (_, i) => t0 + ((t1 - t0) * i) / k);
+    let t = 0;
+    function render() {
+      const n = 10 ** (2 + 3 * t),
+        r = at(n),
+        sum = cfg.alpha + cfg.beta,
+        clip = (v) => Math.min(P.y[1], v);
+      band.setAttribute("x", P.sx(0));
+      band.setAttribute("width", P.sx(P.x[1]) - P.sx(0));
+      band.setAttribute("y", P.sy(clip(r.band)));
+      band.setAttribute("height", P.sy(0) - P.sy(clip(r.band)));
+      const thin = P.sy(0) - P.sy(clip(r.band)) < 16;
+      bandLab.setAttribute("x", P.sx(P.x[1]) - 6);
+      bandLab.setAttribute("y", thin ? P.sy(clip(r.band)) - 5 : P.sy(0) - 5);
+      bandLab.textContent = `sampling band c/√n = ${fmt(r.band, 3)}`;
+      pathAll.setAttribute(
+        "d",
+        P.d(
+          samples(0, 1).map((u) => {
+            const q = at(10 ** (2 + 3 * u));
+            return [q.eg, q.em];
+          }),
+        ),
+      );
+      pathDone.setAttribute(
+        "d",
+        P.d(
+          samples(0, t).map((u) => {
+            const q = at(10 ** (2 + 3 * u));
+            return [q.eg, q.em];
+          }),
+        ),
+      );
+      rect.setAttribute("x", P.sx(0));
+      rect.setAttribute("y", P.sy(r.em));
+      rect.setAttribute("width", Math.max(0, P.sx(r.eg) - P.sx(0)));
+      rect.setAttribute("height", Math.max(0, P.sy(0) - P.sy(r.em)));
+      dot.setAttribute("cx", P.sx(r.eg));
+      dot.setAttribute("cy", P.sy(r.em));
+      const small = r.eg < 0.12 || r.em < 0.12;
+      areaLab.setAttribute("x", small ? P.sx(r.eg) + 60 : P.sx(r.eg / 2));
+      areaLab.setAttribute("y", small ? P.sy(r.em) - 12 : P.sy(r.em / 2) + 4);
+      areaLab.textContent = `area = ${fmt(r.area, 4)}`;
+      nLab.setAttribute("x", P.sx(P.x[1]) - 6);
+      nLab.setAttribute("y", P.m.t + 14);
+      nLab.textContent = `n = ${big(n)}`;
+      tracePath.setAttribute(
+        "d",
+        T.d(
+          samples(0, t, 60).map((u) => [
+            2 + 3 * u,
+            Math.min(T.y[1], at(10 ** (2 + 3 * u)).scaled),
+          ]),
+        ),
+      );
+      traceDot.setAttribute("cx", T.sx(2 + 3 * t));
+      traceDot.setAttribute("cy", T.sy(Math.min(T.y[1], r.scaled)));
+      readout(out, [
+        ["n", big(n)],
+        ["‖ĝ−g‖", fmt(r.eg, 4)],
+        ["‖m̂−m‖", fmt(r.em, 4)],
+        ["area |R₂| bound", fmt(r.area, 4)],
+        ["band c/√n", fmt(r.band, 4)],
+        ["√n · area", fmt(r.scaled, 3)],
+      ]);
+      const regime = regimeOf(sum),
+        lead =
+          cfg.exact !== "none"
+            ? `One nuisance is exactly right, so the rectangle has no area at any n: the remainder bound is zero however slowly the other error shrinks. That is double robustness of the point estimate; the interval still needs the other two terms.`
+            : regime === "fast"
+              ? `α + β = ${fmt(sum, 2)} > ½: the area shrinks faster than the band. √n · area falls toward zero, so the remainder is negligible on the interval's scale.`
+              : regime === "slow"
+                ? `α + β = ${fmt(sum, 2)} < ½: the area shrinks slower than the band. √n · area grows; the correction is not enough for an interval.`
+                : `α + β = ½: the area and the band shrink at the same rate: not enough. √n · area stays at a constant, so the interval is off-centre by a fixed amount however large n becomes.`;
+      cap.textContent =
+        lead +
+        ` At n = ${big(n)} the area is ${fmt(r.area, 4)} and the band ${fmt(r.band, 4)}: the area is ${Math.abs(r.area - r.band) <= 0.005 * r.band ? "exactly on the band's edge" : r.area < r.band ? "inside the band" : "outside the band"}.`;
+    }
+    const play = player(mount, {
+      duration: 6000,
+      label: "n from 100 to 100,000 (log scale)",
+      onT(v) {
+        t = v;
+        render();
+      },
+    });
+    const change = () => {
+      cfg.alpha = +aIn.value;
+      cfg.beta = +bIn.value;
+      cfg.exact = exactIn.value;
+      render();
+      mount.dispatchEvent(
+        new CustomEvent("figurechange", {
+          detail: { alpha: cfg.alpha, beta: cfg.beta },
+        }),
+      );
+    };
+    aIn.addEventListener("input", change);
+    bIn.addEventListener("input", change);
+    exactIn.addEventListener("change", change);
+    mount.figure = {
+      player: play,
+      get: () => ({ ...cfg }),
+      set(p) {
+        Object.assign(cfg, p);
+        aIn.value = cfg.alpha;
+        bIn.value = cfg.beta;
+        exactIn.value = cfg.exact;
+        render();
+      },
+    };
+    render();
+  });
+
+  /* ---------- Figure: cross-fitting deck ---------- */
+  CausalFigures.register("crossfit", (mount, ds) => {
+    const rows = S.toyCurve(+ds.n || 16, S.rng(+ds.seed || 872)),
+      m = rows.length,
+      fold = (i) => (i % 2 ? "B" : "A"),
+      cfg = { learner: "memorise" };
+    mount.classList.add("figure");
+    const svg = el("svg", {
+        class: "fig",
+        viewBox: "0 0 640 340",
+        role: "img",
+        "aria-label":
+          "Sixteen patients drawn as dots. A learner is fitted on all of them, then the deck splits into two folds and each fold is predicted by a model fitted on the other. Residuals are drawn as sticks. Values are listed beside the figure.",
+      }),
+      out = html("div", { class: "fig-readout" }),
+      cap = html("p", { class: "fig-caption", role: "status" }),
+      controls = html("div", { class: "fig-controls" }),
+      learnerIn = html("select", {});
+    learnerIn.append(
+      html("option", { value: "memorise" }, "memorises every training outcome"),
+      html(
+        "option",
+        { value: "linear" },
+        "straight line fitted to the training fold",
+      ),
+    );
+    controls.append(labelled("Learner", learnerIn));
+    mount.append(
+      html("div", { class: "fig-row" }, html("div", {}, svg), out),
+      cap,
+      controls,
+    );
+    const Y = [0.7, 3.5],
+      top = 44,
+      bot = 296,
+      sy = (y) => bot - ((y - Y[0]) / (Y[1] - Y[0])) * (bot - top),
+      full = { l: 60, r: 610 },
+      panelA = { l: 40, r: 300 },
+      panelB = { l: 340, r: 600 },
+      px = (x, p) => p.l + x * (p.r - p.l);
+    const g = {
+      axes: el("g", { class: "fig-axes" }),
+      curve: el("g"),
+      sticks: el("g"),
+      dots: el("g"),
+      labels: el("g", { class: "fig-labels" }),
+    };
+    svg.append(g.axes, g.curve, g.sticks, g.dots, g.labels);
+    const baseline = el("line", {
+        class: "axis",
+        x1: full.l,
+        x2: full.r,
+        y1: bot,
+        y2: bot,
+      }),
+      divider = el("line", {
+        class: "axis",
+        x1: 320,
+        x2: 320,
+        y1: top - 8,
+        y2: bot,
+        "stroke-dasharray": "4 4",
+      }),
+      yLab = el(
+        "text",
+        { class: "axis-label", x: 12, y: top - 14 },
+        "outcome y",
+      ),
+      xLab = el(
+        "text",
+        { class: "axis-label", x: 320, y: bot + 30, "text-anchor": "middle" },
+        "covariate x",
+      ),
+      labA = el("text", {
+        class: "fig-text ink",
+        x: (panelA.l + panelA.r) / 2,
+        y: top - 12,
+        "text-anchor": "middle",
+      }),
+      labB = el("text", {
+        class: "fig-text ink",
+        x: (panelB.l + panelB.r) / 2,
+        y: top - 12,
+        "text-anchor": "middle",
+      }),
+      phaseLab = el("text", {
+        class: "fig-text",
+        x: 620,
+        y: bot + 30,
+        "text-anchor": "end",
+      });
+    g.axes.append(baseline, divider, yLab, xLab);
+    g.labels.append(labA, labB, phaseLab);
+    const curveA = el("path", {
+        class: "mark-line",
+        fill: "none",
+        stroke: "var(--purple)",
+      }),
+      curveB = el("path", {
+        class: "mark-line",
+        fill: "none",
+        stroke: "var(--purple)",
+      });
+    g.curve.append(curveA, curveB);
+    const dots = rows.map((r, i) =>
+        el("circle", {
+          r: 5.5,
+          fill: fold(i) === "A" ? "var(--p)" : "var(--or)",
+          stroke: "var(--paper)",
+          "stroke-width": 1.5,
+        }),
+      ),
+      sticks = rows.map(() =>
+        el("line", {
+          stroke: "var(--red)",
+          "stroke-width": 3,
+          "stroke-linecap": "round",
+        }),
+      );
+    g.dots.append(...dots);
+    g.sticks.append(...sticks);
+    const fit = (train) => {
+      if (cfg.learner === "linear") {
+        const { a, b } = S.linearFit(train);
+        return (x) => a + b * x;
+      }
+      return (x) => S.interpolate(train, x);
+    };
+    const trainSet = (f) => rows.filter((_, i) => fold(i) === f),
+      mse = (pred, set) => S.mean(set.map((r) => (r.y - pred(r.x)) ** 2)),
+      curveD = (pred, panel, frac, xs) => {
+        const x0 = xs[0].x,
+          x1 = xs[xs.length - 1].x,
+          k = Math.max(1, Math.round(80 * frac));
+        return Array.from({ length: k + 1 }, (_, i) => {
+          const x = x0 + ((x1 - x0) * i) / 80;
+          return `${i ? "L" : "M"}${fmt(px(x, panel), 2)},${fmt(sy(pred(x)), 2)}`;
+        }).join(" ");
+      };
+    let t = 0;
+    function render() {
+      const phase = t < 0.22 ? 1 : t < 0.4 ? 2 : t < 0.7 ? 3 : 4,
+        split =
+          phase === 1 ? 0 : phase === 2 ? ease.inOut((t - 0.22) / 0.18) : 1,
+        frac =
+          phase === 1
+            ? Math.min(1, t / 0.2)
+            : phase === 3
+              ? Math.min(1, (t - 0.4) / 0.28)
+              : phase === 4
+                ? Math.min(1, (t - 0.7) / 0.28)
+                : 0,
+        trainF = phase === 4 ? "B" : "A",
+        testF = phase === 4 ? "A" : "B",
+        trainRows = phase === 1 ? rows : trainSet(trainF),
+        pred = fit(trainRows),
+        panelOf = (f) => (f === "A" ? panelA : panelB);
+      rows.forEach((r, i) => {
+        const p = panelOf(fold(i)),
+          x = px(r.x, full) * (1 - split) + px(r.x, p) * split;
+        dots[i].setAttribute("cx", x);
+        dots[i].setAttribute("cy", sy(r.y));
+        const training = phase === 1 || (phase >= 3 && fold(i) === trainF);
+        dots[i].setAttribute(
+          "stroke",
+          training ? "var(--purple)" : "var(--paper)",
+        );
+        dots[i].setAttribute("stroke-width", training ? 2.5 : 1.5);
+        let show = 0;
+        if (phase === 1) show = frac;
+        else if (phase >= 3 && fold(i) === testF) {
+          const order = trainSet(testF).indexOf(r),
+            mm = trainSet(testF).length;
+          show = Math.max(0, Math.min(1, frac * mm - order));
+        }
+        const yhat = sy(pred(r.x)),
+          y = sy(r.y);
+        sticks[i].setAttribute("x1", x);
+        sticks[i].setAttribute("x2", x);
+        sticks[i].setAttribute("y1", yhat);
+        sticks[i].setAttribute("y2", yhat + (y - yhat) * show);
+        sticks[i].setAttribute("opacity", show > 0 ? 1 : 0);
+      });
+      divider.setAttribute("opacity", split);
+      labA.setAttribute("opacity", split);
+      labB.setAttribute("opacity", split);
+      labA.textContent =
+        phase >= 3
+          ? `fold A: ${trainF === "A" ? "training" : "held out"}`
+          : "fold A";
+      labB.textContent =
+        phase >= 3
+          ? `fold B: ${trainF === "B" ? "training" : "held out"}`
+          : "fold B";
+      if (phase === 1) {
+        curveA.setAttribute("d", curveD(pred, full, frac, rows));
+        curveA.setAttribute("opacity", 1);
+        curveB.setAttribute("opacity", 0);
+      } else if (phase === 2) {
+        curveA.setAttribute("opacity", 1 - split);
+        curveB.setAttribute("opacity", 0);
+      } else {
+        const tr = trainSet(trainF),
+          te = trainSet(testF);
+        curveA.setAttribute(
+          "d",
+          curveD(pred, panelOf(trainF), Math.min(1, frac * 2), tr),
+        );
+        curveB.setAttribute("d", curveD(pred, panelOf(testF), frac, te));
+        curveA.setAttribute("opacity", 1);
+        curveB.setAttribute("opacity", frac > 0 ? 1 : 0);
+        curveB.setAttribute("stroke-dasharray", "6 4");
+      }
+      const trainMSE = mse(pred, trainRows),
+        testRows = phase >= 3 ? trainSet(testF) : [],
+        shown = testRows.slice(
+          0,
+          Math.min(testRows.length, Math.ceil(frac * testRows.length - 1e-9)),
+        ),
+        testMSE = shown.length ? mse(pred, shown) : NaN,
+        predA = fit(trainSet("B")),
+        predB = fit(trainSet("A")),
+        combined =
+          (S.sum(trainSet("A").map((r) => (r.y - predA(r.x)) ** 2)) +
+            S.sum(trainSet("B").map((r) => (r.y - predB(r.x)) ** 2))) /
+          m;
+      const names = {
+        1: "fit on all 16",
+        2: "split the deck",
+        3: "fit A, predict B",
+        4: "fit B, predict A",
+      };
+      phaseLab.textContent = `phase ${phase}: ${names[phase]}`;
+      readout(out, [
+        ["phase", `${phase} of 4: ${names[phase]}`],
+        ["learner", cfg.learner === "memorise" ? "memorises" : "straight line"],
+        [
+          "training fold",
+          phase === 1
+            ? "all 16"
+            : phase === 2
+              ? "—"
+              : `${trainF} (${trainRows.length})`,
+        ],
+        ["training MSE", phase === 2 ? "—" : fmt(trainMSE, 3)],
+        [
+          "held-out fold",
+          phase >= 3
+            ? `${testF} (${shown.length} of ${testRows.length} shown)`
+            : "—",
+        ],
+        ["held-out MSE", Number.isFinite(testMSE) ? fmt(testMSE, 3) : "—"],
+        ["cross-fitted MSE", phase === 4 && frac >= 1 ? fmt(combined, 3) : "—"],
+      ]);
+      const mem = cfg.learner === "memorise";
+      cap.textContent =
+        phase === 1
+          ? mem
+            ? `Fit on all 16 patients. The memorising learner passes through every outcome, so its training residuals are all zero (MSE ${fmt(trainMSE, 3)}). That number says nothing about a new patient.`
+            : `Fit on all 16 patients. The straight line cannot pass through every outcome, so it leaves residuals even in its own training data (MSE ${fmt(trainMSE, 3)}).`
+          : phase === 2
+            ? `Split the deck into fold A (blue) and fold B (orange). Each patient will now be predicted by a model that never saw that patient's outcome.`
+            : phase === 3
+              ? `Fit on fold A, predict fold B. On the training fold the residuals are ${mem ? "still zero" : fmt(trainMSE, 3)}; on the held-out fold they are real: MSE ${Number.isFinite(testMSE) ? fmt(testMSE, 3) : "appearing"} so far.`
+              : `Swap: fit on fold B, predict fold A (held-out MSE ${Number.isFinite(testMSE) ? fmt(testMSE, 3) : "appearing"}). Every patient now has an honest prediction; the cross-fitted MSE is ${fmt(combined, 3)}. The gap between the in-sample and held-out pictures is the empirical-process term that cross-fitting keeps in check.`;
+      mount.dispatchEvent(
+        new CustomEvent("figurerender", { detail: { phase } }),
+      );
+    }
+    const play = player(mount, {
+      duration: 9000,
+      label: "fit → split → predict → swap",
+      onT(v) {
+        t = v;
+        render();
+      },
+    });
+    learnerIn.addEventListener("change", () => {
+      cfg.learner = learnerIn.value;
+      render();
+      mount.dispatchEvent(
+        new CustomEvent("figurechange", { detail: { ...cfg } }),
+      );
+    });
+    mount.figure = {
+      player: play,
+      rows,
+      fold,
+      get: () => ({ ...cfg }),
+      predictions() {
+        const predA = fit(trainSet("B")),
+          predB = fit(trainSet("A")),
+          predAll = fit(rows);
+        return rows.map((r, i) => ({
+          own: predAll(r.x),
+          heldOut: (fold(i) === "A" ? predA : predB)(r.x),
+        }));
+      },
+    };
+    render();
+  });
+
+  /* ---------- Page ---------- */
+  root.innerHTML = `<section class="lab-step" data-title="Three terms"><h2 tabindex="-1">A correction leaves three different sources of error</h2><p>The leading error is an average of true influence-function values. A second term comes from estimating that influence function. A third term is nonlinear bias: the remainder. Each needs its own argument.</p><div class="math">ψ̂ − ψ₀ = (Pₙ−P₀)D*(P₀)<br>+ (Pₙ−P₀)[D*(P̂)−D*(P₀)]<br>+ R₂(P̂,P₀)</div><p>The remainder is bounded by a product of two nuisance errors: a rectangle. Play lets n grow and asks whether the rectangle's area gets inside the sampling band before n runs out.</p><div data-figure="dr-plane" data-alpha="0.25" data-beta="0.25"></div><p>The first term gives the efficient variance. Cross-fitting helps control the second. Appropriate nuisance accuracy makes the last negligible. Identification is needed before any of these terms can describe a causal answer.</p><details><summary>Exact ATE remainder and its sign convention</summary><p class="math">Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂<br>R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]</p><p>Under positivity and bounded inverse estimated propensities, its magnitude is bounded by a constant times the product of L² nuisance errors. A rectangle of side lengths “outcome error” and “propensity error” depicts a bound on magnitude, not the signed exact remainder. In the figure the errors start at 0.5 when n = 100 and the band constant c = 2.5 is chosen so that the boundary case α + β = ½ rides exactly along the band's edge.</p></details></section>
+<section class="lab-step" data-title="Rates"><h2 tabindex="-1">The boundary matters: one quarter plus one quarter</h2><label>Outcome convergence exponent α <input id="alpha" type="range" min="0" max=".6" step=".01"></label><label>Propensity convergence exponent β <input id="beta" type="range" min="0" max=".6" step=".01"></label><div class="figure" id="rate-figure"><div class="fig-row"><div><svg id="rate-plot" role="img" aria-label="Square-root-n scaled remainder bound versus log10 sample size, with the boundary line at one. Values and interpretation follow."></svg></div><div><svg id="rate-square" role="img" aria-label="The rate square: alpha against beta with the boundary line alpha plus beta equals one half and the current point."></svg><div class="fig-readout" id="rate-readout"></div></div></div><p id="rate-status" class="fig-caption" role="status"></p></div><div id="rate-table"></div><p>If the errors are exactly n⁻¹⁄⁴ each, their product is n⁻¹⁄². Multiplication by √n leaves a constant. For centered efficient inference, require a little-o remainder: √n R₂ → 0. A rate sum strictly greater than ½ is sufficient under the other conditions; equality is not enough by itself.</p><p class="note">This plot sets bounding constants to one and uses exact power laws. It illustrates rates, not a finite-sample guarantee. One nuisance can be slower if the other is faster.</p></section>
+<section class="lab-step" data-title="Cross-fitting"><h2 tabindex="-1">Make a prediction before seeing that patient's outcome</h2><p>Imagine a learner that memorizes the training outcomes. Its training residuals are all zero, even if it predicts new patients poorly. For cross-fitting, fit on one fold and evaluate on the other, then swap. Every patient receives a prediction from a model trained without that patient's observation.</p><div data-figure="crossfit" data-n="16" data-seed="872"></div><div id="fold-table"></div><p class="math">Fit fold A → evaluate fold B<br>Fit fold B → evaluate fold A<br>Combine the held-out influence-function contributions.</p><p>Conditional on the training fold, independent validation observations make the empirical-process term easier to control. Consistency in L² and suitable moments are still needed. Cross-fitting does not correct a persistently wrong model, weak overlap, confounding that was not measured, or a remainder that fails to vanish.</p><p class="note">In the table, “own-fold prediction” is what the learner says about a patient it was trained on: the memorising learner returns the outcome exactly. The held-out prediction comes from the model fitted on the other fold. Neither is advertised as an adequate nuisance learner. The purpose is to expose data reuse.</p></section>
 <section class="lab-step" data-title="Repeat samples"><h2 tabindex="-1">Consistency, efficiency, and coverage are separate questions</h2><p>Predict first: when only one nuisance model is correctly specified, does the correction remove asymptotic bias? Must it attain the efficient bound? Must its empirical influence-function interval be valid? Use the four cases to separate those claims.</p><div data-simulation="inference"></div></section>`;
+  CausalFigures.mountAll();
   control(document.getElementById("alpha"), state, "alpha");
   control(document.getElementById("beta"), state, "beta");
+
+  /* Step 1 and step 2 share the rate path. */
+  const dr = root.querySelector("[data-figure=dr-plane]");
+  dr.addEventListener("figurechange", (e) => state.set(e.detail));
+  state.subscribe((c) => {
+    const cur = dr.figure.get();
+    if (cur.alpha !== c.alpha || cur.beta !== c.beta)
+      dr.figure.set({ alpha: c.alpha, beta: c.beta });
+  });
+  dr.figure.set({ alpha: state.get().alpha, beta: state.get().beta });
+
+  /* Step 2: rate plot with fixed axes, the boundary line, and the (α, β) square. */
+  const RP = new Plot(document.getElementById("rate-plot"), {
+      x: [2, 6],
+      y: [0, 2.5],
+      width: 420,
+      height: 300,
+      margin: { l: 54, r: 18, t: 26, b: 46 },
+      xlabel: "sample size, log₁₀ n",
+      ylabel: "√n · |R₂| bound = n^(½ − α − β)",
+      yticks: [0, 0.5, 1, 1.5, 2, 2.5],
+    }),
+    RS = new Plot(document.getElementById("rate-square"), {
+      x: [0, 0.6],
+      y: [0, 0.6],
+      width: 280,
+      height: 280,
+      margin: { l: 42, r: 14, t: 24, b: 42 },
+      xlabel: "α (outcome rate)",
+      ylabel: "β (propensity rate)",
+      xticks: [0, 0.2, 0.4, 0.6],
+      yticks: [0, 0.2, 0.4, 0.6],
+    });
+  RP.marks.append(
+    el("rect", {
+      x: RP.sx(2),
+      y: RP.sy(2.5),
+      width: RP.sx(6) - RP.sx(2),
+      height: RP.sy(1) - RP.sy(2.5),
+      fill: "var(--red)",
+      "fill-opacity": 0.06,
+    }),
+    el("rect", {
+      x: RP.sx(2),
+      y: RP.sy(1),
+      width: RP.sx(6) - RP.sx(2),
+      height: RP.sy(0) - RP.sy(1),
+      fill: "var(--green)",
+      "fill-opacity": 0.07,
+    }),
+  );
+  const boundary = RP.hline(
+    1,
+    { stroke: "var(--ink)" },
+    "boundary: √n·R₂ = constant (α + β = ½)",
+  );
+  RP.text(2.08, 2.3, "grows: α + β < ½", {
+    class: "fig-text",
+    fill: "var(--red)",
+  });
+  RP.text(2.08, 0.18, "vanishes: α + β > ½", {
+    class: "fig-text",
+    fill: "var(--green)",
+  });
+  const rateLine = RP.line([[2, 1]], { stroke: "var(--purple)" }),
+    rateDot = el("circle", { r: 5, fill: "var(--purple)" }),
+    rateLab = el("text", { class: "fig-text ink", "text-anchor": "end" });
+  RP.marks.append(boundary, rateDot);
+  RP.fg.append(rateLab);
+  RS.marks.append(
+    el("path", {
+      d: `M${RS.sx(0)},${RS.sy(0)} L${RS.sx(0.5)},${RS.sy(0)} L${RS.sx(0)},${RS.sy(0.5)} Z`,
+      fill: "var(--red)",
+      "fill-opacity": 0.08,
+    }),
+    el("path", {
+      d: `M${RS.sx(0.5)},${RS.sy(0)} L${RS.sx(0.6)},${RS.sy(0)} L${RS.sx(0.6)},${RS.sy(0.6)} L${RS.sx(0)},${RS.sy(0.6)} L${RS.sx(0)},${RS.sy(0.5)} Z`,
+      fill: "var(--green)",
+      "fill-opacity": 0.08,
+    }),
+  );
+  RS.line(
+    [
+      [0, 0.5],
+      [0.5, 0],
+    ],
+    { stroke: "var(--ink)", "stroke-width": 1.5, "stroke-dasharray": "5 4" },
+  );
+  RS.text(0.3, 0.27, "α + β = ½", {
+    class: "fig-text ink",
+    "text-anchor": "start",
+  });
+  RS.text(0.02, 0.05, "too slow", { class: "fig-text", fill: "var(--red)" });
+  RS.text(0.34, 0.55, "fast enough", {
+    class: "fig-text",
+    fill: "var(--green)",
+  });
+  const sqH = el("line", {
+      class: "mark-ref",
+      stroke: "var(--purple)",
+      "stroke-opacity": 0.6,
+    }),
+    sqV = el("line", {
+      class: "mark-ref",
+      stroke: "var(--purple)",
+      "stroke-opacity": 0.6,
+    }),
+    sqDot = el("circle", { r: 6, fill: "var(--purple)" });
+  RS.marks.append(sqH, sqV, sqDot);
   function render() {
     const c = state.get(),
       exponent = 0.5 - c.alpha - c.beta,
       points = Array.from({ length: 81 }, (_, i) => {
         const x = 2 + i / 20;
-        return [x, Math.pow(10, x * exponent)];
+        return [x, Math.min(2.5, Math.pow(10, x * exponent))];
       }),
-      max = Math.max(1, ...points.map((p) => p[1]));
-    V.plot(
-      document.getElementById("rate-plot"),
-      [{ points, color: "var(--purple)" }],
-      {
-        xmin: 2,
-        xmax: 6,
-        ymin: 0,
-        ymax: max,
-        xlabel: "Sample size, log₁₀ n",
-        ylabel: "Scaled remainder bound",
-      },
-    );
+      regime = regimeOf(c.alpha + c.beta);
+    rateLine.setAttribute("d", RP.d(points));
+    const endY = points[points.length - 1][1];
+    rateDot.setAttribute("cx", RP.sx(6));
+    rateDot.setAttribute("cy", RP.sy(endY));
+    rateLab.setAttribute("x", RP.sx(6) - 10);
+    rateLab.setAttribute("y", RP.sy(endY) + (regime === "fast" ? -10 : 20));
+    rateLab.textContent = `n^${fmt(exponent, 2)} (α = ${fmt(c.alpha, 2)}, β = ${fmt(c.beta, 2)})`;
+    sqDot.setAttribute("cx", RS.sx(c.alpha));
+    sqDot.setAttribute("cy", RS.sy(c.beta));
+    sqH.setAttribute("x1", RS.sx(0));
+    sqH.setAttribute("x2", RS.sx(c.alpha));
+    sqH.setAttribute("y1", RS.sy(c.beta));
+    sqH.setAttribute("y2", RS.sy(c.beta));
+    sqV.setAttribute("x1", RS.sx(c.alpha));
+    sqV.setAttribute("x2", RS.sx(c.alpha));
+    sqV.setAttribute("y1", RS.sy(0));
+    sqV.setAttribute("y2", RS.sy(c.beta));
+    readout(document.getElementById("rate-readout"), [
+      ["α + β", fmt(c.alpha + c.beta, 2)],
+      ["exponent ½ − α − β", fmt(exponent, 2)],
+      ["√n·bound at n = 10⁴", fmt(10 ** (4 * exponent), 4)],
+      [
+        "regime",
+        regime === "fast"
+          ? "vanishes"
+          : regime === "slow"
+            ? "grows"
+            : "boundary",
+      ],
+    ]);
     document.getElementById("rate-status").textContent =
-      `α=${fmt(c.alpha, 2)}, β=${fmt(c.beta, 2)}. Scaled bound = n^${fmt(exponent, 2)}. ` +
-      (exponent < -1e-8
-        ? "It vanishes as n grows."
-        : exponent > 1e-8
-          ? "It grows; the bound does not justify efficient inference."
-          : "It stays at 1; equality alone does not justify centered efficient inference.");
+      `α = ${fmt(c.alpha, 2)}, β = ${fmt(c.beta, 2)}, so the scaled bound is n^${fmt(exponent, 2)}. ` +
+      (regime === "fast"
+        ? "The point lies above the boundary line: the scaled remainder vanishes as n grows."
+        : regime === "slow"
+          ? "The point lies below the boundary line: the scaled remainder grows; the bound does not justify efficient inference."
+          : "The point lies exactly on the boundary line: the scaled remainder stays at 1; equality alone does not justify centered efficient inference.");
     document.getElementById("rate-table").innerHTML = table(
       ["n", "Outcome error", "Propensity error", "Scaled product"],
       [100, 1000, 10000, 1000000].map((n) => [
@@ -51,25 +712,35 @@
   }
   state.subscribe(render);
   render();
-  const data = S.generate(8, S.rng(872)),
-    foldMean = (k) =>
-      S.mean(data.filter((_, i) => i % 2 === k).map((r) => r.y));
-  document.getElementById("fold-table").innerHTML = table(
-    [
-      "Patient",
-      "Fold",
-      "Outcome",
-      "Memorized prediction",
-      "Held-out prediction",
-    ],
-    data.map((r, i) => [
-      i + 1,
-      i % 2 ? "B" : "A",
-      fmt(r.y),
-      fmt(r.y),
-      fmt(foldMean(1 - (i % 2))),
-    ]),
-  );
+
+  /* Step 3: the numeric view of the same 16 patients. */
+  const cf = root.querySelector("[data-figure=crossfit]");
+  function foldTable() {
+    const preds = cf.figure.predictions();
+    document.getElementById("fold-table").innerHTML = table(
+      [
+        "Patient",
+        "Fold",
+        "x",
+        "Outcome",
+        "Own-fold prediction",
+        "Held-out prediction",
+        "Held-out residual",
+      ],
+      cf.figure.rows.map((r, i) => [
+        i + 1,
+        cf.figure.fold(i),
+        fmt(r.x, 2),
+        fmt(r.y),
+        fmt(preds[i].own),
+        fmt(preds[i].heldOut),
+        fmt(r.y - preds[i].heldOut),
+      ]),
+      "The same sixteen patients as the figure; the learner follows the figure's control",
+    );
+  }
+  cf.addEventListener("figurechange", foldTable);
+  foldTable();
   guided(root, state);
   tools(root, state);
 })();

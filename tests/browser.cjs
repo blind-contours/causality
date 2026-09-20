@@ -240,7 +240,6 @@ async function main() {
   await nav("lessons/05-one-move-two-faces.html");
   await set("pi1", 0.05);
   await set("e1", 0.4);
-  await set("t1", 1);
   report.checks.tilt = await ev(`document.getElementById('ro1').innerText`);
   assert(
     (report.checks.tilt.match(/9\.000/g) || []).length === 2,
@@ -483,6 +482,45 @@ async function main() {
     await ev(`!document.querySelectorAll('.legacy-step')[1].hidden`),
     "legacy topic navigation failed",
   );
+  // Registered figures mount and draw; the projection step animates the perpendicular.
+  await nav("lessons/02-scores-from-scratch.html");
+  assert(
+    await ev(
+      `document.querySelectorAll('[data-figure=influence] svg.fig').length===2 && !document.querySelector('[data-figure=influence]').textContent.includes('could not be drawn')`,
+    ),
+    "influence figure did not mount",
+  );
+  await nav("lessons/10-canonical-gradient.html");
+  await ev(
+    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.getElementById('restricted').checked=true;document.getElementById('restricted').dispatchEvent(new Event('input',{bubbles:true}))`,
+  );
+  await delay(120);
+  assert(
+    (
+      await ev(`document.getElementById('projection-caption').textContent`)
+    ).includes("E[(D*)²]"),
+    "projection figure caption missing after restriction",
+  );
+  for (const [file, sel] of [
+    ["lessons/00-causal-roadmap.html", "#line-fig, #worlds-fig"],
+    [
+      "lessons/11-inference-lab.html",
+      "[data-figure=dr-plane] svg.fig, [data-figure=crossfit] svg.fig",
+    ],
+    ["lessons/12-survival-lab.html", "#km-figure svg, #hr-figure svg"],
+    ["lessons/06-two-strata.html", "[data-figure=budget-plane] svg.fig"],
+    ["lessons/08-four-patients.html", "#fig1 svg, #fig2 svg"],
+  ]) {
+    await nav(file);
+    assert(
+      (await ev(`document.querySelectorAll(${JSON.stringify(sel)}).length`)) >=
+        1 &&
+        !(await ev(
+          `[...document.querySelectorAll('[data-figure]')].some(m=>m.textContent.includes('could not be drawn'))`,
+        )),
+      file + ": new figures did not mount (" + sel + ")",
+    );
+  }
   report.checks.interaction =
     "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed.";
   assert(

@@ -29,8 +29,6 @@
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="500"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p1">Play</button></div>
-    <label>Scrub (ε from 0 to the slider value) <span class="v" id="v1">0.00</span><input type="range" id="t1" min="0" max="1" step="0.002" value="0"></label>
     <label>ε <span class="v" id="v1e">0.18</span><input type="range" id="e1" min="0" max="0.4" step="0.005" value="0.18"></label>
     <label>π(old) (sets H = 1/π) <span class="v" id="v1p">0.10</span><input type="range" id="pi1" min="0.05" max="0.5" step="0.01" value="0.1"></label>
     <div class="readout" id="ro1"></div>
@@ -84,8 +82,8 @@ function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document
 const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
 // ---------- SCENE 1 ----------
 const MUY=3,MUO=2;
-const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
-  const E=+document.getElementById('e1').value*t,pio=+document.getElementById('pi1').value;const HY=1/0.9,HO=1/pio;
+const S1=scene(1,(g,W,H)=>{clear(g,W,H);
+  const E=+document.getElementById('e1').value,pio=+document.getElementById('pi1').value;const HY=1/0.9,HO=1/pio;
   const pan=(L,R,title,mu,Hv,col)=>{const T=40,B=250,shifted=mu-1+E*Hv,ymin=Math.min(mu-1,shifted)-8,ymax=Math.max(mu-1,shifted)+8,dy=0.01;const x=v=>L+(R-L)*(v-ymin)/(ymax-ymin);
     // densities
     let Z=0,m=0;const pts0=[],pts1=[];let pk=0;
@@ -103,13 +101,13 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
     const T2=300,B2=440;const ys=v=>B2-(B2-T2)*(v+30)/60;line(g,L,ys(0),R,ys(0),C.grid,1);line(g,L,B2,L,T2,C.pen,1.2);
     const sp=[];for(let v=ymin;v<=ymax;v+=0.1)sp.push([x(v),ys(Math.max(-30,Math.min(30,Hv*(v-(mu-1)))))]);poly(g,sp,C.teal,2);
     txt(g,'score H·(y−μ̂), display clipped ±30',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
-    txt(g,`slope = H = ${Hv.toFixed(2)}`,R-4,T2-12,C.teal,11,'right',FM);
+    txt(g,`slope = H = ${Hv.toFixed(2)}`,R-4,B2-10,C.teal,11,'right',FM);
     return m;};
   const mY=pan(50,380,'Young stratum',MUY,HY,C.p),mO=pan(430,760,'Old stratum',MUO,HO,C.or);
   txt(g,`same ε = ${E.toFixed(3)} for both.  Young moves ε·${HY.toFixed(2)} = ${(E*HY).toFixed(2)},  old moves ε·${HO.toFixed(2)} = ${(E*HO).toFixed(2)}`,50,470,C.pen,12.5,'left',FM);
   document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">young: μ̂+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">young: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">old: μ̂+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">old: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span>`;
   document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth. The teal line is the score of the tilt at each y.':`Tilting slides each density by εH. Old/young shift ratio = ${(0.9/pio).toFixed(2)}. Integration domain covers both means ±8 SD; absolute mean error ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
-},{dur:4000});
+},{noplay:true});
 bind('e1','v1e',v=>v.toFixed(3),()=>S1.draw());bind('pi1','v1p',v=>v.toFixed(2),()=>S1.draw());
 
 // ---------- SCENE 2 ----------

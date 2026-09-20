@@ -84,7 +84,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     </div>
   </div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="play1">Play</button><button id="reset1">Reset</button></div>
+    <div class="btns"><button class="primary" id="p1">Reveal</button></div>
     <label>Nuisance error δ = ‖P̂ − P‖ <span class="v" id="dv">0.60</span>
       <input type="range" id="delta" min="0.05" max="1" step="0.01" value="0.6"></label>
     <label>Sample size n (sets the size of the (Pₙ − P)D noise) <span class="v" id="nv">400</span>
@@ -180,7 +180,10 @@ function estimate(d,lam,kap){
 // ---------- ACT 1: the curve ----------
 const c1=document.getElementById('c1'),g1=c1.getContext('2d');
 const delta=document.getElementById('delta'),n1=document.getElementById('n1');
-let t1=0, raf1=null, noise1=0;
+let t1=0, raf1=null;
+// One draw of the (Pₙ−P)D noise, kept away from zero so the dot is visible from the first reveal.
+function drawNoise(){let z=0;while(Math.abs(z)<0.4)z=randn();return z;}
+let noise1=drawNoise();
 function curveParams(){
   const dl=+delta.value, n=+n1.value;
   const truth=2.0, first=1.2*dl, rem=0.9*dl*dl;   // plug-in = truth - first - rem
@@ -225,7 +228,7 @@ function draw1(){
   }
   dot(g1,xs(1),ys(P.truth),css('--truth'),6);label(g1,'truth  ψ(P)',xs(1)-12,ys(P.truth)-12,css('--truth'),'right');
   // first-order bias brace
-  if(t1>0.3){arrow(g1,xs(0)-26,ys(P.plug),xs(0)-26,ys(osPop),css('--plug'));label(g1,'+P D(P̂)',xs(0)-30,(ys(P.plug)+ys(osPop))/2+4,css('--plug'),'right');}
+  if(t1>0.3){arrow(g1,xs(0)-26,ys(P.plug),xs(0)-26,ys(osPop),css('--plug'));label(g1,'+P D(P̂)',xs(0)-20,(ys(P.plug)+ys(osPop))/2+4,css('--plug'),'left');}
   document.getElementById('ro1').innerHTML=
     `<span class="k">plug-in bias</span><span>${fmt(P.plug-P.truth)}</span>
      <span class="k">first order +PD(P̂)</span><span>${fmt(P.first)}   (∝ δ)</span>
@@ -237,9 +240,8 @@ function draw1(){
     t1<0.8? 'Extend the tangent to ε = 1: that value is the one-step estimator.' :
     'What the tangent cannot see is the curvature, R₂. It is second order: shrink δ and it vanishes faster than the first-order term.';
 }
-const playback1=CausalVisuals.scene(1,()=>draw1(),{dur:5000,onT:t=>{t1=t;}});
-document.getElementById('play1').onclick=()=>{if(playback1.t>=1)noise1=randn();playback1.play();};
-document.getElementById('reset1').onclick=()=>{playback1.pause();playback1.t=0;t1=0;draw1();};
+const playback1=CausalVisuals.scene(1,()=>draw1(),{dur:5000,playLabel:'Reveal',onT:t=>{t1=t;}});
+document.getElementById('p1').onclick=()=>{if(playback1.t>=1)noise1=drawNoise();playback1.play();};
 [delta,n1].forEach(el=>el.oninput=()=>{document.getElementById('dv').textContent=(+delta.value).toFixed(2);document.getElementById('nv').textContent=n1.value;draw1();});
 
 // ---------- drawing helpers ----------
@@ -308,7 +310,7 @@ document.getElementById('step2').onclick=()=>{s2=Math.min(4,s2+1);draw2();};
 document.getElementById('reset2').onclick=()=>{cancelAnimationFrame(raf2);s2=0;draw2();};
 document.getElementById('new2').onclick=()=>{D2=gen(+n2.value);draw2();};
 const playback2=CausalVisuals.scene(2,()=>draw2(),{dur:6500,onT:t=>{s2=Math.min(4,Math.floor(t*4));}});
-document.getElementById('play2').textContent='Play / pause';document.getElementById('play1').textContent='Play / pause';
+document.getElementById('play2').textContent='Play / pause';
 document.getElementById('play2').onclick=playback2.play;
 document.getElementById('step2').onclick=()=>{playback2.pause();s2=Math.min(4,s2+1);playback2.t=s2/4;draw2();};
 document.getElementById('reset2').onclick=()=>{playback2.pause();playback2.t=0;s2=0;draw2();};
@@ -327,6 +329,7 @@ new MutationObserver(all).observe(document.documentElement,{attributes:true,attr
 <script src="../shared/state.js"></script>
 <script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
+<script src="../shared/anim.js"></script>
 <script src="../labs/common.js"></script><script src="../labs/simulation.js"></script>
 </body>
 </html>

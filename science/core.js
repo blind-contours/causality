@@ -506,6 +506,72 @@
       score: mean(updated.map((p, i) => h[i] * (y[i] - p))),
     };
   }
+  /* Toy regression deck for the cross-fitting figure: n patients with a continuous
+   * covariate x in (0,1), sorted by x, outcome = smooth curve + noise. */
+  function toyCurve(n, random) {
+    const rows = Array.from({ length: n }, (_, i) => {
+      const x = Math.max(
+        0.02,
+        Math.min(0.98, (i + 0.5) / n + ((0.3 * (random() - 0.5)) / n) * 2),
+      );
+      return {
+        x,
+        y: 1 + 0.5 * x + 0.8 * Math.sin(3.2 * x) + 0.35 * randn(random),
+      };
+    });
+    return rows.sort((a, b) => a.x - b.x);
+  }
+  /* Piecewise-linear interpolant through sorted points {x,y}; constant beyond the ends.
+   * A learner that memorises: it reproduces every training outcome exactly. */
+  function interpolate(points, x) {
+    if (!points.length) return NaN;
+    if (x <= points[0].x) return points[0].y;
+    const last = points[points.length - 1];
+    if (x >= last.x) return last.y;
+    let k = 1;
+    while (points[k].x < x) k++;
+    const a = points[k - 1],
+      b = points[k],
+      f = b.x === a.x ? 0 : (x - a.x) / (b.x - a.x);
+    return a.y + f * (b.y - a.y);
+  }
+  /* Ordinary least squares line y = a + b x through points {x,y}. */
+  function linearFit(points) {
+    const mx = mean(points.map((p) => p.x)),
+      my = mean(points.map((p) => p.y)),
+      sxx = sum(points.map((p) => (p.x - mx) ** 2)),
+      sxy = sum(points.map((p) => (p.x - mx) * (p.y - my))),
+      b = sxx > 0 ? sxy / sxx : 0;
+    return { a: my - b * mx, b };
+  }
+  /* Power-law nuisance errors along a rate path: error_j = scale * (n / n0)^(-rate_j).
+   * Returns both errors, the rectangle area (the |R2| bound with constant one),
+   * the sampling band c / sqrt(n), and sqrt(n) * area. */
+  function ratePath(
+    n,
+    {
+      alpha,
+      beta,
+      scale = 0.5,
+      n0 = 100,
+      c = 2.5,
+      exactG = false,
+      exactM = false,
+    } = {},
+  ) {
+    const eg = exactG ? 0 : scale * (n / n0) ** -beta,
+      em = exactM ? 0 : scale * (n / n0) ** -alpha,
+      area = eg * em;
+    return {
+      n,
+      eg,
+      em,
+      area,
+      band: c / Math.sqrt(n),
+      scaled: Math.sqrt(n) * area,
+      c,
+    };
+  }
   return {
     sum,
     mean,
@@ -542,5 +608,9 @@
     landscapeTarget,
     binaryTarget,
     mixtureTilt,
+    toyCurve,
+    interpolate,
+    linearFit,
+    ratePath,
   };
 });

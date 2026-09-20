@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="../shared/course.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
+<script src="../shared/anim.js"></script>
+<script src="../figures/influence.js"></script>
 </head>
 <body data-lesson="scores-from-scratch">
 <div class="wrap">
@@ -45,7 +47,6 @@
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p2">Play</button></div>
     <label>ε <span class="v" id="v2e">0.00</span><input type="range" id="e2" min="-0.5" max="0.5" step="0.005" value="0"></label>
     <label>Direction h <select id="h2"><option value="tilt">tilt: h ∝ z − μ (shift the mean)</option><option value="bump">bump: h ∝ exp(−(z−1)²) − c (add mass near 1)</option><option value="wave">wave: h ∝ sin(1.6 z) − c</option><option value="spread">spread: h ∝ (z−μ)² − c (widen)</option></select></label>
     <div class="readout" id="ro2"></div>
@@ -61,8 +62,8 @@
 <div class="scene">
   <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p3">Play</button></div>
     <label>Probe position z₀ <span class="v" id="v3z">1.20</span><input type="range" id="z3" min="-3" max="3" step="0.01" value="1.2"></label>
+    <label>ε (how far along the path) <span class="v" id="v3e">0.00</span><input type="range" id="e3" min="-0.5" max="0.5" step="0.005" value="0"></label>
     <label>Direction h <select id="h3"><option value="tilt">tilt</option><option value="bump" selected>bump</option><option value="wave">wave</option><option value="spread">spread</option></select></label>
     <div class="readout" id="ro3"></div>
     <div class="note">For a Normal(μ, σ²) moved along μ, log p_ε(z) = const − (z − μ − ε)²/2σ², whose ε-derivative at 0 is (z − μ)/σ². That's the familiar parametric score, and it is the "tilt" direction here up to scale.</div>
@@ -123,12 +124,14 @@
 <div class="scene">
   <div class="paper"><canvas id="c7" width="800" height="400"></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p7">Play</button></div>
     <label>Spike position z₀ <span class="v" id="v7z">2.00</span><input type="range" id="z7" min="-3" max="3" step="0.01" value="2"></label>
     <label>Contamination ε <span class="v" id="v7e">0.10</span><input type="range" id="e7" min="0" max="0.3" step="0.005" value="0.1"></label>
     <div class="readout" id="ro7"></div>
   </div>
 </div>
+<h2>Draw the influence function from the action</h2>
+<p>Do not read the formula first. Add a droplet of mass at z₀ and watch the balance point of the density move. Sweep z₀ across the line and record the shift per unit of added mass at each place. The recorded points are the influence function; the formula ϕ(z) = z − ψ names what you already traced.</p>
+<div data-figure="influence"></div>
 <div class="say"><b>In one sentence</b>The influence function evaluated at z is the Gateaux derivative of the parameter toward a point mass at z: how much one extra observation there would pull the estimate. Averaging it over the sample is the first-order error of any regular estimator.</div>
 
 <!-- 8 -->
@@ -139,7 +142,6 @@
 <div class="scene">
   <div class="paper"><canvas id="c8" width="800" height="460"></canvas><div class="cap" id="cap8"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p8">Play</button></div>
     <label>x₀ <span class="v" id="v8x">1.20</span><input type="range" id="x8" min="-1.9" max="1.9" step="0.01" value="1.2"></label>
     <label>a₀ <select id="a8"><option value="1">treated (A = 1)</option><option value="0">control (A = 0)</option></select></label>
     <label>y₀ (drag the observation up and down) <span class="v" id="v8y">6.00</span><input type="range" id="y8" min="-3" max="12" step="0.05" value="6"></label>
@@ -243,12 +245,12 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e2')
   txt(g,'the path {P_ε}',bx,by+ry+14,C.muted,12,'center');
   document.getElementById('ro2').innerHTML=`<span class="k">∫ p_ε</span><span>${integ(q).toFixed(4)}</span><span class="k">∫ h p</span><span>${(()=>{let s=0;for(let i=0;i<N;i++)s+=h[i]*P0[i]*dz;return s.toFixed(4)})()}</span><span class="k">mean of P_ε</span><span>${meanOf(q).toFixed(3)}</span>`;
   document.getElementById('cap2').textContent=Math.abs(e)<0.01?'At ε = 0 the path sits at p. Green and red will show where mass is added and removed.':'Mass moves from red to green. The density is still a density (total mass 1) because h has mean zero.';
-},{onT:t=>{const el=document.getElementById('e2');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v2e').textContent=(+el.value).toFixed(2);},dur:6000});
+},{noplay:true});
 bind('e2','v2e',v=>v.toFixed(2),()=>S2.draw());bind('h2',null,v=>v,()=>S2.draw());
 
 // ================= SCENE 3 =================
 const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z3').value,h=hOf(document.getElementById('h3').value);const i0=Math.round((z0-ZL)/dz);
-  const e=(Math.sin(t*6.283)*0.4);const q=pEps(h,e);
+  const e=+document.getElementById('e3').value;const q=pEps(h,e);
   const {xs,ys}=densityPanel(g,60,440,40,250,[{p:P0,col:C.muted,w:1.6,dash:[5,4]},{p:q,col:C.p,w:2.2}],{ymax:0.5});txt(g,'p_ε(z)',70,30,C.pen,14,'left',FS,true);txt(g,`ε = ${e.toFixed(2)}`,430,30,C.p,12.5,'right',FM);
   line(g,xs(z0),250,xs(z0),40,C.or,1.2,[4,3]);dot(g,xs(z0),ys(q[i0]),C.or,6,true);dot(g,xs(z0),ys(P0[i0]),C.muted,4);txt(g,'z₀',xs(z0),262,C.or,13,'center',FS,true);
   // score panel below
@@ -265,9 +267,9 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z3'
   txt(g,'slope at 0 = h(z₀)',ex(0.05),ey(base)+(h[i0]>0?22:-22),C.green,12.5,'left',FS,true);
   txt(g,`ε=${e.toFixed(2)}`,ex(e),RB+16,C.or,11,'center',FM);
   document.getElementById('ro3').innerHTML=`<span class="k">p(z₀)</span><span>${P0[i0].toFixed(4)}</span><span class="k">p_ε(z₀)</span><span>${q[i0].toFixed(4)}</span><span class="k">h(z₀) exact</span><span>${h[i0].toFixed(3)}</span><span class="k">finite diff</span><span>${e!==0?((Math.log(q[i0])-Math.log(P0[i0]))/e).toFixed(3):'—'}</span>`;
-  document.getElementById('cap3').textContent='Left: the density at the probe rises and falls with ε. Right: log p_ε(z₀) against ε; its slope at zero is the score at z₀. Do this for every z₀ and you have the score function (bottom).';
-},{dur:6000,t0:0.12});
-bind('z3','v3z',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>S3.draw());
+  document.getElementById('cap3').textContent='Left: the density at the probe rises and falls as you move ε. Right: log p_ε(z₀) against ε; its slope at zero is the score at z₀. Do this for every z₀ and you have the score function (bottom).';
+},{noplay:true});
+bind('z3','v3z',v=>v.toFixed(2),()=>S3.draw());bind('e3','v3e',v=>v.toFixed(2),()=>S3.draw());bind('h3',null,v=>v,()=>S3.draw());
 
 // ================= SCENE 4 =================
 const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const h=hOf(document.getElementById('h4').value);
@@ -290,6 +292,7 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const h=hOf(document.getElementById('h
 bind('h4',null,v=>v,()=>S4.draw());
 
 // ================= SCENE 5 =================
+let trace5=[]; // (ε, ψ(P_ε)) pairs visited by the sweep
 const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e5').value,h=hOf(document.getElementById('h5').value);const q=pEps(h,e);
   const {xs,ys}=densityPanel(g,60,540,40,220,[{p:P0,col:C.muted,w:1.6,dash:[5,4]},{p:q,col:C.p,w:2.2}],{ymax:0.5});txt(g,'p_ε(z)',70,30,C.pen,14,'left',FS,true);
   const m0=MU0,me=meanOf(q);line(g,xs(m0),220,xs(m0),200,C.muted,2);txt(g,'ψ(P)',xs(m0)-6,238,C.muted,12,'right',FS,true);line(g,xs(me),220,xs(me),195,C.p,2.4);txt(g,'ψ(P_ε)',xs(me)+6,252,C.p,12.5,'left',FS,true);
@@ -304,12 +307,15 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e5')
   const dpsi=integ(prod);const fd=Math.abs(e)>1e-9?(me-m0)/e:NaN;
   // right: psi vs eps
   const RL=600,RR=770,RT=60,RB=220;axes(g,RL,RR,RT,RB,C.pen);txt(g,'ψ(P_ε) vs ε',RL,RT-14,C.pen,13,'left',FS,true);const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-m0)/0.8);
-  const pts=[];for(let v=-0.5;v<=0.5;v+=0.02)pts.push([ex(v),ey(meanOf(pEps(h,v)))]);poly(g,pts,C.p,2);line(g,ex(-0.45),ey(m0-0.45*dpsi),ex(0.45),ey(m0+0.45*dpsi),C.green,1.6);dot(g,ex(e),ey(me),C.or,6,true);dot(g,ex(0),ey(m0),C.pen,4,true);
-  txt(g,'slope = E[ϕh]',RL+6,RB+16,C.green,12.5,'left',FS,true);
+  if(S5.sweeping)trace5.push([e,me]);
+  const pts=[];for(let v=-0.5;v<=0.5;v+=0.02)pts.push([ex(v),ey(meanOf(pEps(h,v)))]);poly(g,pts,C.grid,1.2,[3,3]);line(g,ex(-0.45),ey(m0-0.45*dpsi),ex(0.45),ey(m0+0.45*dpsi),C.green,1.6);
+  if(trace5.length>1)poly(g,trace5.map(q=>[ex(q[0]),ey(q[1])]),C.p,2.6);
+  dot(g,ex(e),ey(me),C.or,6,true);dot(g,ex(0),ey(m0),C.pen,4,true);
+  txt(g,'slope = E[ϕh]',RL+6,RB+16,C.green,12.5,'left',FS,true);txt(g,trace5.length?'traced: ψ(P_ε) as ε swept':'Play sweeps ε and traces ψ(P_ε)',RL+6,RB+32,C.muted,11,'left');
   document.getElementById('ro5').innerHTML=`<span class="k">E_P[ϕ h] = ∫ϕhp</span><span>${dpsi.toFixed(4)}</span><span class="k">(ψ(P_ε)−ψ(P))/ε</span><span>${isNaN(fd)?'—':fd.toFixed(4)}</span><span class="k">ψ(P)</span><span>${m0.toFixed(4)}</span><span class="k">ψ(P_ε)</span><span>${me.toFixed(4)}</span>`;
   document.getElementById('cap5').textContent='The signed area of ϕ·h·p is the rate at which the mean moves along this path. Change h: the area changes, ϕ does not.';
-},{onT:t=>{const el=document.getElementById('e5');el.value=(Math.sin(t*6.283)*0.5).toFixed(3);document.getElementById('v5e').textContent=(+el.value).toFixed(2);},dur:6000});
-bind('e5','v5e',v=>v.toFixed(2),()=>S5.draw());bind('h5',null,v=>v,()=>S5.draw());
+},{t0:0,dur:6000,sweep:{id:'e5',at:t=>(-0.5+t).toFixed(3),label:'v5e',fmt:v=>v.toFixed(2)},onT:t=>{if(t===0)trace5.length=0;}});
+bind('e5','v5e',v=>v.toFixed(2),()=>S5.draw());bind('h5',null,v=>v,()=>{trace5.length=0;S5.draw();});
 
 // ================= SCENE 6 =================
 const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const cols=[C.green,C.or,C.teal,C.red];
@@ -328,7 +334,7 @@ const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const cols=[C.green,C.or,C.teal,C.red]
 });
 
 // ================= SCENE 7 =================
-const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z7').value,e=+document.getElementById('e7').value*Math.max(0.001,seg(t,0,0.6));
+const S7=scene(7,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z7').value,e=+document.getElementById('e7').value;
   const {xs,ys}=densityPanel(g,60,540,40,260,[{p:P0,col:C.muted,w:1.8,fill:true}],{ymax:0.5});txt(g,'(1−ε) p(z)  +  ε · δ_{z₀}',70,30,C.pen,14,'left',FS,true);
   // scaled density
   const sc=[];for(let i=0;i<N;i++)sc.push([xs(Z[i]),ys(P0[i]*(1-e))]);poly(g,sc,C.p,2);
@@ -345,14 +351,14 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const z0=+document.getElementById('z7'
   txt(g,'Now put mass 1/n at each of the',RL,250,C.muted,12,'left');txt(g,'n observations (that is Pₙ):',RL,266,C.muted,12,'left');txt(g,'ψ̂ − ψ ≈ (1/n) Σ ϕ(Zᵢ) = Pₙϕ',RL,290,C.pen,12.5,'left',FM);
   document.getElementById('ro7').innerHTML=`<span class="k">z₀</span><span>${z0.toFixed(2)}</span><span class="k">ϕ(z₀) = z₀ − ψ</span><span>${(z0-m0).toFixed(3)}</span><span class="k">Δψ / ε</span><span>${e>0?((me-m0)/e).toFixed(3):'—'}</span>`;
   document.getElementById('cap7').textContent='A little mass at z₀ pulls the mean toward z₀ by ε·(z₀ − ψ). The influence function is the pull per unit of mass.';
-});
+},{noplay:true});
 bind('z7','v7z',v=>v.toFixed(2),()=>S7.draw());bind('e7','v7e',v=>v.toFixed(2),()=>S7.draw());
 
 // ================= SCENE 8 =================
 const expit=z=>1/(1+Math.exp(-z));const mu1=x=>0.5+x+0.6*x*x+2+0.4*x,mu0=x=>0.5+x+0.6*x*x,pi=x=>expit(0.9*x);
 const XG=[];for(let x=-2;x<=2.0001;x+=0.02)XG.push(x);const pX=x=>0.25; // uniform on [-2,2]
 const ATE=2; // Exact integral over Uniform(-2,2), not a double-counted endpoint quadrature.
-const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const x0=+document.getElementById('x8').value,a0=+document.getElementById('a8').value,y0=+document.getElementById('y8').value;const eps=0.1*seg(t,0,0.6);
+const S8=scene(8,(g,W,H)=>{clear(g,W,H);const x0=+document.getElementById('x8').value,a0=+document.getElementById('a8').value,y0=+document.getElementById('y8').value;const eps=0.1;
   const L=60,R=490,T=40,B=300;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);txt(g,'Y',L-6,T-12,C.pen,13,'left',FS,true);
   // regressions
   const c1=[],c0=[];for(const x of XG){c1.push([xs(x),ys(mu1(x))]);c0.push([xs(x),ys(mu0(x))]);}poly(g,c1,C.p,2.2);poly(g,c0,C.red,2.2);txt(g,'μ₁(x)',xs(-1.9),ys(mu1(-1.9))-12,C.p,13,'left',FS,true);txt(g,'μ₀(x)',xs(-1.9),ys(mu0(-1.9))+14,C.red,13,'left',FS,true);
@@ -373,8 +379,8 @@ const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const x0=+document.getElementById('x8'
   const bx=RL,by=250,sc=6;const draw=(v,y,c,lab)=>{g.fillStyle=c;g.fillRect(bx+90,y-7,v*sc,14);txt(g,lab,bx,y,C.muted,11.5,'left',FM);};line(g,bx+90,235,bx+90,320,C.grid,1);draw(t1,250,C.teal,'X-part');draw(t2,275,C.or,'regr.');draw(phi,300,C.purple,'total');
   txt(g,`ψ = ${ATE.toFixed(2)} → ψ_ε ≈ ${(ATE+eps*phi).toFixed(2)}`,RL,345,C.pen,12,'left',FM);txt(g,`(ε = ${eps.toFixed(2)})`,RL,363,C.muted,11.5,'left',FM);
   document.getElementById('ro8').innerHTML=`<span class="k">P(A=a₀ | x₀)</span><span>${pa.toFixed(3)}</span><span class="k">1 / P(a₀|x₀)</span><span>${(1/pa).toFixed(2)}</span><span class="k">residual y₀−μ</span><span>${(y0-mu).toFixed(2)}</span><span class="k">ϕ</span><span>${phi.toFixed(3)}</span>`;
-  document.getElementById('cap8').textContent=eps<0.02?'One observation. Its influence on the ATE has two pieces: where its x sits, and how far its y is from the regression for its arm.':'The dashed curve is the regression being pulled toward y₀ at x₀. The pull is the residual divided by the probability of that arm at x₀, so rare arms pull harder.';
-});
+  document.getElementById('cap8').textContent='One observation. Its influence on the ATE has two pieces: where its x sits, and how far its y is from the regression for its arm. The dashed curve is that regression pulled toward y₀ at x₀ by ε = 0.1 of mass; the pull is the residual divided by the probability of that arm at x₀, so rare arms pull harder.';
+},{noplay:true});
 bind('x8','v8x',v=>v.toFixed(2),()=>S8.draw());bind('y8','v8y',v=>v.toFixed(2),()=>S8.draw());bind('a8',null,v=>v,()=>S8.draw());
 
 // ================= SCENE 9 =================

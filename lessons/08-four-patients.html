@@ -23,10 +23,29 @@ table.fp tr.sum td{border-top:2px solid var(--rule);font-weight:500}
 .fp-msg{font-size:13.5px;margin:6px 0 0;min-height:1.4em}
 .fp-msg.ok{color:var(--green)}.fp-msg.no{color:var(--red)}
 .fp-wrap{overflow-x:auto}
+.figure{max-width:1040px}
+svg.fig .stick.young{fill:var(--p)}svg.fig .stick.old{fill:var(--or)}
+svg.fig .stick.pending{opacity:.22}
+svg.fig .zero-tick{stroke:var(--ink);stroke-width:2.5}
+svg.fig .fig-text.p{fill:var(--p)}svg.fig .fig-text.or{fill:var(--or)}svg.fig .fig-text.purple{fill:var(--purple)}svg.fig .fig-text.ink{fill:var(--ink)}
+svg.fig .run-mean{stroke:var(--purple);stroke-width:1.5;stroke-dasharray:5 4}
+svg.fig .nl-axis{stroke:var(--muted);stroke-width:1.2}
+svg.fig .nl-move{stroke:var(--purple);stroke-width:2}
+svg.fig .nl-plug{fill:var(--muted)}svg.fig .nl-one{fill:var(--purple)}
+svg.fig .fit-line{stroke:var(--purple);stroke-width:2.5;fill:none}
+svg.fig .gap{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 3}
+svg.fig .dot.young{fill:var(--p)}svg.fig .dot.old{fill:var(--or)}
+.fig-readout .ok{color:var(--green);font-weight:500}.fig-readout .no{color:var(--red);font-weight:500}
+.fig-controls label{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.fig-controls input[type=range]{flex:1;max-width:320px}
+.fig-controls .v{font-family:"IBM Plex Mono",monospace;color:var(--ink);min-width:5ch}
+#explain-fp{display:block;width:100%;max-width:760px;box-sizing:border-box;font:inherit;font-size:14.5px;padding:8px 10px;margin-top:6px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink)}
+label[for=explain-fp]{display:block;font-weight:500;margin-top:8px}
 </style>
 <link rel="stylesheet" href="../shared/course.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
+<script src="../shared/anim.js"></script>
 </head>
 <body data-lesson="four-patients">
 <div class="wrap">
@@ -46,6 +65,7 @@ table.fp tr.sum td{border-top:2px solid var(--rule);font-weight:500}
 <div class="btns"><button class="primary" id="chk1">Check</button><button id="new1">New numbers</button><button id="show1">Show answers</button></div>
 <div class="fp-msg" id="msg1"></div>
 <div class="note" id="note1">Fill the three right-hand columns for each patient, then the sums and the mean at the bottom.</div>
+<div class="figure" id="fig1"></div>
 <div class="say"><b>In one sentence</b>Each treated patient contributes its residual scaled by 1/π, each untreated patient contributes nothing to the outcome piece, and the average of those contributions is exactly the correction the one-step adds to the plug-in.</div>
 
 <!-- PART 2 -->
@@ -63,7 +83,15 @@ table.fp tr.sum td{border-top:2px solid var(--rule);font-weight:500}
 </tbody></table></div>
 <div class="btns"><button class="primary" id="chk2">Check</button><button id="new2">New numbers</button><button id="show2">Show answers</button></div>
 <div class="fp-msg" id="msg2"></div>
+<div class="figure" id="fig2"></div>
 <div class="say"><b>In one sentence</b>ε̂ is the no-intercept least-squares slope of the residuals on the clever covariate. The old stratum’s two residuals enter the numerator with weight 4 against 1.25, which is the reweighting that gives every stratum evidence in proportion to its share of ψ.</div>
+
+<!-- EXPLAIN -->
+<div class="eyebrow">Explain</div>
+<h2>Say it in words</h2>
+<label for="explain-fp">Which patients contribute to which part of the correction, and why?</label>
+<textarea id="explain-fp" rows="4" placeholder="Name the patients by stratum and treatment, say what H does to each residual, and say what the mean of the four sticks becomes."></textarea>
+<p class="note">Your explanation is saved in this browser for reflection; it is not automatically graded. Compare it with the two "In one sentence" boxes above, then carry the reasoning into the transfer case below.</p>
 </div>
 
 <script>
@@ -73,6 +101,7 @@ function variant(part){if(variants[part]===undefined){try{variants[part]=+(local
 function nextVariant(part){variants[part]=variant(part)+1;try{localStorage.setItem('causality.patient-case.'+part,variants[part]);}catch{}}
 function record(part,correct,assisted){window.Causality?.event({type:'exercise',unit:'four-patients',id:'table-'+part,variant:variant(part),correct,assisted});}
 function restoreCells(part){const selector=part===1?'#t1 input':'#t2 input, #t2s input',inputs=[...document.querySelectorAll(selector)],key='causality.patient-answers.'+part+'.'+variant(part);let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}');}catch{}inputs.forEach((input,i)=>{input.id ||= 'patient-'+part+'-'+i;if(saved[input.id]!==undefined)input.value=saved[input.id];input.oninput=()=>{try{localStorage.setItem(key,JSON.stringify(Object.fromEntries(inputs.map(el=>[el.id,el.value]))));}catch{}record(part,false,false);};});}
+let draw1=()=>{},draw2=()=>{};
 const r1=v=>Math.round(v*1000)/1000;
 const close=(a,b,tol)=>Math.abs(a-b)<=(tol||0.011);
 function mark(inp,ok){inp.classList.remove('ok','no');inp.classList.add(ok?'ok':'no');}
@@ -87,12 +116,13 @@ function render1(){const A=ans1(),psi=A[4].psi;const tb=document.getElementById(
   tb.innerHTML+=`<tr class="sum"><td>sum</td><td></td><td></td><td></td><td></td><td>ψ̂ = ${psi.toFixed(2)}</td><td>0.00</td><td></td><td></td><td><input data-k="sum" inputmode="decimal"></td></tr>`;
   tb.innerHTML+=`<tr class="sum"><td>mean (÷ 4) = correction</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><input data-k="mean" inputmode="decimal"></td></tr>`;
   tb.innerHTML+=`<tr class="sum"><td>one-step = ψ̂ + correction</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><input data-k="os" inputmode="decimal"></td></tr>`;
-  document.getElementById('msg1').textContent='';document.getElementById('msg1').className='fp-msg';restoreCells(1);}
+  document.getElementById('msg1').textContent='';document.getElementById('msg1').className='fp-msg';restoreCells(1);draw1();}
 function check1(show){const A=ans1(),psi=A[4].psi;let okAll=true,filled=0;const sum=A.slice(0,4).reduce((a,x)=>a+x.hr,0),mean=sum/4;
   document.querySelectorAll('#t1 input').forEach(inp=>{const k=inp.getAttribute('data-k'),i=+inp.getAttribute('data-i');let target=k==='sum'?sum:k==='mean'?mean:k==='os'?psi+mean:A[i][k];
     if(show){inp.value=target.toFixed(k==='H'?2:3);mark(inp,true);return;}
     const v=num(inp);if(Number.isNaN(v)){inp.classList.remove('ok','no');okAll=false;return;}filled++;const ok=close(v,target);mark(inp,ok);okAll=okAll&&ok;});
   const m=document.getElementById('msg1');
+  draw1();
   if(show){m.textContent=`Filled in. Correction = ${mean.toFixed(3)}, one-step = ${(psi+mean).toFixed(3)}.`;m.className='fp-msg';record(1,false,true);return;}
   if(filled===0){m.textContent='Type some values first.';m.className='fp-msg no';return;}
   m.textContent=okAll?`All correct. The mean of your four Y-pieces, ${mean.toFixed(3)}, is the one-step correction; ψ̂ + it = ${(psi+mean).toFixed(3)}.`:'Red cells are off (tolerance ±0.01). Untreated patients have H = 0; treated ones have H = 1/π.';m.className='fp-msg '+(okAll?'ok':'no');record(1,okAll,false);}
@@ -103,17 +133,98 @@ let P2=[];
 function gen2(){const rs=[[1.0,0.6,0.5,1.5],[0.8,1.2,1.0,0.6],[0.4,1.0,1.4,0.8],[1.2,0.4,0.9,1.1]][variant(2)%4];P2=[{s:'young',H:1.25,r:rs[0]},{s:'young',H:1.25,r:rs[1]},{s:'old',H:4,r:rs[2]},{s:'old',H:4,r:rs[3]}];}
 function render2(){const tb=document.getElementById('t2b');tb.innerHTML='';P2.forEach((p,i)=>{tb.innerHTML+=`<tr><td>${i+1}</td><td>${p.s}</td><td>${p.H}</td><td>${p.r.toFixed(1)}</td><td><input data-k="hr" data-i="${i}" inputmode="decimal"></td><td><input data-k="h2" data-i="${i}" inputmode="decimal"></td></tr>`;});
   tb.innerHTML+=`<tr class="sum"><td>sum</td><td></td><td></td><td></td><td><input data-k="shr" inputmode="decimal"></td><td><input data-k="sh2" inputmode="decimal"></td></tr>`;
-  ['e2','sy2','so2'].forEach(id=>{const e=document.getElementById(id);e.value='';e.classList.remove('ok','no');});document.getElementById('msg2').textContent='';document.getElementById('msg2').className='fp-msg';restoreCells(2);}
+  ['e2','sy2','so2'].forEach(id=>{const e=document.getElementById(id);e.value='';e.classList.remove('ok','no');});document.getElementById('msg2').textContent='';document.getElementById('msg2').className='fp-msg';restoreCells(2);draw2();}
 function check2(show){const shr=P2.reduce((a,p)=>a+p.H*p.r,0),sh2=P2.reduce((a,p)=>a+p.H*p.H,0),e=shr/sh2;let okAll=true,filled=0;
   const test=(inp,target,dec)=>{if(show){inp.value=target.toFixed(dec||3);mark(inp,true);return;}const v=num(inp);if(Number.isNaN(v)){inp.classList.remove('ok','no');okAll=false;return;}filled++;const ok=close(v,target);mark(inp,ok);okAll=okAll&&ok;};
   document.querySelectorAll('#t2 input').forEach(inp=>{const k=inp.getAttribute('data-k'),i=+inp.getAttribute('data-i');test(inp,k==='hr'?P2[i].H*P2[i].r:k==='h2'?P2[i].H*P2[i].H:k==='shr'?shr:sh2,k==='h2'?4:3);});
-  test(document.getElementById('e2'),e,4);test(document.getElementById('sy2'),e*1.25,3);test(document.getElementById('so2'),e*4,3);
+  test(document.getElementById('e2'),e,4);test(document.getElementById('sy2'),e*1.25,3);test(document.getElementById('so2'),e*4,3);draw2();
   const m=document.getElementById('msg2');
   if(show){m.textContent=`ε̂ = ${shr.toFixed(2)} / ${sh2.toFixed(2)} = ${e.toFixed(4)}. Old residuals contribute ${(P2[2].H*P2[2].r+P2[3].H*P2[3].r).toFixed(2)} of the numerator, young ${(P2[0].H*P2[0].r+P2[1].H*P2[1].r).toFixed(2)}.`;m.className='fp-msg';record(2,false,true);return;}
   if(filled===0){m.textContent='Type some values first.';m.className='fp-msg no';return;}
   m.textContent=okAll?`All correct. ε̂ = ${e.toFixed(4)}; the old curve moves ${(e*4).toFixed(3)} and the young curve ${(e*1.25).toFixed(3)}, a ratio of 3.2 = 4/1.25.`:'Red cells are off (tolerance ±0.01). ε̂ is one number for both strata; the shifts differ because H does.';m.className='fp-msg '+(okAll?'ok':'no');record(2,okAll,false);}
 document.getElementById('chk2').onclick=()=>check2(false);document.getElementById('show2').onclick=()=>check2(true);document.getElementById('new2').onclick=()=>{nextVariant(2);gen2();render2();record(2,false,false);};
 gen2();render2();
+// ---- Figures (shared/anim.js) ----
+const {el,html,Plot,player,fmt}=CausalAnim;
+function mountFigure(id,label){const fig=document.getElementById(id),svg=el('svg',{class:'fig',role:'img','aria-label':label}),cap=html('p',{class:'fig-caption'}),read=html('div',{class:'fig-readout'});
+  fig.append(html('div',{class:'fig-row'},svg,html('div',{},cap,read)));
+  return {fig,svg,caption:t=>{cap.textContent=t;},readout:pairs=>read.replaceChildren(...pairs.flatMap(([k,v,cls])=>[html('span',{class:'k'},k),html('span',{class:cls||''},String(v))]))};}
+const cell=(part,k,i)=>document.querySelector('#t'+part+' input[data-k="'+k+'"]'+(i===undefined?'':'[data-i="'+i+'"]'));
+const typed=inp=>inp?num(inp):NaN;
+// Figure 1: four sticks H·r, running mean, plug-in → one-step
+(function(){
+  const F=mountFigure('fig1','Four sticks, one per patient, of height H times residual; a dashed running mean; and a number line where the plug-in moves to the one-step estimate.');
+  let t=1;
+  const sticks=()=>P1.map((p,i)=>{const hr=typed(cell(1,'hr',i));if(Number.isFinite(hr))return hr;const H=typed(cell(1,'H',i)),r=typed(cell(1,'r',i));return Number.isFinite(H)&&Number.isFinite(r)?H*r:NaN;});
+  draw1=function(){
+    const v=sticks(),psi=ans1()[4].psi,k=Math.min(4,Math.floor(t*4+1e-9)),added=v.slice(0,k),finite=v.filter(Number.isFinite);
+    const run=k&&added.every(Number.isFinite)?added.reduce((a,b)=>a+b,0)/k:NaN;
+    const corr=finite.length===4?v.reduce((a,b)=>a+b,0)/4:NaN,one=psi+corr;
+    const lo=Math.min(-0.5,...finite,Number.isFinite(run)?run:0)-0.6,hi=Math.max(2.5,...finite,Number.isFinite(run)?run:0)+0.5;
+    const plot=new Plot(F.svg,{x:[0.5,4.5],y:[lo,hi],width:640,height:330,margin:{l:54,r:18,t:20,b:140},xticks:[],ylabel:'H · (Y − μ̂₁)'});
+    const B=330-140;
+    P1.forEach((p,i)=>{const x=i+1,val=v[i],pending=i>=k;
+      if(Number.isFinite(val)){plot.bars([[x,val]],0.5,{class:'stick '+p.s+(pending?' pending':'')});
+        if(p.a===0)plot.marks.append(el('line',{class:'zero-tick',x1:plot.sx(x-0.25),x2:plot.sx(x+0.25),y1:plot.sy(0),y2:plot.sy(0),opacity:pending?.22:1}));
+        plot.text(x,val,fmt(val,2),{class:'fig-text '+(p.s==='young'?'p':'or'),'text-anchor':'middle',dy:val>=0?-6:14,opacity:pending?.35:1});}
+      else plot.text(x,0,'?',{class:'fig-text','text-anchor':'middle',dy:-6});
+      const lab=el('text',{class:'fig-text ink',x:plot.sx(x),y:B+18,'text-anchor':'middle'},p.s+', A='+p.a);
+      const h=el('text',{class:'fig-text','text-anchor':'middle',x:plot.sx(x),y:B+34},p.a?'H = 1/π = '+fmt(p.a/p.pi,2):'H = 0');
+      plot.fg.append(lab,h);});
+    if(Number.isFinite(run)){plot.marks.append(el('line',{class:'run-mean',x1:plot.sx(0.5),x2:plot.sx(4.5),y1:plot.sy(run),y2:plot.sy(run)}));
+      plot.text(4.5,run,'mean of '+k+' = '+fmt(run,3),{class:'fig-text purple','text-anchor':'end',dy:-5});}
+    // number line: plug-in → one-step
+    const L=54,R=622,Y=286,d=[psi-1.5,psi+1.5],nx=q=>L+(q-d[0])/(d[1]-d[0])*(R-L);
+    const g=el('g');
+    g.append(el('text',{class:'fig-text ink',x:L,y:Y-30},'plug-in ψ̂ → one-step = ψ̂ + correction'));
+    g.append(el('line',{class:'nl-axis',x1:L,x2:R,y1:Y,y2:Y}));
+    for(let q=Math.ceil(d[0]*2)/2;q<=d[1]+1e-9;q+=0.5){g.append(el('line',{class:'nl-axis',x1:nx(q),x2:nx(q),y1:Y,y2:Y+5}));g.append(el('text',{class:'tick',x:nx(q),y:Y+18,'text-anchor':'middle'},fmt(q,1)));}
+    g.append(el('circle',{class:'nl-plug',cx:nx(psi),cy:Y,r:6}));
+    g.append(el('text',{class:'fig-text',x:nx(psi),y:Y-10,'text-anchor':'middle'},'plug-in ψ̂ = '+fmt(psi,2)));
+    const clampX=q=>Math.max(L+80,Math.min(R-80,q));
+    if(Number.isFinite(corr)){g.append(el('line',{class:'nl-move',x1:nx(psi),x2:nx(one),y1:Y,y2:Y}));g.append(el('circle',{class:'nl-one',cx:nx(one),cy:Y,r:6}));
+      g.append(el('text',{class:'fig-text purple',x:clampX(nx(one)),y:Y+34,'text-anchor':'middle'},'one-step = '+fmt(one,3)+' (moved by '+(corr>=0?'+':'')+fmt(corr,3)+')'));}
+    else g.append(el('text',{class:'fig-text purple',x:(L+R)/2,y:Y+34,'text-anchor':'middle'},'type all four sticks to place the one-step'));
+    plot.fg.append(g);
+    F.caption('Each stick is Hᵢ·(Yᵢ − μ̂₁(Xᵢ)) exactly as typed, so a wrong entry is a wrong stick. Untreated patients have H = 0 and a zero stick whatever their Y. The dashed line is the mean of the sticks added so far ('+k+' of 4); with all four it is the one-step correction, which carries ψ̂ to the one-step estimate on the number line.');
+    F.readout([['sticks typed',finite.length+' of 4'],['patients added',k],['mean of added sticks',fmt(run,3)],['correction = mean of 4',fmt(corr,3)],['plug-in ψ̂',fmt(psi,3)],['one-step',fmt(one,3)]]);};
+  const clock=player(F.fig,{duration:3200,label:'Patients added',onT:u=>{t=u;draw1();}});
+  clock.set(1);
+  document.getElementById('t1').addEventListener('input',()=>draw1());
+})();
+// Figure 2: residuals against H, the line through the origin, and the check ΣH(r − εH) = 0
+(function(){
+  const F=mountFigure('fig2','Residual points against the clever covariate H with a line through the origin of slope epsilon and the vertical gaps to it.');
+  const ctl=html('div',{class:'fig-controls'}),lab=html('label',{for:'eps-trial'},'Trial slope ε '),range=html('input',{type:'range',id:'eps-trial',min:0,max:1,step:0.001,value:0}),v=html('span',{class:'v'},'0.000');
+  lab.append(range,v);ctl.append(lab);F.fig.append(ctl);
+  let eps=0;
+  draw2=function(){
+    const hs=P2.map(p=>p.H),rs=P2.map(p=>p.r),fit=hs.map(h=>eps*h);
+    const lo=Math.min(-0.2,...rs,...fit)-0.15,hi=Math.max(2,...rs,...fit)+0.3;
+    const plot=new Plot(F.svg,{x:[0,4.6],y:[lo,hi],width:640,height:300,margin:{l:54,r:18,t:22,b:46},xticks:[0,1,1.25,2,3,4],xlabel:'clever covariate H',ylabel:'residual r = Y − μ̂',tickFormat:q=>fmt(q,2)});
+    plot.line([[0,0],[4.6,4.6*eps]],{class:'mark-line fit-line'});
+    P2.forEach(p=>plot.line([[p.H,eps*p.H],[p.H,p.r]],{class:'gap'}));
+    P2.forEach(p=>plot.scatter([[p.H,p.r]],6,{class:'dot '+p.s}));
+    plot.text(1.25,hi,'young, H = 1.25',{class:'fig-text p','text-anchor':'middle',dy:14});
+    plot.text(4,hi,'old, H = 4',{class:'fig-text or','text-anchor':'middle',dy:14});
+    plot.text(4.55,4.55*eps,'r = ε·H',{class:'fig-text purple','text-anchor':'end',dy:eps>0?-8:14});
+    const check=P2.reduce((a,p)=>a+p.H*(p.r-eps*p.H),0),ok=Math.abs(check)<0.02;
+    v.textContent=fmt(eps,3);
+    F.caption('Points are (H, r). The purple line r = ε·H passes through the origin; the dashed gaps are r − ε·H. Least squares chooses ε so that the H-weighted sum of the gaps is zero. '+(ok?'At ε = '+fmt(eps,3)+' it is: this ε is ε̂.':'At ε = '+fmt(eps,3)+' it is '+fmt(check,3)+', so move ε '+(check>0?'up':'down')+'.')+' The two old points pull with weight 4 against 1.25 for the young ones.');
+    F.readout([['trial ε',fmt(eps,3)],['ΣH(r − εH)',fmt(check,3)+(ok?'  = 0 ✓':'  ≠ 0'),ok?'ok':'no'],['shifts ε·1.25, ε·4',fmt(eps*1.25,3)+', '+fmt(eps*4,3)]]);};
+  range.addEventListener('input',()=>{eps=+range.value;draw2();});
+  const e2=document.getElementById('e2');
+  e2.addEventListener('input',()=>draw2());
+  const draw2Base=draw2;draw2=()=>{const x=num(e2);if(Number.isFinite(x)&&Math.abs(x-eps)>1e-9&&document.activeElement!==range){eps=Math.max(0,Math.min(1,x));range.value=eps;}draw2Base();};
+  draw2();
+})();
+// Explain step: saved like the practice block's explanation, not graded
+(function(){
+  const key='causality.explain-four-patients',ta=document.getElementById('explain-fp');
+  try{ta.value=localStorage.getItem(key)||'';}catch{}
+  ta.oninput=()=>{try{localStorage.setItem(key,ta.value);}catch{}const other=document.querySelector('.practice .explain');if(other&&other.value!==ta.value)other.value=ta.value;};
+  document.addEventListener('input',e=>{if(e.target.matches('.practice .explain')&&e.target.value!==ta.value)ta.value=e.target.value;});
+})();
 })();
 </script>
 <script src="../shared/curriculum.js"></script>

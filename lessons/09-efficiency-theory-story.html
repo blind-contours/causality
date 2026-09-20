@@ -18,7 +18,7 @@
 <div class="wrap">
 <div class="eyebrow">Semiparametric efficiency theory in nine moving pictures</div>
 <h1>Efficiency Theory, Drawn</h1>
-<p class="lede">The story of how you get from "a parameter of a distribution" to "an estimator with a known sampling distribution and the smallest possible variance," told in the geometry Schuler and van der Laan use in <em>Introduction to Modern Causal Inference</em>. Each scene has a Play button that runs the reveal, a scrubber, and the one or two dials that matter. Under each scene is the sentence to say out loud.</p>
+<p class="lede">The story of how you get from "a parameter of a distribution" to "an estimator with a known sampling distribution and the smallest possible variance," told in the geometry Schuler and van der Laan use in <em>Introduction to Modern Causal Inference</em>. Each scene has a Play button where the clock moves a mathematical state, a Reveal button where it only uncovers annotations, a scrubber, and the one or two dials that matter. Under each scene is the sentence to say out loud.</p>
 <ul class="toc">
 <li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · Asymptotically linear</a></li><li><a href="#s3">3 · Pathwise derivative</a></li><li><a href="#s4">4 · Tangent space</a></li><li><a href="#s5">5 · The efficient influence function</a></li><li><a href="#s6">6 · Plug-in bias and the one-step</a></li><li><a href="#s7">7 · Double robustness is a rectangle</a></li><li><a href="#s8">8 · TMLE walks; the one-step jumps</a></li><li><a href="#s9">9 · Inference</a></li>
 </ul>
@@ -61,7 +61,7 @@
 <div class="scene">
   <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p3">Play</button></div>
+    <div class="btns"><button class="primary" id="p3">Reveal</button></div>
     <label>Direction of the path, angle θ <span class="v" id="v3">110°</span><input type="range" id="a3" min="0" max="360" step="1" value="110"></label>
     <div class="readout" id="ro3"></div>
     <div class="note">Regularity of an estimator is the requirement that its limit not depend on which of these paths the truth drifts along. The Hájek–Le Cam convolution theorem then says the best regular estimator has the gradient as its influence function.</div>
@@ -76,7 +76,7 @@
 <div class="scene">
   <div class="paper"><canvas id="c4" width="800" height="460"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p4">Play</button></div>
+    <div class="btns"><button class="primary" id="p4">Reveal</button></div>
     <label>Where p sits in the model <span class="v" id="v4">0.35</span><input type="range" id="t4" min="0" max="1" step="0.005" value="0.35"></label>
     <label>Illustrated width of the tangent plane <span class="v" id="v4m">1.00</span><input type="range" id="m4" min="0.25" max="1" step="0.01" value="1"></label>
     <div class="note">In an RCT the treatment mechanism is known, so paths can't move it: the tangent space is missing those directions. Observational data adds them. At the same observed law, enlarging a model can increase the bound or leave it unchanged. For the population ATE, the EIF is already orthogonal to treatment-mechanism scores: knowing the propensity alone leaves its bound unchanged. Changing the actual assignment probabilities changes the law and can change the bound.</div>
@@ -91,7 +91,7 @@
 <div class="scene">
   <div class="paper"><canvas id="c5" width="800" height="460"></canvas><div class="cap" id="cap5"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p5">Play</button></div>
+    <div class="btns"><button class="primary" id="p5">Reveal</button></div>
     <label>Position along Φ (0 is efficient) <span class="v" id="v5">0.75</span><input type="range" id="t5" min="-1" max="1" step="0.01" value="0.75"></label>
     <div class="readout" id="ro5"></div>
     <div class="note">An inefficient RAL estimator, say IPW with a known propensity, has an influence function somewhere up or down this line. Augmenting it (AIPW) is projecting it onto 𝒯.</div>
@@ -123,9 +123,11 @@
 <div class="scene">
   <div class="paper"><canvas id="c7" width="800" height="460"></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p7">Play</button></div>
+    <div class="btns"><button class="primary" id="p7">Reveal</button></div>
     <label>Propensity error ‖π̂ − π‖ <span class="v" id="v7a">0.60</span><input type="range" id="a7" min="0" max="1" step="0.01" value="0.6"></label>
     <label>Outcome-model error ‖μ̂ − μ‖ <span class="v" id="v7b">0.50</span><input type="range" id="b7" min="0" max="1" step="0.01" value="0.5"></label>
+    <label>Rate of π̂: error ∝ n<sup>−α</sup>, α <span class="v" id="v7ra">0.25</span><input type="range" id="ra7" min="0.15" max="0.5" step="0.01" value="0.25"></label>
+    <label>Rate of μ̂: error ∝ n<sup>−β</sup>, β <span class="v" id="v7rb">0.25</span><input type="range" id="rb7" min="0.15" max="0.5" step="0.01" value="0.25"></label>
     <div class="readout" id="ro7"></div>
     <div class="note">The plug-in's error, by contrast, is a single side: the whole of ‖μ̂ − μ‖, at the outcome model's own rate. That's why a slow biased outcome fit alone need not justify √n inference. The correction helps under additional conditions.</div>
   </div>
@@ -188,6 +190,8 @@ function bind(id,label,fmt,cb){const el=document.getElementById(id);const lab=do
 const LAND={psi:(u,v,c)=>2+0.9*u+0.5*v+c*(0.6*u*u-0.7*u*v+0.2*v*v),grad:(u,v,c)=>[0.9+c*(1.2*u-0.7*v),0.5+c*(-0.7*u+0.4*v)]};
 
 // ============ SCENE 1 ============
+const loop1=t=>{const ang=t*6.283;return [0.55*Math.cos(ang)+0.1,0.5*Math.sin(2*ang)*0.7];};const psi1=(u,v)=>LAND.psi(u,v,0.6);
+let hist1=[]; // values of ψ visited so far: the trace on the number line
 const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   const bx=300,by=215,rx=250,ry=160,X=u=>bx+u*rx*0.85,Y=v=>by-v*ry*0.85;const bp=blob(bx,by,rx,ry,17);
   const psi=(u,v)=>LAND.psi(u,v,0.6);
@@ -202,8 +206,11 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   // number line
   const NL=428,L=90,R=560,lo=1,hi=3.6,nx=v=>L+(R-L)*(v-lo)/(hi-lo);line(g,L,NL,R,NL,C.pen,1.5);for(let v=1;v<=3.5;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1.2);txt(g,v.toFixed(1),nx(v),NL+16,C.muted,11,'center',FM);}txt(g,'ψ(P) ∈ ℝ',R+14,NL,C.pen,16,'left',FS,true);
   // wandering point along a loop parametrized by t
-  const ang=t*6.283*1.0;const u=0.55*Math.cos(ang)+0.1,v=0.5*Math.sin(2*ang)*0.7;const val=psi(u,v);
+  const [u,v]=loop1(t);const val=psi(u,v);
   const gr=LAND.grad(u,v,0.6);
+  // tick history: every value of ψ the point has passed through
+  g.globalAlpha=0.28;hist1.forEach(h=>line(g,nx(h),NL-10,nx(h),NL+10,C.purple,1));g.globalAlpha=1;
+  if(hist1.length>1)txt(g,'ticks: values of ψ visited',R+14,NL+22,C.purple,11,'left');
   line(g,X(u),Y(v),nx(val),NL-6,C.purple,1,[3,4]);
   dot(g,X(u),Y(v),C.purple,6,true);txt(g,'P',X(u)+12,Y(v)-12,C.purple,18,'left',FS,true);
   dot(g,nx(val),NL,C.purple,6,true);
@@ -211,8 +218,8 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   txt(g,'ψ',640,120,C.pen,34,'center',FS,true);arrow(g,600,150,690,150,C.pen,1.5);txt(g,'𝓜 → ℝ',645,180,C.muted,15,'center',FS,true);
   txt(g,'level curves: sets of distributions',600,230,C.muted,12,'left');txt(g,'with the same value of ψ',600,246,C.muted,12,'left');
   document.getElementById('ro1').innerHTML=`<span class="k">ψ(P)</span><span>${val.toFixed(3)}</span><span class="k">|∇ψ| here</span><span>${Math.hypot(...gr).toFixed(2)}</span>`;
-  document.getElementById('cap1').textContent='Drag the scrubber: the point wanders through the model, and the number line shows the value of ψ. Closer level curves mean ψ changes faster there.';
-},{dur:9000});
+  document.getElementById('cap1').textContent='Play or drag: the point wanders through the model, and every value of ψ it passes leaves a tick on the number line. Closer level curves mean ψ changes faster there.';
+},{dur:9000,onT:t=>{if(t===0)hist1.length=0;else hist1.push(psi1(...loop1(t)));}});
 
 // ============ SCENE 2 ============
 let Z2=null;function sample2(){const n=+document.getElementById('n2').value;Z2=Array.from({length:n},()=>-Math.log(Math.random())-1);}sample2();
@@ -264,7 +271,7 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const th=+document.getElementById('a3'
   const rt=seg(t,0.5,1);if(rt>0){const cx=X(P[0]),cy=Y(P[1]);g.strokeStyle=C.green;g.globalAlpha=0.35;g.lineWidth=1;for(let a=0;a<6.283*rt;a+=0.13){const dd=Math.cos(a)*gu[0]+Math.sin(a)*gu[1];const r=Math.abs(dd)*60;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+r*Math.cos(a),cy-r*Math.sin(a));g.stroke();}g.globalAlpha=1;}
   document.getElementById('ro3').innerHTML=`<span class="k">|ϕ|</span><span>${gn.toFixed(2)}</span><span class="k">cos θ</span><span>${d.toFixed(2)}</span><span class="k">derivative</span><span>${(gn*d).toFixed(2)}</span>`;
   document.getElementById('cap3').textContent=t<0.5?'The tangent of ψ along the path has slope ⟨ϕ, h⟩: the projection of the direction onto the gradient.':'The rose shows the derivative in every direction: largest along ϕ, zero along the level curve. One vector, all derivatives.';
-});
+},{playLabel:'Reveal'});
 bind('a3','v3',v=>v+'°',()=>S3.draw());
 
 // ============ SCENE 4 ============
@@ -294,7 +301,7 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const tt=+document.getElementById('t4'
   dot(g,px,py,C.pen,5,true);txt(g,'√p',px+Math.cos(a)*22+8,py+Math.sin(a)*22-12,C.pen,16,'left',FS,true);
   txt(g,'⟨h√p, √p⟩ = ∫ h p = E[h] = 0',540,60,C.pen,13.5,'left',FM);txt(g,'scores are mean zero ⇔',540,84,C.muted,12.5,'left');txt(g,'velocities are tangent to the sphere',540,100,C.muted,12.5,'left');
   document.getElementById('cap4').textContent=msize<0.6?'The displayed width is schematic. A vector space has directions and dimension, not a bounded width. Use the finite-probability lab to remove a direction exactly.':'Drag p along the model: the tangent plane turns with it. Scores at different distributions are different functions.';
-});
+},{playLabel:'Reveal'});
 bind('t4','v4',v=>v.toFixed(2),()=>S4.draw());bind('m4','v4m',v=>v.toFixed(2),()=>S4.draw());
 
 // ============ SCENE 5 ============
@@ -314,7 +321,7 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const s=+document.getElementById('t5')
   if(bt>0){g.fillStyle=C.teal;g.fillRect(bx,by,eff*sc*bt,14);g.fillStyle=C.purple;g.fillRect(bx+eff*sc*bt,by,perp*sc*bt,14);txt(g,'Var(ϕ) = ‖ϕ†‖²  +  ‖h⊥‖²',bx,by-14,C.pen,13,'left',FM);txt(g,'= '+tot.toFixed(2),bx+tot*sc*bt+10,by+7,C.pen,13,'left',FM);}
   document.getElementById('ro5').innerHTML=`<span class="k">‖ϕ†‖² (bound)</span><span>1.00</span><span class="k">‖h⊥‖²</span><span>${perp.toFixed(2)}</span><span class="k">relative eff.</span><span>${(eff/tot*100).toFixed(0)}%</span>`;
   document.getElementById('cap5').textContent=Math.abs(s)<0.03?'At the crossing the influence function lies inside the tangent space: this is the efficient one.':'Every other influence function is ϕ† plus a piece orthogonal to 𝒯. That piece adds variance and changes nothing else.';
-});
+},{playLabel:'Reveal'});
 bind('t5','v5',v=>v.toFixed(2),()=>S5.draw());
 
 // ============ SCENE 6 ============
@@ -345,7 +352,9 @@ document.getElementById('p6').onclick=()=>{noise6=(Math.random()-0.5)*2;S6.play(
 bind('d6','v6d',v=>v.toFixed(2),()=>S6.draw());bind('n6','v6n',v=>v,()=>S6.draw());
 
 // ============ SCENE 7 ============
-const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7').value,b=+document.getElementById('b7').value;
+const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7').value,b=+document.getElementById('b7').value,ra=+document.getElementById('ra7').value,rb=+document.getElementById('rb7').value,sum=ra+rb;
+  const verdict=sum>0.5001?'faster than sampling error: the remainder is negligible':Math.abs(sum-0.5)<1e-4?'the same order as sampling error: the boundary':'slower than sampling error: the remainder dominates';
+  const short=sum>0.5001?'product beats n^-1/2: remainder negligible':Math.abs(sum-0.5)<1e-4?'product = n^-1/2: the boundary case':'product slower than n^-1/2: remainder dominates';
   const L=90,B=380,S=260;line(g,L,B,L+S+30,B,C.pen,1.4);line(g,L,B,L,B-S-30,C.pen,1.4);txt(g,'‖π̂ − π‖',L+S+10,B+22,C.pen,14,'right',FS,true);txt(g,'‖μ̂ − μ‖',L-8,B-S-20,C.pen,14,'left',FS,true);
   const rt=seg(t,0,0.4);const aw=a*S*rt,bh=b*S*rt;
   g.fillStyle=C.or;g.globalAlpha=0.22;g.fillRect(L,B-bh,aw,bh);g.globalAlpha=1;poly(g,[[L,B],[L+aw,B],[L+aw,B-bh],[L,B-bh]],C.or,1.8,null,true);
@@ -355,14 +364,16 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7')
   const pt=seg(t,0.35,0.6);if(pt>0){g.fillStyle=C.phat;g.globalAlpha=0.9;g.fillRect(L-34,B-b*S*pt,8,b*S*pt);g.globalAlpha=1;txt(g,'plug-in error bounded by outcome error',L+aw+14,B-b*S+8,C.phat,12,'left');}
   // right: rate panel
   const RL=470,RR=770,RT=70,RB=380;const rr=seg(t,0.55,1);if(rr>0){line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'n',RR+8,RB,C.pen,14,'left',FS,true);txt(g,'error',RL-6,RT-14,C.pen,13,'left',FS,true);
-    const ns=[100,200,400,800,1600,3200,6400];const xN=i=>RL+(RR-RL)*(i+0.5)/ns.length;const yE=e=>RB-(RB-RT)*e/0.35;
-    const series=[['n^-1/4  each nuisance',i=>Math.pow(ns[i],-0.25),C.green],['n^-1/2  their product',i=>Math.pow(ns[i],-0.5),C.or],['n^-1/2  sampling error',i=>Math.pow(ns[i],-0.5)*1.0,C.teal]];
-    series.forEach(([lab,f,col],k)=>{const pts=[];for(let i=0;i<ns.length*rr;i++)pts.push([xN(i),yE(f(i))]);if(pts.length>1)poly(g,pts,col,2,k===2?[5,4]:null);txt(g,lab,RR-4,RT+16+k*17,col,12,'right',FM);});
+    const ns=[100,200,400,800,1600,3200,6400];const xN=i=>RL+(RR-RL)*(i+0.5)/ns.length;const yE=e=>RB-(RB-RT)*Math.min(e,0.55)/0.55;
+    for(const v of [0.25,0.5]){line(g,RL-4,yE(v),RL,yE(v),C.pen,1);txt(g,v.toFixed(2),RL-7,yE(v),C.muted,10,'right',FM);}
+    const series=[[`n^-${ra.toFixed(2)}  π̂ error`,i=>Math.pow(ns[i],-ra),C.green,null,1.8],[`n^-${rb.toFixed(2)}  μ̂ error`,i=>Math.pow(ns[i],-rb),C.purple,[2,3],1.8],[`n^-${sum.toFixed(2)}  their product`,i=>Math.pow(ns[i],-sum),C.or,null,2.8],['n^-0.50  sampling error',i=>Math.pow(ns[i],-0.5),C.teal,[5,4],2]];
+    series.forEach(([lab,f,col,dash,w],k)=>{const pts=[];for(let i=0;i<ns.length*rr;i++)pts.push([xN(i),yE(f(i))]);if(pts.length>1)poly(g,pts,col,w,dash);txt(g,lab,RR-4,RT+16+k*17,col,12,'right',FM);});
+    if(rr>=1)txt(g,short,RL,RB+34,C.or,11.5,'left');
     for(let i=0;i<ns.length;i+=2)txt(g,ns[i],xN(i),RB+14,C.muted,10.5,'center',FM);}
-  const area=a*b;document.getElementById('ro7').innerHTML=`<span class="k">‖π̂−π‖·‖μ̂−μ‖</span><span>${area.toFixed(3)}</span><span class="k">plug-in ∝</span><span>${b.toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span>`;
-  document.getElementById('cap7').textContent=t<0.35?'The remainder is bounded by the product of the two nuisance errors: the area of this rectangle.':t<0.55?'A plug-in error can be bounded by outcome error; cancellation or a faster target rate is possible.':'Rates: nuisances at n^−1/4 (green) make the product n^−1/2 (orange), the same order as sampling error (teal). At this boundary the scaled remainder need not vanish; faster combined rates are needed for centered efficient inference.';
-});
-bind('a7','v7a',v=>v.toFixed(2),()=>S7.draw());bind('b7','v7b',v=>v.toFixed(2),()=>S7.draw());
+  const area=a*b;document.getElementById('ro7').innerHTML=`<span class="k">‖π̂−π‖·‖μ̂−μ‖</span><span>${area.toFixed(3)}</span><span class="k">plug-in ∝</span><span>${b.toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span><span class="k">α + β</span><span>${sum.toFixed(2)} ${sum>0.5001?'> ½':Math.abs(sum-0.5)<1e-4?'= ½':'< ½'}</span>`;
+  document.getElementById('cap7').textContent=t<0.35?'The remainder is bounded by the product of the two nuisance errors: the area of this rectangle.':t<0.55?'A plug-in error can be bounded by outcome error; cancellation or a faster target rate is possible.':`Rates: π̂ at n^−${ra.toFixed(2)} (green) and μ̂ at n^−${rb.toFixed(2)} (purple) make the product n^−${sum.toFixed(2)} (orange), against sampling error at n^−0.50 (teal). The product is ${verdict}. Centered efficient inference needs α + β > ½.`;
+},{playLabel:'Reveal'});
+bind('a7','v7a',v=>v.toFixed(2),()=>S7.draw());bind('b7','v7b',v=>v.toFixed(2),()=>S7.draw());bind('ra7','v7ra',v=>v.toFixed(2),()=>S7.draw());bind('rb7','v7rb',v=>v.toFixed(2),()=>S7.draw());
 
 // ============ SCENE 8 ============
 let shown8=0,path8=[];
@@ -390,11 +401,13 @@ const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('c8s'
   const score=gc[0]*(Pn8[0]-cur[0])+gc[1]*(Pn8[1]-cur[1]);
   document.getElementById('ro8').innerHTML=`<span class="k">step</span><span>${show} / ${path8.length-1}</span><span class="k">Pₙϕ at P̃</span><span>${score.toFixed(4)}</span><span class="k">ψ(P̃) now</span><span>${psi(...cur).toFixed(3)}</span><span class="k">one-step</span><span>${os.toFixed(3)}</span><span class="k">updated plug-in</span><span>${psiT.toFixed(3)}</span><span class="k">ψ(P)</span><span>${psiP.toFixed(3)}</span>`;
   document.getElementById('cap8').textContent=shown8===0?'The green field is the efficient influence function at each point: the gradient of ψ, the hardest direction. Start at P̂.':show<path8.length-1?'Move along the current direction by the ε̂ that zeroes the score on that line; then re-aim.':(document.getElementById('mode8').value==='fixed'?'One line fit has finished. Inspect the updated EIF score: with curvature it may still be nonzero.':'The iterated fits stop when the updated EIF score is small. The one-step corrects the number directly.');
-},{noplay:true,onT:t=>{shown8=Math.floor(t*Math.max(1,path8.length-1));}});
-document.getElementById('st8').onclick=()=>{shown8=Math.min(shown8+1,path8.length-1);S8.draw();};
-document.getElementById('r8').onclick=()=>{shown8=0;S8.draw();};
-document.getElementById('p8').onclick=S8.play;
-bind('c8s','v8c',v=>v.toFixed(2),()=>{shown8=0;S8.draw();});document.getElementById('mode8').onchange=()=>{shown8=0;S8.draw();};
+},{noplay:true,onT:t=>{shown8=Math.floor(t*Math.max(1,path8.length-1)+1e-9);}});
+const steps8=()=>Math.max(1,tmle8().length-1);
+const reset8=()=>{S8.pause();shown8=0;S8.t=0;S8.draw();};
+document.getElementById('st8').onclick=()=>{S8.pause();shown8=Math.min(shown8+1,steps8());S8.t=shown8/steps8();S8.draw();};
+document.getElementById('r8').onclick=reset8;
+document.getElementById('p8').onclick=()=>{S8.dur=900*steps8();S8.play();};
+bind('c8s','v8c',v=>v.toFixed(2),reset8);document.getElementById('mode8').onchange=reset8;
 
 function all(){readC();[S1,S2,S3,S4,S5,S6,S7,S8].forEach(s=>s.draw());}
 all();

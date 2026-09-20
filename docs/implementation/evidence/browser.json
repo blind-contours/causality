@@ -1351,9 +1351,9 @@
           "attempts": 1
         }
       },
-      "updated": "2026-09-20T18:13:12.965Z"
+      "updated": "2026-09-20T18:57:36.796Z"
     },
-    "rates": "α=0.25, β=0.25. Scaled bound = n^0. It stays at 1; equality alone does not justify centered efficient inference.",
+    "rates": "α = 0.25, β = 0.25, so the scaled bound is n^0. The point lies exactly on the boundary line: the scaled remainder stays at 1; equality alone does not justify centered efficient inference.",
     "simulation": "Finished. Compare bias, sampling spread, and coverage separately.",
     "histogram": "Every simulated estimate is included; total per estimator = 20Bin lower edgePlug-in countAIPW count1.591001.625001.659011.693001.726001.76011.794011.828011.861001.895021.929021.9631221.996612.03212.064002.097012.131052.165012.199002.232002.266002.3012.334002.36700",
     "survival": "At least one cell has nobody observed through τ. Its KM curve is carried forward for display, but its tail and RMST require support or extrapolation. Shorten the horizon, reduce censoring, or increase n.",

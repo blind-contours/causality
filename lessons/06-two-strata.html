@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="../shared/course.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
+<script src="../shared/anim.js"></script>
 </head>
 <body data-lesson="two-strata">
 <div class="wrap">
@@ -51,8 +52,27 @@
 </div>
 <div class="say"><b>In one sentence</b>Per unit of likelihood distance, a shift of the outcome curve moves E[μ₁(X)] most where treated people are rare, because the payoff is weighted by the population and the cost by the treated.</div>
 
-<!-- SCENE 3 -->
+<!-- SCENE 3 (budget plane) -->
 <div class="eyebrow">Scene 3</div>
+<h2>The budget plane: every cost ellipse is touched by a payoff line on one ray</h2>
+<p>Put δ<sub>Y</sub> on the horizontal axis and δ<sub>O</sub> on the vertical. Every move you can make is a point in this plane. The cost 45δ<sub>Y</sub>²+5δ<sub>O</sub>² = B is an ellipse, squashed hard in the δ<sub>Y</sub> direction because 45 people resist that shift and only 5 resist the other. The payoff 0.5δ<sub>Y</sub>+0.5δ<sub>O</sub> = c is a straight line of slope −1, and ψ rises as the line moves up and to the right. Spending a budget B well means finding the highest payoff line that still touches the ellipse of that budget: the tangent.</p>
+<p>The three scenes that follow (the peak of payoff against share, the strips being traded between squares, the tangent lines of the two cost parabolas) are three views of this one picture. Grow the budget and watch where the tangency lands. It lands on the same ray every time, δ<sub>O</sub> = 9δ<sub>Y</sub>, and any other direction, such as the equal-shift diagonal, reaches a lower payoff line for the same B. Use the slider to place your own point on the current ellipse and feel the tangency at share s = 0.9.</p>
+<div class="eq">cost ellipse:  45δ_Y² + 5δ_O² = B        payoff line:  0.5δ_Y + 0.5δ_O = c        tangent where ∇cost ∥ ∇payoff:  90δ_Y = 10δ_O  ⇒  δ_O/δ_Y = 9 = π_Y/π_O</div>
+<div class="scene" data-title="The budget plane">
+  <div class="figure" data-figure="budget-plane"></div>
+  <div class="ctl">
+    <div class="figure" id="bp-side"></div>
+    <div id="bp-player"></div>
+    <label><span>Share of budget to the old stratum s (your point)</span> <span class="v" id="bpv">0.50</span><input type="range" id="bps" min="0" max="1" step="0.01" value="0.5"></label>
+    <div class="btns"><button id="bp-snap">Snap to s = 0.9</button><button id="bp-half">s = 0.5</button></div>
+    <div class="readout" id="bp-ro"></div>
+    <div class="note">The ellipses are the cost B; the dashed orange lines are payoff levels c, one tangent to each labelled ellipse. As B grows, the purple point (tangency) and the grey point (equal shifts) leave their traces, and the small plot records the payoff each has bought so far.</div>
+  </div>
+</div>
+<div class="say"><b>In one sentence</b>The least-favourable direction is the ray along which each cost ellipse is tangent to a payoff line, and that ray is δ ∝ 1/π: the clever covariate is a direction in this plane, and the budget only decides how far along it to go.</div>
+
+<!-- SCENE 4 (fixed budget) -->
+<div class="eyebrow">Scene 4</div>
 <h2>Fix the budget, and the best split puts the old curve 9× as far</h2>
 <p>Hold the cost at a fixed budget B and slide the share of that budget that goes to the old stratum from 0 to 1. The payoff is a curve in that share, and it peaks at a share of 0.9, where δ<sub>O</sub>/δ<sub>Y</sub> = 9 = π(young)/π(old). That ratio is the whole point: the curve should move in proportion to 1/π. Change the budget and the peak does not move.</p>
 <div class="eq">share s to old:   45δ_Y² = (1−s)B,   5δ_O² = sB   ⇒   payoff(s) = 0.5√((1−s)B/45) + 0.5√(sB/5),   maximum at s = 0.9,  δ_O/δ_Y = 9</div>
@@ -69,7 +89,7 @@
 </div>
 
 <!-- SCENE 6 (trade) -->
-<div class="eyebrow">Scene 4</div>
+<div class="eyebrow">Scene 5</div>
 <h2>Why it tops out: the price of a strip keeps changing</h2>
 <p>Cost is one square per treated person, side δ. Growing a square from δ to δ + Δ adds an L-shaped strip whose area is about 2δ·Δ, so the price of the next bit of growth is the square's <em>current</em> side. Shrinking a square frees a strip of the same shape. Start at δ<sub>Y</sub> = 0.8, δ<sub>O</sub> = 1.0 (cost 33.8) and run the trade: peel a strip off the 45 young squares, wrap that area around the 5 old squares, keep the total area fixed. Each trade the young squares get smaller, so the strip you peel is shorter and frees less; the old squares get bigger, so the strip you need is longer and eats more. The two strip lengths converge, and when they meet the trade buys nothing. That is the top, at δ<sub>O</sub> = 9δ<sub>Y</sub>.</p>
 <div class="eq">strip freed by shrinking young:  45 · 2δ_Y · Δ = 90δ_Y · Δ        strip needed to grow old:  5 · 2δ_O · Δ = 10δ_O · Δ<br>payoff per unit of shift is flat (0.5 both sides); only the strip prices move  ⇒  stop when 90δ_Y = 10δ_O</div>
@@ -85,7 +105,7 @@
 <div class="say"><b>In one sentence</b>Marginal cost in the likelihood metric is proportional to how far you have already moved, times how many observations you moved away from. Payoff to ψ is flat. Reallocating movement toward sparse strata pays until the marginal costs equalize, which is δ ∝ 1/π.</div>
 
 <!-- SCENE 4 -->
-<div class="eyebrow">Scene 5</div>
+<div class="eyebrow">Scene 6</div>
 <h2>Why 9: equalize the marginal cost of the next unit of payoff</h2>
 <p>At the optimum, the last bit of budget must buy the same payoff wherever it is spent. The cost of the young curve is 45δ<sub>Y</sub>², whose slope is 2·45·δ<sub>Y</sub> = 90δ<sub>Y</sub>: that is how much cost the next tiny bit of young shift adds. The old slope is 10δ<sub>O</sub>. Both strata add 0.5 of payoff per unit of shift, so "same payoff per unit cost" means 90δ<sub>Y</sub> = 10δ<sub>O</sub>, i.e. δ<sub>O</sub> = 9δ<sub>Y</sub>. Now the good part: if you write the shift as δ = ε/π (young: ε/0.9, old: ε/0.1), the two slopes are 100ε and 100ε at every ε. Moving along 1/π keeps the marginal costs equal the whole way. That ray is the least-favorable path, and TMLE only has to choose how far along it to go.</p>
 <div class="eq">d/dδ_Y (45δ_Y²) = 90δ_Y      d/dδ_O (5δ_O²) = 10δ_O      with δ_Y = ε/0.9, δ_O = ε/0.1:   90·(ε/0.9) = 100ε = 10·(ε/0.1)</div>
@@ -102,7 +122,7 @@
 <div class="say"><b>In one sentence</b>The efficient influence function's outcome term is H·(Y − μ), H = A/π. Fluctuating μ along H is moving along the ray where marginal likelihood cost per unit of ψ is equal across covariate values; every other direction wastes likelihood on a part of the curve that ψ barely uses.</div>
 
 <!-- SCENE 5 -->
-<div class="eyebrow">Scene 6</div>
+<div class="eyebrow">Scene 7</div>
 <h2>Now let the data choose ε: the score equation and the 50/50 evidence</h2>
 <p>Real residuals, r<sub>i</sub> = Y<sub>i</sub> − μ̂(X<sub>i</sub>), scattered around 1. Fluctuate μ<sub>ε</sub> = μ̂ + ε·H with H = 1/π and pick ε by least squares. The score equation Σ H<sub>i</sub>(r<sub>i</sub> − εH<sub>i</sub>) = 0 gives ε̂ = ΣH<sub>i</sub>r<sub>i</sub> / ΣH<sub>i</sub>². Look at the numerator: the young stratum contributes 45 × 1.11 × r̄<sub>Y</sub> ≈ 50·r̄<sub>Y</sub> and the old contributes 5 × 10 × r̄<sub>O</sub> = 50·r̄<sub>O</sub>. The weighting makes the 5 old residuals count exactly as much as the 45 young ones, because each stratum is half of ψ. Then ψ moves by ε̂·(0.5/0.9 + 0.5/0.1) = ε̂ · 5.56, which is precisely the one-step correction Pₙ[H r].</p>
 <div class="eq">ε̂ = Σ Hᵢ rᵢ / Σ Hᵢ²        ψ_TMLE − ψ_plug = ε̂ · Pₙ[H(1,X)] = ε̂·(0.5/0.9 + 0.5/0.1)        one-step: ψ_plug + Pₙ[H r]</div>
@@ -117,7 +137,7 @@
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The clever covariate reweights each residual by 1/π so that every part of the covariate space contributes evidence in proportion to its share of the target, not its share of the treated. Solving the score equation along that fluctuation is the TMLE update, and in this empirically calibrated two-stratum example it equals the one-step estimate. General Gaussian fluctuations need not do so.</div>
-<div class="eyebrow" id="s7">Scene 7</div>
+<div class="eyebrow" id="s7">Scene 8</div>
 <h2>Population positivity and an empty sample cell are different</h2><div class="lab-card" id="positivity-lab" data-scene><label>Population probability of treatment among older people <input id="population-g" type="range" min="0" max="1" step=".02" value=".1"></label><label>Older treated patients observed in a sample of 50 <input id="observed-k" type="range" min="0" max="50" step="1" value="5"></label><p id="positivity-text" role="status"></p><div class="eq" id="positivity-numbers"></div><p>For the treated-mean target E[Y(1)], g(old)=0 prevents identification for an older stratum with positive target weight. If g(old)&gt;0 but k=0, the target can remain identified in the population while this sample lacks direct treated evidence. An ATT contrast also requires controls wherever treated people occur; changing the target changes which support is required.</p></div>
 </div>
 
@@ -157,13 +177,13 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   const strata=[{name:'Young',x0:40,n:50,tr:45,col:C.p},{name:'Old',x0:290,n:50,tr:5,col:C.or}];
   txt(g,'The cohort',40,28,C.pen,15,'left',FS,true);
   strata.forEach((s,k)=>{txt(g,s.name+' (50)',s.x0,60,C.pen,14,'left',FS,true);
-    let shown=0,trc=0;for(let i=0;i<50;i++){const r=Math.floor(i/10),c=i%10;const x=s.x0+10+c*21,y=88+r*24;const ap=seg(t,0.02+k*0.05+i*0.004,0.12+k*0.05+i*0.004);if(ap<=0)continue;shown++;const treated=i<s.tr;const hi=seg(t,0.42,0.6);
+    let shown=0,trc=0;for(let i=0;i<50;i++){const r=Math.floor(i/10),c=i%10;const x=s.x0+10+c*21,y=88+r*24;const ap=seg(t,0.02+k*0.04+i*0.0025,0.1+k*0.04+i*0.0025);if(ap<=0)continue;shown++;const treated=i<s.tr;const hi=seg(t,0.28,0.4);
       if(treated&&hi>0){dot(g,x,y,s.col,5*ap);trc++;}else{circ(g,x,y,treated?s.col:C.muted,5*ap);if(treated)dot(g,x,y,s.col,2*ap);}}
-    const hi=seg(t,0.42,0.6);if(hi>0){txt(g,`${s.tr} treated  ·  π = ${s.tr}/50 = ${(s.tr/50).toFixed(1)}`,s.x0,220,s.col,13,'left',FM);txt(g,`${50-s.tr} untreated`,s.x0,240,C.muted,12,'left',FM);}
+    const hi=seg(t,0.28,0.4);if(hi>0){txt(g,`${s.tr} treated  ·  π = ${s.tr}/50 = ${(s.tr/50).toFixed(1)}`,s.x0,220,s.col,13,'left',FM);txt(g,`${50-s.tr} untreated`,s.x0,240,C.muted,12,'left',FM);}
   });
   txt(g,'filled = treated (the only people who tell us about μ₁)',40,272,C.muted,12,'left');
   // right: bars
-  const bx=560,bw=200,b=seg(t,0.62,1);txt(g,'What each stratum contributes',bx,28,C.pen,15,'left',FS,true);
+  const bx=560,bw=200,b=seg(t,0.4,0.6);txt(g,'What each stratum contributes',bx,28,C.pen,15,'left',FS,true);
   const bar=(y,label,vy,vo,tot,fmt)=>{txt(g,label,bx,y-16,C.muted,12.5,'left');rect(g,bx,y,bw,18,C.grid);rect(g,bx,y,bw*(vy/tot)*b,18,C.p,0.85);rect(g,bx+bw*(vy/tot)*b,y,bw*(vo/tot)*b,18,C.or,0.85);if(b>0.99){txt(g,fmt(vy),bx+bw*(vy/tot)/2,y+9,'#fff',11.5,'center',FM);txt(g,fmt(vo),bx+bw*(vy/tot)+bw*(vo/tot)/2,y+9,vo/tot>0.12?'#fff':C.or,11.5,vo/tot>0.12?'center':'left',FM);}};
   bar(90,'Share of ψ = E[μ₁(X)]',50,50,100,v=>v+'%');
   bar(150,'Treated people (evidence about μ₁)',45,5,50,v=>v);
@@ -172,8 +192,8 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   txt(g,'ψ  =  0.5 · μ₁(young)  +  0.5 · μ₁(old)',40,330,C.pen,14,'left',FM);
   txt(g,'initial fit: μ̂₁ = μ₁ − 1 in both strata  (too low by 1)',40,356,C.phat,12.5,'left',FM);
   txt(g,'so the plug-in ψ̂ is too low by 0.5·1 + 0.5·1 = 1',40,378,C.muted,12.5,'left',FM);
-  document.getElementById('cap1').textContent=t<0.42?'One hundred patients in two strata of fifty.':t<0.62?'Filled dots are treated: 45 of the young, 5 of the old. π is 0.9 versus 0.1.':'Each stratum is half of ψ, but the treated data that pins down μ₁ is 45 to 5.';
-},{dur:5000});
+  document.getElementById('cap1').textContent=t<0.28?'One hundred patients in two strata of fifty.':t<0.4?'Filled dots are treated: 45 of the young, 5 of the old. π is 0.9 versus 0.1.':'Each stratum is half of ψ, but the treated data that pins down μ₁ is 45 to 5.';
+},{dur:3500});
 
 // ---------- SCENE 2 ----------
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);
@@ -228,7 +248,7 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);
   txt(g,`payoff = 0.5·${dY.toFixed(2)} + 0.5·${dO.toFixed(2)}`,RX,T+140,C.pen,12,'left',FM);txt(g,`= ${pay(s).toFixed(3)}`,RX,T+160,C.green,14,'left',FM);
   txt(g,`ratio δ_O / δ_Y = ${dY>1e-9?(dO/dY).toFixed(2):'∞'}`,RX,T+196,C.purple,12.5,'left',FM);txt(g,'optimum: 9 = π(young)/π(old) = 0.9/0.1',RX,T+216,C.muted,11,'left',FM);
   txt(g,'The peak is at the same s for every budget:',RX,T+256,C.muted,11.5,'left');txt(g,'the split is a direction, the budget is a step size.',RX,T+274,C.muted,11.5,'left');
-  txt(g,'A direction is what the clever covariate is. The step size is ε.',60,Bt+64,C.pen,13,'left',FS,true);txt(g,'Scene 6 lets the data pick ε.',60,Bt+86,C.muted,12,'left');
+  txt(g,'A direction is what the clever covariate is. The step size is ε.',60,Bt+64,C.pen,13,'left',FS,true);txt(g,'Scene 7 lets the data pick ε.',60,Bt+86,C.muted,12,'left');
   document.getElementById('ro3').innerHTML=`<span class="k">s</span><span>${s.toFixed(2)}</span><span class="k">δ_Y</span><span>${dY.toFixed(3)}</span><span class="k">δ_O</span><span>${dO.toFixed(3)}</span><span class="k">payoff</span><span>${pay(s).toFixed(3)}</span><span class="k">all-young</span><span>${pay(0).toFixed(3)}</span><span class="k">all-old</span><span>${pay(1).toFixed(3)}</span><span class="k">best (s=0.9)</span><span>${pay(0.9).toFixed(3)}</span>`;
   document.getElementById('cap3').textContent=s<0.3?'Spending the budget on the young curve: 45 people resist, so the curve barely moves.':s<0.88?'Shifting spend to the old curve: 5 people resist, the curve moves far, and each unit of shift is worth just as much to ψ.':'Past s = 0.9 the old curve is so cheap that the last slivers of budget buy less than the young shift you gave up.';
 },{dur:6000});
@@ -343,6 +363,83 @@ function all(){readC();[S1,S2,S3,S6,S4,S5].forEach(s=>s.draw());}
 all();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script>
+// ---------- SCENE 3: the budget plane (SVG, shared/anim.js) ----------
+(function(){
+const {el,html,Plot,player,fmt}=CausalAnim;
+const NY=45,NO=5,BMAX=150,BUDGETS=[10,25,50,100,150],XMAX=2,YMAX=6;
+const rayPt=B=>{const dY=Math.sqrt(B/(NY*10));return [dY,9*dY];};           // 45δ_Y² = 0.1B, 5δ_O² = 0.9B
+const diagPt=B=>{const d=Math.sqrt(B/(NY+NO));return [d,d];};              // δ_Y = δ_O, 50δ² = B
+const splitPt=(B,s)=>[Math.sqrt((1-s)*B/NY),Math.sqrt(s*B/NO)];             // share s of B to the old stratum
+const pay=p=>0.5*p[0]+0.5*p[1],cost=p=>NY*p[0]*p[0]+NO*p[1]*p[1];
+const ellipse=B=>{const a=Math.sqrt(B/NY),b=Math.sqrt(B/NO),pts=[];for(let i=0;i<=72;i++){const th=Math.PI/2*i/72;pts.push([a*Math.cos(th),b*Math.sin(th)]);}return pts;};
+// payoff line 0.5δ_Y + 0.5δ_O = c, clipped to the plot rectangle
+const level=c=>{const x0=Math.max(0,2*c-YMAX),x1=Math.min(XMAX,2*c);return x1<=x0?null:[[x0,2*c-x0],[x1,2*c-x1]];};
+const st=(s,extra)=>({class:'',style:s+(extra||'')});
+CausalFigures.register('budget-plane',mount=>{
+  const side=document.getElementById('bp-side'),playerMount=document.getElementById('bp-player'),ro=document.getElementById('bp-ro'),sIn=document.getElementById('bps'),sV=document.getElementById('bpv');
+  const svg=el('svg',{class:'fig',role:'img','aria-label':'The budget plane: cost ellipses, payoff lines and the tangency ray'});
+  const cap=html('div',{class:'fig-caption',role:'status'});
+  const legend=html('div',{class:'fig-legend',style:'display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:6px'});
+  [['var(--purple)','tangency point (best split)'],['var(--muted)','equal shifts, same budget'],['var(--teal)','your split s'],['var(--or)','payoff line 0.5δ_Y + 0.5δ_O = c'],['var(--ink)','current cost ellipse']].forEach(([col,lab])=>legend.append(html('span',{},html('span',{style:'display:inline-block;width:9px;height:9px;border-radius:50%;background:'+col+';margin-right:5px;vertical-align:middle'}),lab)));
+  mount.append(svg,legend,cap);
+  const svg2=el('svg',{class:'fig',role:'img','aria-label':'Payoff bought against budget, along the ray and along the diagonal'});
+  side.append(svg2);
+  const P=new Plot(svg,{x:[0,XMAX],y:[0,YMAX],width:600,height:440,margin:{l:46,r:14,t:22,b:44},xlabel:'δ_Y, shift of the young curve',ylabel:'δ_O, shift of the old curve',xticks:[0,0.5,1,1.5,2],yticks:[0,1,2,3,4,5,6]});
+  const Q=new Plot(svg2,{x:[0,BMAX],y:[0,3],width:296,height:230,margin:{l:36,r:12,t:24,b:40},xlabel:'budget B',ylabel:'payoff to ψ',xticks:[0,50,100,150],yticks:[0,1,2,3]});
+  // static family: ellipses, payoff levels tangent to each labelled ellipse, the ray, the diagonal
+  const stat=P.layer('static'),dyn=P.layer('dynamic'),levels=[];
+  BUDGETS.forEach(B=>{P.line(ellipse(B),st('stroke:var(--muted);stroke-width:1;opacity:.55'),stat);P.text(Math.sqrt(B/NY)+0.03,0.16,'B = '+B,{style:'fill:var(--muted);font-size:11px'},stat);});
+  BUDGETS.forEach(B=>{const c=pay(rayPt(B)),seg=level(c);if(!seg)return;const p=P.line(seg,st('stroke:var(--or);stroke-width:1;stroke-dasharray:5 4;opacity:.35'),stat);levels.push([B,p]);const lx=2*c+0.16>YMAX-0.12?0.34:0.05;P.text(lx,2*c-lx+0.16,'c = '+fmt(c,2),{style:'fill:var(--or);font-size:11px'},stat);});
+  P.line([[0,0],[YMAX/9,YMAX]],st('stroke:var(--purple);stroke-width:1.2;opacity:.7'),stat);
+  P.text(YMAX/9+0.05,5.74,'ray δ_O = 9δ_Y',{style:'fill:var(--purple);font-size:12.5px;font-weight:600'},stat);
+  P.text(YMAX/9+0.05,5.52,'the clever-covariate direction, δ ∝ 1/π',{style:'fill:var(--purple);font-size:11px'},stat);
+  P.line([[0,0],[XMAX,XMAX]],st('stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;opacity:.8'),stat);
+  P.text(0.68,0.36,'diagonal δ_Y = δ_O',{style:'fill:var(--muted);font-size:11.5px'},stat);
+  // side plot layers
+  const dyn2=Q.layer('dynamic');
+  const tr=B=>{const pts=[];const n=48;for(let i=0;i<=n;i++){const b=B*i/n;pts.push([b,pay(rayPt(b))]);}return pts;};
+  const td=B=>{const pts=[];const n=48;for(let i=0;i<=n;i++){const b=B*i/n;pts.push([b,pay(diagPt(b))]);}return pts;};
+  const ts=s=>{const pts=[];const n=48;for(let i=0;i<=n;i++){const b=BMAX*i/n;pts.push([b,pay(splitPt(b,s))]);}return pts;};
+  const dotAt=(plot,p,col,r,parent)=>parent.append(el('circle',{cx:plot.sx(p[0]),cy:plot.sy(p[1]),r,style:'fill:'+col+';stroke:var(--paper);stroke-width:1.5'}));
+  let t=0;
+  function draw(){
+    const B=BMAX*t,s=+sIn.value;
+    const pr=rayPt(B),pd=diagPt(B),pm=splitPt(B,s);
+    const cr=pay(pr),cd=pay(pd),cm=pay(pm),onRay=Math.abs(s-0.9)<0.015;
+    dyn.replaceChildren();
+    levels.forEach(([Bk,p])=>p.style.opacity=B>=Bk-1e-9?'.9':'.35');
+    if(B>0.05){
+      P.line(ellipse(B),st('stroke:var(--ink);stroke-width:1.8'),dyn);
+      P.line([[0,0],pd],st('stroke:var(--muted);stroke-width:3;stroke-linecap:round'),dyn);
+      P.line([[0,0],pr],st('stroke:var(--purple);stroke-width:3;stroke-linecap:round'),dyn);
+      const ld=level(cd);if(ld)P.line(ld,st('stroke:var(--muted);stroke-width:1.3;stroke-dasharray:4 3'),dyn);
+      const lm=level(cm);if(lm)P.line(lm,st('stroke:var(--teal);stroke-width:1.5;stroke-dasharray:6 3'),dyn);
+      const lr=level(cr);if(lr)P.line(lr,st('stroke:var(--or);stroke-width:2.2'),dyn);
+    }
+    dotAt(P,pd,'var(--muted)',5,dyn);dotAt(P,pr,'var(--purple)',7,dyn);dotAt(P,pm,'var(--teal)',4,dyn);
+    if(B>0.05){P.text(pr[0]+0.05,pr[1]+0.02,fmt(cr,2),{style:'fill:var(--purple);font-size:11.5px;font-weight:600'},dyn);P.text(pd[0]+0.05,pd[1]-0.2,fmt(cd,2),{style:'fill:var(--muted);font-size:11.5px'},dyn);}
+    // side plot: payoff bought so far, and the curve for the chosen share
+    dyn2.replaceChildren();
+    Q.line(ts(s),st('stroke:var(--teal);stroke-width:1.3;stroke-dasharray:5 3;opacity:.8'),dyn2);
+    if(B>0.05){Q.line(td(B),st('stroke:var(--muted);stroke-width:2.5'),dyn2);Q.line(tr(B),st('stroke:var(--purple);stroke-width:2.5'),dyn2);
+      dyn2.append(el('line',{x1:Q.sx(B),x2:Q.sx(B),y1:Q.sy(0),y2:Q.sy(3),style:'stroke:var(--grid);stroke-width:1'}));}
+    dotAt(Q,[B,cd],'var(--muted)',4,dyn2);dotAt(Q,[B,cr],'var(--purple)',5.5,dyn2);dotAt(Q,[B,cm],'var(--teal)',3.2,dyn2);
+    if(B>20){const bx=Math.min(B,112);Q.text(bx,Math.min(2.82,pay(rayPt(bx))+0.24),'ray',{style:'fill:var(--purple);font-size:11px'},dyn2);Q.text(bx,pay(diagPt(bx))-0.3,'diagonal',{style:'fill:var(--muted);font-size:11px'},dyn2);}
+    ro.innerHTML=`<span class="k">budget B</span><span>${fmt(B,1)}</span><span class="k">ray δ_Y, δ_O</span><span>${fmt(pr[0],3)}, ${fmt(pr[1],3)}</span><span class="k">ray payoff</span><span>${fmt(cr,3)}</span><span class="k">diagonal δ_Y = δ_O</span><span>${fmt(pd[0],3)}</span><span class="k">diagonal payoff</span><span>${fmt(cd,3)}</span><span class="k">your s</span><span>${s.toFixed(2)}</span><span class="k">your δ_Y, δ_O</span><span>${fmt(pm[0],3)}, ${fmt(pm[1],3)}</span><span class="k">your payoff</span><span>${fmt(cm,3)}</span><span class="k">cost check</span><span>${fmt(cost(pr),1)} = ${fmt(cost(pd),1)} = ${fmt(cost(pm),1)}</span>`;
+    sV.textContent=s.toFixed(2);
+    cap.textContent=B<=0.05?'Budget 0: every point sits at the origin. Press Play, or scrub, to grow B. The dashed orange lines are the payoff levels that will be tangent to each labelled ellipse.':
+      `B = ${fmt(B,0)}. The ray touches each ellipse where the payoff line is tangent: payoff ${fmt(cr,2)}. On the diagonal the same budget buys less ψ: ${fmt(cd,2)}. `+(onRay?`Your split s = 0.90 sits on the ray, so its payoff line is the tangent.`:`Your split s = ${s.toFixed(2)} cuts the ellipse at payoff ${fmt(cm,2)}; slide toward 0.9 and the teal line rises to meet the tangent.`);
+  }
+  const pl=player(playerMount,{duration:7000,label:'Budget sweep',onT:v=>{t=v;draw();}});
+  sIn.addEventListener('input',draw);
+  document.getElementById('bp-snap').onclick=()=>{sIn.value=0.9;draw();};
+  document.getElementById('bp-half').onclick=()=>{sIn.value=0.5;draw();};
+  mount.figure={set:v=>pl.set(v),draw};
+  draw();
+});
 })();
 </script>
 <script src="../shared/curriculum.js"></script>

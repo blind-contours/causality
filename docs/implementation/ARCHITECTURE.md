@@ -24,6 +24,12 @@ Classic JavaScript modules attach small namespaces because legacy lesson pages a
 - `histogram(values,bins,domain)`: every observation is counted, including explicit underflow/overflow when a fixed domain is requested.
 - `km(rows,tau)` and `survival(config)`: event-before-censor handling at ties, integrated step-curve RMST, strata and support diagnostics. No Cox estimator is implemented or implied.
 
+## Figures
+
+`shared/anim.js` is the figure kit. Its rule: playback must change a mathematical state, never merely unveil a drawing. `CausalAnim.player` supplies Play, Step, Reset and a scrub slider and calls `onT(t)`; the figure maps `t` to a quantity (a sweep position, a budget, calendar time, a sample count) and redraws. Sweeps leave a trace. The clock never overwrites a slider the learner set. `CausalAnim.Plot` draws one scale with gridlines and returns mark elements so a figure can update a layer without redrawing axes. Reduced motion is honoured in `tween` and `player` by jumping to the end state.
+
+Figures register with `CausalFigures.register(name, (mount, dataset) => …)` and lessons mount them with `<div data-figure="name">`. Legacy canvases remain on `CausalVisuals.scene`; new figures are SVG so labels stay text and the accessible transcript is the DOM.
+
 ## Worker protocol
 
 Input: `{preset, mode, crossfit, n, reps, seed}`. Valid presets are `both`, `outcome`, `propensity`, `neither`; modes are `fitted` and `oracle`.

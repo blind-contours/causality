@@ -33,3 +33,7 @@ External mathematical review and participant studies require people and are not 
 - Lesson headers carry their stage colour (bar underline, stage label, breadcrumb, current step).
 - Type scale raised one step (16px body) after readability review; web fonts now load on every page.
 - Legacy canvases fit their column again. `shared/visuals.js` fits each canvas on its first 2D context: the backing store is scaled to the device pixel ratio (crisp on retina), the element fills its column, and it shrinks to no less than 80% of its declared size before the surrounding viewport scrolls. Scenes stack to one column below 980px so a figure column is never narrower than that floor. The scroll note appears only when a figure actually overflows.
+
+## Figures (2026-09-20, third pass)
+
+Implements `docs/reviews/2026-09-20/FIGURES.md`. Kit in `shared/anim.js`; new figures under `figures/` and inside the laboratory renderers. Anchor figures: the influence curve drawn from the action (`figures/influence.js`) and the animated projection onto the allowed tangent space (geometry lab step 5, with the Pythagorean variance split). Legacy scenes follow the Play rule: sweeps trace, reveals are labelled Reveal, and the clock never overwrites a slider.

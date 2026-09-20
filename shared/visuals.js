@@ -110,22 +110,50 @@
       );
     });
   }
+  /* A canvas clock. scene(id, draw, opts) binds canvas #c<id>, the optional scrub #t<id> with its
+   * value span #v<id>, and the primary button #p<id>.
+   *   opts.dur        playback length in ms (default 6000); also settable later as S.dur
+   *   opts.t0         initial clock value when there is no scrub (default 1)
+   *   opts.parameter  the #t<id> input is a parameter of the drawing, not a scrub
+   *   opts.noplay     do not wire the primary button or add Step / Reset
+   *   opts.playLabel  text for the primary button when idle ("Play"); use "Reveal" when the clock
+   *                   only uncovers annotations of a finished drawing
+   *   opts.sweep      {id, at(t), label, fmt}: Play drives input #id through at(t) instead of a
+   *                   scrub. The value the user had set is remembered when the sweep starts and put
+   *                   back when it finishes or is reset; S.sweeping is true while the sweep owns
+   *                   the input, so draw() can record a trace.
+   *   opts.onT(t)     called on every clock update before draw
+   */
   function scene(id, draw, opts = {}) {
     const cv = document.getElementById("c" + id),
       g = cv.getContext("2d"),
       tEl = opts.parameter ? null : document.getElementById("t" + id),
-      pb = document.getElementById("p" + id);
+      vEl = tEl && document.getElementById("v" + id),
+      pb = document.getElementById("p" + id),
+      idle = opts.playLabel || "Play",
+      sw = opts.sweep,
+      swEl = sw && document.getElementById(sw.id),
+      swLabel = sw && sw.label && document.getElementById(sw.label);
+    // Only a value span that sits with the scrub shows the clock; #v<id> may belong to a parameter.
+    const ownsV =
+      vEl && (vEl.closest("label") || vEl.parentElement).contains(tEl);
     let raf = null,
-      last = 0;
+      last = 0,
+      kept = null;
     const S = {
       cv,
       g,
       t: tEl ? +tEl.value : (opts.t0 ?? 1),
+      dur: opts.dur || 6000,
+      sweeping: false,
+      get playing() {
+        return !!raf;
+      },
       draw: () => draw(g, logical(cv).w, logical(cv).h, S.t),
       pause() {
         if (raf) cancelAnimationFrame(raf);
         raf = null;
-        if (pb) pb.textContent = "Play";
+        if (pb) pb.textContent = idle;
       },
       play() {
         if (raf) {
@@ -143,15 +171,36 @@
         raf = requestAnimationFrame(tick);
       },
     };
+    function setSweepLabel() {
+      if (swLabel) swLabel.textContent = (sw.fmt || String)(+swEl.value);
+    }
+    function restoreSweep() {
+      if (kept === null) return;
+      swEl.value = kept;
+      kept = null;
+      S.sweeping = false;
+      setSweepLabel();
+    }
     function update() {
       if (tEl) tEl.value = S.t;
-      const v = document.getElementById("v" + id);
-      if (v && !opts.parameter) v.textContent = S.t.toFixed(2);
+      if (ownsV) vEl.textContent = S.t.toFixed(2);
+      if (swEl) {
+        if (S.t > 0) {
+          if (kept === null) kept = swEl.value;
+          swEl.value = sw.at(S.t);
+          S.sweeping = true;
+          setSweepLabel();
+        } else restoreSweep();
+      }
       opts.onT?.(S.t);
       S.draw();
+      if (swEl && S.t >= 1) {
+        restoreSweep();
+        S.draw();
+      }
     }
     function tick(now) {
-      S.t = Math.min(1, S.t + (now - last) / (opts.dur || 6000));
+      S.t = Math.min(1, S.t + (now - last) / S.dur);
       last = now;
       update();
       if (S.t < 1) raf = requestAnimationFrame(tick);
@@ -163,7 +212,15 @@
         S.t = +tEl.value;
         update();
       });
+    if (swEl)
+      swEl.addEventListener("input", () => {
+        // The user took the input back: stop the sweep and keep their value.
+        S.pause();
+        kept = null;
+        S.sweeping = false;
+      });
     if (pb && !opts.noplay) {
+      pb.textContent = idle;
       pb.onclick = S.play;
       const step = document.createElement("button");
       step.textContent = "Step";
