@@ -8,46 +8,11 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <title>Two Strata, One Step</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-</style>
+<link rel="stylesheet" href="../shared/labs.css">
+<link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="two-strata">
 <div class="wrap">
@@ -72,8 +37,8 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 2 -->
 <div class="eyebrow">Scene 2</div>
 <h2>Payoff is linear in the shift, cost is quadratic in the shift times the count</h2>
-<p>Raise the young curve by δ<sub>Y</sub> and the old curve by δ<sub>O</sub>. ψ rises by 0.5δ<sub>Y</sub> + 0.5δ<sub>O</sub>: that is the payoff, and it does not care how many treated people there are. The likelihood, though, is fitted to treated people only, and moving a curve by δ moves it δ away from each treated person it was fit to. Measured the way the likelihood measures distance (squared, summed over observations), the cost is 45δ<sub>Y</sub>² + 5δ<sub>O</sub>². Drag the sliders and watch: the same δ costs nine times more on the left.</p>
-<div class="eq">payoff(δ_Y, δ_O) = 0.5·δ_Y + 0.5·δ_O          cost(δ_Y, δ_O) = 45·δ_Y² + 5·δ_O²</div>
+<p>Raise the young curve by δ<sub>Y</sub> and the old curve by δ<sub>O</sub>. The target rises by 0.5δ<sub>Y</sub>+0.5δ<sub>O</sub>. For independent unit-variance Gaussian observations, twice the KL distance from the initial model is 45δ<sub>Y</sub>²+5δ<sub>O</sub>². This is the information metric used to compare directions, not the observed loss change from a biased fit. The actual change in squared-error loss is Σₛ[nₛδₛ²−2δₛΣᵢrᵢ]. Residuals determine the step size.</p>
+<div class="eq">payoff(δ_Y, δ_O) = 0.5·δ_Y + 0.5·δ_O          information cost(δ_Y, δ_O) = 45·δ_Y² + 5·δ_O²</div>
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="470"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
@@ -151,23 +116,9 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <div class="note">With noise SD 0 both residual means are 1, the two evidence bars are exactly 50 and 50, ε̂ = 0.18, the young curve moves 0.2 and the old curve 1.8, and ψ moves by exactly 1.0, which is the bias you were told the initial fit had. Turn the noise up and see the same machine run on messy data.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The clever covariate reweights each residual by 1/π so that every part of the covariate space contributes evidence in proportion to its share of the target, not its share of the treated. Solving the score equation along that fluctuation is the TMLE update, and for this Gaussian fluctuation it lands exactly on the one-step estimate.</div>
-<!-- SCENE 7 (positivity + estimand) -->
-<div class="eyebrow">Scene 7</div>
-<h2>Drag the treated count to zero: positivity, and why the estimand picks the direction</h2>
-<p>Everything above assumed 5 treated old patients. Slide that number down. The cost of moving the old curve is k·δ<sub>O</sub>², so as k falls the curve gets cheaper to move, the clever covariate 50/k grows, and at k = 0 the curve is free: no observation resists any move at all, so the data say nothing about μ<sub>1</sub>(old), and ψ = 0.5μ<sub>1</sub>(young) + 0.5μ<sub>1</sub>(old) is not identified. That is what a positivity violation looks like from inside the estimator. Then switch the estimand. If the target weights strata by their <em>treated</em> share instead of their population share (the mean outcome among the treated, the E[Y(1) | A = 1] half of the ATT), the payoff weights become 45/(45+k) and k/(45+k), the population share cancels against the treated count, and the optimal direction is a constant: every curve moves the same amount. The estimand decides the direction; the data only decide how far.</p>
-<div class="eq">ATE-type target:  payoff 0.5δ_Y + 0.5δ_O,  cost 45δ_Y² + kδ_O²   ⇒   δ_O/δ_Y = 45/k = π_Y/π_O<br>Treated-weighted target:  payoff (45/(45+k))δ_Y + (k/(45+k))δ_O   ⇒   δ_O/δ_Y = 1</div>
-<div class="predict" data-options="It goes to zero|It stays at 9|It goes to infinity" data-answer="2" data-hint="Cost k·δ² vanishes, so the optimal old shift is unbounded: the curve is free and ψ is not identified.">As the number of treated old patients k goes to 0, what happens to the optimal ratio δ_O/δ_Y for the ATE?</div>
-<div class="scene">
-  <div class="paper"><canvas id="c7" width="800" height="530"></canvas><div class="cap" id="cap7"></div></div>
-  <div class="ctl">
-    <label>Treated old patients k <span class="v" id="v7k">5</span><input type="range" id="k7" min="0" max="25" step="1" value="5"></label>
-    <label>Target <select id="e7"><option value="ate">Population-weighted (ATE-type)</option><option value="att">Treated-weighted (ATT-type)</option></select></label>
-    <div class="readout" id="ro7"></div>
-    <div class="note">Positivity is usually stated as π(x) &gt; 0 for all x. Here you can see why: it is the condition that every part of the curve ψ depends on is resisted by at least some data.</div>
-  </div>
-</div>
-<div class="say"><b>In one sentence</b>Positivity is what makes the least-favorable direction finite. Where π is zero the clever covariate is infinite, the fit can move without likelihood cost, and the parameter is not identified. Changing the estimand changes the payoff weights, and therefore the direction: the ATT does not need positivity where there are no treated people, because those people carry no weight.</div>
+<div class="say"><b>In one sentence</b>The clever covariate reweights each residual by 1/π so that every part of the covariate space contributes evidence in proportion to its share of the target, not its share of the treated. Solving the score equation along that fluctuation is the TMLE update, and in this empirically calibrated two-stratum example it equals the one-step estimate. General Gaussian fluctuations need not do so.</div>
+<div class="eyebrow" id="s7">Scene 7</div>
+<h2>Population positivity and an empty sample cell are different</h2><div class="lab-card" id="positivity-lab" data-scene><label>Population probability of treatment among older people <input id="population-g" type="range" min="0" max="1" step=".02" value=".1"></label><label>Older treated patients observed in a sample of 50 <input id="observed-k" type="range" min="0" max="50" step="1" value="5"></label><p id="positivity-text" role="status"></p><div class="eq" id="positivity-numbers"></div><p>For the treated-mean target E[Y(1)], g(old)=0 prevents identification for an older stratum with positive target weight. If g(old)&gt;0 but k=0, the target can remain identified in the population while this sample lacks direct treated evidence. An ATT contrast also requires controls wherever treated people occur; changing the target changes which support is required.</p></div>
 </div>
 
 <script>
@@ -188,10 +139,8 @@ function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
-function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
-  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
-  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
-  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function scene(id,draw,opts){return CausalVisuals.scene(id,draw,opts);}
+
 function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const fn=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=fn;el.onchange=fn;if(lab)lab.textContent=fmt(+el.value);}
 
 // ---------- shared setup ----------
@@ -380,58 +329,25 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);
   const scoreNow=sumHr-eps*sumH2;txt(g,`score at current ε = ${eps.toFixed(4)}:  Σ H (r − εH) = ${scoreNow.toFixed(2)}`,RX,454,C.teal,12,'left',FM);
   const dpsi=eps*(0.5*HY+0.5*HO),os=sumHr/100;
   txt(g,`ψ moves by ε·(0.5/0.9 + 0.5/0.1) = ε·5.56 = ${dpsi.toFixed(3)}`,RX,484,C.green,12.5,'left',FM);txt(g,`one-step correction Pₙ[H r] = ${sumHr.toFixed(1)}/100 = ${os.toFixed(3)}`,RX,506,C.teal,12.5,'left',FM);
-  if(t>0.95)txt(g,'same number: the TMLE step lands on the one-step here',430,495,C.pen,12.5,'left',FS,true);
+  if(t>0.95)txt(g,'equal here because π uses empirical stratum counts',430,495,C.pen,12.5,'left',FS,true);
   document.getElementById('ro5').innerHTML=`<span class="k">r̄ young</span><span>${mY.toFixed(3)}</span><span class="k">r̄ old</span><span>${mO.toFixed(3)}</span><span class="k">Σ H r</span><span>${sumHr.toFixed(2)}</span><span class="k">Σ H²</span><span>${sumH2.toFixed(1)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Δψ (TMLE)</span><span>${(ehat*(0.5*HY+0.5*HO)).toFixed(3)}</span><span class="k">Δψ (one-step)</span><span>${os.toFixed(3)}</span>`;
-  document.getElementById('cap5').textContent=t<0.3?'Residuals of the treated around the initial fit. Both strata sit about 1 too high.':t<0.6?'Weight each residual by H = 1/π. The five old residuals become as loud as the forty-five young ones.':t<0.95?'Grow ε until the weighted residuals balance: Σ H(r − εH) = 0. The old curve travels 9× as far.':'At ε̂ the score equation holds and ψ has moved by exactly the one-step correction.';
+  document.getElementById('cap5').textContent=t<0.3?'Residuals of the treated around the initial fit. Both strata sit about 1 too high.':t<0.6?'Weight each residual by H = 1/π. The five old residuals become as loud as the forty-five young ones.':t<0.95?'Grow ε until the weighted residuals balance: Σ H(r − εH) = 0. The old curve travels 9× as far.':'At ε̂ the score equation holds. Equality to the one-step here uses π equal to the empirical treated fractions; it is not general for Gaussian fluctuations.';
 },{dur:6000});
 document.getElementById('n5').onclick=()=>{gen5();S5.draw();};bind('s5','v5s',v=>v.toFixed(2),()=>{gen5();S5.draw();});
 
-// ---------- SCENE 7 (positivity + estimand) ----------
-const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);
-  const k=+document.getElementById('k7').value,est=document.getElementById('e7').value;const BUD=50;
-  const wY=est==='ate'?0.5:45/(45+k),wO=est==='ate'?0.5:k/(45+k);
-  // optimal direction: delta ∝ w / n_treated (Lagrange); k=0 & ate -> unbounded
-  const ident=!(est==='ate'&&k===0);
-  let dY,dO,ratio;
-  if(k===0){ if(est==='ate'){dY=0;dO=Infinity;ratio=Infinity;} else {dY=Math.sqrt(BUD/45);dO=0;ratio=0;} }
-  else { const rY=wY/45,rO=wO/k; // direction
-    const sc=Math.sqrt(BUD/(45*rY*rY+k*rO*rO)); dY=rY*sc; dO=rO*sc; ratio=dO/dY; }
-  const HY=50/45,HO=k>0?50/k:Infinity;
-  // left: cohort strips
-  const T=40,B=230,ymin=0,ymax=6.5;
-  const pan=(L,R,title,n,mu,d,col,pi)=>{const y=panel(g,L,R,T,B,ymin,ymax,title,`${n} treated, π = ${pi}`);
-    const dd=Number.isFinite(d)?Math.min(d,5):5;
-    if(n>0){rect(g,L+1,y(mu-1+dd),R-L-1,y(mu-1)-y(mu-1+dd),col,0.12);line(g,L,y(mu-1+dd),R,y(mu-1+dd),col,2.5);}
-    else{for(let v=0;v<=5;v+=0.5)line(g,L,y(mu-1+v),R,y(mu-1+v),col,0.6,[2,6]);txt(g,'no data: any height is free',(L+R)/2,y(mu+1.2),C.red,12,'center',FS,true);}
-    line(g,L,y(mu-1),R,y(mu-1),C.phat,1.5,[2,3]);txt(g,'μ̂ (initial)',L+6,y(mu-1)+10,C.phat,10.5,'left',FM);
-    for(let i=0;i<n;i++){const x=L+16+(R-L-32)*((i*0.618)%1);dot(g,x,y(mu+0.3*Math.sin(i*2.3)),col,3.2);}
-  };
-  pan(50,380,'Young stratum',45,MUY,dY,C.p,'0.90');pan(430,760,'Old stratum',k,MUO,dO,C.or,(k/50).toFixed(2));
-  // middle: numbers
-  const RY=270;txt(g,'Clever covariate H = 1/π',50,RY,C.pen,13,'left',FS,true);txt(g,`young ${HY.toFixed(2)}     old ${Number.isFinite(HO)?HO.toFixed(2):'∞'}`,50,RY+22,C.muted,12.5,'left',FM);
-  txt(g,'Payoff weights',50,RY+56,C.pen,13,'left',FS,true);txt(g,`young ${wY.toFixed(2)}     old ${wO.toFixed(2)}`,50,RY+78,C.muted,12.5,'left',FM);
-  txt(g,`Best split at cost ${BUD}`,430,RY,C.pen,13,'left',FS,true);
-  txt(g,`δ_Y = ${dY.toFixed(2)}     δ_O = ${Number.isFinite(dO)?dO.toFixed(2):'unbounded'}`,430,RY+22,C.muted,12.5,'left',FM);
-  txt(g,`ratio δ_O/δ_Y = ${Number.isFinite(ratio)?ratio.toFixed(2):'∞'}`,430,RY+44,C.purple,13,'left',FM);
-  txt(g,ident?(est==='ate'?'= 45/k = π_Y/π_O':'= 1: every curve moves the same'):'ψ is not identified',430,RY+66,ident?C.muted:C.red,12.5,'left',ident?FM:FS,!ident);
-  // bottom: ratio vs k curve
-  const L=50,R=740,T2=400,B2=495;const X=v=>L+(R-L)*v/25,Y=v=>B2-(B2-T2)*Math.min(v,30)/30;
-  line(g,L,B2,R,B2,C.pen,1.2);line(g,L,B2,L,T2,C.pen,1.2);for(let v=0;v<=25;v+=5){line(g,X(v),B2,X(v),B2+4,C.pen,1);txt(g,v,X(v),B2+13,C.muted,10,'center',FM);}
-  txt(g,'k treated old',R,B2+28,C.muted,11,'right');txt(g,'δ_O/δ_Y at the best split',L+6,T2-14,C.muted,11,'left');
-  const ptsA=[];for(let v=0.5;v<=25;v+=0.25)ptsA.push([X(v),Y(45/v)]);poly(g,ptsA,est==='ate'?C.purple:C.grid,2);txt(g,'ATE: 45/k',X(3.2),Y(15),est==='ate'?C.purple:C.muted,11,'left',FM);
-  line(g,X(0),Y(1),X(25),Y(1),est==='att'?C.purple:C.grid,2);txt(g,'ATT: 1',X(22),Y(1)-10,est==='att'?C.purple:C.muted,11,'left',FM);
-  if(k>0&&Number.isFinite(ratio))dot(g,X(k),Y(ratio),C.purple,6,true);else if(k===0&&est==='ate'){txt(g,'→ ∞ at k = 0',X(1.2)+8,T2+22,C.red,12,'left',FM);}else dot(g,X(0),Y(0),C.purple,6,true);
-    document.getElementById('ro7').innerHTML=`<span class="k">k</span><span>${k}</span><span class="k">π(old)</span><span>${(k/50).toFixed(2)}</span><span class="k">H(old)</span><span>${Number.isFinite(HO)?HO.toFixed(2):'∞'}</span><span class="k">w_Y, w_O</span><span>${wY.toFixed(2)}, ${wO.toFixed(2)}</span><span class="k">δ_O/δ_Y</span><span>${Number.isFinite(ratio)?ratio.toFixed(2):'∞'}</span><span class="k">identified</span><span>${ident?'yes':'no'}</span>`;
-  document.getElementById('cap7').textContent=!ident?'k = 0 with a population-weighted target: the old curve costs nothing to move, so the data cannot pin down half of ψ.':est==='ate'?`With ${k} treated old patients the old curve should move ${(45/k).toFixed(1)}× as far as the young curve.`:'Treated-weighted target: each stratum\'s payoff weight is proportional to its treated count, so the count cancels and every curve moves equally.';
-});
-bind('k7','v7k',v=>v.toFixed(0),()=>S7.draw());document.getElementById('e7').onchange=()=>S7.draw();
+// Population identification and sample information are separate quantities.
+function positivity(){const g=+document.getElementById('population-g').value,k=+document.getElementById('observed-k').value;document.getElementById('positivity-text').textContent=g===0?(k>0?'This combination is impossible under the stated sampling model: g=0 cannot generate treated observations.':'Structural positivity failure: there are no older treated people in the population.'):(g===1&&k<50?'This combination is impossible under the stated sampling model: g=1 treats everyone.':k===0?'Positive population support, but an empty treated cell in this sample.':'Population support and treated sample observations are both present.');document.getElementById('positivity-numbers').textContent='Population g = '+g.toFixed(2)+'; observed k = '+k+'; Pr(k=0 | g) = '+Math.pow(1-g,50).toExponential(2)+'; empirical information cost = '+k+' δ².';}
+['population-g','observed-k'].forEach(id=>document.getElementById(id).oninput=positivity);positivity();
 
-function all(){readC();[S1,S2,S3,S6,S4,S5,S7].forEach(s=>s.draw());}
+function all(){readC();[S1,S2,S3,S6,S4,S5].forEach(s=>s.draw());}
 all();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
 </body>
 </html>

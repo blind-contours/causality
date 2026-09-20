@@ -1,0 +1,1009 @@
+{
+  "browser": "Chrome/153.0.8010.52",
+  "pages": [
+    {
+      "file": "index.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "glossary.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/01-one-step-estimator.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 3,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 760,
+          "displayWidth": 734,
+          "font12CSS": 11.589473684210526,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 760,
+          "displayWidth": 734,
+          "font12CSS": 11.589473684210526,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 760,
+          "displayWidth": 734,
+          "font12CSS": 11.589473684210526,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 662.0625,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/02-scores-from-scratch.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 9,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c8",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c9",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 529.65625,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/03-mean-along-a-path.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 6,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 561.6875,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/04-under-the-integral.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 4,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 504.53125,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/05-one-move-two-faces.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 2,
+      "predictions": 2,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 542.640625,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/06-two-strata.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 7,
+      "predictions": 2,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 599.78125,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/07-clever-covariate.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 4,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 599.78125,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/08-four-patients.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 28,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/09-efficiency-theory-story.html",
+      "viewport": "1440x1000",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scenes": 9,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c8",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c9",
+          "width": 800,
+          "displayWidth": 762,
+          "font12CSS": 11.43,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 599.78125,
+      "exceptions": []
+    },
+    {
+      "file": "index.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "glossary.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 629,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/01-one-step-estimator.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 3,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 760,
+          "displayWidth": 324,
+          "font12CSS": 5.11578947368421,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 760,
+          "displayWidth": 324,
+          "font12CSS": 5.11578947368421,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 760,
+          "displayWidth": 324,
+          "font12CSS": 5.11578947368421,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 994.59375,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/02-scores-from-scratch.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 9,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c8",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c9",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 834.078125,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/03-mean-along-a-path.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 6,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 687.578125,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/04-under-the-integral.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 4,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 659.34375,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/05-one-move-two-faces.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 2,
+      "predictions": 2,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 825.46875,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/06-two-strata.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 7,
+      "predictions": 2,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 848.40625,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/07-clever-covariate.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 4,
+      "predictions": 1,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 835.09375,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/08-four-patients.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 0,
+      "predictions": 0,
+      "canvas": [],
+      "unlabelledInputs": 28,
+      "maxSceneHeight": 0,
+      "exceptions": []
+    },
+    {
+      "file": "lessons/09-efficiency-theory-story.html",
+      "viewport": "390x844",
+      "width": 390,
+      "scrollWidth": 390,
+      "scenes": 9,
+      "predictions": 0,
+      "canvas": [
+        {
+          "id": "c1",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c2",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c3",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c4",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c5",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c6",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c7",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c8",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        },
+        {
+          "id": "c9",
+          "width": 800,
+          "displayWidth": 328,
+          "font12CSS": 4.92,
+          "accessibleName": null,
+          "fallback": ""
+        }
+      ],
+      "unlabelledInputs": 0,
+      "maxSceneHeight": 808.5,
+      "exceptions": []
+    }
+  ],
+  "checks": {
+    "scrollOnlyCompletion": {
+      "done": true,
+      "footer": "Unit complete ✓"
+    },
+    "markIncomplete": true,
+    "tiltBoundary": "ε\n0.400\nyoung: μ̂+εH\n2.444\nyoung: ∫ y p̂_ε\n2.445\nold: μ̂+εH\n9.000\nold: ∫ y p̂_ε\n7.483",
+    "showAnswers": {
+      "footer": "To complete this unit\n○ 1 of 2 worked tables checked\nNext: Efficiency Theory, Drawn →",
+      "messages": [
+        "Filled in. Correction = 1.163, one-step = 3.663.",
+        "ε̂ = 10.55 / 35.13 = 0.3004. Old residuals contribute 8.80 of the numerator, young 1.75."
+      ]
+    },
+    "projectionAtZero": {
+      "readout": "‖ϕ†‖² (bound)\n1.00\n‖h⊥‖²\n0.00\nrelative eff.\n100%",
+      "caption": "At the crossing the influence function lies inside the tangent space: this is the efficient one."
+    },
+    "histogramLambdaOne": "plug-in bias\n-2.000\nplug-in sd\n0.000\none-step bias\n-0.016\none-step sd\n0.166\nmean IF-based SE\n0.170\nefficiency bound\n0.095 √(Var D/n)"
+  }
+}

@@ -1,72 +1,67 @@
 # Causality
 
-Interactive lessons in semiparametric causal inference. Every idea is something you drag, scrub or play, and every formula is derived on screen from a picture you already understand.
+An interactive course connecting causal questions, semiparametric geometry, targeting, inference, and familiar survival methods. It is built for applied statisticians who want to understand what their estimators are doing.
 
-Built for epidemiologists, trial statisticians, and anyone who runs analyses and wants the rigor underneath them: what a plug-in estimate gets wrong, what a one-step estimator does about it, what a score, a path and an influence function are, and where TMLE's clever covariate comes from.
+## Run and verify
 
-**Live site:** turn on GitHub Pages for this repo (Settings → Pages → Deploy from branch → `main` / root) and the course is at `https://<you>.github.io/causality/`. Nothing to build, nothing to install.
+No build or dependency installation is required. Serve the repository over HTTP so the simulation worker can load:
 
-## What's here
-
-```
-index.html              the hub: chapters, unit order, your progress
-lessons/                one self-contained HTML page per unit
-shared/course.js        lesson registry, recap and predict cards, top bar, footer, progress
-shared/course.css       styles for the bar and footer
-manifest.webmanifest    lets the site install to a home screen
-glossary.html           symbols reference
-icons/                  app icon
-LICENSE                 MIT, for the code
-LICENSE-CONTENT.md      CC BY-NC-SA 4.0, for the lesson content
+```sh
+npm run serve
+# Open http://127.0.0.1:8765
+npm test
 ```
 
-### Chapter 1. Targeting: fixing a machine-learned estimate
+`npm test` requires Node 22 or later and uses its built-in test runner. Any static HTTP host can serve the site. `file://` is not a supported way to run the worker. The older lessons request Google Fonts; system fonts remain usable when offline. There is no account, analytics, or server-side learner database.
 
-| Unit | Page | You leave knowing |
-| --- | --- | --- |
-| 1 | The One-Step Estimator | Why a regularized plug-in is biased and how ψ̂ + PₙD(P̂) removes the first-order part. For the ATE this is AIPW. |
-| 2 | Scores and Influence, From Scratch | A distribution is a point, a path is p(1+εh), a score is a slope of log p, and one function D gives dψ/dε for every direction. |
-| 3 | The Mean Along a Path | The derivation of D(z) = z − ψ as arithmetic on bins. |
-| 4 | Differentiating Under the Integral | Leibniz's rule as a table of rows ε and columns z. |
-| 5 | One Move, Two Faces | Tilting the density of Y by exp(εH(y − μ̂)) has score H(y − μ̂) and mean μ̂ + εH: the regression fluctuation, derived. And Pₙ is a point in the same space as P and P̂. |
-| 6 | Two Strata, One Step | With 100 patients in two strata, why the fit should move in proportion to 1/π; positivity as the case k = 0; the estimand as the thing that picks the direction. |
-| 7 | Where the Clever Covariate Comes From | D is centered, D is the steepest direction, and fluctuating along it by likelihood solves PₙD = 0. |
-| 8 | Four Patients | Compute D(Zᵢ) for four patients by hand and watch the mean equal the correction; then ε̂ by hand. |
-| 9 | Efficiency Theory, Drawn | Nine pictures: parameter as a map, tangent space, projection, plug-in bias, double robustness, the TMLE walk, coverage. |
+For browser checks, start an isolated Chrome/Chromium profile with remote debugging on port 9227, alongside the server, then run `npm run test:browser`. The script uses Node's WebSocket client, so Playwright is not required. `CDP_PORT` and `BASE_URL` can override the defaults. Use a test browser profile: the checks reset course data in that profile. Results and selected screenshots are written to `docs/implementation/evidence/`.
 
-Each unit shows its length up front, opens with a collapsed quick check on the previous unit, lists its scenes, and tracks where you are with a dot strip in the top bar. Animated scenes start at the beginning; Play reveals them. Key scenes carry a predict-before-you-play prompt. A unit completes itself once its predictions are answered, its worked tables are checked, and the last scene is reached; the hub shows a Continue button for the next unit. A [symbols page](glossary.html) maps every notation the lessons use.
+## The learning route
 
-Later chapters (identification, estimators you already use, what the influence function is and why it wins, heterogeneous effects, time and intercurrent events) are sketched in the curriculum map and listed on the hub as "coming later."
+1. **Ask and identify:** build an estimand contract; distinguish the causal question from an observed-data comparison; deliberately break exchangeability or positivity.
+2. **Feel the geometry:** move three probabilities, construct scores and sensitivities, rotate the simplex and square-root sphere, restrict the model, and project a canonical gradient. Continue through the existing derivation lessons.
+3. **Build an estimator:** one-step correction, Gaussian tilts, information geometry, clever covariates, binary targeting, and four-patient arithmetic.
+4. **Earn inference and return to survival:** nuisance correctness, product rates, cross-fitting, repeated-sampling experiments, efficiency theory, KM, censoring and RMST versus hazard ratios.
 
-## Running locally
+Guided mode presents one topic at a time; Explore shows all topics. Direct entry is always available. The course map and each lesson show prerequisites. A saved estimand contract stays available across lessons; each experiment explicitly states when it uses a different toy target or population.
 
-Open `index.html` in a browser. That's it. If your browser blocks `file://` scripts, serve the folder:
+## Code organization
 
-```
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
+| Location | Responsibility |
+|---|---|
+| `science/core.js` | Pure probability, geometry, targeting, estimation, histogram and survival kernels; available in browsers and Node |
+| `science/simulation-worker.js` | Seeded repeated experiments, progress messages, immutable run configuration |
+| `labs/` | Laboratory state, controls and linked visual representations; reusable simulation panel |
+| `shared/curriculum.js` | Unit order, roadmap stages, prerequisites and retrieval questions |
+| `shared/state.js` | Versioned learning-state migration and explicit event transitions |
+| `shared/practice.js` | Generated transfer cases, hints, worked solutions and reflection prompts |
+| `shared/course.js` | Navigation, guided topics, contextual notation, progress and persistence |
+| `shared/visuals.js` | SVG plotting, shared animation clock and accessible legacy-canvas containers |
+| `shared/lesson.css`, `shared/labs.css`, `shared/course.css` | Shared visual language, lesson layouts and course controls |
+| `lessons/` | Thirteen entry pages; nine existing derivations plus four laboratories |
+| `tests/` | Scientific invariants, state transitions, source/link checks and browser verification |
+| `docs/learning/` | References, mathematical-review packet and learner-study protocol |
 
-## Adding a unit
+The architecture deliberately remains a static site with small modules. A lesson depends on shared files and is not a self-contained attachment. New mathematics belongs in `science/`, not in drawing callbacks. Some older drawing primitives and illustrative datasets remain inside the original HTML; the common scene clock, styles, progression and repeated simulations have been extracted.
 
-1. Write the lesson as a single HTML page in `lessons/` (copy an existing one for the design tokens and the `scene()` / `bind()` scaffold).
-2. Give its `<body>` a `data-lesson="<id>"` attribute and include `../shared/course.css` and `../shared/course.js`.
-3. Register it in the `COURSE` object at the top of `shared/course.js`, with three `recap` questions. The hub, the top bar, the next/previous links, and the next unit's recap card pick it up from there.
-4. Optional: put a `<div class="predict" data-options="A|B|C" data-answer="1" data-hint="…">Question</div>` just above a scene for a predict-before-you-play prompt.
+See [architecture and authoring](docs/implementation/ARCHITECTURE.md) for contracts and extension guidance.
 
-Lessons are deliberately self-contained: one file, no build step, so a lesson can be forked, emailed, or dropped into a slide deck without the rest of the repo.
+## What progress means
 
-## Design rules the lessons follow
+Progress uses `causality.progress.v2`. Legacy “complete” flags migrate to **explored**. Current states distinguish **explored**, **attempted**, **assisted**, and **transfer check demonstrated**. A correct answer after revealing that case's solution remains assisted; a new case allows an independent attempt. Scrolling and answer revelation do not demonstrate a lesson. A numerical check is evidence about that check, not a claim of mastery. Free-text explanations are saved but not automatically graded.
 
-- No calculus you can't see. Every derivative is a slope on screen before it is a symbol.
-- Every scene has a readout. Learners verify numbers; they don't take them on faith.
-- Sliders before formulas. The learner predicts, then the scrub reveals.
-- Each scene ends with a "Say" box: the result in one breath.
+Controls, laboratory configurations and worked-table entries are stored locally. New laboratory configurations can be shared by URL; explanations and progress are not included in those links. Course reset removes only keys beginning with `causality.`. A successful transfer check schedules a reminder on the course map after three days; there are no background notifications.
 
-## Progress
+## Mathematical and visual scope
 
-Completion is earned, not self-reported: a unit is marked complete when every predict card is answered, every worked table is checked (or its answers shown), and the last scene has been scrolled into view. It is stored in the browser's `localStorage` under `causality.progress.v1`. It never leaves the device. "Reset progress" on the hub clears it.
+The finite geometry has exact probability-weighted inner products and projections. Its 3D views do not imply that a general statistical model is three dimensional. Gaussian and binary targeting calculations, ATE remainders, population-versus-sample positivity, and product-rate boundaries are stated with their conditions. Repeated simulations report bias, SD, RMSE, AIPW SE and coverage with Monte Carlo uncertainty; consistency is not labelled efficiency.
 
-## Credits
+New SVG figures have numerical tables and keyboard controls. Older canvases remain full size in keyboard-scrollable panels, with descriptions and label transcripts, so phone layouts no longer shrink all text. This is a transitional rendering approach: it is not a claim of fully reflowed SVG versions of all legacy figures or complete screen-reader equivalence.
 
-Lessons written by David McCoy with Claude. The geometry in unit 7 follows the framing of Schuler and van der Laan's *Introduction to Modern Causal Inference*.
+Automated verification does not establish educational effectiveness. The [evaluation protocol](docs/learning/EVALUATION.md) defines the independent mathematical review, accessibility sessions and immediate/delayed transfer study still to conduct. The [original review](docs/reviews/2026-09-19/REVIEW.md) and its evidence are preserved as the baseline.
+
+## Credits and licenses
+
+Original lessons by David McCoy with Claude. Geometric framing includes Schuler and van der Laan's *Introduction to Modern Causal Inference*. Scientific and learning-design sources are listed in [References](docs/learning/REFERENCES.md).
+
+Code: [MIT](LICENSE). Lesson content: [CC BY-NC-SA 4.0](LICENSE-CONTENT.md).

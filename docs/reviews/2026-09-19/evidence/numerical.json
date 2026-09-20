@@ -1,0 +1,124 @@
+{
+  "seed": 20260919,
+  "simulations": [
+    {
+      "n": 2000,
+      "reps": 1500,
+      "lambda": 0,
+      "kappa": 0,
+      "pluginBias": 0.00170736222949186,
+      "oneStepBias": 0.001707362229492304,
+      "pluginSD": 0.05325438468538986,
+      "oneStepSD": 0.053254384685390115,
+      "meanReportedSE": 0.0514064424100393,
+      "efficientSE": 0.042341151144150505,
+      "sdRatio": 1.2577453197737938
+    },
+    {
+      "n": 2000,
+      "reps": 1500,
+      "lambda": 0.5,
+      "kappa": 1,
+      "pluginBias": -1.0009024487000506,
+      "oneStepBias": -0.002250425686136648,
+      "pluginSD": 0.025989674361782518,
+      "oneStepSD": 0.059959086180217204,
+      "meanReportedSE": 0.059975977015733664,
+      "efficientSE": 0.042341151144150505,
+      "sdRatio": 1.4160948524069743
+    },
+    {
+      "n": 2000,
+      "reps": 1500,
+      "lambda": 1,
+      "kappa": 1,
+      "pluginBias": -2,
+      "oneStepBias": -0.0025303893095718344,
+      "pluginSD": 0,
+      "oneStepSD": 0.07660193960018026,
+      "meanReportedSE": 0.07660207772119146,
+      "efficientSE": 0.042341151144150505,
+      "sdRatio": 1.8091605336706331
+    }
+  ],
+  "scoreGrid": {
+    "mass": 0.9996374335389431,
+    "meanRaw": -0.0015314506652187804,
+    "meanNormalized": -0.0015320061192557566,
+    "directions": [
+      {
+        "kind": "tilt",
+        "scoreMean": -7.043364496647038e-11,
+        "innerProduct": 0.5497838675255703,
+        "displayedFiniteDifference": 0.5499277276112964
+      },
+      {
+        "kind": "bump",
+        "scoreMean": 0.0002459498626490184,
+        "innerProduct": 0.561160338619035,
+        "displayedFiniteDifference": 0.5613069438928258
+      },
+      {
+        "kind": "wave",
+        "scoreMean": -0.00007518985790184791,
+        "innerProduct": 0.4933567365269367,
+        "displayedFiniteDifference": 0.49348050178857783
+      },
+      {
+        "kind": "spread",
+        "scoreMean": 0.000055234880646986636,
+        "innerProduct": 0.07988661269956063,
+        "displayedFiniteDifference": 0.07985999788099307
+      }
+    ]
+  },
+  "proposedGeometry": {
+    "z": [
+      -1,
+      0,
+      2
+    ],
+    "p": [
+      0.2,
+      0.5,
+      0.3
+    ],
+    "mean": 0.4,
+    "D": [
+      -1.4,
+      -0.4,
+      1.6
+    ],
+    "h": [
+      -1,
+      0,
+      0.6666666666666666
+    ],
+    "scoreMean": -2.7755575615628914e-17,
+    "pathSlope": 0.5999999999999999,
+    "fullVariance": 1.24,
+    "restrictedD": [
+      -1.8,
+      0,
+      1.2
+    ],
+    "restrictedVariance": 1.08,
+    "projectionResidualOrthogonality": -1.3877787807814457e-17
+  },
+  "finiteSampleGaussianTMLE": {
+    "H": [
+      1.25,
+      0,
+      4,
+      0
+    ],
+    "correction": 0.8125,
+    "epsilon": 0.18505338078291814,
+    "tmleShift": 0.48576512455516013,
+    "targetedResidualMean": 5.551115123125783e-17
+  },
+  "syntax": {
+    "inlineScripts": 10,
+    "syntaxErrors": []
+  }
+}

@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --bg:#EEF2F5; --panel:#FFFFFF; --ink:#17232B; --muted:#5E6E7B; --rule:#CBD5DD;
-  --truth:#2F7D5B; --plug:#6E7F8D; --step:#3E4EA8; --rem:#C08A2E; --treated:#3E4EA8; --control:#B5502B;
+  --bg:#EEF2F5; --panel:#FFFFFF; --paper:var(--panel); --purple:var(--step); --green:var(--truth); --red:#b23737; --ink:#17232B; --muted:#5E6E7B; --rule:#CBD5DD;
+  --truth:#2F7D5B; --plug:#5E6E7B; --step:#3E4EA8; --rem:#986b15; --treated:#3E4EA8; --control:#B5502B;
   --grid:#E1E7EC; --accent-soft:#E4E7F6;
 }
 @media (prefers-color-scheme: dark){
@@ -56,13 +56,16 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:8px}
 @media (prefers-reduced-motion: reduce){ .anim{transition:none} }
 </style>
+<link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="one-step-estimator">
 <div class="wrap">
 <div class="eyebrow">Semiparametric efficiency, drawn</div>
 <h1>The one-step estimator, as a shape</h1>
-<p class="lede">Three acts. First the geometry: a plug-in is a point on a curve, the influence function is the tangent, and one Newton step lands you within the curvature of the truth. Then the same thing on simulated data, one operation at a time. Then 300 repeats, so you can see the bias go and the width stay.</p>
+<p class="lede">Three acts. First the geometry: a plug-in is a point on a curve, the influence function is the tangent, and one Newton step lands you within the curvature of the truth. Then the same thing on simulated data, one operation at a time. Then repeat the experiment to measure bias, variance, and interval coverage separately. The opening curve is a schematic first-order expansion, not a fully specified statistical model.</p>
 
 <!-- ============ ACT 1 ============ -->
 <div class="eyebrow">Act 1</div>
@@ -87,7 +90,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     <label>Sample size n (sets the size of the (Pₙ − P)D noise) <span class="v" id="nv">400</span>
       <input type="range" id="n1" min="50" max="5000" step="50" value="400"></label>
     <div class="readout" id="ro1"></div>
-    <div class="note">Drag δ down and watch: the plug-in bias (first order) shrinks like δ, the remainder shrinks like δ². That gap between "like δ" and "like δ²" is the whole reason nuisances at n<sup>−1/4</sup> give a target at n<sup>−1/2</sup>.</div>
+    <div class="note">Drag δ down and watch: the plug-in bias (first order) shrinks like δ, the remainder shrinks like δ². For efficient centered inference, the remainder must be oₚ(n<sup>−1/2</sup>). Two errors exactly of order n<sup>−1/4</sup> only give an Oₚ(n<sup>−1/2</sup>) product; faster combined rates or a sharper remainder argument are needed.</div>
   </div>
 </div>
 
@@ -118,28 +121,14 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     <label>Sample size n <span class="v" id="n2v">400</span>
       <input type="range" id="n2" min="100" max="2000" step="100" value="400"></label>
     <div class="readout" id="ro2"></div>
-    <div class="note">Double robustness, live: set λ = 0 (outcome model nearly right) and κ = 0 (propensity useless); the correction is tiny and the one-step is still fine. Set λ = 1 and κ = 1: the outcome model is badly wrong and the weights fix it. Set both wrong and nothing saves you.</div>
+    <div class="note">This linear outcome model is misspecified even at λ=0: it omits X² and A×X. At λ=0, κ=0, its correction is zero by the OLS normal equations, not evidence that the outcome model is correct. Symmetry can also cancel ATE bias here. The experiment below uses explicit correctness cases and an asymmetric population.</div>
   </div>
 </div>
 
 <!-- ============ ACT 3 ============ -->
 <div class="eyebrow">Act 3</div>
-<h2>Repeat it 300 times</h2>
-<p>Same generator, same sliders as Act 2, fresh sample each time. The plug-in's distribution sits where its bias puts it; the one-step's sits on the truth with about the same spread. That is what "removing first-order bias without paying in variance" looks like. Below the histogram, the empirical SE of the one-step is compared to the efficiency bound √(Var D / n), so you can see it is not just unbiased but efficient.</p>
-<div class="act">
-  <div class="stage">
-    <canvas id="c3" width="760" height="360"></canvas>
-    <div class="caption" id="cap3"></div>
-  </div>
-  <div class="ctl">
-    <div class="btns"><button class="primary" id="run3">Run 300 samples</button></div>
-    <div class="readout" id="ro3"></div>
-    <div class="note">Try n = 100 vs n = 2000 with λ = 0.5, κ = 1. The plug-in's bias does not move with n. The one-step's spread narrows like 1/√n around the truth.</div>
-  </div>
-</div>
-
-<h2>What to say when Alec asks</h2>
-<p>"The plug-in sits on a curve; its first-order bias is minus the mean of the influence function at the estimate, taken under the truth. I can't compute that mean, but I can estimate it with the sample mean, so I add it back: that is the one-step, one Newton iterate. What's left is the empirical-process term, which is order n<sup>−1/2</sup> and gives the efficient asymptotic variance, plus a second-order remainder that is a product of the nuisance errors. For the ATE that remainder is ∫(π̂ − π)(μ̂ − μ)/π̂ dP, so n<sup>−1/4</sup> nuisances suffice, and if either one is exactly right the remainder vanishes, which is double robustness. TMLE removes the same first-order term by fluctuating P̂ until the influence-function equation is solved exactly, so it lands on the same expansion as a substitution estimator."</p>
+<h2>Repeat samples and separate the promises</h2><p>This experiment uses an asymmetric binary-severity cohort, separate from the continuous-X illustration above. It includes four explicit nuisance-correctness cases. Predict bias first, then compare sampling spread, the efficient bound, and actual interval coverage.</p><div class="lab-card" data-simulation="one-step"></div>
+<h2>Explain the correction</h2><p>The tangent toward the truth has slope P₀D*(P̂); the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and convergence to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]<br>Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
 </div>
 
 <script>
@@ -248,9 +237,9 @@ function draw1(){
     t1<0.8? 'Extend the tangent to ε = 1: that value is the one-step estimator.' :
     'What the tangent cannot see is the curvature, R₂. It is second order: shrink δ and it vanishes faster than the first-order term.';
 }
-function anim1(){t1=Math.min(1,t1+(reduce?1:0.012));draw1();if(t1<1)raf1=requestAnimationFrame(anim1);}
-document.getElementById('play1').onclick=()=>{cancelAnimationFrame(raf1);t1=0;noise1=randn();anim1();};
-document.getElementById('reset1').onclick=()=>{cancelAnimationFrame(raf1);t1=0;draw1();};
+const playback1=CausalVisuals.scene(1,()=>draw1(),{dur:5000,onT:t=>{t1=t;}});
+document.getElementById('play1').onclick=()=>{if(playback1.t>=1)noise1=randn();playback1.play();};
+document.getElementById('reset1').onclick=()=>{playback1.pause();playback1.t=0;t1=0;draw1();};
 [delta,n1].forEach(el=>el.oninput=()=>{document.getElementById('dv').textContent=(+delta.value).toFixed(2);document.getElementById('nv').textContent=n1.value;draw1();});
 
 // ---------- drawing helpers ----------
@@ -318,60 +307,26 @@ function draw2(){
 document.getElementById('step2').onclick=()=>{s2=Math.min(4,s2+1);draw2();};
 document.getElementById('reset2').onclick=()=>{cancelAnimationFrame(raf2);s2=0;draw2();};
 document.getElementById('new2').onclick=()=>{D2=gen(+n2.value);draw2();};
-document.getElementById('play2').onclick=()=>{cancelAnimationFrame(raf2);s2=0;draw2();let k=0;const tick=()=>{k++;if(k%(reduce?1:110)===0){s2++;draw2();}if(s2<4)raf2=requestAnimationFrame(tick);};raf2=requestAnimationFrame(tick);};
+const playback2=CausalVisuals.scene(2,()=>draw2(),{dur:6500,onT:t=>{s2=Math.min(4,Math.floor(t*4));}});
+document.getElementById('play2').textContent='Play / pause';document.getElementById('play1').textContent='Play / pause';
+document.getElementById('play2').onclick=playback2.play;
+document.getElementById('step2').onclick=()=>{playback2.pause();s2=Math.min(4,s2+1);playback2.t=s2/4;draw2();};
+document.getElementById('reset2').onclick=()=>{playback2.pause();playback2.t=0;s2=0;draw2();};
+
 lam.oninput=()=>{document.getElementById('lv').textContent=(+lam.value).toFixed(2);draw2();};
 kap.oninput=()=>{document.getElementById('kv').textContent=(+kap.value).toFixed(2);draw2();};
 n2.oninput=()=>{document.getElementById('n2v').textContent=n2.value;D2=gen(+n2.value);draw2();};
 
-// ---------- ACT 3: repeat ----------
-const c3=document.getElementById('c3'),g3=c3.getContext('2d');
-let R3=null;
-function run3(){
-  const n=+n2.value,l=+lam.value,k=+kap.value; const P=[],O=[],SE=[];
-  for(let r=0;r<300;r++){const e=estimate(gen(n),l,k);P.push(e.plug);O.push(e.os);SE.push(e.se);}
-  const mean=a=>a.reduce((s,v)=>s+v,0)/a.length, sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1));};
-  // efficiency bound with true nuisances, estimated from one big sample
-  const big=gen(20000); let v=0,m=0; const phi=new Float64Array(big.n);
-  for(let i=0;i<big.n;i++){const x=big.X[i],a=big.A[i],y=big.Y[i];const m1=0.5+x+0.6*x*x+2+0.4*x,m0=0.5+x+0.6*x*x,p=big.PI[i];phi[i]=m1-m0+(a?(y-m1)/p:-(y-m0)/(1-p));m+=phi[i];}
-  m/=big.n;for(let i=0;i<big.n;i++)v+=(phi[i]-m)**2;v/=big.n;
-  R3={P,O,mP:mean(P),mO:mean(O),sP:sd(P),sO:sd(O),bound:Math.sqrt(v/n),mSE:mean(SE),n};
-  draw3();
-}
-function draw3(){
-  const W=c3.width,H=c3.height;g3.clearRect(0,0,W,H);
-  if(!R3){g3.fillStyle=css('--muted');g3.font='14px "IBM Plex Sans",sans-serif';g3.textAlign='center';g3.fillText('Press "Run 300 samples" to draw the two sampling distributions.',W/2,H/2);return;}
-  const L=50,R=W-30,T=30,B=H-40; const lo=0.6,hi=3.4,bins=56;
-  const hist=a=>{const h=new Array(bins).fill(0);for(const v of a){const b=Math.floor((v-lo)/(hi-lo)*bins);if(b>=0&&b<bins)h[b]++;}return h;};
-  const hP=hist(R3.P),hO=hist(R3.O);const mx=Math.max(...hP,...hO)||1;
-  const xs=v=>L+(R-L)*(v-lo)/(hi-lo), ys=c=>B-(B-T)*c/mx, bw=(R-L)/bins;
-  g3.strokeStyle=css('--grid');g3.beginPath();g3.moveTo(L,B);g3.lineTo(R,B);g3.stroke();
-  g3.fillStyle=css('--muted');g3.font='12px "IBM Plex Mono",monospace';g3.textAlign='center';for(let v=1;v<=3;v+=0.5)g3.fillText(v.toFixed(1),xs(v),B+18);
-  for(let b=0;b<bins;b++){
-    g3.globalAlpha=0.55;g3.fillStyle=css('--plug');g3.fillRect(xs(lo+b*(hi-lo)/bins)+1,ys(hP[b]),bw-2,B-ys(hP[b]));
-    g3.fillStyle=css('--step');g3.fillRect(xs(lo+b*(hi-lo)/bins)+1,ys(hO[b]),bw-2,B-ys(hO[b]));}
-  g3.globalAlpha=1;
-  g3.strokeStyle=css('--truth');g3.lineWidth=2;g3.setLineDash([5,4]);g3.beginPath();g3.moveTo(xs(2),T);g3.lineTo(xs(2),B);g3.stroke();g3.setLineDash([]);
-  label(g3,'truth',xs(2),T-8,css('--truth'),'center');
-  label(g3,'plug-in  mean '+R3.mP.toFixed(2),xs(R3.mP),T+14,css('--plug'),R3.mP<2?'right':'left');
-  label(g3,'one-step  mean '+R3.mO.toFixed(2),xs(R3.mO),T+32,css('--step'),R3.mO<2?'right':'left');
-  document.getElementById('cap3').textContent=`n = ${R3.n}, λ = ${(+lam.value).toFixed(2)}, κ = ${(+kap.value).toFixed(2)}. 300 samples each.`;
-  document.getElementById('ro3').innerHTML=
-    `<span class="k">plug-in bias</span><span>${fmt(R3.mP-2)}</span>
-     <span class="k">plug-in sd</span><span>${fmt(R3.sP)}</span>
-     <span class="k">one-step bias</span><span>${fmt(R3.mO-2)}</span>
-     <span class="k">one-step sd</span><span>${fmt(R3.sO)}</span>
-     <span class="k">mean IF-based SE</span><span>${fmt(R3.mSE)}</span>
-     <span class="k">efficiency bound</span><span>${fmt(R3.bound)}  √(Var D/n)</span>`;
-}
-document.getElementById('run3').onclick=run3;
-
-// ---------- boot & theme ----------
-function all(){draw1();draw2();draw3();}
+function all(){draw1();draw2();}
 all();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
+<script src="../labs/common.js"></script><script src="../labs/simulation.js"></script>
 </body>
 </html>

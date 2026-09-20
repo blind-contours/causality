@@ -8,49 +8,11 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <title>Efficiency Theory, Drawn</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --phat:#B0287F; --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --phat:#E36AB8; --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --phat:#E36AB8; --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 20px;font-size:17px}
-.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:0 0 40px;padding:0;list-style:none}
-.toc li a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--rule)}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:26px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.m{font-family:"Fraunces",Georgia,serif;font-style:italic}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-.src{font-size:12.5px;color:var(--muted);margin-top:40px}
-</style>
+<link rel="stylesheet" href="../shared/labs.css">
+<link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="efficiency-theory-story">
 <div class="wrap">
@@ -64,22 +26,22 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 1 -->
 <div class="eyebrow" id="s1">Scene 1</div>
 <h2>A parameter is a map from distributions to numbers</h2>
-<p>The model 𝓜 is the set of distributions you're willing to believe. The estimand <span class="m">ψ</span> takes each one to a number: <span class="m">ψ(P) = E<sub>P</sub>[μ<sub>1</sub>(X) − μ<sub>0</sub>(X)]</span>, say. Drawn on 𝓜, that's a landscape with level curves. Everything later in the story is about how that landscape behaves near the truth.</p>
+<p>The model 𝓜 is the set of distributions allowed by your assumptions. The estimand <span class="m">ψ</span> takes each one to a number: <span class="m">ψ(P) = E<sub>P</sub>[μ<sub>1</sub>(X) − μ<sub>0</sub>(X)]</span>, say. Drawn on 𝓜, that's a landscape with level curves. Everything later in the story is about how that landscape behaves near the truth.</p>
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="460"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p1">Play</button></div>
     <label>Scrub <span class="v" id="v1">0.00</span><input type="range" id="t1" min="0" max="1" step="0.002" value="0"></label>
     <div class="readout" id="ro1"></div>
-    <div class="note">Nothing here is an estimate yet. This is the object: a smooth function on an infinite-dimensional set. "Nonparametric" means 𝓜 is the whole blob; a parametric model would be a one-dimensional curve inside it.</div>
+    <div class="note">This is a finite-dimensional illustration. The polynomial landscape is made into a two-parameter Gaussian location model in scene 8; the visible blob is a viewing window. General nonparametric models may be infinite dimensional; parametric models may have any finite dimension.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The estimand is a functional, a smooth map from the model to the reals. Identification is what lets me claim its value at the truth is the causal quantity; estimation is about how the map bends near the truth.</div>
+<div class="say"><b>In one sentence</b>The estimand is a functional, a smooth map from the model to the reals. Identification is what allows the claim that its value at the truth is the causal quantity; estimation is about how the map bends near the truth.</div>
 
 <!-- SCENE 2 -->
 <div class="eyebrow" id="s2">Scene 2</div>
 <h2>An estimator is asymptotically linear if its error is an average</h2>
-<p>An estimator <span class="m">ψ̂(P<sub>n</sub>)</span> is asymptotically linear when <span class="m">ψ̂ − ψ(P) = P<sub>n</sub>ϕ + o<sub>P</sub>(n<sup>−1/2</sup>)</span> for some mean-zero function <span class="m">ϕ</span> of one observation: the influence function. Then the central limit theorem gives you the sampling distribution for free. Watch a real sample: each point contributes <span class="m">ϕ(Z<sub>i</sub>)</span>, the error is their average, and across repetitions the average is normal with variance <span class="m">Var(ϕ)/n</span>.</p>
+<p>An estimator <span class="m">ψ̂(P<sub>n</sub>)</span> is asymptotically linear when <span class="m">ψ̂ − ψ(P) = P<sub>n</sub>ϕ + o<sub>P</sub>(n<sup>−1/2</sup>)</span> for some mean-zero function <span class="m">ϕ</span> of one observation: the influence function. With independent observations and finite influence-function variance, the central limit theorem supplies the limiting distribution. Watch a real sample: each point contributes <span class="m">ϕ(Z<sub>i</sub>)</span>, the error is their average, and across repetitions the average is asymptotically normal with variance <span class="m">Var(ϕ)/n</span>.</p>
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="460"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
@@ -110,22 +72,22 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 4 -->
 <div class="eyebrow" id="s4">Scene 4</div>
 <h2>Scores are tangent to the model</h2>
-<p>Put each density at the point <span class="m">√p</span> so that every distribution lies on the unit sphere of L₂. A path through the model is a curve on the sphere; its velocity at <span class="m">p</span> is <span class="m">h√p</span>, tangent to the sphere and so orthogonal to <span class="m">√p</span>. That orthogonality is exactly <span class="m">E<sub>P</sub>[h] = 0</span>. The set of all such velocities is the tangent space 𝒯 at <span class="m">P</span>; it changes as <span class="m">P</span> moves, and it gets bigger as the model gets bigger.</p>
+<p>Put each density at the point <span class="m">√p</span> so that every distribution lies on the unit sphere of L₂. A path through the model is a curve on the sphere; its velocity at <span class="m">p</span> is <span class="m">½h√p</span>, tangent to the sphere and so orthogonal to <span class="m">√p</span>. That orthogonality is exactly <span class="m">E<sub>P</sub>[h] = 0</span>. The closed linear span of the path scores is the tangent space 𝒯 at <span class="m">P</span>; it changes as <span class="m">P</span> moves, and it gets bigger as the model gets bigger.</p>
 <div class="scene">
   <div class="paper"><canvas id="c4" width="800" height="460"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p4">Play</button></div>
     <label>Where p sits in the model <span class="v" id="v4">0.35</span><input type="range" id="t4" min="0" max="1" step="0.005" value="0.35"></label>
-    <label>Size of the model (RCT → observational) <span class="v" id="v4m">1.00</span><input type="range" id="m4" min="0.25" max="1" step="0.01" value="1"></label>
-    <div class="note">In an RCT the treatment mechanism is known, so paths can't move it: the tangent space is missing those directions. Observational data adds them. A bigger tangent space means the efficient influence function has more to be orthogonal to, and the efficiency bound gets larger.</div>
+    <label>Illustrated width of the tangent plane <span class="v" id="v4m">1.00</span><input type="range" id="m4" min="0.25" max="1" step="0.01" value="1"></label>
+    <div class="note">In an RCT the treatment mechanism is known, so paths can't move it: the tangent space is missing those directions. Observational data adds them. At the same observed law, enlarging a model can increase the bound or leave it unchanged. For the population ATE, the EIF is already orthogonal to treatment-mechanism scores: knowing the propensity alone leaves its bound unchanged. Changing the actual assignment probabilities changes the law and can change the bound.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>Scores are the velocities of paths through P; they live in the tangent space, which is the plane touching the sphere at √p. Knowing the propensity in a trial removes directions from that plane, which is why trials have a smaller efficiency bound.</div>
+<div class="say"><b>In one sentence</b>Scores are the velocities of paths through P; they live in the tangent space, whose finite-dimensional illustration is a plane touching the sphere at √p. Knowing the propensity removes directions. Whether the bound changes depends on the target; for the population ATE at the same law it does not.</div>
 
 <!-- SCENE 5 -->
 <div class="eyebrow" id="s5">Scene 5</div>
-<h2>All influence functions form a line; the efficient one is its projection onto the tangent space</h2>
-<p>Any two influence functions of a regular estimator have the same covariance with every score, so their difference is orthogonal to 𝒯. The set Φ of influence functions is therefore a line parallel to 𝒯<sup>⊥</sup>. It meets 𝒯 in exactly one point, <span class="m">ϕ<sup>†</sup></span>, and by Pythagoras that point has the smallest norm, which is the smallest variance. That's the efficiency bound.</p>
+<h2>Gradients form an affine set; projection finds its shortest member</h2>
+<p>Any two influence functions of a regular estimator have the same covariance with every score, so their difference is orthogonal to 𝒯. The set Φ of mean-zero gradients is therefore D* + 𝒯<sup>⊥</sup>. It is a line only when that orthogonal complement is one dimensional, as drawn here. It meets 𝒯 in exactly one point, <span class="m">ϕ<sup>†</sup></span>, and by Pythagoras that point has the smallest norm, which is the smallest variance. That's the efficiency bound.</p>
 <div class="scene">
   <div class="paper"><canvas id="c5" width="800" height="460"></canvas><div class="cap" id="cap5"></div></div>
   <div class="ctl">
@@ -140,7 +102,7 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 6 -->
 <div class="eyebrow" id="s6">Scene 6</div>
 <h2>Plug-in bias, and one step to remove it</h2>
-<p>Fit nuisances, get <span class="m">P̂</span>, evaluate <span class="m">ψ(P̂)</span>: the plug-in. Walk the straight path from <span class="m">P̂</span> to the truth <span class="m">P</span> and lift it: the curve is <span class="m">ψ(P̂ + ε(P − P̂))</span>. Its tangent at <span class="m">P̂</span> has slope <span class="m">−Pϕ̂</span>, which you cannot compute, and sample slope <span class="m">−P<sub>n</sub>ϕ̂</span>, which you can. Add the sample slope back and the first-order bias is gone. Three gaps remain visible: plug-in bias (removed), empirical process (order n<sup>−1/2</sup>), second-order remainder (order of the squared nuisance error).</p>
+<p>Fit nuisances, get <span class="m">P̂</span>, evaluate <span class="m">ψ(P̂)</span>: the plug-in. Walk the straight path from <span class="m">P̂</span> to the truth <span class="m">P</span> and lift it: the curve is <span class="m">ψ(P̂ + ε(P − P̂))</span>. Its tangent at <span class="m">P̂</span> has slope <span class="m">Pϕ̂</span>, which you cannot compute, and sample slope <span class="m">P<sub>n</sub>ϕ̂</span>, which you can. Add the sample slope back and the first-order bias is gone. Three gaps remain visible: plug-in bias (removed), empirical process (order n<sup>−1/2</sup>), second-order remainder (order of the squared nuisance error).</p>
 <div class="scene">
   <div class="paper"><canvas id="c6" width="800" height="560"></canvas><div class="cap" id="cap6"></div></div>
   <div class="ctl">
@@ -149,15 +111,15 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <label>Nuisance error, ‖P̂ − P‖ <span class="v" id="v6d">0.70</span><input type="range" id="d6" min="0.15" max="1" step="0.01" value="0.7"></label>
     <label>Sample size n <span class="v" id="v6n">200</span><input type="range" id="n6" min="30" max="3000" step="10" value="200"></label>
     <div class="readout" id="ro6"></div>
-    <div class="note">Halve the nuisance error: the first-order term halves, the remainder quarters. That asymmetry is why nuisances at n<sup>−1/4</sup> deliver a target at n<sup>−1/2</sup>.</div>
+    <div class="note">Halve the nuisance error: the first-order term halves, the remainder quarters. Efficient centered inference needs R₂=oₚ(n<sup>−1/2</sup>). Two errors exactly n<sup>−1/4</sup> do not by themselves meet that condition.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The plug-in sits on a curve; its first-order error is minus the mean of the influence function at the estimate. I estimate that mean with the sample and add it back: that's the one-step, and for the ATE it's AIPW. What's left is an empirical-process term at root-n and a remainder that is second order in the nuisance error.</div>
+<div class="say"><b>In one sentence</b>The plug-in sits on a curve; its first-order error is minus the mean of the influence function at the estimate. Estimate that mean with the sample and add it back: that is the one-step, and for the ATE it is AIPW. What's left is an empirical-process term at root-n and a remainder that is second order in the nuisance error.</div>
 
 <!-- SCENE 7 -->
 <div class="eyebrow" id="s7">Scene 7</div>
 <h2>Double robustness is a rectangle</h2>
-<p>For the ATE the remainder is <span class="m">R<sub>2</sub> = ∫ (π̂ − π)(μ̂ − μ) / π̂ dP</span>, so up to constants it's bounded by the product of the two nuisance errors: the area of a rectangle whose sides are ‖π̂ − π‖ and ‖μ̂ − μ‖. Set either side to zero and the area is zero regardless of the other: that's double robustness. Let both sides shrink like n<sup>−1/4</sup> and the area shrinks like n<sup>−1/2</sup>: that's the rate condition.</p>
+<p>For the ATE, using Ψ(P̂)−Ψ(P₀)=−P₀D*(P̂)+R₂, the remainder is E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ+(m̂₀−m₀₀)/(1−ĝ)}]. With inverse propensities bounded, its magnitude is bounded by a constant times the product of nuisance L² errors. The rectangle depicts that magnitude bound, not the signed exact remainder. Exactly n<sup>−1/4</sup> errors give a product at the same order as sampling error; efficient inference needs a negligible product or a sharper argument.</p>
 <div class="scene">
   <div class="paper"><canvas id="c7" width="800" height="460"></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
@@ -165,7 +127,7 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <label>Propensity error ‖π̂ − π‖ <span class="v" id="v7a">0.60</span><input type="range" id="a7" min="0" max="1" step="0.01" value="0.6"></label>
     <label>Outcome-model error ‖μ̂ − μ‖ <span class="v" id="v7b">0.50</span><input type="range" id="b7" min="0" max="1" step="0.01" value="0.5"></label>
     <div class="readout" id="ro7"></div>
-    <div class="note">The plug-in's error, by contrast, is a single side: the whole of ‖μ̂ − μ‖, at the outcome model's own rate. That's why a regularized outcome model alone can't give √n inference and a corrected one can.</div>
+    <div class="note">The plug-in's error, by contrast, is a single side: the whole of ‖μ̂ − μ‖, at the outcome model's own rate. That's why a slow biased outcome fit alone need not justify √n inference. The correction helps under additional conditions.</div>
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The remainder is a product of nuisance errors. If either is exactly right the product is zero, which is double robustness; if both converge faster than n to the minus one-quarter, the product is smaller than n to the minus one-half, which is what makes the estimator asymptotically linear and efficient.</div>
@@ -173,34 +135,22 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 8 -->
 <div class="eyebrow" id="s8">Scene 8</div>
 <h2>TMLE walks through the model; the one-step jumps in ψ</h2>
-<p>Same landscape as scene 1. The efficient influence function at a point is the gradient: perpendicular to the level curves, the direction of fastest change in ψ per unit likelihood. That's the least-favorable direction. TMLE starts at <span class="m">P̂</span>, moves along the current gradient by the <span class="m">ε̂</span> that solves the score equation on that line, recomputes the gradient, and repeats until <span class="m">P<sub>n</sub>ϕ<sub>P̃</sub> = 0</span>. Then it plugs in. The one-step never moves in 𝓜 at all; it corrects the number. With straight level curves they agree exactly; with curvature they differ by a second-order amount.</p>
+<p>Here is a fully specified finite model: Z follows N₂(θ,I), and Ψ(θ)=2+0.9θ₁+0.5θ₂+c(0.6θ₁²−0.7θ₁θ₂+0.2θ₂²). Its EIF is ∇Ψ(θ)·(Z−θ). The information metric on θ is Euclidean. A line θ+ε∇Ψ(θ) is locally least favorable, and Gaussian likelihood gives ε̂=∇Ψ(θ)·(Z̄−θ)/‖∇Ψ(θ)‖². Fit that line once, or recompute the direction and iterate until the current EIF equation is small. The point labelled Pₙ represents its sufficient statistic Z̄ in this model, not an empirical density in the Gaussian family.</p>
 <div class="scene">
   <div class="paper"><canvas id="c8" width="800" height="560"></canvas><div class="cap" id="cap8"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p8">Play</button><button id="st8">One step</button><button id="r8">Reset</button></div>
     <label>Curvature of ψ <span class="v" id="v8c">0.60</span><input type="range" id="c8s" min="0" max="1" step="0.01" value="0.6"></label>
-    <label><span>Path: <select id="mode8" style="font:inherit"><option value="universal">universally least favorable (re-aim each step)</option><option value="fixed">fixed direction (aim once at P̂)</option></select></span></label>
+    <label><span>Path: <select id="mode8" style="font:inherit"><option value="universal">iterated local submodels (re-aim each step)</option><option value="fixed">one local submodel (fit once at P̂)</option></select></span></label>
     <div class="readout" id="ro8"></div>
-    <div class="note">The fixed-direction path is the classic one-dimensional submodel through P̂ with score ϕ̂; the universal path re-aims at every point so its score is always the current EIF. Both end where the empirical score equation is solved.</div>
+    <div class="note">A single line fit zeros its own likelihood score. For nonlinear Ψ it need not zero the updated EIF. Iterating local Gaussian line fits targets that updated equation; this is not labelled a universal submodel. Equality with the one-step when c=0 is specific to this Gaussian linear-target example.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable submodel until the empirical mean of the efficient influence function is zero, then plugs in. Same first-order correction as the one-step, applied to the distribution instead of to the number, so the estimate stays inside the parameter space.</div>
+<div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable submodel until the empirical mean of the efficient influence function is zero, then plugs in. The one-step never moves in 𝓜 at all; it corrects the number. TMLE applies the same first-order correction to the distribution instead, so the estimate stays inside the parameter space.</div>
 
 <!-- SCENE 9 -->
 <div class="eyebrow" id="s9">Scene 9</div>
-<h2>Inference: the sampling distribution you were promised</h2>
-<p>Repeat the whole procedure on many samples. The plug-in's distribution sits at its bias; the one-step's sits on the truth with sd matching √(Var ϕ / n), and the influence-function standard error gives intervals with nominal coverage. This is the end of the roadmap: a known sampling distribution and the smallest variance any regular estimator can have.</p>
-<div class="scene">
-  <div class="paper"><canvas id="c9" width="800" height="400"></canvas><div class="cap" id="cap9"></div></div>
-  <div class="ctl">
-    <div class="btns"><button class="primary" id="p9">Run 300 samples</button></div>
-    <label>Sample size n <span class="v" id="v9n">400</span><input type="range" id="n9" min="100" max="2000" step="100" value="400"></label>
-    <label>Outcome-model shrinkage λ <span class="v" id="v9l">0.50</span><input type="range" id="l9" min="0" max="1" step="0.05" value="0.5"></label>
-    <div class="readout" id="ro9"></div>
-  </div>
-</div>
-<div class="say"><b>In one sentence</b>Because the estimator is asymptotically linear with the efficient influence function, its standard error is the empirical sd of the influence function over root n, and the intervals cover at the nominal rate. The plug-in has neither property.</div>
-
+<h2>Inference: test the assumptions behind the promise</h2><p>Bias, variance and coverage need separate checks. One correct nuisance model can give consistency without efficiency. Try the four correctness cases and compare the empirical spread with the efficient bound; fitted-nuisance intervals can also fail under misspecification.</p><div class="lab-card" data-simulation="efficiency"></div>
 <p class="src">Geometry follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a>, ch. 3–4; the influence-function projection picture is Tsiatis's; the rectangle in scene 7 is the Cauchy–Schwarz bound on the ATE remainder as in Kennedy's notes and Chernozhukov et al. (2018).</p>
 </div>
 
@@ -230,10 +180,8 @@ function contours(g,X,Y,psi,levels,clipPts,labelCol){g.save();g.beginPath();clip
     if(pts.length>1){poly(g,pts,C.grid,1.2);if(labelCol){const m=pts[Math.floor(pts.length*0.22)];txt(g,lv.toFixed(1),m[0],m[1]-7,labelCol,11,'center',FM);}}}
   g.restore();}
 // scene scaffolding
-function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={cv,g,t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
-  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||7000;const t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
-  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
-  const pb=document.getElementById('p'+id);if(pb&&!(opts&&opts.noplay))pb.onclick=S.play;return S;}
+function scene(id,draw,opts){return CausalVisuals.scene(id,draw,{...opts,parameter:id===4||id===5});}
+
 function bind(id,label,fmt,cb){const el=document.getElementById(id);const lab=document.getElementById(label);const f=()=>{lab.textContent=fmt(+el.value);cb();};el.oninput=f;lab.textContent=fmt(+el.value);}
 
 // ============ shared landscape ============
@@ -342,10 +290,10 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const tt=+document.getElementById('t4'
   if(rt>=1){const m=12;const cx1=px-Math.cos(a)*m,cy1=py-Math.sin(a)*m;poly(g,[[cx1,cy1],[cx1+tx*m,cy1+ty*m],[px+tx*m,py+ty*m]],C.pen,1.2);}
   // scores
   const st=seg(t,0.45,1);const sc=[[0.9,0],[-0.6,0.5],[0.35,-0.7]];sc.forEach((s,i)=>{const k=clamp(st*3-i,0,1);if(k>0){const ex=px+(tx*L*s[0]+e2[0]*s[1])*k,ey=py+(ty*L*s[0]+e2[1]*s[1])*k;arrow(g,px,py,ex,ey,C.green,2);}});
-  if(st>=1)txt(g,'h·√p',px+tx*L*0.9+12,py+ty*L*0.9-12,C.green,14,'left',FS,true);
+  if(st>=1)txt(g,'½h·√p',px+tx*L*0.9+12,py+ty*L*0.9-12,C.green,14,'left',FS,true);
   dot(g,px,py,C.pen,5,true);txt(g,'√p',px+Math.cos(a)*22+8,py+Math.sin(a)*22-12,C.pen,16,'left',FS,true);
   txt(g,'⟨h√p, √p⟩ = ∫ h p = E[h] = 0',540,60,C.pen,13.5,'left',FM);txt(g,'scores are mean zero ⇔',540,84,C.muted,12.5,'left');txt(g,'velocities are tangent to the sphere',540,100,C.muted,12.5,'left');
-  document.getElementById('cap4').textContent=msize<0.6?'A smaller model (the propensity is known): fewer directions to move in, a thinner tangent space.':'Drag p along the model: the tangent plane turns with it. Scores at different distributions are different functions.';
+  document.getElementById('cap4').textContent=msize<0.6?'The displayed width is schematic. A vector space has directions and dimension, not a bounded width. Use the finite-probability lab to remove a direction exactly.':'Drag p along the model: the tangent plane turns with it. Scores at different distributions are different functions.';
 });
 bind('t4','v4',v=>v.toFixed(2),()=>S4.draw());bind('m4','v4m',v=>v.toFixed(2),()=>S4.draw());
 
@@ -378,20 +326,20 @@ const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const dist=+document.getElementById('d
   dot(g,Ph[0],Ph[1],C.phat,6,true);txt(g,'P̂',Ph[0]-4,Ph[1]+22,C.phat,18,'center',FS,true);
   if(tt>=1){dot(g,P[0],P[1],C.p,6,true);txt(g,'P',P[0]+16,P[1]-4,C.p,18,'left',FS,true);const nz=80/Math.sqrt(n);const Pn=[P[0]+nz*0.8,P[1]-nz*0.9];dot(g,Pn[0],Pn[1],C.teal,4,true);txt(g,'Pₙ',Pn[0]+8,Pn[1]-10,C.teal,14,'left',FS,true);}
   const L=190,R=610,T=40,B=350;line(g,L,B,R+30,B,C.pen,1.3);line(g,L,B,L,T-10,C.pen,1.3);txt(g,'ψ',L-16,T-2,C.pen,20,'center',FS,true);txt(g,'ε',R+40,B+4,C.pen,16,'left',FS,true);txt(g,'0',L,B+16,C.phat,13,'center',FM);txt(g,'1',R,B+16,C.p,13,'center',FM);
-  const xs=e=>L+(R-L)*e;const truthY=B-70,first=dist*150,rem=dist*dist*95,plugY=truthY-first-rem;const psiY=e=>plugY+first*e+rem*e*e;
+  const xs=e=>L+(R-L)*e;const truthY=B-70,first=dist*150,rem=dist*dist*95,plugY=truthY+first+rem;const psiY=e=>plugY-first*e-rem*e*e;
   line(g,xs(0),B,Ph[0],Ph[1]-6,C.phat,1,[3,4]);if(tt>=1)line(g,xs(1),B,P[0],P[1]+6,C.p,1,[3,4]);
   const ct=seg(t,0.1,0.45);const cp=[];for(let k=0;k<=80;k++){const e=k/80*ct;cp.push([xs(e),psiY(e)]);}if(cp.length>1)poly(g,cp,C.pen,2.4);
   line(g,L,plugY,R,plugY,C.phat,1,[3,4]);dot(g,xs(0),plugY,C.phat,6,true);txt(g,'ψ(P̂)',L-14,plugY,C.phat,17,'right',FS,true);
   if(ct>=1){line(g,L,truthY,R,truthY,C.p,1,[3,4]);dot(g,xs(1),truthY,C.p,6,true);txt(g,'ψ(P)',L-14,truthY,C.p,17,'right',FS,true);}
-  const tan=seg(t,0.5,0.68);if(tan>0){line(g,xs(0),plugY,xs(tan),plugY+first*tan,C.or,2);txt(g,'slope −Pϕ̂',xs(0.22),plugY+first*0.22-16,C.or,13,'center',FS,true);}
-  const sl2=first*(1+0.45*noise6*Math.sqrt(200/n));const tan2=seg(t,0.68,0.85);if(tan2>0){line(g,xs(0),plugY,xs(tan2),plugY+sl2*tan2,C.teal,2);txt(g,'slope −Pₙϕ̂',xs(0.6),plugY+sl2*0.6-16,C.teal,13,'center',FS,true);}
-  const bcY=plugY+sl2,popY=plugY+first;
+  const tan=seg(t,0.5,0.68);if(tan>0){line(g,xs(0),plugY,xs(tan),plugY-first*tan,C.or,2);txt(g,'slope Pϕ̂',xs(0.22),plugY-first*0.22-16,C.or,13,'center',FS,true);}
+  const sl2=first*(1+0.45*noise6*Math.sqrt(200/n));const tan2=seg(t,0.68,0.85);if(tan2>0){line(g,xs(0),plugY,xs(tan2),plugY-sl2*tan2,C.teal,2);txt(g,'slope Pₙϕ̂',xs(0.6),plugY-sl2*0.6-16,C.teal,13,'center',FS,true);}
+  const bcY=plugY-sl2,popY=plugY-first;
   if(tan2>=1){dot(g,xs(1),bcY,C.teal,5,true);txt(g,'ψ̂⁽¹⁾ = ψ(P̂) + Pₙϕ̂',L-14,bcY+(Math.abs(bcY-plugY)<22?22:0),C.teal,15,'right',FS,true);line(g,L,bcY,R,bcY,C.teal,1,[3,4]);line(g,L,popY,R,popY,C.or,1,[3,4]);}
   if(t>0.9){const bxx=R+48;bracket(g,bxx,plugY,truthY,C.phat);txt(g,'plug-in bias',bxx+10,(plugY+truthY)/2,C.pen,12.5,'left');
     bracket(g,bxx+72,popY,bcY,C.teal);txt(g,'empirical process',bxx+80,Math.min(popY,bcY)-10,C.teal,12.5,'left');
     bracket(g,bxx+120,popY,truthY,C.or);txt(g,'second-order remainder',bxx+128,Math.max(popY,truthY)+12,C.or,12.5,'left');}
-  const U=150;document.getElementById('ro6').innerHTML=`<span class="k">plug-in bias</span><span>${((first+rem)/U).toFixed(3)}</span><span class="k">first order</span><span>${(first/U).toFixed(3)} ∝ δ</span><span class="k">remainder</span><span>${(rem/U).toFixed(3)} ∝ δ²</span><span class="k">emp. process</span><span>${(Math.abs(sl2-first)/U).toFixed(3)} ∝ 1/√n</span>`;
-  document.getElementById('cap6').textContent=t<0.3?'Walk from the estimate P̂ toward the truth P inside the model.':t<0.5?'Lift the path: every point on it has a value of ψ.':t<0.68?'The tangent at P̂ has slope −Pϕ̂, the pathwise derivative toward the truth. Unknown.':t<0.9?'Its sample version −Pₙϕ̂ is computable. Extend it to ε = 1: the one-step estimator.':'Plug-in bias removed. Empirical process shrinks with n. The remainder is the curvature, second order in the nuisance error.';
+  const U=150;document.getElementById('ro6').innerHTML=`<span class="k">plug-in bias magnitude</span><span>${((first+rem)/U).toFixed(3)}</span><span class="k">first order</span><span>${(first/U).toFixed(3)} ∝ δ</span><span class="k">remainder</span><span>${(rem/U).toFixed(3)} ∝ δ²</span><span class="k">emp. process</span><span>${(Math.abs(sl2-first)/U).toFixed(3)} ∝ 1/√n</span>`;
+  document.getElementById('cap6').textContent=t<0.3?'Walk from the estimate P̂ toward the truth P inside the model.':t<0.5?'Lift the path: every point on it has a value of ψ.':t<0.68?'The tangent at P̂ has slope Pϕ̂, the pathwise derivative toward the truth. Unknown.':t<0.9?'Its sample version Pₙϕ̂ is computable. Extend it to ε = 1: the one-step estimator.':'Plug-in bias removed. Empirical process shrinks with n. The remainder is the curvature, second order in the nuisance error.';
 },{dur:8000});
 document.getElementById('p6').onclick=()=>{noise6=(Math.random()-0.5)*2;S6.play();};
 bind('d6','v6d',v=>v.toFixed(2),()=>S6.draw());bind('n6','v6n',v=>v,()=>S6.draw());
@@ -401,10 +349,10 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7')
   const L=90,B=380,S=260;line(g,L,B,L+S+30,B,C.pen,1.4);line(g,L,B,L,B-S-30,C.pen,1.4);txt(g,'‖π̂ − π‖',L+S+10,B+22,C.pen,14,'right',FS,true);txt(g,'‖μ̂ − μ‖',L-8,B-S-20,C.pen,14,'left',FS,true);
   const rt=seg(t,0,0.4);const aw=a*S*rt,bh=b*S*rt;
   g.fillStyle=C.or;g.globalAlpha=0.22;g.fillRect(L,B-bh,aw,bh);g.globalAlpha=1;poly(g,[[L,B],[L+aw,B],[L+aw,B-bh],[L,B-bh]],C.or,1.8,null,true);
-  txt(g,'R₂ ≲ area',L+aw/2,B-bh/2,C.or,15,'center',FS,true);
+  txt(g,'|R₂| ≲ area',L+aw/2,B-bh/2,C.or,15,'center',FS,true);
   txt(g,a.toFixed(2),L+aw,B+16,C.muted,11,'center',FM);txt(g,b.toFixed(2),L-10,B-bh,C.muted,11,'right',FM);
   // plug-in comparison: the full side
-  const pt=seg(t,0.35,0.6);if(pt>0){g.fillStyle=C.phat;g.globalAlpha=0.9;g.fillRect(L-34,B-b*S*pt,8,b*S*pt);g.globalAlpha=1;txt(g,'plug-in error ∝ ‖μ̂ − μ‖ alone',L+aw+14,B-b*S+8,C.phat,12,'left');}
+  const pt=seg(t,0.35,0.6);if(pt>0){g.fillStyle=C.phat;g.globalAlpha=0.9;g.fillRect(L-34,B-b*S*pt,8,b*S*pt);g.globalAlpha=1;txt(g,'plug-in error bounded by outcome error',L+aw+14,B-b*S+8,C.phat,12,'left');}
   // right: rate panel
   const RL=470,RR=770,RT=70,RB=380;const rr=seg(t,0.55,1);if(rr>0){line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'n',RR+8,RB,C.pen,14,'left',FS,true);txt(g,'error',RL-6,RT-14,C.pen,13,'left',FS,true);
     const ns=[100,200,400,800,1600,3200,6400];const xN=i=>RL+(RR-RL)*(i+0.5)/ns.length;const yE=e=>RB-(RB-RT)*e/0.35;
@@ -412,18 +360,15 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7')
     series.forEach(([lab,f,col],k)=>{const pts=[];for(let i=0;i<ns.length*rr;i++)pts.push([xN(i),yE(f(i))]);if(pts.length>1)poly(g,pts,col,2,k===2?[5,4]:null);txt(g,lab,RR-4,RT+16+k*17,col,12,'right',FM);});
     for(let i=0;i<ns.length;i+=2)txt(g,ns[i],xN(i),RB+14,C.muted,10.5,'center',FM);}
   const area=a*b;document.getElementById('ro7').innerHTML=`<span class="k">‖π̂−π‖·‖μ̂−μ‖</span><span>${area.toFixed(3)}</span><span class="k">plug-in ∝</span><span>${b.toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span>`;
-  document.getElementById('cap7').textContent=t<0.35?'The remainder is bounded by the product of the two nuisance errors: the area of this rectangle.':t<0.55?'The plug-in has no such luck: its error is one full side, the outcome model\'s own error.':'Rates: nuisances at n^−1/4 (green) make the product n^−1/2 (orange), the same order as sampling error (teal). The correction stops the remainder from dominating.';
+  document.getElementById('cap7').textContent=t<0.35?'The remainder is bounded by the product of the two nuisance errors: the area of this rectangle.':t<0.55?'A plug-in error can be bounded by outcome error; cancellation or a faster target rate is possible.':'Rates: nuisances at n^−1/4 (green) make the product n^−1/2 (orange), the same order as sampling error (teal). At this boundary the scaled remainder need not vanish; faster combined rates are needed for centered efficient inference.';
 });
 bind('a7','v7a',v=>v.toFixed(2),()=>S7.draw());bind('b7','v7b',v=>v.toFixed(2),()=>S7.draw());
 
 // ============ SCENE 8 ============
 let shown8=0,path8=[];
 const Ph8=[-0.62,-0.28],P8=[0.45,0.35],Pn8=[0.52,0.22];
-function tmle8(){const c=+document.getElementById('c8s').value,mode=document.getElementById('mode8').value;const pts=[[...Ph8]];let cur=[...Ph8];const g0=LAND.grad(Ph8[0],Ph8[1],c);
-  for(let k=0;k<14;k++){const gcur=mode==='fixed'?g0:LAND.grad(cur[0],cur[1],c);const d=[Pn8[0]-cur[0],Pn8[1]-cur[1]];
-    // choose eps to zero the score of the CURRENT eif along the line (linearized)
-    const ge=LAND.grad(cur[0],cur[1],c);const eps=(d[0]*ge[0]+d[1]*ge[1])/(gcur[0]*ge[0]+gcur[1]*ge[1]);if(Math.abs(eps)<1e-4)break;cur=[cur[0]+eps*gcur[0],cur[1]+eps*gcur[1]];pts.push([...cur]);}
-  return pts;}
+function tmle8(){return CausalScience.landscapeTarget(Ph8,Pn8,+document.getElementById('c8s').value,document.getElementById('mode8').value==='fixed').path;}
+
 const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('c8s').value;
   const bx=400,by=250,rx=330,ry=190,X=u=>bx+u*rx*0.85,Y=v=>by-v*ry*0.85;const bp=blob(bx,by,rx,ry,17);const psi=(u,v)=>LAND.psi(u,v,c);
   const lv=[];for(let l=0.6;l<=3.8;l+=0.2)lv.push(l);contours(g,X,Y,psi,lv,bp,C.muted);poly(g,bp,C.pen,1.8,null,true);txt(g,'𝓜',bx+rx*0.86,by-ry*0.92,C.pen,22,'left',FS,true);
@@ -441,41 +386,26 @@ const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('c8s'
   line(g,nx(psiP),NL-24,nx(psiP),NL+8,C.p,2);txt(g,'ψ(P)',nx(psiP),NL-34,C.p,13,'center',FS,true);
   dot(g,nx(psiPh),NL,C.phat,6,true);txt(g,'plug-in',nx(psiPh),NL+34,C.phat,13,'center',FS,true);
   arrow(g,nx(psiPh),NL-14,nx(os),NL-14,C.teal,1.6);dot(g,nx(os),NL,C.teal,5,true);txt(g,'one-step (jump)',nx(os)+(psiT<os?10:-10),NL+34,C.teal,13,psiT<os?'left':'right',FS,true);
-  if(show>0){dot(g,nx(psi(...cur)),NL,C.purple,6,true);}if(show>=path8.length-1)txt(g,'TMLE ψ(P̂*)',nx(psiT)+(psiT<os?-10:10),NL-52,C.purple,13,psiT<os?'right':'left',FS,true);
+  if(show>0){dot(g,nx(psi(...cur)),NL,C.purple,6,true);}if(show>=path8.length-1)txt(g,'updated plug-in ψ(P̂*)',nx(psiT)+(psiT<os?-10:10),NL-52,C.purple,13,psiT<os?'right':'left',FS,true);
   const score=gc[0]*(Pn8[0]-cur[0])+gc[1]*(Pn8[1]-cur[1]);
-  document.getElementById('ro8').innerHTML=`<span class="k">step</span><span>${show} / ${path8.length-1}</span><span class="k">Pₙϕ at P̃</span><span>${score.toFixed(4)}</span><span class="k">ψ(P̃) now</span><span>${psi(...cur).toFixed(3)}</span><span class="k">one-step</span><span>${os.toFixed(3)}</span><span class="k">TMLE</span><span>${psiT.toFixed(3)}</span><span class="k">ψ(P)</span><span>${psiP.toFixed(3)}</span>`;
-  document.getElementById('cap8').textContent=shown8===0?'The green field is the efficient influence function at each point: the gradient of ψ, the hardest direction. Start at P̂.':show<path8.length-1?'Move along the current direction by the ε̂ that zeroes the score on that line; then re-aim.':'Stop when Pₙϕ at the current distribution is zero and plug in. The one-step corrected the number without ever leaving P̂.';
-},{noplay:true});
+  document.getElementById('ro8').innerHTML=`<span class="k">step</span><span>${show} / ${path8.length-1}</span><span class="k">Pₙϕ at P̃</span><span>${score.toFixed(4)}</span><span class="k">ψ(P̃) now</span><span>${psi(...cur).toFixed(3)}</span><span class="k">one-step</span><span>${os.toFixed(3)}</span><span class="k">updated plug-in</span><span>${psiT.toFixed(3)}</span><span class="k">ψ(P)</span><span>${psiP.toFixed(3)}</span>`;
+  document.getElementById('cap8').textContent=shown8===0?'The green field is the efficient influence function at each point: the gradient of ψ, the hardest direction. Start at P̂.':show<path8.length-1?'Move along the current direction by the ε̂ that zeroes the score on that line; then re-aim.':(document.getElementById('mode8').value==='fixed'?'One line fit has finished. Inspect the updated EIF score: with curvature it may still be nonzero.':'The iterated fits stop when the updated EIF score is small. The one-step corrects the number directly.');
+},{noplay:true,onT:t=>{shown8=Math.floor(t*Math.max(1,path8.length-1));}});
 document.getElementById('st8').onclick=()=>{shown8=Math.min(shown8+1,path8.length-1);S8.draw();};
 document.getElementById('r8').onclick=()=>{shown8=0;S8.draw();};
-let raf8;document.getElementById('p8').onclick=()=>{cancelAnimationFrame(raf8);shown8=0;S8.draw();let k=0;const tick=()=>{k++;if(k%(reduce?1:50)===0){shown8++;S8.draw();}if(shown8<path8.length-1)raf8=requestAnimationFrame(tick);};raf8=requestAnimationFrame(tick);};
+document.getElementById('p8').onclick=S8.play;
 bind('c8s','v8c',v=>v.toFixed(2),()=>{shown8=0;S8.draw();});document.getElementById('mode8').onchange=()=>{shown8=0;S8.draw();};
 
-// ============ SCENE 9 ============
-function expit(z){return 1/(1+Math.exp(-z));}
-function gen(n){const X=new Float64Array(n),A=new Uint8Array(n),Y=new Float64Array(n);for(let i=0;i<n;i++){const x=-2+4*Math.random();X[i]=x;const a=Math.random()<expit(0.9*x)?1:0;A[i]=a;Y[i]=0.5+x+0.6*x*x+a*(2+0.4*x)+0.8*randn();}return {X,A,Y,n};}
-function ols(d){const n=d.n;let S=[[0,0,0],[0,0,0],[0,0,0]],r=[0,0,0];for(let i=0;i<n;i++){const v=[1,d.X[i],d.A[i]];for(let a=0;a<3;a++){r[a]+=v[a]*d.Y[i];for(let b=0;b<3;b++)S[a][b]+=v[a]*v[b];}}const M=S.map((row,i)=>[...row,r[i]]);for(let c=0;c<3;c++){let p=c;for(let k=c+1;k<3;k++)if(Math.abs(M[k][c])>Math.abs(M[p][c]))p=k;[M[c],M[p]]=[M[p],M[c]];for(let k=0;k<3;k++){if(k===c)continue;const f=M[k][c]/M[c][c];for(let j=c;j<4;j++)M[k][j]-=f*M[c][j];}}return [M[0][3]/M[0][0],M[1][3]/M[1][1],M[2][3]/M[2][2]];}
-function est(d,lam){const b=ols(d),bA=(1-lam)*b[2];let plug=0,corr=0;const phi=new Float64Array(d.n);for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];const m1=b[0]+b[1]*x+bA,m0=b[0]+b[1]*x,p=expit(0.9*x);const c=a?(y-m1)/p:-(y-m0)/(1-p);plug+=m1-m0;corr+=c;phi[i]=m1-m0+c;}plug/=d.n;corr/=d.n;const os=plug+corr;let v=0;for(let i=0;i<d.n;i++)v+=(phi[i]-os)**2;v/=(d.n-1);return {plug,os,se:Math.sqrt(v/d.n)};}
-let R9=null;
-function run9(){const n=+document.getElementById('n9').value,l=+document.getElementById('l9').value;const P=[],O=[];let cov=0,covP=0;for(let r=0;r<300;r++){const e=est(gen(n),l);P.push(e.plug);O.push(e.os);if(Math.abs(e.os-2)<1.96*e.se)cov++;if(Math.abs(e.plug-2)<1.96*e.se)covP++;}
-  const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1));};R9={P,O,mP:mean(P),mO:mean(O),sP:sd(P),sO:sd(O),cov:cov/300,covP:covP/300,n};S9.draw();}
-const S9=scene(9,(g,W,H,t)=>{clear(g,W,H);if(!R9){txt(g,'Press "Run 300 samples".',W/2,H/2,C.muted,14,'center');return;}
-  const L=60,R=760,T=50,B=330,lo=0.8,hi=3.2,bins=60;const hist=a=>{const h=new Array(bins).fill(0);for(const v of a){const b=Math.floor((v-lo)/(hi-lo)*bins);if(b>=0&&b<bins)h[b]++;}return h;};const hP=hist(R9.P),hO=hist(R9.O);const mx=Math.max(...hP,...hO,1);const xs=v=>L+(R-L)*(v-lo)/(hi-lo),ys=c=>B-(B-T)*c/mx,bw=(R-L)/bins;
-  for(let b=0;b<bins;b++){const x=xs(lo+b*(hi-lo)/bins);g.globalAlpha=0.5;g.fillStyle=C.phat;g.fillRect(x+1,ys(hP[b]),bw-2,B-ys(hP[b]));g.fillStyle=C.teal;g.fillRect(x+1,ys(hO[b]),bw-2,B-ys(hO[b]));}g.globalAlpha=1;
-  line(g,L,B,R,B,C.pen,1.2);for(let v=1;v<=3;v+=0.5){txt(g,v.toFixed(1),xs(v),B+14,C.muted,11,'center',FM);}
-  line(g,xs(2),T,xs(2),B,C.p,1.6,[5,4]);txt(g,'truth',xs(2),T-10,C.p,13,'center',FS,true);
-  txt(g,'plug-in  mean '+R9.mP.toFixed(2),xs(R9.mP),T+12,C.phat,13,R9.mP<2?'right':'left',FS,true);txt(g,'one-step  mean '+R9.mO.toFixed(2),xs(R9.mO),T+30,C.teal,13,R9.mO<2?'right':'left',FS,true);
-  document.getElementById('ro9').innerHTML=`<span class="k">plug-in bias</span><span>${(R9.mP-2).toFixed(3)}</span><span class="k">one-step bias</span><span>${(R9.mO-2).toFixed(3)}</span><span class="k">one-step sd</span><span>${R9.sO.toFixed(3)}</span><span class="k">95% CI coverage</span><span>${(R9.cov*100).toFixed(0)}% (one-step)</span><span class="k"></span><span>${(R9.covP*100).toFixed(0)}% (plug-in)</span>`;
-  document.getElementById('cap9').textContent=`n = ${R9.n}. The one-step's intervals use sd(ϕ̂)/√n. The plug-in's bias does not shrink with n; its intervals miss.`;
-},{noplay:true});
-document.getElementById('p9').onclick=run9;bind('n9','v9n',v=>v,()=>{});bind('l9','v9l',v=>v.toFixed(2),()=>{});
-
-function all(){readC();[S1,S2,S3,S4,S5,S6,S7,S8,S9].forEach(s=>s.draw());}
+function all(){readC();[S1,S2,S3,S4,S5,S6,S7,S8].forEach(s=>s.draw());}
 all();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
+<script src="../labs/common.js"></script><script src="../labs/simulation.js"></script>
 </body>
 </html>

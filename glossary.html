@@ -1,88 +1,170 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<title>Causality: Symbols</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-</style>
-</head>
-<body>
-<style>
-table.gl{border-collapse:collapse;width:100%;max-width:900px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow:hidden;font-size:14px}
-table.gl th,table.gl td{padding:9px 12px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
-table.gl th{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-table.gl td.sym{font-family:"IBM Plex Mono",monospace;white-space:nowrap;font-size:14px}
-table.gl td.also{font-family:"IBM Plex Mono",monospace;color:var(--muted);font-size:12.5px;white-space:nowrap}
-.back{font-family:"IBM Plex Mono",monospace;font-size:12.5px;margin-bottom:24px;display:inline-block}
-</style>
-<div class="wrap">
-<a class="back" href="index.html">← Causality</a>
-<div class="eyebrow">Reference</div>
-<h1>Symbols</h1>
-<p class="lede">One table for every symbol the lessons use. The standard column is what new pages use; the "also written" column lists older spellings that still appear in some units.</p>
-<table class="gl">
-<thead><tr><th>Standard</th><th>Meaning</th><th>Also written</th></tr></thead>
-<tbody>
-<tr><td class="sym">Z = (X, A, Y)</td><td>One observation: covariates X, treatment A ∈ {0, 1}, outcome Y. A lower-case z is a possible value of Z; z₀ is one specific patient’s value.</td><td class="also">O, (W, A, Y)</td></tr>
-<tr><td class="sym">P</td><td>The true distribution of Z. A point in the space of distributions; the model 𝓜 is the set of points allowed.</td><td class="also">P₀</td></tr>
-<tr><td class="sym">Pₙ</td><td>The empirical distribution: mass 1/n at each observed Zᵢ. Also a point in the same space. Pₙf means the sample average of f.</td><td class="also"></td></tr>
-<tr><td class="sym">P̂</td><td>The initial fit (the plug-in’s distribution), usually from a machine-learned outcome model and propensity.</td><td class="also">Q̂, P̂ₙ</td></tr>
-<tr><td class="sym">ψ(P)</td><td>The target parameter, a map from distributions to numbers. For this chapter, E[μ₁(X)] or the ATE E[μ₁(X) − μ₀(X)].</td><td class="also">Ψ(P), ψ₀</td></tr>
-<tr><td class="sym">μₐ(x) = E[Y | A = a, X = x]</td><td>The outcome regression in arm a. μ̂ₐ is its fit.</td><td class="also">Q̄(a, x), Q̂, mₐ(x)</td></tr>
-<tr><td class="sym">π(x) = P(A = 1 | X = x)</td><td>The propensity score. π̂ is its fit.</td><td class="also">g(x), e(x)</td></tr>
-<tr><td class="sym">D(z) or D_P(z)</td><td>The efficient influence function of ψ at P: the one function with E_P[D·h] = dψ/dε for every score h, mean zero under P. D(P̂) is it evaluated at the fit.</td><td class="also">ϕ(z), ϕ̂, D*(P)(O), EIF</td></tr>
-<tr><td class="sym">H(a, x) = a/π(x) − (1−a)/(1−π(x))</td><td>The clever covariate: the coefficient of the residual Y − μₐ(X) in D. For E[Y(1)] alone it is a/π(x).</td><td class="also">Hₙ, H*(A, W)</td></tr>
-<tr><td class="sym">p_ε = p(1 + εh)</td><td>A path (one-parameter family) through P in direction h. The linear tilt; the exponential tilt ∝ p·exp(εh) is used where large steps are needed.</td><td class="also">P_ε, {P_ε}</td></tr>
-<tr><td class="sym">h(z)</td><td>A score: d/dε log p_ε(z) at ε = 0. Mean zero under P because total mass stays one.</td><td class="also">S(z), score</td></tr>
-<tr><td class="sym">ε</td><td>The step size along a path. In TMLE, the coefficient in μ_ε = μ̂ + εH, fit by maximum likelihood; ε̂ solves PₙD(P̂_ε̂) = 0.</td><td class="also"></td></tr>
-<tr><td class="sym">ψ(P̂) + PₙD(P̂)</td><td>The one-step estimator: plug-in plus the sample mean of the influence function at the fit. Equals AIPW for the ATE.</td><td class="also">ψ̂⁺, ψ̂_OS</td></tr>
-<tr><td class="sym">R₂(P̂, P)</td><td>The second-order remainder in ψ(P̂) − ψ(P) = −P D(P̂) + R₂. For the ATE, a product of the propensity and outcome-model errors.</td><td class="also">R(P̂, P), Rem</td></tr>
-<tr><td class="sym">(Pₙ − P)(D(P̂) − D(P))</td><td>The empirical-process term: a sample average of a function learned from the same sample. Cross-fitting makes it small.</td><td class="also"></td></tr>
-<tr><td class="sym">𝒯, T(P)</td><td>The tangent space: the closure of all scores at P. In a nonparametric model, every mean-zero finite-variance function.</td><td class="also"></td></tr>
-</tbody>
-</table>
-<p style="margin-top:22px" class="note">Units 2, 3, 4 and 7 were written with ϕ for the influence function; newer units use D. They are the same object.</p>
-</div>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Symbols with a job · Causality</title>
+    <link rel="stylesheet" href="shared/labs.css" />
+    <link rel="stylesheet" href="shared/course.css" />
+    <script src="shared/visuals.js"></script>
+  </head>
+  <body>
+    <main class="wrap">
+      <a href="index.html">← Course map</a>
+      <h1>Symbols with a job</h1>
+      <p class="lede">
+        Read a symbol as an action or an object. The same letter can mean
+        different things in different papers; the definitions below are this
+        course's convention.
+      </p>
+      <dl class="glossary-grid">
+        <div>
+          <dt>P₀</dt>
+          <dd>
+            The true probability law generating the observed data. We use it to
+            define the target and evaluate an estimator, but do not know it in
+            real data.
+          </dd>
+        </div>
+        <div>
+          <dt>P</dt>
+          <dd>
+            A generic candidate law. A point in the statistical model, not
+            necessarily the truth.
+          </dd>
+        </div>
+        <div>
+          <dt>Ψ and ψ₀</dt>
+          <dd>
+            Ψ is a map from a probability law to a number. ψ₀=Ψ(P₀) is its true
+            value. These are different kinds of object.
+          </dd>
+        </div>
+        <div>
+          <dt>P̂ and ψ̂</dt>
+          <dd>
+            P̂ is a fitted law (or collection of fitted nuisance components). ψ̂
+            is an estimate of the target. A plug-in is Ψ(P̂).
+          </dd>
+        </div>
+        <div>
+          <dt>Pₙ f</dt>
+          <dd>
+            The empirical average n⁻¹Σᵢf(Oᵢ). The empirical distribution is a
+            probability measure, but need not belong to a model of smooth
+            densities.
+          </dd>
+        </div>
+        <div>
+          <dt>O or Z</dt>
+          <dd>
+            One whole observation, often (X,A,Y). In the mean lessons, Z is a
+            scalar outcome. Lowercase z is a possible value, not another
+            parameter.
+          </dd>
+        </div>
+        <div>
+          <dt>p and pε</dt>
+          <dd>
+            A density or probability mass function and a nearby version on a
+            path. In pε=p(1+εh), mean-zero h preserves total mass; allowed ε
+            must also preserve nonnegativity.
+          </dd>
+        </div>
+        <div>
+          <dt>h, a score</dt>
+          <dd>
+            The derivative of log pε at ε=0. It measures relative probability
+            change, and has mean zero under regular normalized paths.
+          </dd>
+        </div>
+        <div>
+          <dt>L²₀(P)</dt>
+          <dd>
+            Mean-zero functions with finite second moment. Their inner product
+            is Eₚ[fg], and squared length is Eₚ[f²].
+          </dd>
+        </div>
+        <div>
+          <dt>T, tangent space</dt>
+          <dd>
+            The closed linear span of scores of regular paths through P allowed
+            by the model. A finite plane is one illustration, not the general
+            definition.
+          </dd>
+        </div>
+        <div>
+          <dt>Tη, nuisance tangent space</dt>
+          <dd>
+            Allowed directions along which the target has zero first derivative.
+            What counts as nuisance depends on the target.
+          </dd>
+        </div>
+        <div>
+          <dt>D*, canonical gradient / EIF</dt>
+          <dd>
+            The unique element of T representing target derivatives: derivative
+            along h equals Eₚ[D*h]. It is mean-zero. In a restricted model these
+            properties need membership in T to establish uniqueness.
+          </dd>
+        </div>
+        <div>
+          <dt>D, ϕ, φ</dt>
+          <dd>
+            Common names for a gradient or an estimator's influence function.
+            Specify which one: all mean-zero gradients have the form D*+r with r
+            orthogonal to T; only D* has minimum variance in the regular class.
+          </dd>
+        </div>
+        <div>
+          <dt>g or π</dt>
+          <dd>
+            The treatment propensity P(A=1 | X). “Positivity” asks that the
+            treatment levels needed for the target occur wherever they are
+            required.
+          </dd>
+        </div>
+        <div>
+          <dt>m or μ; Q in some papers</dt>
+          <dd>
+            The conditional outcome mean mₐ(x)=E[Y | A=a,X=x]. Q may denote a
+            broader outcome component. It is not automatically the whole fitted
+            law P̂.
+          </dd>
+        </div>
+        <div>
+          <dt>H, clever covariate</dt>
+          <dd>
+            For the ATE, H=A/g−(1−A)/(1−g). It weights residuals inside the
+            efficient influence function. For a treated-mean target it is A/g.
+          </dd>
+        </div>
+        <div>
+          <dt>R₂, remainder</dt>
+          <dd>
+            What is left after a first-order expansion. For the ATE it contains
+            products of propensity and outcome errors. A small product helps
+            inference; a rate exactly n⁻¹⁄² is not little-o of that rate.
+          </dd>
+        </div>
+        <div>
+          <dt>Sₐ(t), RMSTₐ(τ)</dt>
+          <dd>
+            Survival under treatment a, and its area through horizon τ. A
+            contrast between arms can be a causal target under stated
+            identifying assumptions.
+          </dd>
+        </div>
+      </dl>
+      <p>
+        <a href="lessons/10-canonical-gradient.html"
+          >Turn these symbols into movements →</a
+        >
+      </p>
+    </main>
+    <script src="shared/curriculum.js"></script>
+    <script src="shared/state.js"></script>
+    <script src="shared/practice.js"></script>
+    <script src="shared/course.js"></script>
+  </body>
 </html>

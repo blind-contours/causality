@@ -8,59 +8,24 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <title>One Move, Two Faces</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-</style>
+<link rel="stylesheet" href="../shared/labs.css">
+<link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="one-move-two-faces">
 <div class="wrap">
-<div class="eyebrow">The bridge between units 2–4 and units 6–7</div>
+<div class="eyebrow">From probability paths to regression fluctuations</div>
 <h1>One Move, Two Faces</h1>
-<p class="lede">Units 2 to 4 moved a density: p<sub>ε</sub> = p(1 + εh). Units 6 and 7 will move a regression: μ<sub>ε</sub> = μ̂ + εH. Those look like different operations on different objects. They are one move. Tilting the conditional density of Y by a factor that grows with the residual has score H·(y − μ̂), and its mean is μ̂ + εH. This page shows that, then shows the other object that has been hiding: the empirical distribution Pₙ is a point in the same space as P and P̂, and the one-step correction is the gap between averaging D under Pₙ and under P̂.</p>
+<p class="lede">The path lessons moved a density: p<sub>ε</sub> = p(1 + εh). The targeting lessons move a regression: μ<sub>ε</sub> = μ̂ + εH. Those look like different operations on different objects. They are one move. Tilting the conditional density of Y by a factor that grows with the residual has score H·(y − μ̂), and its mean is μ̂ + εH. This page shows that, then shows the other object that has been hiding: the empirical distribution Pₙ is a probability measure, though it need not belong to a smooth-density model containing P and P̂, and the one-step correction is the gap between averaging D under Pₙ and under P̂.</p>
 
 <!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
 <h2>Tilt the density of Y at one x, and the regression line is what moves</h2>
-<p>Fix a patient's covariate x and look at the conditional density of Y given treatment, p̂(y | 1, x). The initial fit says it is Normal with mean μ̂(x) and variance 1. Now multiply it by exp(ε·H·(y − μ̂)) and renormalize. Two things happen at once. The score of this path at ε = 0 is d/dε log p̂<sub>ε</sub> = H·(y − μ̂), the outcome piece of the influence function. And because a Gaussian times an exponential in y is a Gaussian, the tilted density is Normal with mean μ̂ + εH: the regression fluctuation from unit 7, derived rather than declared. Both strata use the same ε; H differs, so the old curve moves 9× as far.</p>
+<p>Fix a patient's covariate x and look at the conditional density of Y given treatment, p̂(y | 1, x). The initial fit says it is Normal with mean μ̂(x) and variance 1. Now multiply it by exp(ε·H·(y − μ̂)) and renormalize. Two things happen at once. The score of this path at ε = 0 is d/dε log p̂<sub>ε</sub> = H·(y − μ̂), the outcome piece of the influence function. And because a Gaussian times an exponential in y is a Gaussian, the tilted density is Normal with mean μ̂ + εH: the regression fluctuation in the clever-covariate lesson, derived rather than declared. Both strata use the same ε; H differs, so the ratio of shifts is 0.9/π(old), initially 9.</p>
 <div class="eq">p̂_ε(y | 1, x) ∝ p̂(y | 1, x) · exp(ε H(x) (y − μ̂(x)))        score at ε = 0:  H(x)(y − μ̂(x))<br>Gaussian case:  exp(−(y−μ̂)²/2) · exp(εH(y−μ̂)) ∝ exp(−(y − μ̂ − εH)²/2)   ⇒   mean = μ̂ + εH</div>
-<div class="predict" data-options="Same amount, H doesn't matter|9× as far, because H is 9× larger|9× less, because there are fewer old patients" data-answer="1" data-hint="The mean of the tilted density is μ̂ + εH, and H = 1/π is 10 for old vs 1.11 for young.">With one shared ε, how far does the old stratum’s density mean move compared with the young stratum’s?</div>
+<div class="predict" data-options="Same amount, H doesn't matter|9× as far, because H is 9× larger|9× less, because there are fewer old patients" data-answer="1" data-hint="The mean of the tilted density is μ̂ + εH, and H = 1/π is 10 for old vs 1.11 for young.">At the initial π(old)=0.1 and π(young)=0.9, how far does the old mean move compared with the young mean?</div>
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="500"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
@@ -77,7 +42,7 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 <!-- SCENE 2 -->
 <div class="eyebrow">Scene 2</div>
 <h2>Pₙ is a point too, and the correction is a gap between two averages</h2>
-<p>Three distributions live in the same space. P is the truth, a smooth density. P̂ is the fit, smooth but with the wrong mean. Pₙ is the sample, a spike of mass 1/n at each observation. Average the same function D̂(z) = z − μ̂ under each. Under P̂ the average is zero by construction: the fit is centered on itself. Under Pₙ it is z̄ − μ̂, the one-step correction. Under P it is μ − μ̂, the negative of the plug-in bias. So the correction is (Pₙ − P̂)D̂, and it estimates (P − P̂)D̂ with sampling error (Pₙ − P)D̂ that shrinks like 1/√n. That last term is the one the influence-function chapter is about.</p>
+<p>Three probability measures can all average a function. The empirical measure need not lie in a model of smooth densities. P is the truth, a smooth density. P̂ is the fit, smooth but with the wrong mean. Pₙ is the sample, a spike of mass 1/n at each observation. Average the same function D̂(z) = z − μ̂ under each. Under P̂ the average is zero by construction: the fit is centered on itself. Under Pₙ it is z̄ − μ̂, the one-step correction. Under P it is μ − μ̂, the negative of the plug-in bias. So the correction is (Pₙ − P̂)D̂, and it estimates (P − P̂)D̂ with sampling error (Pₙ − P)D̂ that shrinks like 1/√n. That last term is the one the influence-function chapter is about.</p>
 <div class="eq">P̂ D̂ = 0        Pₙ D̂ = z̄ − μ̂  (correction)        P D̂ = μ − μ̂  (− plug-in bias)<br>one-step = ψ(P̂) + Pₙ D̂ = μ̂ + (z̄ − μ̂) = z̄        error = (Pₙ − P) D̂ = Oₚ(1/√n)</div>
 <div class="predict" data-options="Zero|z̄ − μ̂|μ − μ̂" data-answer="0" data-hint="The fit is centered on itself: ∫(z − μ̂)p̂(z)dz = μ̂ − μ̂.">What is the average of D̂(z) = z − μ̂ under the fitted distribution P̂?</div>
 <div class="scene">
@@ -91,7 +56,7 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <div class="note">Press New sample a few times and watch PₙD̂ jump around P D̂. That jitter is (Pₙ − P)D̂, and its size is what the standard error reports.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The one-step correction PₙD(P̂) is the empirical average of the influence function at the fit. Because P̂D(P̂) = 0, it equals (Pₙ − P̂)D(P̂): the sample’s disagreement with the fit, measured in the direction that matters for ψ. It is an estimate of the plug-in bias with 1/√n noise.</div>
+<div class="say"><b>In one sentence</b>The one-step correction PₙD(P̂) is the empirical average of the influence function at the fit. Because P̂D(P̂) = 0, it equals (Pₙ − P̂)D(P̂): the sample’s disagreement with the fit, measured in the direction that matters for ψ. It estimates the negative of the plug-in bias, with sampling noise of order 1/√n.</div>
 </div>
 <script>
 (function(){
@@ -111,10 +76,8 @@ function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
-function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
-  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
-  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
-  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function scene(id,draw,opts){return CausalVisuals.scene(id,draw,opts);}
+
 function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const fn=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=fn;el.onchange=fn;if(lab)lab.textContent=fmt(+el.value);}
 
 
@@ -123,13 +86,13 @@ const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
 const MUY=3,MUO=2;
 const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   const E=+document.getElementById('e1').value*t,pio=+document.getElementById('pi1').value;const HY=1/0.9,HO=1/pio;
-  const pan=(L,R,title,mu,Hv,col)=>{const T=40,B=250,ymin=-1,ymax=8,dy=0.02;const x=v=>L+(R-L)*(v-ymin)/(ymax-ymin);
+  const pan=(L,R,title,mu,Hv,col)=>{const T=40,B=250,shifted=mu-1+E*Hv,ymin=Math.min(mu-1,shifted)-8,ymax=Math.max(mu-1,shifted)+8,dy=0.01;const x=v=>L+(R-L)*(v-ymin)/(ymax-ymin);
     // densities
     let Z=0,m=0;const pts0=[],pts1=[];let pk=0;
-    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=p0*Math.exp(E*Hv*(v-(mu-1)));Z+=p1*dy;m+=v*p1*dy;pk=Math.max(pk,p0);}
+    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=Math.exp(-.5*(v-(mu-1))**2+E*Hv*(v-(mu-1))-.5*(E*Hv)**2)/Math.sqrt(2*Math.PI);Z+=p1*dy;m+=v*p1*dy;pk=Math.max(pk,p0);}
     m/=Z;pk=Math.max(pk,nrm(0,0,1)/1);const y=v=>B-(B-T)*v/(pk*1.15);
-    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=p0*Math.exp(E*Hv*(v-(mu-1)))/Z;pts0.push([x(v),y(p0)]);pts1.push([x(v),y(p1)]);}
-    line(g,L,B,R,B,C.pen,1.2);for(let v=0;v<=8;v+=2){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
+    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=Math.exp(-.5*(v-(mu-1))**2+E*Hv*(v-(mu-1))-.5*(E*Hv)**2)/Math.sqrt(2*Math.PI)/Z;pts0.push([x(v),y(p0)]);pts1.push([x(v),y(p1)]);}
+    line(g,L,B,R,B,C.pen,1.2);for(let v=Math.ceil(ymin/2)*2;v<=ymax;v+=2){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
     txt(g,title,L+6,T-14,C.pen,14,'left',FS,true);txt(g,`H = 1/π = ${Hv.toFixed(2)}`,R-4,T-14,C.muted,11.5,'right',FM);
     poly(g,pts0,C.phat,1.5,[3,3]);poly(g,pts1,col,2.5);
     line(g,x(mu-1),B,x(mu-1),y(nrm(mu-1,mu-1,1)),C.phat,1,[2,3]);txt(g,'μ̂',x(mu-1),B+26,C.phat,11,'center',FM);
@@ -139,18 +102,18 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
     // score panel below: H(y-mu) line, and tilt factor
     const T2=300,B2=440;const ys=v=>B2-(B2-T2)*(v+30)/60;line(g,L,ys(0),R,ys(0),C.grid,1);line(g,L,B2,L,T2,C.pen,1.2);
     const sp=[];for(let v=ymin;v<=ymax;v+=0.1)sp.push([x(v),ys(Math.max(-30,Math.min(30,Hv*(v-(mu-1)))))]);poly(g,sp,C.teal,2);
-    txt(g,'score at ε = 0:  H·(y − μ̂)',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
+    txt(g,'score H·(y−μ̂), display clipped ±30',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
     txt(g,`slope = H = ${Hv.toFixed(2)}`,R-4,T2-12,C.teal,11,'right',FM);
     return m;};
   const mY=pan(50,380,'Young stratum',MUY,HY,C.p),mO=pan(430,760,'Old stratum',MUO,HO,C.or);
   txt(g,`same ε = ${E.toFixed(3)} for both.  Young moves ε·${HY.toFixed(2)} = ${(E*HY).toFixed(2)},  old moves ε·${HO.toFixed(2)} = ${(E*HO).toFixed(2)}`,50,470,C.pen,12.5,'left',FM);
   document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">young: μ̂+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">young: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">old: μ̂+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">old: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span>`;
-  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth. The teal line is the score of the tilt at each y.':'Tilting by exp(εH(y − μ̂)) slides each density to the right by εH. Same ε, different H, so the old density moves 9× as far.';
+  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth. The teal line is the score of the tilt at each y.':`Tilting slides each density by εH. Old/young shift ratio = ${(0.9/pio).toFixed(2)}. Integration domain covers both means ±8 SD; absolute mean error ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
 },{dur:4000});
 bind('e1','v1e',v=>v.toFixed(3),()=>S1.draw());bind('pi1','v1p',v=>v.toFixed(2),()=>S1.draw());
 
 // ---------- SCENE 2 ----------
-const pT=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);let MU=0,MS=0;for(let z=-4;z<=4;z+=0.005){MU+=z*pT(z)*0.005;MS+=pT(z)*0.005;}MU/=MS;
+const pT=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);const MU=.55*(-.4)+.45*1.6; // Exact mean of the full Gaussian mixture sampled below.
 let Z2=[];function gen2(){const n=+document.getElementById('n2s').value;Z2=[];while(Z2.length<n){const z=Math.random()<0.55?-0.4+0.7*randn():1.6+0.8*randn();Z2.push(z);}}
 gen2();
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);
@@ -169,7 +132,7 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);
   rows.forEach((r,i)=>{const yy=326+i*44;txt(g,r[0],50,yy+6,r[2],12,'left',FM);rect(g,bx,yy-1,bw,14,C.grid);const v=r[1]*c;rect(g,bx+bw/2+Math.min(0,v*sc),yy-1,Math.abs(v)*sc,14,r[2],0.85);line(g,bx+bw/2,yy-6,bx+bw/2,yy+18,C.pen,1);txt(g,(r[1]*c).toFixed(3),bx+bw+8,yy+6,r[2],11.5,'left',FM);});
   if(c>0.99){txt(g,`one-step = μ̂ + PₙD̂ = ${mh.toFixed(2)} + ${(zbar-mh).toFixed(3)} = ${zbar.toFixed(3)} = z̄`,50,462,C.pen,12.5,'left',FM);txt(g,`sampling error (Pₙ − P)D̂ = ${(zbar-MU).toFixed(3)}`,50,484,C.muted,12,'left',FM);}
   document.getElementById('ro2').innerHTML=`<span class="k">μ (truth)</span><span>${MU.toFixed(3)}</span><span class="k">μ̂</span><span>${mh.toFixed(3)}</span><span class="k">z̄</span><span>${zbar.toFixed(3)}</span><span class="k">PₙD̂</span><span>${(zbar-mh).toFixed(3)}</span><span class="k">PD̂</span><span>${(MU-mh).toFixed(3)}</span><span class="k">(Pₙ−P)D̂</span><span>${(zbar-MU).toFixed(3)}</span>`;
-  document.getElementById('cap2').textContent=t<0.3?'The truth P is a smooth density.':t<0.6?'The fit P̂ is smooth too, with the wrong mean. Same space, different point.':t<0.9?'The sample Pₙ is also a point in this space: n spikes of mass 1/n.':'Average D̂ under each. The fit is centered on itself, the sample gives the correction, and the truth gives the bias the correction is estimating.';
+  document.getElementById('cap2').textContent=t<0.3?'The truth P is a smooth density.':t<0.6?'The fit P̂ is smooth too, with the wrong mean. Its mean differs from the truth.':t<0.9?'The sample Pₙ is also a point in this space: n spikes of mass 1/n.':'Average D̂ under each. The fit is centered on itself, the sample gives the correction, and the truth gives the bias the correction is estimating.';
 },{dur:5000});
 document.getElementById('n2').onclick=()=>{gen2();S2.draw();};bind('n2s','v2n',v=>v.toFixed(0),()=>{gen2();S2.draw();});bind('m2','v2m',v=>v.toFixed(2),()=>S2.draw());
 
@@ -180,6 +143,9 @@ new MutationObserver(all).observe(document.documentElement,{attributes:true,attr
 })();
 </script>
 
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
 </body>
 </html>

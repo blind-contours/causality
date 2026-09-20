@@ -8,46 +8,11 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <title>Differentiating Under the Integral</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-</style>
+<link rel="stylesheet" href="../shared/labs.css">
+<link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="under-the-integral">
 <div class="wrap">
@@ -59,7 +24,7 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 ψ(ε)   = Σ_z f(z, ε)                        ← add up a row<br>
 dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up the row of per-cell slopes</div>
 
-<!-- SCENE 1 -->
+<p class="note">For a finite sum, exchanging derivative and sum is exact. For an integral, regularity such as an integrable dominating function is needed. The displayed midpoint bins approximate a normalized reference density; tail omission and quadrature error are not a failure of differentiation.</p><!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
 <h2>The table: z across, ε down, one number per cell</h2>
 <p>Every cell is the contribution of one z-bin to the mean, at one value of ε. Color shows sign and size. A row is one distribution on the path; its sum is ψ(P<sub>ε</sub>), printed at the right. Move the highlighted row with the slider and read the row sums: that column of numbers is the function ψ(ε) you're about to differentiate.</p>
@@ -133,7 +98,8 @@ function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
 // density and direction
 const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
-const pAt=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);
+const referenceGrid=CausalScience.grid();const gridMass=referenceGrid.z.reduce((a,z)=>a+(.55*nrm(z,-.4,.7)+.45*nrm(z,1.6,.8))*referenceGrid.dx,0);
+const pAt=z=>(.55*nrm(z,-.4,.7)+.45*nrm(z,1.6,.8))/gridMass;
 const N=481,ZL=-4,ZR=4,dzf=(ZR-ZL)/(N-1);let MU=0,MASS=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;MU+=z*pAt(z)*dzf;MASS+=pAt(z)*dzf;}MU/=MASS;
 const hRaw=z=>Math.exp(-Math.pow(z-1,2));let hm=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;hm+=hRaw(z)*pAt(z)*dzf;}hm/=MASS;let hmx=0;for(let i=0;i<N;i++){hmx=Math.max(hmx,Math.abs(hRaw(ZL+i*dzf)-hm));}
 const h=z=>(hRaw(z)-hm)*1.4/hmx;
@@ -141,10 +107,8 @@ const f=(z,e,dz)=>z*pAt(z)*(1+e*h(z))*dz;
 function bins(width){const out=[];for(let z=-3.5+width/2;z<3.5;z+=width)out.push(z);return out;}
 const EPS=[];for(let e=-0.5;e<=0.5001;e+=0.1)EPS.push(+e.toFixed(1));
 function heat(v,scale){const a=clamp(Math.abs(v)/scale,0,1);return [v>=0?C.green:C.red,0.12+0.75*a];}
-function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
-  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
-  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
-  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+function scene(id,draw,opts){return CausalVisuals.scene(id,draw,opts);}
+
 function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const fn=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=fn;el.onchange=fn;if(lab)lab.textContent=fmt(+el.value);}
 // table drawing helper
 function table(g,L,T,cw,rh,B,dz,opts){ // returns geometry
@@ -229,6 +193,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
 </body>
 </html>

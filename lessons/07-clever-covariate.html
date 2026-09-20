@@ -8,47 +8,11 @@
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <title>Where the Clever Covariate Comes From</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F3F5F7; --paper:#FFFFFF; --ink:#1B2530; --muted:#5D6B78; --rule:#D3DAE1; --grid:#E6EBF0; --soft:#EEF2F6;
-  --p:#2B4BC8; --or:#E0801A; --teal:#1C8C8C; --green:#3D9440; --purple:#6A3FB5; --red:#C6362C; --phat:#B0287F; --pen:#1B2530;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; } }
-:root[data-theme="dark"]{
-  --bg:#12181F; --paper:#1B232C; --ink:#E7EBEF; --muted:#9AA8B5; --rule:#33404C; --grid:#28323C; --soft:#222C36;
-  --p:#8AA0F0; --or:#F2A353; --teal:#5CC4C4; --green:#7CCB7C; --purple:#A98BE6; --red:#EF7A70; --phat:#E36AB8; --pen:#E7EBEF; }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.55;padding:36px 20px 72px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:42px;line-height:1.05;margin:0 0 10px;text-wrap:balance;letter-spacing:-.012em}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 36px;font-size:17px}
-h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:25px;margin:56px 0 6px;text-wrap:balance}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-p{max-width:68ch;margin:0 0 12px}
-.eq{font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper);border:1px solid var(--rule);padding:12px 14px;border-radius:6px;margin:10px 0 14px;overflow-x:auto;white-space:nowrap;max-width:68ch;line-height:1.7}
-.scene{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:20px;align-items:start;margin-top:14px}
-@media(max-width:820px){.scene{grid-template-columns:1fr}}
-.paper{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px;overflow:hidden}
-canvas{width:100%;height:auto;display:block;max-width:100%}
-.ctl{display:flex;flex-direction:column;gap:13px}
-.ctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.ctl label span.v{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--purple)}
-select{font:inherit;font-size:13px;padding:4px 6px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--purple);border-color:var(--purple);color:#fff}
-button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.readout{font-family:"IBM Plex Mono",monospace;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:10px}
-.readout .k{color:var(--muted)}
-.cap{font-size:14px;color:var(--muted);margin-top:8px;min-height:2.6em}
-.note{font-size:13.5px;color:var(--muted);border-left:2px solid var(--rule);padding-left:12px;margin:6px 0}
-.say{border-left:3px solid var(--or);background:var(--soft);padding:8px 12px;margin:14px 0 0;max-width:68ch;font-size:14.5px}
-.say b{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
-</style>
+<link rel="stylesheet" href="../shared/labs.css">
+<link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<script src="../science/core.js"></script>
+<script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="clever-covariate">
 <div class="wrap">
@@ -66,10 +30,11 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <label>Point mass at z₀ <span class="v" id="v1z">2.20</span><input type="range" id="z1" min="-3" max="3" step="0.01" value="2.2"></label>
     <label>Fitted mean of P̂ (how wrong the initial fit is) <span class="v" id="v1m">-0.40</span><input type="range" id="m1" min="-1.5" max="1.5" step="0.01" value="-0.4"></label>
     <div class="readout" id="ro1"></div>
-    <div class="note">A mean-zero ϕ is also the only version that is itself a legitimate direction: p̂(1 + εϕ) integrates to one only if E<sub>P̂</sub>[ϕ] = 0. That matters in scene 3, where we move along ϕ.</div>
+    <div class="note">Mean-zero centering ensures p̂(1+εϕ) integrates to one, but positivity is also required. An unbounded Gaussian score cannot define a nonnegative linear path for every outcome at nonzero ε. Scene 3 instead uses a normalized exponential tilt with finite moment-generating function.</div>
   </div>
 </div>
 
+<p class="note">The angle experiment uses the shared normalized finite grid. The Gaussian-mixture tilting experiment below uses exact full-distribution moments; its plotting window does not truncate the statistical model.</p>
 <!-- SCENE 2 -->
 <div class="eyebrow">Scene 2</div>
 <h2>Among directions of equal size, ϕ changes ψ the most</h2>
@@ -103,8 +68,9 @@ button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
     <div class="note">One-step: μ̂ + Pₙϕ̂ = z̄. TMLE: mean of p̂<sub>ε̂</sub> = z̄ as well, because for the mean the score equation says exactly "fitted mean equals sample mean." For nonlinear parameters they differ by a second-order amount.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>Fluctuating along the influence function and fitting ε by maximum likelihood solves the empirical efficient-score equation, Pₙϕ = 0, because the score of the fluctuation at ε = 0 is ϕ itself. That's the targeting step.</div>
+<div class="say"><b>In one sentence</b>For this mean tilt, the score remains the updated mean EIF along the whole path, so fitting ε solves Pₙϕ=0. Matching the initial score alone would not justify the same conclusion for an arbitrary target.</div>
 
+<p class="note">The mean tilt above has a score that equals the updated mean EIF along the path. For a general parameter, matching the EIF only at ε=0 does not guarantee that one likelihood fit solves the updated EIF equation. Iterated locally least-favorable submodels or a valid universal construction may be needed.</p>
 <!-- SCENE 4 -->
 <div class="eyebrow">Scene 4</div>
 <h2>For the ATE, the direction on the outcome regression is the clever covariate</h2>
@@ -143,11 +109,9 @@ function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();r
 const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
 // true density (skewed mixture) and grid
 const N=481,ZL=-4,ZR=4,dz=(ZR-ZL)/(N-1);const Z=new Float64Array(N);for(let i=0;i<N;i++)Z[i]=ZL+i*dz;
-const pTrue=z=>0.55*nrm(z,-0.4,0.7)+0.45*nrm(z,1.6,0.8);let MU=0,MS=0;for(let i=0;i<N;i++){MU+=Z[i]*pTrue(Z[i])*dz;MS+=pTrue(Z[i])*dz;}MU/=MS;
-function scene(id,draw,opts){const cv=document.getElementById('c'+id),g=cv.getContext('2d');const tEl=document.getElementById('t'+id);let raf=null;const S={t:tEl?+tEl.value:1,draw:()=>draw(g,cv.width,cv.height,S.t),
-  play(){if(raf)cancelAnimationFrame(raf);S.t=0;const dur=(opts&&opts.dur)||6000,t0=performance.now();const step=now=>{S.t=reduce?1:clamp((now-t0)/dur,0,1);if(tEl){tEl.value=S.t;document.getElementById('v'+id).textContent=S.t.toFixed(2);}if(opts&&opts.onT)opts.onT(S.t);S.draw();if(S.t<1)raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}};
-  if(tEl)tEl.oninput=()=>{if(raf)cancelAnimationFrame(raf);S.t=+tEl.value;document.getElementById('v'+id).textContent=S.t.toFixed(2);S.draw();};
-  const pb=document.getElementById('p'+id);if(pb)pb.onclick=S.play;return S;}
+const pTrue=z=>.55*nrm(z,-.4,.7)+.45*nrm(z,1.6,.8);const MU=.55*(-.4)+.45*1.6;const referenceGrid=CausalScience.grid(N,ZL,ZR); // Exact full-mixture mean; finite plotting windows are illustrative.
+function scene(id,draw,opts){return CausalVisuals.scene(id,draw,opts);}
+
 function bind(id,label,fmt,cb){const el=document.getElementById(id),lab=document.getElementById(label);const fn=()=>{if(lab)lab.textContent=fmt(+el.value);cb();};el.oninput=fn;el.onchange=fn;if(lab)lab.textContent=fmt(+el.value);}
 function densityAxes(g,L,R,T,B,ymax){const xs=z=>L+(R-L)*(z-ZL)/(ZR-ZL),ys=v=>B-(B-T)*v/ymax;axes(g,L,R,T,B,C.pen);for(const z of [-3,-2,-1,0,1,2,3]){line(g,xs(z),B,xs(z),B+4,C.pen,1);txt(g,z,xs(z),B+14,C.muted,11,'center',FM);}return {xs,ys};}
 
@@ -176,12 +140,12 @@ bind('z1','v1z',v=>v.toFixed(2),()=>S1.draw());bind('m1','v1m',v=>v.toFixed(2),(
 
 // ================= SCENE 2 =================
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a2').value*Math.PI/180;
-  const phi=new Float64Array(N);for(let i=0;i<N;i++)phi[i]=Z[i]-MU;let pp=0;for(let i=0;i<N;i++)pp+=phi[i]*phi[i]*pTrue(Z[i])*dz;
+  const phi=new Float64Array(N);for(let i=0;i<N;i++)phi[i]=Z[i]-referenceGrid.mean;let pp=0;for(let i=0;i<N;i++)pp+=phi[i]*phi[i]*referenceGrid.p[i]*dz;
   // orthogonal direction: centered sin, orthogonalized
-  const w=new Float64Array(N);let wm=0;for(let i=0;i<N;i++){w[i]=Math.sin(1.6*Z[i]);wm+=w[i]*pTrue(Z[i])*dz;}for(let i=0;i<N;i++)w[i]-=wm/MS;let ip=0;for(let i=0;i<N;i++)ip+=w[i]*phi[i]*pTrue(Z[i])*dz;const gp=new Float64Array(N);let gg=0;for(let i=0;i<N;i++){gp[i]=w[i]-ip/pp*phi[i];gg+=gp[i]*gp[i]*pTrue(Z[i])*dz;}
+  const w=new Float64Array(N);let wm=0;for(let i=0;i<N;i++){w[i]=Math.sin(1.6*Z[i]);wm+=w[i]*referenceGrid.p[i]*dz;}for(let i=0;i<N;i++)w[i]-=wm;let ip=0;for(let i=0;i<N;i++)ip+=w[i]*phi[i]*referenceGrid.p[i]*dz;const gp=new Float64Array(N);let gg=0;for(let i=0;i<N;i++){gp[i]=w[i]-ip/pp*phi[i];gg+=gp[i]*gp[i]*referenceGrid.p[i]*dz;}
   const un=new Float64Array(N),ug=new Float64Array(N);for(let i=0;i<N;i++){un[i]=phi[i]/Math.sqrt(pp);ug[i]=gp[i]/Math.sqrt(gg);}
   const h=new Float64Array(N);for(let i=0;i<N;i++)h[i]=Math.cos(ang)*un[i]+Math.sin(ang)*ug[i];
-  let slope=0,hh=0;for(let i=0;i<N;i++){slope+=phi[i]*h[i]*pTrue(Z[i])*dz;hh+=h[i]*h[i]*pTrue(Z[i])*dz;}
+  let slope=0,hh=0;for(let i=0;i<N;i++){slope+=phi[i]*h[i]*referenceGrid.p[i]*dz;hh+=h[i]*h[i]*referenceGrid.p[i]*dz;}
   const {xs,ys}=densityAxes(g,60,440,40,130,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(pTrue(Z[i]))]);poly(g,pts,C.muted,1.4);
   const T=190,B=320,mid=(T+B)/2;line(g,60,mid,440,mid,C.grid,1);const a=[],b=[];for(let i=0;i<N;i++){a.push([xs(Z[i]),mid-un[i]*30]);b.push([xs(Z[i]),mid-h[i]*30]);}poly(g,a,C.purple,2.2);poly(g,b,C.green,1.8,[4,3]);
   txt(g,'ϕ (normalized, purple)  and  h (green), both with E[h²] = 1',60,T-12,C.pen,12.5,'left',FS,true);
@@ -197,18 +161,20 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const ang=+document.getElementById('a2
 bind('a2','v2',v=>v+'°',()=>S2.draw());
 
 // ================= SCENE 3 =================
-let Z3=null;function sample3(){const n=+document.getElementById('n3s').value;Z3=[];while(Z3.length<n){const z=Math.random()<0.55?-0.4+0.7*randn():1.6+0.8*randn();if(z>-3.8&&z<3.8)Z3.push(z);}}sample3();
+let Z3=null;function sample3(){const n=+document.getElementById('n3s').value;Z3=[];while(Z3.length<n){const z=Math.random()<0.55?-0.4+0.7*randn():1.6+0.8*randn();Z3.push(z);}}sample3();
 const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const mh=+document.getElementById('m3').value;const n=Z3.length;const zbar=Z3.reduce((s,v)=>s+v,0)/n;
   const ph=z=>pTrue(z-(mh-MU));const phi=z=>z-mh;
-  // exponential tilt p_eps ∝ p̂ exp(eps*phi). normalizer and tilted mean on the grid
-  const norm=e=>{let c=0;for(let i=0;i<N;i++)c+=ph(Z[i])*Math.exp(e*phi(Z[i]))*dz;return c;};
-  const tiltMeanPhi=e=>{let c=0,m=0;for(let i=0;i<N;i++){const w=ph(Z[i])*Math.exp(e*phi(Z[i]))*dz;c+=w;m+=phi(Z[i])*w;}return m/c;};
+  // Exact full-mixture moment generating function; drawing window does not truncate the law.
+  const components=[{weight:.55,mean:-.4+mh-MU,sd:.7},{weight:.45,mean:1.6+mh-MU,sd:.8}];
+  const tilt=e=>CausalScience.mixtureTilt(components,e,mh);
+  const norm=e=>Math.exp(tilt(e).logNorm);
+  const tiltMeanPhi=e=>tilt(e).mean-mh;
   const sumPhi=Z3.reduce((s,z)=>s+phi(z),0);
   const scoreAt=e=>sumPhi-n*tiltMeanPhi(e);   // L'(eps)
-  let a=-3,b=3;for(let i=0;i<60;i++){const m=(a+b)/2;if(scoreAt(a)*scoreAt(m)<=0)b=m;else a=m;}const ehat=(a+b)/2;
+  let a=-3,b=3;while(scoreAt(a)<0)a*=2;while(scoreAt(b)>0)b*=2;for(let i=0;i<60;i++){const m=(a+b)/2;if(scoreAt(a)*scoreAt(m)<=0)b=m;else a=m;}const ehat=(a+b)/2;
   const eps=ehat*seg(t,0.35,0.8);
-  const cE=norm(eps);const pe=z=>ph(z)*Math.exp(eps*phi(z))/cE;let meanE=0;for(let i=0;i<N;i++)meanE+=Z[i]*pe(Z[i])*dz;
-  const cH=norm(ehat);let meanHat=0;for(let i=0;i<N;i++)meanHat+=Z[i]*ph(Z[i])*Math.exp(ehat*phi(Z[i]))/cH*dz;
+  const currentTilt=tilt(eps),pe=currentTilt.density,meanE=currentTilt.mean;
+  const meanHat=tilt(ehat).mean;
   // top: densities and sample
   const {xs,ys}=densityAxes(g,60,520,40,240,0.5);const p0=[],p1=[];for(let i=0;i<N;i++){p0.push([xs(Z[i]),ys(ph(Z[i]))]);p1.push([xs(Z[i]),ys(pe(Z[i]))]);}poly(g,p0,C.phat,1.6,[5,4]);poly(g,p1,C.purple,2.2);
   txt(g,'p̂ (dashed)   →   p̂_ε ∝ p̂ · exp(ε ϕ̂)  (solid)',70,30,C.pen,13,'left',FS,true);
@@ -271,6 +237,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script src="../shared/curriculum.js"></script>
+<script src="../shared/state.js"></script>
+<script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
-</body>
+<script src="../labs/common.js"></script><script src="../labs/binary.js"></script></body>
 </html>

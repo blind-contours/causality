@@ -1,0 +1,1240 @@
+{
+  "browser": "Chrome/153.0.8010.52",
+  "pages": [
+    {
+      "file": "index.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "glossary.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/00-causal-roadmap.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/01-one-step-estimator.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The curve ψ(Pε) along the path from your estimate to the truth. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        },
+        {
+          "id": "c2",
+          "name": "One step on data: g-computation, then the correction. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/02-scores-from-scratch.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A distribution is a point; the model is the set of points you allow. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "A path: a one-parameter family of densities starting at p. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The score is the slope of log pε(z) in ε, one number per z. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores have mean zero, because total mass is always one. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "What the parameter does along the path, computed by hand. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "The same ϕ works for every direction. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Why it's called \"influence\": one observation's pull on the parameter. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "The same construction for the ATE, term by term. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c9",
+          "name": "The hardest direction, and why its variance is the bound. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/03-mean-along-a-path.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "ψ(P) = ∫ z p(z) dz is a weighted sum: position times mass, added up. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Along the path the masses change; the positions do not. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Split each bin's contribution into \"the old part\" and \"ε times the new part\". Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "You may subtract any constant from z inside the second integral. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Choose c = ψ(P). The thing multiplying h is now ϕ(z) = z − ψ(P). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why this ϕ and not another: it must work for every h, and have mean zero. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/04-under-the-integral.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The table: z across, ε down, one number per cell. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Two ways to get the slope of ψ: subtract row sums, or sum row differences. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Inside one cell: f is a straight line in ε, with slope z·p(z)·h(z). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Add up the per-cell slopes: that sum is ∫ z h p dz, and it is EP[Z·h(Z)]. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/05-one-move-two-faces.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Tilt the density of Y at one x, and the regression line is what moves. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Pₙ is a point too, and the correction is a gap between two averages. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/06-two-strata.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Two strata, equal share of the parameter, unequal evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Payoff is linear in the shift, cost is quadratic in the shift times the count. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Fix the budget, and the best split puts the old curve 9× as far. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why it tops out: the price of a strip keeps changing. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Why 9: equalize the marginal cost of the next unit of payoff. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Now let the data choose ε: the score equation and the 50/50 evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/07-clever-covariate.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Why ϕ is centered: the uncentered version fails two jobs. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Among directions of equal size, ϕ changes ψ the most. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Move along ϕ by maximum likelihood, and the score equation is Pₙϕ = 0. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "For the ATE, the direction on the outcome regression is the clever covariate. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/08-four-patients.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/09-efficiency-theory-story.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A parameter is a map from distributions to numbers. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "An estimator is asymptotically linear if its error is an average. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The pathwise derivative, and the gradient that generates it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores are tangent to the model. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Gradients form an affine set; projection finds its shortest member. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Plug-in bias, and one step to remove it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Double robustness is a rectangle. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "TMLE walks through the model; the one-step jumps in ψ. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/10-canonical-gradient.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/11-inference-lab.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/12-survival-lab.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "index.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "glossary.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/00-causal-roadmap.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/01-one-step-estimator.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The curve ψ(Pε) along the path from your estimate to the truth. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        },
+        {
+          "id": "c2",
+          "name": "One step on data: g-computation, then the correction. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/02-scores-from-scratch.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A distribution is a point; the model is the set of points you allow. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "A path: a one-parameter family of densities starting at p. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The score is the slope of log pε(z) in ε, one number per z. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores have mean zero, because total mass is always one. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "What the parameter does along the path, computed by hand. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "The same ϕ works for every direction. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Why it's called \"influence\": one observation's pull on the parameter. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "The same construction for the ATE, term by term. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c9",
+          "name": "The hardest direction, and why its variance is the bound. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/03-mean-along-a-path.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "ψ(P) = ∫ z p(z) dz is a weighted sum: position times mass, added up. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Along the path the masses change; the positions do not. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Split each bin's contribution into \"the old part\" and \"ε times the new part\". Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "You may subtract any constant from z inside the second integral. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Choose c = ψ(P). The thing multiplying h is now ϕ(z) = z − ψ(P). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why this ϕ and not another: it must work for every h, and have mean zero. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/04-under-the-integral.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The table: z across, ε down, one number per cell. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Two ways to get the slope of ψ: subtract row sums, or sum row differences. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Inside one cell: f is a straight line in ε, with slope z·p(z)·h(z). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Add up the per-cell slopes: that sum is ∫ z h p dz, and it is EP[Z·h(Z)]. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/05-one-move-two-faces.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Tilt the density of Y at one x, and the regression line is what moves. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Pₙ is a point too, and the correction is a gap between two averages. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/06-two-strata.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Two strata, equal share of the parameter, unequal evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Payoff is linear in the shift, cost is quadratic in the shift times the count. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Fix the budget, and the best split puts the old curve 9× as far. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why it tops out: the price of a strip keeps changing. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Why 9: equalize the marginal cost of the next unit of payoff. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Now let the data choose ε: the score equation and the 50/50 evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/07-clever-covariate.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Why ϕ is centered: the uncentered version fails two jobs. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Among directions of equal size, ϕ changes ψ the most. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Move along ϕ by maximum likelihood, and the score equation is Pₙϕ = 0. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "For the ATE, the direction on the outcome regression is the clever covariate. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/08-four-patients.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/09-efficiency-theory-story.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A parameter is a map from distributions to numbers. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "An estimator is asymptotically linear if its error is an average. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The pathwise derivative, and the gradient that generates it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores are tangent to the model. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Gradients form an affine set; projection finds its shortest member. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Plug-in bias, and one step to remove it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Double robustness is a rectangle. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "TMLE walks through the model; the one-step jumps in ψ. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/10-canonical-gradient.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/11-inference-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/12-survival-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "index.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "glossary.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/00-causal-roadmap.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/01-one-step-estimator.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The curve ψ(Pε) along the path from your estimate to the truth. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        },
+        {
+          "id": "c2",
+          "name": "One step on data: g-computation, then the correction. Read the figure description and values below.",
+          "displayWidth": 760,
+          "nativeWidth": 760
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/02-scores-from-scratch.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A distribution is a point; the model is the set of points you allow. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "A path: a one-parameter family of densities starting at p. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The score is the slope of log pε(z) in ε, one number per z. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores have mean zero, because total mass is always one. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "What the parameter does along the path, computed by hand. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "The same ϕ works for every direction. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Why it's called \"influence\": one observation's pull on the parameter. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "The same construction for the ATE, term by term. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c9",
+          "name": "The hardest direction, and why its variance is the bound. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/03-mean-along-a-path.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "ψ(P) = ∫ z p(z) dz is a weighted sum: position times mass, added up. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Along the path the masses change; the positions do not. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Split each bin's contribution into \"the old part\" and \"ε times the new part\". Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "You may subtract any constant from z inside the second integral. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Choose c = ψ(P). The thing multiplying h is now ϕ(z) = z − ψ(P). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why this ϕ and not another: it must work for every h, and have mean zero. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/04-under-the-integral.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "The table: z across, ε down, one number per cell. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Two ways to get the slope of ψ: subtract row sums, or sum row differences. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Inside one cell: f is a straight line in ε, with slope z·p(z)·h(z). Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Add up the per-cell slopes: that sum is ∫ z h p dz, and it is EP[Z·h(Z)]. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/05-one-move-two-faces.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Tilt the density of Y at one x, and the regression line is what moves. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Pₙ is a point too, and the correction is a gap between two averages. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/06-two-strata.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Two strata, equal share of the parameter, unequal evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Payoff is linear in the shift, cost is quadratic in the shift times the count. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Fix the budget, and the best split puts the old curve 9× as far. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Why it tops out: the price of a strip keeps changing. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Why 9: equalize the marginal cost of the next unit of payoff. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Now let the data choose ε: the score equation and the 50/50 evidence. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/07-clever-covariate.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "Why ϕ is centered: the uncentered version fails two jobs. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "Among directions of equal size, ϕ changes ψ the most. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "Move along ϕ by maximum likelihood, and the score equation is Pₙϕ = 0. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "For the ATE, the direction on the outcome regression is the clever covariate. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/08-four-patients.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/09-efficiency-theory-story.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [
+        {
+          "id": "c1",
+          "name": "A parameter is a map from distributions to numbers. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c2",
+          "name": "An estimator is asymptotically linear if its error is an average. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c3",
+          "name": "The pathwise derivative, and the gradient that generates it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c4",
+          "name": "Scores are tangent to the model. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c5",
+          "name": "Gradients form an affine set; projection finds its shortest member. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c6",
+          "name": "Plug-in bias, and one step to remove it. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c7",
+          "name": "Double robustness is a rectangle. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        },
+        {
+          "id": "c8",
+          "name": "TMLE walks through the model; the one-step jumps in ψ. Read the figure description and values below.",
+          "displayWidth": 800,
+          "nativeWidth": 800
+        }
+      ],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/10-canonical-gradient.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/11-inference-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/12-survival-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    }
+  ],
+  "checks": {
+    "projection": "E[D²] = 1.24 = E[(D*)²] 1.08 + E[(D−D*)²] 0.16. Inner product of D* and the discarded component = 0.",
+    "nuisance": "ε = 0.05 · E[h] = 0 · slope = 0 · mean along path = 0.64",
+    "tilt": "ε\n0.400\nyoung: μ̂+εH\n2.444\nyoung: ∫ y p̂_ε\n2.444\nold: μ̂+εH\n9.000\nold: ∫ y p̂_ε\n9.000",
+    "revealed": {
+      "status": "explored",
+      "exercises": {
+        "table-1": {
+          "variant": 0,
+          "assisted": true,
+          "correct": true,
+          "attempts": 2
+        },
+        "table-2": {
+          "variant": 0,
+          "assisted": true,
+          "correct": false,
+          "attempts": 1
+        }
+      },
+      "updated": "2026-09-20T16:55:53.829Z"
+    },
+    "rates": "α=0.25, β=0.25. Scaled bound = n^0. It stays at 1; equality alone does not justify centered efficient inference.",
+    "simulation": "Finished. Compare bias, sampling spread, and coverage separately.",
+    "histogram": "Every simulated estimate is included; total per estimator = 20Bin lower edgePlug-in countAIPW count1.591001.625001.659011.693001.726001.76011.794011.828011.861001.895021.929021.9631221.996612.03212.064002.097012.131052.165012.199002.232002.266002.3012.334002.36700",
+    "survival": "At least one cell has nobody observed through τ. Its KM curve is carried forward for display, but its tail and RMST require support or extrapolation. Shorten the horizon, reduce censoring, or increase n.",
+    "interaction": "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed."
+  },
+  "failures": []
+}
