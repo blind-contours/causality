@@ -3,7 +3,37 @@
   const NS = "http://www.w3.org/2000/svg",
     labels = new WeakMap(),
     oldFill = CanvasRenderingContext2D.prototype.fillText,
-    oldClear = CanvasRenderingContext2D.prototype.clearRect;
+    oldClear = CanvasRenderingContext2D.prototype.clearRect,
+    oldGetContext = HTMLCanvasElement.prototype.getContext;
+  const logical = (cv) => ({
+    w: +cv.dataset.w || cv.width,
+    h: +cv.dataset.h || cv.height,
+  });
+  /* Drawing code works in the canvas's declared width/height. The backing store is scaled to the
+   * device pixel ratio for crisp output, and the element fills its column, shrinking to no less
+   * than 80% of its declared size before the surrounding viewport scrolls. */
+  function fit(cv) {
+    if (cv.dataset.fitted || !cv.isConnected) return;
+    const w = +cv.getAttribute("width") || cv.width,
+      h = +cv.getAttribute("height") || cv.height,
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.dataset.w = w;
+    cv.dataset.h = h;
+    cv.dataset.fitted = "1";
+    if (dpr !== 1) {
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+    }
+    cv.style.width = "100%";
+    cv.style.height = "auto";
+    cv.style.minWidth = Math.round(w * 0.8) + "px";
+    cv.style.aspectRatio = `${w} / ${h}`;
+    oldGetContext.call(cv, "2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+    if (type === "2d") fit(this);
+    return oldGetContext.call(this, type, ...rest);
+  };
   CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...args) {
     let rows = labels.get(this.canvas);
     if (!rows) {
@@ -19,12 +49,8 @@
   };
   const oldRect = CanvasRenderingContext2D.prototype.fillRect;
   CanvasRenderingContext2D.prototype.fillRect = function (x, y, w, h) {
-    if (
-      x === 0 &&
-      y === 0 &&
-      w === this.canvas.width &&
-      h === this.canvas.height
-    )
+    const size = logical(this.canvas);
+    if (x === 0 && y === 0 && w === size.w && h === size.h)
       labels.set(this.canvas, []);
     return oldRect.call(this, x, y, w, h);
   };
@@ -95,7 +121,7 @@
       cv,
       g,
       t: tEl ? +tEl.value : (opts.t0 ?? 1),
-      draw: () => draw(g, cv.width, cv.height, S.t),
+      draw: () => draw(g, logical(cv).w, logical(cv).h, S.t),
       pause() {
         if (raf) cancelAnimationFrame(raf);
         raf = null;
@@ -192,8 +218,7 @@
       );
       cv.before(viewport);
       viewport.append(cv);
-      cv.style.width = cv.width + "px";
-      cv.style.maxWidth = "none";
+      fit(cv);
       const details = document.createElement("details");
       details.className = "figure-transcript";
       const summary = document.createElement("summary");
@@ -237,12 +262,25 @@
           characterData: true,
         });
       }
+      // Only mention scrolling when the figure actually overflows (narrow screens).
       const note = document.createElement("p");
       note.className = "figure-scroll-note";
-      note.textContent =
-        "Full-size figure: scroll inside this panel to see all labels.";
+      note.textContent = "Scroll sideways inside the figure to see all labels.";
+      note.hidden = true;
       viewport.before(note);
+      const overflow = () => {
+        note.hidden = viewport.scrollWidth <= viewport.clientWidth + 1;
+      };
+      if ("ResizeObserver" in window)
+        new ResizeObserver(overflow).observe(viewport);
+      overflow();
     });
   }
-  window.CausalVisuals = { svg, plot, scene, enhance };
+  window.CausalVisuals = {
+    logical,
+    svg,
+    plot,
+    scene,
+    enhance,
+  };
 })();

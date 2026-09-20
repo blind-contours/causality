@@ -144,7 +144,7 @@ async function main() {
       );
       await delay(40);
       const info = await ev(
-        `({file:${JSON.stringify(file)},width:innerWidth,scrollWidth:document.documentElement.scrollWidth,unlabelled:[...document.querySelectorAll('input,select,textarea')].filter(e=>!e.labels?.length&&!e.getAttribute('aria-label')).map(e=>e.id||e.className),canvases:[...document.querySelectorAll('canvas')].map(c=>({id:c.id,name:c.getAttribute('aria-label'),displayWidth:c.getBoundingClientRect().width,nativeWidth:c.width})),lessonStatus:document.querySelector('.course-status')?.textContent})`,
+        `({file:${JSON.stringify(file)},width:innerWidth,scrollWidth:document.documentElement.scrollWidth,unlabelled:[...document.querySelectorAll('input,select,textarea')].filter(e=>!e.labels?.length&&!e.getAttribute('aria-label')).map(e=>e.id||e.className),canvases:[...document.querySelectorAll('canvas')].map(c=>{const vp=c.closest('.figure-viewport');return {id:c.id,name:c.getAttribute('aria-label'),displayWidth:c.getBoundingClientRect().width,nativeWidth:+c.dataset.w||c.width,fits:!vp||vp.scrollWidth<=vp.clientWidth+1}}),lessonStatus:document.querySelector('.course-status')?.textContent})`,
       );
       info.theme = theme;
       info.errors = [...errors];
@@ -159,10 +159,29 @@ async function main() {
         file + ": unlabelled controls " + info.unlabelled.join(","),
       );
       assert(
-        info.canvases.every(
-          (c) => c.name && c.displayWidth >= c.nativeWidth * 0.95,
+        info.canvases.every((c) => c.name),
+        file + ": canvas name absent",
+      );
+      assert(
+        info.canvases.every((c) =>
+          width >= 1000
+            ? c.fits && c.displayWidth >= c.nativeWidth * 0.9
+            : c.displayWidth >= c.nativeWidth * 0.8,
         ),
-        file + ": canvas labels shrink or name absent",
+        file +
+          ` figures at ${width}: ` +
+          info.canvases
+            .filter(
+              (c) =>
+                !(width >= 1000
+                  ? c.fits && c.displayWidth >= c.nativeWidth * 0.9
+                  : c.displayWidth >= c.nativeWidth * 0.8),
+            )
+            .map(
+              (c) =>
+                `${c.id} ${Math.round(c.displayWidth)}/${c.nativeWidth}${c.fits ? "" : " overflows"}`,
+            )
+            .join(", "),
       );
       if (file === "index.html" && width === 1440) await shot("course-map");
     }

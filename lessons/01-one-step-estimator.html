@@ -188,7 +188,7 @@ function curveParams(){
   return {dl,n,truth,first,rem,plug,noise:noise1*1.1/Math.sqrt(n)};
 }
 function draw1(){
-  const P=curveParams(); const W=c1.width,H=c1.height;
+  const P=curveParams(); const W=+c1.dataset.w||c1.width,H=+c1.dataset.h||c1.height;
   const L=70,R=W-40,T=30,B=H-50;
   g1.clearRect(0,0,W,H);
   const ymin=0.9,ymax=2.35; const xs=e=>L+(R-L)*e, ys=v=>B-(B-T)*(v-ymin)/(ymax-ymin);
@@ -259,7 +259,7 @@ const STEPS=['Here is the cohort. Treated patients are concentrated at high X, w
  'Average the weighted residuals. That single number is P n D(P̂), the correction. Add it to the plug-in: the one-step. Compare to the truth on the number line.'];
 function draw2(){
   E2=estimate(D2,+lam.value,+kap.value);
-  const W=c2.width,H=c2.height; g2.clearRect(0,0,W,H);
+  const W=+c2.dataset.w||c2.width,H=+c2.dataset.h||c2.height; g2.clearRect(0,0,W,H);
   const L=60,R=W-30,T=20,B=H-150; // scatter area
   const ymin=-4,ymax=12; const xs=x=>L+(R-L)*(x+2)/4, ys=y=>B-(B-T)*(y-ymin)/(ymax-ymin);
   g2.strokeStyle=css('--grid');g2.lineWidth=1;for(let v=-4;v<=12;v+=2){g2.beginPath();g2.moveTo(L,ys(v));g2.lineTo(R,ys(v));g2.stroke();}
