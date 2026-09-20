@@ -121,10 +121,12 @@
     const u = units[i],
       prev = units[i - 1],
       next = units[i + 1];
+    document.body.style.setProperty("--stage", `var(--s-${u.stage})`);
+    document.body.dataset.stage = u.stage;
     const bar = document.createElement("nav");
     bar.className = "course-bar";
     bar.setAttribute("aria-label", "Course");
-    bar.innerHTML = `<a class="course-home" href="../index.html">Causality</a><span>${i + 1} / ${units.length} · ${esc(u.chapter.title)}</span><span class="course-nav">${prev ? `<a href="${prev.file}">← Previous</a>` : ""}<a href="../index.html">Map</a><a href="../glossary.html">Symbols</a>${next ? `<a href="${next.file}">Next →</a>` : ""}</span>`;
+    bar.innerHTML = `<a class="course-home" href="../index.html">Causality</a><span class="course-where"><span class="course-stage">${esc(u.stage)}</span> ${i + 1} / ${units.length} · ${esc(u.chapter.title)}</span><span class="course-nav">${prev ? `<a href="${prev.file}">← Previous</a>` : ""}<a href="../index.html">Map</a><a href="../glossary.html">Symbols</a>${next ? `<a href="${next.file}">Next →</a>` : ""}</span>`;
     document.body.insertBefore(bar, wrap);
     const road = document.createElement("nav");
     road.className = "roadmap";

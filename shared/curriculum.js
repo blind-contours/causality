@@ -395,16 +395,68 @@
       ],
     },
   ];
+  // Short labels for the course map. Titles stay as written on each lesson.
+  const short = {
+    "causal-roadmap": "The question",
+    "canonical-gradient": "Canonical gradient",
+    "mean-along-a-path": "Mean along a path",
+    "scores-from-scratch": "Scores & influence",
+    "under-the-integral": "Under the integral",
+    "one-step-estimator": "One-step estimator",
+    "one-move-two-faces": "One move, two faces",
+    "two-strata": "Two strata",
+    "clever-covariate": "Clever covariate",
+    "four-patients": "Four patients",
+    "inference-lab": "Inference lab",
+    "efficiency-theory-story": "Efficiency theory",
+    "survival-lab": "Survival lab",
+  };
   let previous = null;
   for (const chapter of groups)
     for (const unit of chapter.units) {
       unit.stage ||= chapter.stage;
+      unit.short ||= short[unit.id] || unit.title;
       unit.prerequisites = previous ? [previous] : [];
       previous = unit.id;
     }
+  // Three questions that let someone who already knows identification skip the roadmap lesson.
+  const diagnostic = {
+    unit: "causal-roadmap",
+    next: "canonical-gradient",
+    questions: [
+      {
+        q: "Which assumption lets E[Y | A=1, X] stand in for E[Y(1) | X]?",
+        options: [
+          "Positivity",
+          "Conditional exchangeability: no unmeasured confounding given X",
+          "Consistency",
+        ],
+        answer: 1,
+      },
+      {
+        q: "In the population, no high-severity patient is ever treated (propensity exactly 0). For the population ATE, what does that break?",
+        options: [
+          "Nothing; a flexible outcome model extrapolates",
+          "Positivity: that stratum's treated mean is not identified without further assumptions",
+          "Consistency",
+        ],
+        answer: 1,
+      },
+      {
+        q: "Two worlds produce identical observed data but different ATEs. What resolves it?",
+        options: [
+          "A larger sample",
+          "A doubly robust estimator",
+          "Nothing in the data; only assumptions or a different design",
+        ],
+        answer: 2,
+      },
+    ],
+  };
   window.CausalCurriculum = {
     name: "Causality",
     chapters: groups,
+    diagnostic,
     roadmap: [
       "question",
       "identification",

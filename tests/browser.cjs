@@ -87,6 +87,36 @@ async function main() {
   };
   await nav("index.html");
   await ev("Causality.reset()");
+  await nav("index.html");
+  assert(
+    (await ev(`document.querySelectorAll('#river a.node').length`)) === 13,
+    "river map does not show thirteen lessons",
+  );
+  assert(
+    await ev(
+      `document.querySelector('#continue .go').textContent.includes('Begin')`,
+    ),
+    "continue card does not offer a starting point on a fresh profile",
+  );
+  await ev(
+    `for(const [i,v] of [[0,1],[1,1],[2,2]]) document.getElementById('skip-q'+i+'-'+v).checked=true;document.querySelector('#skip-ahead form').requestSubmit()`,
+  );
+  await delay(80);
+  assert(
+    (await ev(`Causality.state().units['causal-roadmap']?.status`)) ===
+      "explored" &&
+      (await ev(`document.querySelector('#skip-ahead .result').className`)) ===
+        "result ok",
+    "diagnostic did not mark the roadmap lesson explored",
+  );
+  assert(
+    (await ev(`document.querySelector('#river a.node.now').dataset.unit`)) ===
+      "canonical-gradient" &&
+      (await ev(`Causality.state().units['causal-roadmap'].status`)) !==
+        "demonstrated",
+    "after the diagnostic, the map should point at the geometry lab without claiming demonstration",
+  );
+  await ev("Causality.reset()");
   const files = [
     "index.html",
     "glossary.html",

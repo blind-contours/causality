@@ -25,3 +25,10 @@ External mathematical review and participant studies require people and are not 
 - Independent mathematical review and learner study (people required).
 - Legacy canvases are readable in scrollable viewports but are not rebuilt as responsive SVG.
 - Screen-reader equivalence of figure transcripts is unverified.
+
+## Visual system (2026-09-20, second pass)
+
+- One palette for every page: the original cool-grey lesson theme, defined once in `shared/labs.css`, with six stage hues (`--s-question` … `--s-interpretation`) that follow the causal roadmap. The cream lab palette is retired.
+- Homepage rebuilt around the course map (`shared/river.js`): roadmap stages as the channel, lessons as tributaries, progress in node fill, one primary action, dense itinerary, three-question skip-ahead diagnostic that marks the roadmap lesson explored (never demonstrated).
+- Lesson headers carry their stage colour (bar underline, stage label, breadcrumb, current step).
+- Type scale raised one step (16px body) after readability review; web fonts now load on every page.

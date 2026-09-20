@@ -1228,7 +1228,7 @@
           "attempts": 1
         }
       },
-      "updated": "2026-09-20T16:55:53.829Z"
+      "updated": "2026-09-20T17:37:22.283Z"
     },
     "rates": "α=0.25, β=0.25. Scaled bound = n^0. It stays at 1; equality alone does not justify centered efficient inference.",
     "simulation": "Finished. Compare bias, sampling spread, and coverage separately.",

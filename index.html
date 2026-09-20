@@ -3,63 +3,139 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Causality — learn the shapes beneath the estimates</title>
+    <title>Causality</title>
     <meta
       name="description"
-      content="Interactive causal inference: from scientific questions to scores, canonical gradients, targeting, inference and survival analysis."
+      content="Interactive causal inference: from the scientific question to scores, canonical gradients, targeting, inference and survival analysis."
     />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
     <link rel="stylesheet" href="shared/labs.css" />
     <link rel="stylesheet" href="shared/course.css" />
+    <link rel="stylesheet" href="shared/hub.css" />
     <script src="shared/visuals.js"></script>
   </head>
-  <body>
+  <body class="hub">
     <main class="wrap">
-      <div class="eyebrow">
-        Causal inference · build intuition, then the mathematics
-      </div>
-      <h1>Learn the shapes beneath the estimates.</h1>
-      <p class="lede">
-        Start with a question you care about. Move probability, construct a
-        gradient, correct an estimate, and return to the survival analyses you
-        already know. Every formal object has a job you can see.
-      </p>
-      <div class="hero-links">
-        <a class="course-btn primary" href="lessons/00-causal-roadmap.html"
-          >Start with the question →</a
-        ><a class="course-btn" href="lessons/10-canonical-gradient.html"
-          >Open the geometry laboratory</a
-        >
-      </div>
-      <section class="lab-card">
-        <h2 style="margin-top: 0">Choose your route</h2>
-        <p>
-          The guided route introduces one representation at a time. Explore mode
-          shows all steps. Every lesson is directly accessible; prerequisites
-          are guidance, not gates.
-        </p>
-        <details>
-          <summary>I already know causal identification</summary>
-          <p>
-            Try explaining these before jumping in: What makes a score
-            mean-zero? Can a distribution move without changing your target? Why
-            does a correct nuisance model not by itself guarantee efficient
-            inference?
+      <header class="mast">
+        <a class="brand" href="index.html" aria-label="Causality home">
+          <img src="icons/icon.svg" alt="" width="28" height="28" />
+          <b>Causality</b>
+        </a>
+        <nav aria-label="Site">
+          <a href="#map">Map</a><a href="#itinerary">Lessons</a
+          ><a href="glossary.html">Symbols</a
+          ><a href="docs/learning/REFERENCES.md">References</a>
+        </nav>
+      </header>
+
+      <section class="open">
+        <div>
+          <div class="eyebrow">
+            Causal inference · semiparametric efficiency · survival
+          </div>
+          <h1>Every estimator has a shape. Learn to see it.</h1>
+          <p class="lede">
+            A guided course from the causal question to the canonical gradient
+            and back to Kaplan–Meier and Cox, with every object something you
+            move, predict, and check by hand.
           </p>
-          <a href="lessons/10-canonical-gradient.html"
-            >Build the geometric answers</a
-          >
-          ·
-          <a href="lessons/11-inference-lab.html"
-            >Test the inference conditions</a
-          >
-        </details>
-        <p id="resume"></p>
-        <p id="retrieval"></p>
+        </div>
+        <aside
+          class="continue"
+          id="continue"
+          aria-label="Where to go next"
+        ></aside>
       </section>
-      <div id="chapters"></div>
-      <footer class="course-foot">
+
+      <section class="map" id="map" aria-labelledby="map-title">
+        <div class="map-head">
+          <h2 id="map-title">The course as a river</h2>
+          <div class="legend" aria-hidden="true">
+            <span><i></i>Not started</span
+            ><span><i class="half"></i>In progress</span
+            ><span><i class="full"></i>Transfer shown</span
+            ><span><i class="now"></i>Up next</span>
+          </div>
+        </div>
+        <svg
+          class="river"
+          id="river"
+          role="group"
+          aria-label="Course map: six roadmap stages on the main channel, thirteen lessons joining as tributaries"
+        ></svg>
+        <div class="pick" id="pick" aria-live="polite">
+          <div class="stripe"></div>
+          <div>
+            <h3></h3>
+            <p class="blurb"></p>
+            <div class="meta">
+              <b class="stage"></b><span class="min"></span
+              ><span class="status"></span>
+            </div>
+          </div>
+          <a class="go" href="#">Open lesson</a>
+        </div>
+        <p id="retrieval" class="retrieval" hidden></p>
+      </section>
+
+      <section class="itin" id="itinerary" aria-labelledby="itin-title">
+        <div class="itin-intro">
+          <h2 id="itin-title">Thirteen lessons, one study carried through</h2>
+          <p>
+            The same cohort appears in every lesson: a question about severity
+            and treatment, first as a mean, then as a regression, then as a
+            survival curve.
+          </p>
+          <p>
+            Guided mode shows one representation at a time. Every lesson opens
+            directly; prerequisites are advice, not gates.
+          </p>
+          <details class="skip-ahead" id="skip-ahead">
+            <summary>Know identification already? Three-question check</summary>
+            <p>
+              Answer all three and the roadmap lesson is marked explored, so the
+              map starts you at the geometry.
+            </p>
+            <form></form>
+            <p class="result" role="status"></p>
+          </details>
+        </div>
+        <div id="chapters"></div>
+      </section>
+
+      <section class="outcomes" aria-label="What you will be able to do">
+        <div class="outcome" style="--stage: var(--s-model)">
+          <div class="eyebrow">Read the geometry</div>
+          <p>
+            <b>Explain a tangent space and a canonical gradient</b> for a model
+            you have not seen, using a construction you did yourself.
+          </p>
+        </div>
+        <div class="outcome" style="--stage: var(--s-estimation)">
+          <div class="eyebrow">Audit an estimator</div>
+          <p>
+            <b>Say what a one-step or TMLE correction removes,</b> what it
+            leaves, and when its interval is honest.
+          </p>
+        </div>
+        <div class="outcome" style="--stage: var(--s-interpretation)">
+          <div class="eyebrow">Return to practice</div>
+          <p>
+            <b>Choose between a hazard ratio, a survival difference and RMST</b>
+            as answers to different questions.
+          </p>
+        </div>
+      </section>
+
+      <footer class="course-foot hub-foot">
+        <div id="settings-slot"></div>
         <p>
           Progress and laboratory configurations are stored in this browser. A
           demonstrated check records one transfer task, not complete mastery.
@@ -78,6 +154,7 @@
     <script src="shared/state.js"></script>
     <script src="shared/practice.js"></script>
     <script src="shared/course.js"></script>
+    <script src="shared/river.js"></script>
     <script src="shared/hub.js"></script>
   </body>
 </html>

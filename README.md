@@ -37,7 +37,8 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 | `shared/practice.js` | Generated transfer cases, hints, worked solutions and reflection prompts |
 | `shared/course.js` | Navigation, guided topics, contextual notation, progress and persistence |
 | `shared/visuals.js` | SVG plotting, shared animation clock and accessible legacy-canvas containers |
-| `shared/lesson.css`, `shared/labs.css`, `shared/course.css` | Shared visual language, lesson layouts and course controls |
+| `shared/river.js`, `shared/hub.js`, `shared/hub.css` | The course map: roadmap stages as a river, lessons as tributaries, progress states, skip-ahead diagnostic |
+| `shared/labs.css`, `shared/lesson.css`, `shared/course.css` | One token set (palette, six stage hues, type) in `labs.css`; legacy lesson components; course navigation and study layer |
 | `lessons/` | Thirteen entry pages; nine existing derivations plus four laboratories |
 | `tests/` | Scientific invariants, state transitions, source/link checks and browser verification |
 | `docs/learning/` | References, mathematical-review packet and learner-study protocol |

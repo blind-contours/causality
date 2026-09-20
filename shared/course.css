@@ -570,3 +570,28 @@ select {
 .legacy-step {
   scroll-margin-top: 16px;
 }
+
+/* Stage colour: set on <body> by course.js from the unit's roadmap stage. */
+.course-bar {
+  border-bottom: 2px solid var(--stage, var(--rule));
+}
+.course-stage {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage, var(--muted));
+  margin-right: 8px;
+}
+.roadmap [aria-current] {
+  border-bottom-color: var(--stage, var(--purple));
+  color: var(--stage, var(--ink));
+}
+.step-nav button[aria-current="step"],
+.scene-index a[aria-current] {
+  border-color: var(--stage, var(--purple));
+}
+.recap,
+.recap-strip {
+  border-left-color: var(--stage, var(--teal));
+}

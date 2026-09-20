@@ -1,54 +1,86 @@
+/* Causality design tokens: one palette for every page. Stage hues follow the causal roadmap. */
 :root {
-  --bg: #f5f4ee;
-  --paper: #fffef9;
+  --bg: #f3f5f7;
+  --paper: #ffffff;
   --panel: var(--paper);
-  --ink: #203233;
-  --muted: #536567;
-  --rule: #cbd6d0;
-  --grid: #e2e9e3;
-  --soft: #edf2ed;
-  --purple: #6540aa;
-  --p: #315ca8;
-  --green: #246942;
-  --teal: #187176;
-  --or: #a35916;
-  --red: #b23737;
-  --phat: #a32e71;
-  --pen: var(--ink);
+  --ink: #1b2530;
+  --muted: #5d6b78;
+  --rule: #d3dae1;
+  --grid: #e6ebf0;
+  --soft: #eef2f6;
+  --p: #2b4bc8;
+  --or: #e0801a;
+  --teal: #1c8c8c;
+  --green: #3d9440;
+  --purple: #6a3fb5;
+  --red: #c6362c;
+  --phat: #b0287f;
+  --pen: #1b2530;
+  --s-question: #2b4bc8;
+  --s-identification: #1c8c8c;
+  --s-model: #6a3fb5;
+  --s-estimation: #e0801a;
+  --s-uncertainty: #b0287f;
+  --s-interpretation: #3d9440;
+  --stage: var(--purple);
+  --water: #dce3ea;
+  --shadow:
+    0 1px 2px rgba(27, 37, 48, 0.06), 0 8px 24px -12px rgba(27, 37, 48, 0.18);
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #131e21;
-    --paper: #1c2b2e;
-    --ink: #edf3ee;
-    --muted: #b3c5c1;
-    --rule: #425651;
-    --grid: #314340;
-    --soft: #233837;
-    --purple: #c5a9ff;
-    --p: #92b8ff;
-    --green: #8addac;
-    --teal: #7bd4ce;
-    --or: #f4ba78;
-    --red: #ffaaa2;
-    --phat: #f19dcc;
+    --bg: #12181f;
+    --paper: #1b232c;
+    --ink: #e7ebef;
+    --muted: #9aa8b5;
+    --rule: #33404c;
+    --grid: #28323c;
+    --soft: #222c36;
+    --p: #8aa0f0;
+    --or: #f2a353;
+    --teal: #5cc4c4;
+    --green: #7ccb7c;
+    --purple: #a98be6;
+    --red: #ef7a70;
+    --phat: #e36ab8;
+    --pen: #e7ebef;
+    --s-question: #8aa0f0;
+    --s-identification: #5cc4c4;
+    --s-model: #a98be6;
+    --s-estimation: #f2a353;
+    --s-uncertainty: #e36ab8;
+    --s-interpretation: #7ccb7c;
+    --water: #232d38;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #131e21;
-  --paper: #1c2b2e;
-  --ink: #edf3ee;
-  --muted: #b3c5c1;
-  --rule: #425651;
-  --grid: #314340;
-  --soft: #233837;
-  --purple: #c5a9ff;
-  --p: #92b8ff;
-  --green: #8addac;
-  --teal: #7bd4ce;
-  --or: #f4ba78;
-  --red: #ffaaa2;
-  --phat: #f19dcc;
+  --bg: #12181f;
+  --paper: #1b232c;
+  --ink: #e7ebef;
+  --muted: #9aa8b5;
+  --rule: #33404c;
+  --grid: #28323c;
+  --soft: #222c36;
+  --p: #8aa0f0;
+  --or: #f2a353;
+  --teal: #5cc4c4;
+  --green: #7ccb7c;
+  --purple: #a98be6;
+  --red: #ef7a70;
+  --phat: #e36ab8;
+  --pen: #e7ebef;
+  --s-question: #8aa0f0;
+  --s-identification: #5cc4c4;
+  --s-model: #a98be6;
+  --s-estimation: #f2a353;
+  --s-uncertainty: #e36ab8;
+  --s-interpretation: #7ccb7c;
+  --water: #232d38;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
 }
 * {
   box-sizing: border-box;
@@ -58,9 +90,9 @@ body {
   padding: 36px 20px 64px;
   background: var(--bg);
   color: var(--ink);
-  font:
-    17px/1.65 system-ui,
-    sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
 }
 .wrap {
   max-width: 1080px;
@@ -69,33 +101,39 @@ body {
 h1,
 h2,
 h3 {
-  font-family: Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
   line-height: 1.15;
+  text-wrap: balance;
 }
 h1 {
-  font-size: clamp(34px, 5vw, 60px);
-  max-width: 850px;
-  margin: 20px 0;
+  font-size: clamp(34px, 4.2vw, 44px);
+  letter-spacing: -0.012em;
+  line-height: 1.06;
+  max-width: 24ch;
+  margin: 8px 0 12px;
 }
 h2 {
-  font-size: 30px;
+  font-size: 26px;
   margin-top: 46px;
 }
 h3 {
-  font-size: 23px;
+  font-size: 20px;
 }
 .eyebrow {
+  font-family: "IBM Plex Mono", monospace;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   font-size: 12px;
-  color: var(--teal);
+  color: var(--muted);
 }
 p {
   max-width: 72ch;
 }
 .lede {
-  font-size: 20px;
+  font-size: 17.5px;
   color: var(--muted);
+  max-width: 60ch;
   margin-bottom: 30px;
 }
 a {
@@ -117,8 +155,9 @@ button,
   cursor: pointer;
 }
 button.primary {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
 }
 button:hover {
   border-color: var(--purple);

@@ -1,55 +1,4 @@
-/* Shared typography and scene layout for the derivation lessons. */
-
-:root {
-  --bg: #f3f5f7;
-  --paper: #ffffff;
-  --ink: #1b2530;
-  --muted: #5d6b78;
-  --rule: #d3dae1;
-  --grid: #e6ebf0;
-  --soft: #eef2f6;
-  --p: #2b4bc8;
-  --or: #965419;
-  --teal: #187176;
-  --green: #246942;
-  --purple: #6a3fb5;
-  --red: #c6362c;
-  --pen: #1b2530;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12181f;
-    --paper: #1b232c;
-    --ink: #e7ebef;
-    --muted: #9aa8b5;
-    --rule: #33404c;
-    --grid: #28323c;
-    --soft: #222c36;
-    --p: #8aa0f0;
-    --or: #f2a353;
-    --teal: #5cc4c4;
-    --green: #7ccb7c;
-    --purple: #a98be6;
-    --red: #ef7a70;
-    --pen: #e7ebef;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12181f;
-  --paper: #1b232c;
-  --ink: #e7ebef;
-  --muted: #9aa8b5;
-  --rule: #33404c;
-  --grid: #28323c;
-  --soft: #222c36;
-  --p: #8aa0f0;
-  --or: #f2a353;
-  --teal: #5cc4c4;
-  --green: #7ccb7c;
-  --purple: #a98be6;
-  --red: #ef7a70;
-  --pen: #e7ebef;
-}
+/* Legacy lesson components. Tokens come from labs.css. */
 * {
   box-sizing: border-box;
 }
@@ -58,7 +7,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: "IBM Plex Sans", system-ui, sans-serif;
-  font-size: 15.5px;
+  font-size: 16px;
   line-height: 1.55;
   padding: 36px 20px 72px;
 }
@@ -69,8 +18,8 @@ body {
 h1 {
   font-family: "Fraunces", Georgia, serif;
   font-weight: 600;
-  font-size: 42px;
-  line-height: 1.05;
+  font-size: clamp(34px, 4.2vw, 44px);
+  line-height: 1.06;
   margin: 0 0 10px;
   text-wrap: balance;
   letter-spacing: -0.012em;
