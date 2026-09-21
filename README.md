@@ -23,6 +23,8 @@ For browser checks, start an isolated Chrome/Chromium profile with remote debugg
 3. **Build an estimator:** one-step correction, Gaussian tilts, information geometry, clever covariates, binary targeting, and four-patient arithmetic.
 4. **Earn inference and return to survival:** nuisance correctness, product rates, cross-fitting, repeated-sampling experiments, efficiency theory, KM, censoring and RMST versus hazard ratios.
 
+5. **Experiment when treatments spill over** (a branch after the inference laboratory; survival is not a prerequisite): define direct, spillover and full-policy effects on an exact eight-unit network; step through a two-zone shared fleet and compare request-level randomization with randomized switchbacks; judge repeated experiments against a named target with a validated benchmark, and write a one-page recommendation. A Python/SQL capstone in `examples/marketplace/` reproduces the analysis and generates the precomputed grid the third lesson reads.
+
 Guided mode presents one topic at a time; Explore shows all topics. Direct entry is always available. The course map and each lesson show prerequisites. A saved estimand contract stays available across lessons; each experiment explicitly states when it uses a different toy target or population.
 
 ## Code organization
@@ -30,6 +32,9 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 | Location | Responsibility |
 |---|---|
 | `science/core.js` | Pure probability, geometry, targeting, estimation, histogram and survival kernels; available in browsers and Node |
+| `science/interference.js` | Exact eight-unit interference model: enumeration of every assignment under Bernoulli, complete and cluster designs; exposure support; exact design contrasts and estimands |
+| `science/marketplace.js` | Two-zone shared-fleet simulator (specified minute loop), request and switchback designs, estimators, sharp-null randomization test, full-policy reference, repeated experiments, and the validated finite-history benchmark |
+| `examples/marketplace/` | Python port of the simulator checked against a shared fixture, SQL metric construction with unserved requests in the denominator, the simulation grid, and the report |
 | `science/simulation-worker.js` | Seeded repeated experiments, progress messages, immutable run configuration |
 | `labs/` | Laboratory state, controls and linked visual representations; reusable simulation panel |
 | `shared/curriculum.js` | Unit order, roadmap stages, prerequisites and retrieval questions |

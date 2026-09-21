@@ -196,6 +196,34 @@
     });
   }
 
+  const words = [
+    "",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+    "twenty",
+  ];
+  const titleEl = document.getElementById("itin-title");
+  if (titleEl) {
+    const w = words[units.length] || String(units.length);
+    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} lessons, one study carried through and one carried further`;
+  }
   function refresh() {
     const p = progress();
     continueCard(p);

@@ -30,6 +30,12 @@ Classic JavaScript modules attach small namespaces because legacy lesson pages a
 
 Figures register with `CausalFigures.register(name, (mount, dataset) => …)` and lessons mount them with `<div data-figure="name">`. Legacy canvases remain on `CausalVisuals.scene`; new figures are SVG so labels stay text and the accessible transcript is the DOM.
 
+## Spillover kernels
+
+`science/interference.js` is exact: eight units, a fixed graph, deterministic potential outcomes, and full enumeration of allowable assignments with their probabilities under each design. Every number in lesson 13 comes from enumeration, including the fact that individual randomization's treated-minus-control contrast is τ − γ/(N−1).
+
+`science/marketplace.js` is a specified minute-loop simulator (the rules are the comment at the top of the file). Demand and assignment use separate seeded streams. The Python port in `examples/marketplace/python` implements the same rules; agreement is checked on `examples/marketplace/fixtures/hand_worked.json`, not on shared random streams. The full-policy reference is estimated with Monte Carlo uncertainty and is never called an exact truth. The finite-history benchmark is the one place where an estimator's guarantee is verified; fleet results are exploratory evidence for the simulated settings.
+
 ## Worker protocol
 
 Input: `{preset, mode, crossfit, n, reps, seed}`. Valid presets are `both`, `outcome`, `propensity`, `neither`; modes are `fitted` and `oracle`.

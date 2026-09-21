@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Repeated experiments on a shared fleet, a validated switchback benchmark, calibration against a named target, and a one-page recommendation."
+    />
+    <title>Does the evidence support the decision? · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      /* Lab-specific layout; colours come from the shared tokens. */
+      .mkt-source {
+        display: inline-block;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: var(--soft);
+        color: var(--ink);
+        margin: 6px 0;
+      }
+      .mkt-source.python {
+        border: 1px solid var(--green);
+      }
+      .mkt-source.browser {
+        border: 1px solid var(--or);
+      }
+      .mkt-command {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12.5px;
+        background: var(--soft);
+        padding: 8px 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+        white-space: pre;
+        max-width: 100%;
+      }
+      .mkt-about {
+        text-align: left;
+        min-width: 30ch;
+        max-width: 44ch;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      td.mkt-about {
+        white-space: normal;
+      }
+      .mkt-sub {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 12px 0;
+      }
+      .mkt-sub button[aria-current="true"] {
+        border: 2px solid var(--purple);
+      }
+      .mkt-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0 18px;
+      }
+      .mkt-memo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 0 20px;
+      }
+      .mkt-memo label {
+        margin: 10px 0;
+        font-size: 14.5px;
+      }
+      .mkt-memo textarea {
+        min-height: 4.2em;
+        resize: vertical;
+      }
+      .mkt-memo .wide {
+        grid-column: 1 / -1;
+      }
+      .mkt-check {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0;
+      }
+      .mkt-check button[aria-pressed="true"] {
+        border: 2px solid var(--purple);
+      }
+      .mkt-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        font-size: 13.5px;
+        color: var(--muted);
+        margin: 6px 0;
+      }
+      .mkt-legend i {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        vertical-align: -1px;
+        margin-right: 5px;
+      }
+      [data-lab] .fig-readout {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12.5px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 12px;
+        margin-top: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      [data-lab] .fig-readout .k {
+        color: var(--muted);
+      }
+      .mkt-two {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/marketplace.js"></script>
+    <script src="../shared/visuals.js"></script>
+    <script src="../shared/anim.js"></script>
+  </head>
+  <body data-lesson="marketplace-decision-lab">
+    <main class="wrap">
+      <div class="eyebrow">
+        Causality · a question you can hold in your hands
+      </div>
+      <h1>Does the evidence support the decision?</h1>
+      <p class="lede">
+        Repeated experiments on a shared fleet, a validated switchback
+        benchmark, calibration against a named target, and a one-page
+        recommendation.
+      </p>
+      <noscript
+        >These laboratories require JavaScript for interaction. The course
+        repository includes a mathematical review and scientific
+        references.</noscript
+      >
+      <div data-lab="marketplace-decision-lab"></div>
+      <p class="sources">
+        Further reading:
+        <a href="https://arxiv.org/abs/2101.11073"
+          >Bojinov, Simchi-Levi and Zhao: Design and analysis of switchback
+          experiments</a
+        >. The fleet simulator and the finite-history benchmark live in
+        <code>science/marketplace.js</code>; the larger Python grid, when
+        present, is regenerated by the command printed beside the comparison
+        panel. Simulation results are evidence for the simulated settings, not a
+        proof of general validity.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/marketplace-decision-lab.js"></script>
+  </body>
+</html>

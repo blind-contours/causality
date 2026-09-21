@@ -1,0 +1,248 @@
+{
+  "version": "1.0.0",
+  "note": "Hand-workable: two vehicles, six requests, block boundary at t=10 (A then B). Requests 1 and 2 (zone 0, policy A) expire while vehicle 0 is busy because A never searches zone 1. Vehicle 0 serves requests 0 and 3. Request 4 (zone 1, policy B) is served by vehicle 1. Request 5 (zone 0, policy B) finds both vehicles busy and expires at t=16.",
+  "config": {
+    "horizon": 20,
+    "followUp": 20,
+    "fleet": 2,
+    "demandPerMinute": 0.35,
+    "zoneShare": 0.5,
+    "crossDestShare": 0.3,
+    "maxWait": 3,
+    "deadline": 4,
+    "pickupLocal": 2,
+    "pickupCross": 4,
+    "tripLocal": 6,
+    "tripCross": 10,
+    "blockLength": 10,
+    "washout": 0,
+    "demandSeed": 11,
+    "assignSeed": 7,
+    "schedule": [
+      {
+        "block": 0,
+        "start": 0,
+        "end": 10,
+        "policy": "A"
+      },
+      {
+        "block": 1,
+        "start": 10,
+        "end": 20,
+        "policy": "B"
+      },
+      {
+        "block": 2,
+        "start": 20,
+        "end": 30,
+        "policy": "A"
+      },
+      {
+        "block": 3,
+        "start": 30,
+        "end": 40,
+        "policy": "B"
+      }
+    ]
+  },
+  "fleet": [
+    {
+      "id": 0,
+      "zone": 0,
+      "freeAt": 0
+    },
+    {
+      "id": 1,
+      "zone": 1,
+      "freeAt": 0
+    }
+  ],
+  "requests": [
+    {
+      "id": 0,
+      "t": 0,
+      "origin": 0,
+      "dest": 0,
+      "maxWait": 3
+    },
+    {
+      "id": 1,
+      "t": 1,
+      "origin": 0,
+      "dest": 1,
+      "maxWait": 3
+    },
+    {
+      "id": 2,
+      "t": 2,
+      "origin": 0,
+      "dest": 0,
+      "maxWait": 3
+    },
+    {
+      "id": 3,
+      "t": 9,
+      "origin": 0,
+      "dest": 0,
+      "maxWait": 3
+    },
+    {
+      "id": 4,
+      "t": 11,
+      "origin": 1,
+      "dest": 1,
+      "maxWait": 3
+    },
+    {
+      "id": 5,
+      "t": 12,
+      "origin": 0,
+      "dest": 0,
+      "maxWait": 3
+    }
+  ],
+  "schedule": [
+    {
+      "block": 0,
+      "start": 0,
+      "end": 10,
+      "policy": "A"
+    },
+    {
+      "block": 1,
+      "start": 10,
+      "end": 20,
+      "policy": "B"
+    },
+    {
+      "block": 2,
+      "start": 20,
+      "end": 30,
+      "policy": "A"
+    },
+    {
+      "block": 3,
+      "start": 30,
+      "end": 40,
+      "policy": "B"
+    }
+  ],
+  "expected": [
+    {
+      "id": 0,
+      "policy": "A",
+      "block": 0,
+      "status": "served",
+      "vehicle": 0,
+      "pickup": 2,
+      "complete": 8,
+      "wait": 2,
+      "servedInTime": 1
+    },
+    {
+      "id": 1,
+      "policy": "A",
+      "block": 0,
+      "status": "unserved",
+      "vehicle": null,
+      "pickup": null,
+      "complete": null,
+      "wait": null,
+      "servedInTime": 0
+    },
+    {
+      "id": 2,
+      "policy": "A",
+      "block": 0,
+      "status": "unserved",
+      "vehicle": null,
+      "pickup": null,
+      "complete": null,
+      "wait": null,
+      "servedInTime": 0
+    },
+    {
+      "id": 3,
+      "policy": "A",
+      "block": 0,
+      "status": "served",
+      "vehicle": 0,
+      "pickup": 11,
+      "complete": 17,
+      "wait": 2,
+      "servedInTime": 1
+    },
+    {
+      "id": 4,
+      "policy": "B",
+      "block": 1,
+      "status": "served",
+      "vehicle": 1,
+      "pickup": 13,
+      "complete": 19,
+      "wait": 2,
+      "servedInTime": 1
+    },
+    {
+      "id": 5,
+      "policy": "B",
+      "block": 1,
+      "status": "unserved",
+      "vehicle": null,
+      "pickup": null,
+      "complete": null,
+      "wait": null,
+      "servedInTime": 0
+    }
+  ],
+  "events": [
+    {
+      "t": 0,
+      "vehicle": 0,
+      "state": "assigned",
+      "zone": 0,
+      "request": 0
+    },
+    {
+      "t": 8,
+      "vehicle": 0,
+      "state": "free",
+      "zone": 0,
+      "request": 0
+    },
+    {
+      "t": 9,
+      "vehicle": 0,
+      "state": "assigned",
+      "zone": 0,
+      "request": 3
+    },
+    {
+      "t": 17,
+      "vehicle": 0,
+      "state": "free",
+      "zone": 0,
+      "request": 3
+    },
+    {
+      "t": 11,
+      "vehicle": 1,
+      "state": "assigned",
+      "zone": 1,
+      "request": 4
+    },
+    {
+      "t": 19,
+      "vehicle": 1,
+      "state": "free",
+      "zone": 1,
+      "request": 4
+    }
+  ],
+  "metrics": {
+    "fulfilment": 0.5,
+    "eligible": 6,
+    "unserved": 3,
+    "switchback": 0
+  }
+}

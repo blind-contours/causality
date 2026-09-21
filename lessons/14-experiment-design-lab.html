@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Two zones, one shared fleet: step through requests, then compare request-level randomization with randomized switchbacks against the full-policy reference."
+    />
+    <title>What should we randomize? · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      /* Lab-specific layout; colours come from the shared variables only. */
+      .forecast {
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 10px 16px 14px;
+        margin: 16px 0;
+        background: var(--soft);
+      }
+      .forecast legend {
+        font-weight: 600;
+        padding: 0 6px;
+      }
+      .forecast .btns {
+        margin: 6px 0 8px;
+      }
+      .forecast button[aria-pressed="true"] {
+        border: 2px solid var(--purple);
+      }
+      .forecast .forecast-result {
+        margin: 0;
+        font-size: 14.5px;
+      }
+      .policy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        margin: 12px 0;
+      }
+      .policy {
+        border-left: 4px solid var(--p);
+        padding: 2px 14px 6px;
+        background: var(--soft);
+        border-radius: 8px;
+      }
+      .policy.B {
+        border-left-color: var(--or);
+      }
+      .policy h3 {
+        margin: 10px 0 4px;
+      }
+      .contract dt {
+        font-weight: 600;
+        margin-top: 10px;
+      }
+      .contract dd {
+        margin: 4px 0 0;
+      }
+      .ctl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 4px 22px;
+      }
+      .ctl-grid label,
+      .fig-controls label {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+      }
+      .ctl-grid input[type="range"],
+      .fig-controls input[type="range"] {
+        flex: 1 0 100%;
+      }
+      label output {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        color: var(--purple);
+        font-variant-numeric: tabular-nums;
+      }
+      .run-config {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12.5px;
+        color: var(--muted);
+        border-left: 3px solid var(--rule);
+        padding: 6px 12px;
+        overflow-wrap: anywhere;
+      }
+      .run-config.stale {
+        border-left-color: var(--or);
+        color: var(--ink);
+      }
+      .design-pair {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 0 18px;
+      }
+      .design-pair h3 {
+        margin: 6px 0 8px;
+        font-size: 17px;
+      }
+      .case-box {
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 8px 16px 12px;
+        margin: 14px 0;
+      }
+      .case-box legend {
+        font-weight: 600;
+        padding: 0 6px;
+      }
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        font: inherit;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      #trace-log li {
+        margin: 6px 0;
+      }
+      #design-results td:last-child {
+        text-align: left;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/marketplace.js"></script>
+    <script src="../shared/visuals.js"></script>
+  </head>
+  <body data-lesson="experiment-design-lab">
+    <main class="wrap">
+      <div class="eyebrow">
+        Causality · experiment when treatments spill over
+      </div>
+      <h1>What should we randomize?</h1>
+      <p class="lede">
+        Two zones, one shared fleet. Step through six requests by hand, then
+        compare request-level randomization with randomized switchbacks against
+        the full-policy reference, and see what a switch does not reset.
+      </p>
+      <noscript
+        >These laboratories require JavaScript for interaction. The course
+        repository includes a mathematical review and scientific
+        references.</noscript
+      >
+      <div data-lab="experiment-design-lab"></div>
+      <p class="sources">
+        Further reading:
+        <a href="https://arxiv.org/abs/2009.00148"
+          >Bojinov, Simchi-Levi and Zhao: Design and analysis of switchback
+          experiments</a
+        >. Every number on this page is produced by the accompanying fleet
+        simulator (science/marketplace.js), whose rules are stated at the top of
+        that file and checked against a hand-worked fixture; the reference is a
+        Monte Carlo quantity with its own uncertainty, not an exact truth.
+      </p>
+    </main>
+    <script src="../shared/anim.js"></script>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/experiment-design-lab.js"></script>
+  </body>
+</html>

@@ -89,8 +89,9 @@ async function main() {
   await ev("Causality.reset()");
   await nav("index.html");
   assert(
-    (await ev(`document.querySelectorAll('#river a.node').length`)) === 13,
-    "river map does not show thirteen lessons",
+    (await ev(`document.querySelectorAll('#river a.node').length`)) ===
+      (await ev(`Causality.units.length`)),
+    "river map does not show every lesson",
   );
   assert(
     await ev(

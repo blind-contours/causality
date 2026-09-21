@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "note": "Synthetic two-zone fleet simulation grid. Scenario configs are merged over simulator.DEFAULT_CONFIG. All quantities are simulated; nothing is calibrated to a real service.",
+  "reps": 200,
+  "experimentSeed": 500,
+  "referenceReps": 200,
+  "referenceSeed": 100,
+  "scenarios": {
+    "base": {
+      "label": "Base: default fleet and demand, 12-hour horizon",
+      "config": {"horizon": 720}
+    },
+    "competition": {
+      "label": "Supply competition: fleet 4, demand 0.5 per minute",
+      "config": {"horizon": 720, "fleet": 4, "demandPerMinute": 0.5}
+    },
+    "persistence": {
+      "label": "Persistence: longer trips (16 / 26 min) and longer patience (maxWait 12)",
+      "config": {"horizon": 720, "tripLocal": 16, "tripCross": 26, "maxWait": 12}
+    },
+    "cycle": {
+      "label": "Demand cycle: rate 0.35 x (1 + 0.6 sin(2 pi t / horizon)) (Python-only generator)",
+      "config": {"horizon": 720, "demandCycle": 0.6}
+    }
+  },
+  "designs": {
+    "request": {},
+    "switchback": {"blockLengths": [30, 60], "washouts": [0, 5]}
+  },
+  "sharpNull": [false, true]
+}

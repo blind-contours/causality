@@ -66,6 +66,21 @@
       a: 1 + n / 10,
       h: "RMST is the area under the survival curve; add the two rectangles.",
     }),
+    "interference-lab": (n) => ({
+      q: `Spillover strength γ is 0.${n}. A unit with three neighbours goes from one treated neighbour to all three, with its own treatment fixed. By how much does its outcome change?`,
+      a: (n / 10) * (2 / 3),
+      h: "Neighbour exposure rises from 1/3 to 1: multiply γ by the change in exposure, 2/3.",
+    }),
+    "experiment-design-lab": (n) => ({
+      q: `A switchback uses 30-minute blocks and a ${n}-minute washout after each switch. With uniform arrivals, what fraction of each block's requests is excluded from the analysis? Enter a decimal.`,
+      a: n / 30,
+      h: "Excluded minutes over block minutes. Deleting them changes the analysed population, not the fleet state.",
+    }),
+    "marketplace-decision-lab": (n) => ({
+      q: `In the benchmark y = μ + δ·z_t + ρ·z_{t−1} + e with blocks of length L = ${n + 4} and no washout, the block-mean estimator of δ + ρ has expected bias −ρ/L. With ρ = 0.06, what is the bias?`,
+      a: -0.06 / (n + 4),
+      h: "Only the first period of each block sees the previous block's policy, so a fraction 1/L of the carryover is lost.",
+    }),
   };
   window.CausalPractice = {
     bank,

@@ -410,13 +410,127 @@
     "inference-lab": "Inference lab",
     "efficiency-theory-story": "Efficiency theory",
     "survival-lab": "Survival lab",
+    "interference-lab": "Spillovers",
+    "experiment-design-lab": "What to randomize",
+    "marketplace-decision-lab": "Decide from evidence",
+  };
+  groups.push({
+    id: "spillover",
+    title: "Experiment when treatments spill over",
+    description:
+      "A branch after the inference laboratory: define effects when one unit's treatment reaches another, choose what to randomize in a shared fleet, and judge whether the evidence supports a decision. The clinical study stays as it is; the marketplace is a transfer to a new setting.",
+    stage: "estimation",
+    units: [
+      add(
+        "interference-lab",
+        "13-interference-lab.html",
+        "Whose treatment changes whose outcome?",
+        "Eight connected people, exact enumeration of every assignment, and the difference between direct, spillover and full-policy effects.",
+        "identification",
+      ),
+      add(
+        "experiment-design-lab",
+        "14-experiment-design-lab.html",
+        "What should we randomize?",
+        "Two zones, one shared fleet: step through requests, then compare request-level randomization with randomized switchbacks.",
+        "estimation",
+      ),
+      add(
+        "marketplace-decision-lab",
+        "15-marketplace-decision-lab.html",
+        "Does the evidence support the decision?",
+        "Repeated experiments, a validated benchmark, calibration against a named target, and a one-page recommendation.",
+        "uncertainty",
+      ),
+    ],
+  });
+  const recaps = {
+    "interference-lab": [
+      {
+        q: "Two neighbours' outcomes rise together after a heatwave. Is that interference?",
+        options: [
+          "Yes: outcomes moved together",
+          "Not by itself: a shared shock moves outcomes without one unit's treatment reaching another",
+          "Only if the graph has a bridge",
+        ],
+        answer: 1,
+        hint: "Interference means changing one unit's assignment changes another unit's outcome.",
+      },
+      {
+        q: "Under individual Bernoulli randomization in the eight-unit model, the treated-minus-control contrast estimates:",
+        options: [
+          "The direct effect τ",
+          "τ − γ/7",
+          "The full-policy effect τ + γ",
+        ],
+        answer: 1,
+        hint: "Treating unit i removes one potential treated neighbour for each of the other seven.",
+      },
+    ],
+    "experiment-design-lab": [
+      {
+        q: "A request's policy is assigned at arrival. What decides whether a B request finds a vehicle?",
+        options: [
+          "Only its own policy",
+          "Its policy and the fleet state left by earlier requests, whatever their policy",
+          "The block it falls in, nothing else",
+        ],
+        answer: 1,
+        hint: "Shared supply is the mechanism of spillover between requests.",
+      },
+      {
+        q: "Deleting the first five minutes after a switch from the analysis:",
+        options: [
+          "Resets the fleet to the same state as at the start",
+          "Changes which requests are analysed; the vehicles stay where they were",
+          "Makes the switchback estimate equal to the policy effect",
+        ],
+        answer: 1,
+        hint: "A washout is an analysis choice with a scientific rationale; it is not a physical reset.",
+      },
+    ],
+    "marketplace-decision-lab": [
+      {
+        q: "In the fleet simulation the request-level estimate and the all-B minus all-A reference differ. Which fixes the mismatch?",
+        options: [
+          "A larger standard error",
+          "Neither: they answer different questions; a design that randomizes the whole market targets the policy effect",
+          "More replications",
+        ],
+        answer: 1,
+        hint: "A standard error describes uncertainty about a contrast; it cannot change which contrast is measured.",
+      },
+      {
+        q: "A sharp-null randomization test for a switchback should resample:",
+        options: [
+          "Individual requests",
+          "The block sequence under the actual design",
+          "Vehicles",
+        ],
+        answer: 1,
+        hint: "Resample the design that was actually run; the null is no policy effect on any block.",
+      },
+    ],
+  };
+  const explicitPrerequisites = {
+    "interference-lab": ["causal-roadmap", "inference-lab"],
+    "experiment-design-lab": ["interference-lab"],
+    "marketplace-decision-lab": ["experiment-design-lab"],
+  };
+  const minutes = {
+    "interference-lab": 30,
+    "experiment-design-lab": 30,
+    "marketplace-decision-lab": 35,
   };
   let previous = null;
   for (const chapter of groups)
     for (const unit of chapter.units) {
       unit.stage ||= chapter.stage;
       unit.short ||= short[unit.id] || unit.title;
-      unit.prerequisites = previous ? [previous] : [];
+      if (minutes[unit.id]) unit.minutes = minutes[unit.id];
+      if (recaps[unit.id]) unit.recap = recaps[unit.id];
+      unit.prerequisites =
+        explicitPrerequisites[unit.id] || (previous ? [previous] : []);
       previous = unit.id;
     }
   // Three questions that let someone who already knows identification skip the roadmap lesson.

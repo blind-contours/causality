@@ -445,6 +445,36 @@
       "errors": []
     },
     {
+      "file": "lessons/13-interference-lab.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/14-experiment-design-lab.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/15-marketplace-decision-lab.html",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
       "file": "index.html",
       "width": 390,
       "scrollWidth": 390,
@@ -888,6 +918,36 @@
       "errors": []
     },
     {
+      "file": "lessons/13-interference-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/14-experiment-design-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "file": "lessons/15-marketplace-decision-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "light",
+      "errors": []
+    },
+    {
       "file": "index.html",
       "width": 390,
       "scrollWidth": 390,
@@ -1322,6 +1382,36 @@
     },
     {
       "file": "lessons/12-survival-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/13-interference-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/14-experiment-design-lab.html",
+      "width": 390,
+      "scrollWidth": 390,
+      "unlabelled": [],
+      "canvases": [],
+      "lessonStatus": "Ready to explore",
+      "theme": "dark",
+      "errors": []
+    },
+    {
+      "file": "lessons/15-marketplace-decision-lab.html",
       "width": 390,
       "scrollWidth": 390,
       "unlabelled": [],
@@ -1351,7 +1441,7 @@
           "attempts": 1
         }
       },
-      "updated": "2026-09-21T00:33:07.122Z"
+      "updated": "2026-09-21T17:57:49.000Z"
     },
     "rates": "α = 0.25, β = 0.25, so the scaled bound is n^0. The bound sits exactly on the boundary line: it stays at 1, neither vanishing nor growing, so equality alone does not establish a negligible remainder.",
     "simulation": "Finished. Compare bias, sampling spread, and coverage separately.",
