@@ -537,7 +537,8 @@ async function main() {
       saved.includes('"learner":"linear"'),
     "inference figure settings did not reach the laboratory store: " + saved,
   );
-  await click(".reset-lab");
+  // The simulation panel has its own Reset; the laboratory's is the last one on the page.
+  await ev(`[...document.querySelectorAll('.reset-lab')].pop().click()`);
   await delay(100);
   assert(
     (await ev(

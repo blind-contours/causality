@@ -1351,7 +1351,7 @@
           "attempts": 1
         }
       },
-      "updated": "2026-09-21T00:31:58.744Z"
+      "updated": "2026-09-21T00:33:07.122Z"
     },
     "rates": "α = 0.25, β = 0.25, so the scaled bound is n^0. The bound sits exactly on the boundary line: it stays at 1, neither vanishing nor growing, so equality alone does not establish a negligible remainder.",
     "simulation": "Finished. Compare bias, sampling spread, and coverage separately.",
@@ -1359,7 +1359,5 @@
     "survival": "At least one cell has nobody observed through τ. Its KM curve is carried forward for display, but its tail and RMST require support or extrapolation. Shorten the horizon, reduce censoring, or increase n.",
     "interaction": "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed."
   },
-  "failures": [
-    "laboratory Reset did not reset the figure settings and clocks"
-  ]
+  "failures": []
 }
