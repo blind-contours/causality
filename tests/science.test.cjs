@@ -211,3 +211,99 @@ test("Gaussian mixture tilts use the whole distribution at large shifts", () => 
     close(S.sum(t.weights), 1);
   }
 });
+
+test("adjustment stays computable when exchangeability is removed; only identification fails", () => {
+  const S = require("../science/core.js");
+  const both = S.identification({
+    target: "ate",
+    gHigh: 0.6,
+    exchange: true,
+    consistent: true,
+  });
+  assert.deepEqual(both, { computable: true, identified: true });
+  const noEx = S.identification({
+    target: "ate",
+    gHigh: 0.6,
+    exchange: false,
+    consistent: true,
+  });
+  assert.deepEqual(noEx, { computable: true, identified: false });
+  const noSupport = S.identification({
+    target: "ate",
+    gHigh: 0,
+    exchange: true,
+    consistent: true,
+  });
+  assert.deepEqual(noSupport, { computable: false, identified: false });
+  assert.equal(
+    S.identification({
+      target: "att",
+      gHigh: 0,
+      exchange: true,
+      consistent: true,
+    }).computable,
+    true,
+  );
+});
+
+test("intermediate projection frames satisfy kept + lost = total − 2t(1−t)‖D−D*‖²", () => {
+  const S = require("../science/core.js");
+  const g = S.geometry([0.2, 0.5, 0.3]);
+  for (const t of [0, 0.25, 0.5, 0.8, 1]) {
+    const r = S.projectionSplit(g.d, g.canonical, t, g.p);
+    assert.ok(
+      Math.abs(r.kept + r.lost + r.cross - r.total) < 1e-12,
+      "identity at t=" + t,
+    );
+    assert.ok(r.kept + r.lost <= r.total + 1e-12, "never exceeds the total");
+  }
+  assert.ok(
+    Math.abs(S.projectionSplit(g.d, g.canonical, 0.5, g.p).cross) > 1e-6,
+    "cross term is real mid-way",
+  );
+});
+
+test("product boundary is a hyperbola: a point can sit above a c/√n band yet inside the product region", () => {
+  const S = require("../science/core.js");
+  const n = 100000,
+    band = 2.5 / Math.sqrt(n),
+    err = n ** -0.25 * 0.5 * 100 ** 0.25; // the figure's path: 0.5 at n = 100
+  assert.equal(S.productInside(err, err, band), true);
+  assert.equal(err > band, true, "each error alone exceeds the band height");
+  assert.equal(S.productInside(0.2, 0.2, band), false);
+});
+
+test("a nonvanishing error-product bound does not force a nonzero remainder: signed cancellation", () => {
+  const S = require("../science/core.js");
+  for (const n of [100, 10000, 1000000]) {
+    const d = 0.5 * n ** -0.25,
+      g0 = [0.5, 0.5],
+      gh = [0.5 + d, 0.5 + d],
+      m10 = [1, 1],
+      mh1 = [1 + d, 1 - d],
+      m00 = [0, 0],
+      mh0 = [0, 0],
+      p = [0.5, 0.5];
+    const r = S.ateRemainder(g0, gh, m10, mh1, m00, mh0, p);
+    assert.ok(Math.abs(r) < 1e-12, "exact remainder cancels at n=" + n);
+    assert.ok(
+      Math.abs(Math.sqrt(n) * d * d - 0.25) < 1e-9,
+      "while √n × product stays 0.25",
+    );
+  }
+});
+
+test("own-fold predictions come from the fit on that fold, not the full-sample fit", () => {
+  const S = require("../science/core.js");
+  const rows = S.toyCurve(16, S.rng(872)),
+    A = rows.filter((_, i) => i % 2 === 0),
+    B = rows.filter((_, i) => i % 2 === 1),
+    fitA = S.linearFit(A),
+    fitAll = S.linearFit(rows),
+    x = A[0].x;
+  assert.notEqual(
+    fitA.a + fitA.b * x,
+    fitAll.a + fitAll.b * x,
+    "the two model identities differ",
+  );
+});

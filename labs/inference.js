@@ -6,8 +6,22 @@
     root = document.querySelector("[data-lab]"),
     state = store(
       "inference",
-      { step: 0, alpha: 0.25, beta: 0.25, n: 10000 },
-      { step: [0, 3], alpha: [0, 0.6], beta: [0, 0.6], n: [100, 1000000] },
+      {
+        step: 0,
+        alpha: 0.25,
+        beta: 0.25,
+        n: 100,
+        exact: "none",
+        learner: "memorise",
+      },
+      {
+        step: [0, 3],
+        alpha: [0, 0.6],
+        beta: [0, 0.6],
+        n: [100, 1000000],
+        exact: ["none", "g", "m"],
+        learner: ["memorise", "linear"],
+      },
     ),
     big = (n) => Math.round(n).toLocaleString("en-US"),
     readout = (box, pairs) =>
@@ -38,7 +52,7 @@
     const plane = el("svg", {
         role: "img",
         "aria-label":
-          "Plane of propensity error against outcome error. The current errors form a rectangle whose area bounds the remainder; a horizontal band shows the sampling scale. Values are listed beside the figure.",
+          "Plane of propensity error against outcome error. The current errors form a rectangle whose area bounds the remainder; the shaded region below the hyperbola is where that product is at most the sampling scale c over root n. Values are listed beside the figure.",
       }),
       trace = el("svg", {
         role: "img",
@@ -77,15 +91,24 @@
       C = 2.5,
       T = new Plot(trace, {
         x: [2, 5],
-        y: [0, 2 * C],
+        y: [-2, 2],
         width: 280,
         height: 240,
-        margin: { l: 40, r: 14, t: 24, b: 40 },
+        margin: { l: 44, r: 14, t: 24, b: 40 },
         xlabel: "log₁₀ n",
-        ylabel: "√n · area",
-        yticks: [0, 1.25, 2.5, 3.75, 5],
+        ylabel: "√n · area (log scale)",
+        yticks: [-2, -1, 0, 1, 2],
+        tickFormat: (v) =>
+          Number.isInteger(v) && v >= -2 && v <= 2
+            ? ["0.01", "0.1", "1", "10", "100"][v + 2]
+            : fmt(v, 2),
       });
-    const band = el("rect", { fill: "var(--or)", "fill-opacity": 0.2 }),
+    const band = el("path", {
+        fill: "var(--or)",
+        "fill-opacity": 0.15,
+        stroke: "var(--or)",
+        "stroke-width": 1.5,
+      }),
       bandLab = el("text", { class: "fig-text", "text-anchor": "end" }),
       pathAll = P.line([[0, 0]], {
         stroke: "var(--purple)",
@@ -109,7 +132,19 @@
     P.marks.prepend(band);
     P.marks.append(rect, dot);
     P.fg.append(bandLab, areaLab, nLab);
-    T.hline(C, { stroke: "var(--or)" }, "band scale c");
+    T.hline(Math.log10(C), { stroke: "var(--or)" }, "band scale c");
+    // Region where ‖ĝ−g‖·‖m̂−m‖ ≤ band: everything under the hyperbola x·y = band.
+    const hyperbola = (b) => {
+      const xTop = b / P.y[1];
+      if (xTop >= P.x[1])
+        return `M${P.sx(0)},${P.sy(0)} V${P.sy(P.y[1])} H${P.sx(P.x[1])} V${P.sy(0)} Z`;
+      let d = `M${P.sx(0)},${P.sy(0)} V${P.sy(P.y[1])} H${P.sx(xTop)}`;
+      for (let k = 1; k <= 60; k++) {
+        const x = xTop + ((P.x[1] - xTop) * k) / 60;
+        d += ` L${fmt(P.sx(x), 2)},${fmt(P.sy(b / x), 2)}`;
+      }
+      return d + ` V${P.sy(0)} Z`;
+    };
     const tracePath = T.line([[2, 0]], { stroke: "var(--purple)" }),
       traceDot = el("circle", { r: 4, fill: "var(--purple)" });
     T.marks.append(traceDot);
@@ -121,22 +156,19 @@
         exactG: cfg.exact === "g",
         exactM: cfg.exact === "m",
       });
+    const logScaled = (v) => (v > 0 ? Math.max(-2, Math.log10(v)) : -2);
     const samples = (t0, t1, k = 40) =>
       Array.from({ length: k + 1 }, (_, i) => t0 + ((t1 - t0) * i) / k);
     let t = 0;
     function render() {
       const n = 10 ** (2 + 3 * t),
         r = at(n),
-        sum = cfg.alpha + cfg.beta,
-        clip = (v) => Math.min(P.y[1], v);
-      band.setAttribute("x", P.sx(0));
-      band.setAttribute("width", P.sx(P.x[1]) - P.sx(0));
-      band.setAttribute("y", P.sy(clip(r.band)));
-      band.setAttribute("height", P.sy(0) - P.sy(clip(r.band)));
-      const thin = P.sy(0) - P.sy(clip(r.band)) < 16;
+        sum = cfg.alpha + cfg.beta;
+      band.setAttribute("d", hyperbola(r.band));
+      const yEdge = Math.min(P.y[1], r.band / P.x[1]);
       bandLab.setAttribute("x", P.sx(P.x[1]) - 6);
-      bandLab.setAttribute("y", thin ? P.sy(clip(r.band)) - 5 : P.sy(0) - 5);
-      bandLab.textContent = `sampling band c/√n = ${fmt(r.band, 3)}`;
+      bandLab.setAttribute("y", P.sy(yEdge) - 6);
+      bandLab.textContent = `boundary ‖ĝ−g‖·‖m̂−m‖ = c/√n = ${fmt(r.band, 3)}`;
       pathAll.setAttribute(
         "d",
         P.d(
@@ -173,12 +205,12 @@
         T.d(
           samples(0, t, 60).map((u) => [
             2 + 3 * u,
-            Math.min(T.y[1], at(10 ** (2 + 3 * u)).scaled),
+            logScaled(at(10 ** (2 + 3 * u)).scaled),
           ]),
         ),
       );
       traceDot.setAttribute("cx", T.sx(2 + 3 * t));
-      traceDot.setAttribute("cy", T.sy(Math.min(T.y[1], r.scaled)));
+      traceDot.setAttribute("cy", T.sy(logScaled(r.scaled)));
       readout(out, [
         ["n", big(n)],
         ["‖ĝ−g‖", fmt(r.eg, 4)],
@@ -192,20 +224,28 @@
           cfg.exact !== "none"
             ? `One nuisance is exactly right, so the rectangle has no area at any n: the remainder bound is zero however slowly the other error shrinks. That is double robustness of the point estimate; the interval still needs the other two terms.`
             : regime === "fast"
-              ? `α + β = ${fmt(sum, 2)} > ½: the area shrinks faster than the band. √n · area falls toward zero, so the remainder is negligible on the interval's scale.`
+              ? `α + β = ${fmt(sum, 2)} > ½: the rectangle enters the boundary region and stays inside. √n · area falls toward zero, so this bound shows the remainder is negligible on the interval's scale (sufficient, given the other conditions).`
               : regime === "slow"
-                ? `α + β = ${fmt(sum, 2)} < ½: the area shrinks slower than the band. √n · area grows; the correction is not enough for an interval.`
-                : `α + β = ½: the area and the band shrink at the same rate: not enough. √n · area stays at a constant, so the interval is off-centre by a fixed amount however large n becomes.`;
+                ? `α + β = ${fmt(sum, 2)} < ½: the rectangle never enters the boundary region and √n · area grows. This bound cannot show the remainder is negligible. The actual signed remainder may still be smaller, even zero if contributions cancel, but nothing here guarantees it.`
+                : `α + β = ½: the rectangle rides along the boundary and √n · area stays constant. The bound does not establish a negligible remainder. Whether the interval is actually off-centre depends on the signed remainder, which this product cannot see.`;
       cap.textContent =
         lead +
-        ` At n = ${big(n)} the area is ${fmt(r.area, 4)} and the band ${fmt(r.band, 4)}: the area is ${Math.abs(r.area - r.band) <= 0.005 * r.band ? "exactly on the band's edge" : r.area < r.band ? "inside the band" : "outside the band"}.`;
+        ` At n = ${big(n)} the product is ${fmt(r.area, 4)} against c/√n = ${fmt(r.band, 4)}: the corner of the rectangle is ${Math.abs(r.area - r.band) <= 0.005 * r.band ? "on the boundary curve" : S.productInside(r.eg, r.em, r.band) ? "inside the region" : "outside the region"}.`;
     }
+    cfg.n = 100;
+    const announce = (detail) =>
+      mount.dispatchEvent(new CustomEvent("figurechange", { detail }));
     const play = player(mount, {
       duration: 6000,
       label: "n from 100 to 100,000 (log scale)",
       onT(v) {
         t = v;
         render();
+        const n = Math.round(10 ** (2 + 3 * t));
+        if (n !== cfg.n) {
+          cfg.n = n;
+          announce({ n });
+        }
       },
     });
     const change = () => {
@@ -213,11 +253,7 @@
       cfg.beta = +bIn.value;
       cfg.exact = exactIn.value;
       render();
-      mount.dispatchEvent(
-        new CustomEvent("figurechange", {
-          detail: { alpha: cfg.alpha, beta: cfg.beta },
-        }),
-      );
+      announce({ alpha: cfg.alpha, beta: cfg.beta, exact: cfg.exact });
     };
     aIn.addEventListener("input", change);
     bIn.addEventListener("input", change);
@@ -226,11 +262,15 @@
       player: play,
       get: () => ({ ...cfg }),
       set(p) {
-        Object.assign(cfg, p);
+        const { n, ...rest } = p;
+        Object.assign(cfg, rest);
         aIn.value = cfg.alpha;
         bIn.value = cfg.beta;
         exactIn.value = cfg.exact;
-        render();
+        if (Number.isFinite(n) && Math.abs(n - cfg.n) > 0.5) {
+          cfg.n = Math.round(n);
+          play.set(Math.max(0, Math.min(1, (Math.log10(n) - 2) / 3)));
+        } else render();
       },
     };
     render();
@@ -468,7 +508,7 @@
         3: "fit A, predict B",
         4: "fit B, predict A",
       };
-      phaseLab.textContent = `phase ${phase}: ${names[phase]}`;
+      phaseLab.textContent = "";
       readout(out, [
         ["phase", `${phase} of 4: ${names[phase]}`],
         ["learner", cfg.learner === "memorise" ? "memorises" : "straight line"],
@@ -492,7 +532,8 @@
       ]);
       const mem = cfg.learner === "memorise";
       cap.textContent =
-        phase === 1
+        `Phase ${phase} of 4, ${names[phase]}. ` +
+        (phase === 1
           ? mem
             ? `Fit on all 16 patients. The memorising learner passes through every outcome, so its training residuals are all zero (MSE ${fmt(trainMSE, 3)}). That number says nothing about a new patient.`
             : `Fit on all 16 patients. The straight line cannot pass through every outcome, so it leaves residuals even in its own training data (MSE ${fmt(trainMSE, 3)}).`
@@ -500,7 +541,7 @@
             ? `Split the deck into fold A (blue) and fold B (orange). Each patient will now be predicted by a model that never saw that patient's outcome.`
             : phase === 3
               ? `Fit on fold A, predict fold B. On the training fold the residuals are ${mem ? "still zero" : fmt(trainMSE, 3)}; on the held-out fold they are real: MSE ${Number.isFinite(testMSE) ? fmt(testMSE, 3) : "appearing"} so far.`
-              : `Swap: fit on fold B, predict fold A (held-out MSE ${Number.isFinite(testMSE) ? fmt(testMSE, 3) : "appearing"}). Every patient now has an honest prediction; the cross-fitted MSE is ${fmt(combined, 3)}. The gap between the in-sample and held-out pictures is the empirical-process term that cross-fitting keeps in check.`;
+              : `Swap: fit on fold B, predict fold A (held-out MSE ${Number.isFinite(testMSE) ? fmt(testMSE, 3) : "appearing"}). Every patient now has a prediction from a model that never saw its outcome; the cross-fitted MSE is ${fmt(combined, 3)}. The gap between the in-sample and held-out pictures is an analogy for data reuse, not the empirical-process term itself: that term compares an empirical average with a population average for a fixed fitted function, and cross-fitting makes it easier to control because the fitted function is independent of the fold it is evaluated on.`);
       mount.dispatchEvent(
         new CustomEvent("figurerender", { detail: { phase } }),
       );
@@ -525,13 +566,21 @@
       rows,
       fold,
       get: () => ({ ...cfg }),
+      set(p) {
+        if (p.learner && p.learner !== cfg.learner) {
+          cfg.learner = p.learner;
+          learnerIn.value = cfg.learner;
+          render();
+        }
+      },
       predictions() {
-        const predA = fit(trainSet("B")),
-          predB = fit(trainSet("A")),
-          predAll = fit(rows);
+        // One model identity throughout: a patient's own-fold prediction comes from the
+        // fit on that patient's fold; the held-out prediction from the fit on the other fold.
+        const fitA = fit(trainSet("A")),
+          fitB = fit(trainSet("B"));
         return rows.map((r, i) => ({
-          own: predAll(r.x),
-          heldOut: (fold(i) === "A" ? predA : predB)(r.x),
+          own: (fold(i) === "A" ? fitA : fitB)(r.x),
+          heldOut: (fold(i) === "A" ? fitB : fitA)(r.x),
         }));
       },
     };
@@ -548,25 +597,51 @@
   control(document.getElementById("beta"), state, "beta");
 
   /* Step 1 and step 2 share the rate path. */
-  const dr = root.querySelector("[data-figure=dr-plane]");
+  const dr = root.querySelector("[data-figure=dr-plane]"),
+    cf = root.querySelector("[data-figure=crossfit]");
   dr.addEventListener("figurechange", (e) => state.set(e.detail));
-  state.subscribe((c) => {
+  cf.addEventListener("figurechange", (e) =>
+    state.set({ learner: e.detail.learner }),
+  );
+  const syncFigures = (c) => {
     const cur = dr.figure.get();
-    if (cur.alpha !== c.alpha || cur.beta !== c.beta)
-      dr.figure.set({ alpha: c.alpha, beta: c.beta });
+    if (
+      cur.alpha !== c.alpha ||
+      cur.beta !== c.beta ||
+      cur.exact !== c.exact ||
+      Math.abs(cur.n - c.n) > 0.5
+    )
+      dr.figure.set({ alpha: c.alpha, beta: c.beta, exact: c.exact, n: c.n });
+    if (cf.figure.get().learner !== c.learner)
+      cf.figure.set({ learner: c.learner });
+  };
+  state.subscribe(syncFigures);
+  syncFigures(state.get());
+  // Laboratory Reset also resets the figure clocks.
+  window.addEventListener("causality:lab-reset", (e) => {
+    if (e.detail?.name !== "inference") return;
+    dr.figure.player.set(0);
+    cf.figure.player.set(0);
   });
-  dr.figure.set({ alpha: state.get().alpha, beta: state.get().beta });
 
   /* Step 2: rate plot with fixed axes, the boundary line, and the (α, β) square. */
   const RP = new Plot(document.getElementById("rate-plot"), {
       x: [2, 6],
-      y: [0, 2.5],
+      y: [-3, 3],
       width: 420,
       height: 300,
       margin: { l: 54, r: 18, t: 26, b: 46 },
       xlabel: "sample size, log₁₀ n",
-      ylabel: "√n · |R₂| bound = n^(½ − α − β)",
-      yticks: [0, 0.5, 1, 1.5, 2, 2.5],
+      ylabel: "√n · |R₂| bound = n^(½ − α − β), log scale",
+      yticks: [-3, -2, -1, 0, 1, 2, 3],
+      tickFormat: (v) =>
+        Number.isInteger(v)
+          ? v < 0
+            ? "10^" + v
+            : v === 0
+              ? "1"
+              : "10^" + v
+          : fmt(v, 2),
     }),
     RS = new Plot(document.getElementById("rate-square"), {
       x: [0, 0.6],
@@ -582,35 +657,35 @@
   RP.marks.append(
     el("rect", {
       x: RP.sx(2),
-      y: RP.sy(2.5),
+      y: RP.sy(3),
       width: RP.sx(6) - RP.sx(2),
-      height: RP.sy(1) - RP.sy(2.5),
+      height: RP.sy(0) - RP.sy(3),
       fill: "var(--red)",
       "fill-opacity": 0.06,
     }),
     el("rect", {
       x: RP.sx(2),
-      y: RP.sy(1),
+      y: RP.sy(0),
       width: RP.sx(6) - RP.sx(2),
-      height: RP.sy(0) - RP.sy(1),
+      height: RP.sy(-3) - RP.sy(0),
       fill: "var(--green)",
       "fill-opacity": 0.07,
     }),
   );
   const boundary = RP.hline(
-    1,
+    0,
     { stroke: "var(--ink)" },
-    "boundary: √n·R₂ = constant (α + β = ½)",
+    "boundary: √n · bound = constant (α + β = ½)",
   );
-  RP.text(2.08, 2.3, "grows: α + β < ½", {
+  RP.text(2.08, 2.7, "bound grows: α + β < ½", {
     class: "fig-text",
     fill: "var(--red)",
   });
-  RP.text(2.08, 0.18, "vanishes: α + β > ½", {
+  RP.text(2.08, -2.7, "bound vanishes: α + β > ½", {
     class: "fig-text",
     fill: "var(--green)",
   });
-  const rateLine = RP.line([[2, 1]], { stroke: "var(--purple)" }),
+  const rateLine = RP.line([[2, 0]], { stroke: "var(--purple)" }),
     rateDot = el("circle", { r: 5, fill: "var(--purple)" }),
     rateLab = el("text", { class: "fig-text ink", "text-anchor": "end" });
   RP.marks.append(boundary, rateDot);
@@ -660,7 +735,7 @@
       exponent = 0.5 - c.alpha - c.beta,
       points = Array.from({ length: 81 }, (_, i) => {
         const x = 2 + i / 20;
-        return [x, Math.min(2.5, Math.pow(10, x * exponent))];
+        return [x, x * exponent];
       }),
       regime = regimeOf(c.alpha + c.beta);
     rateLine.setAttribute("d", RP.d(points));
@@ -684,6 +759,7 @@
       ["α + β", fmt(c.alpha + c.beta, 2)],
       ["exponent ½ − α − β", fmt(exponent, 2)],
       ["√n·bound at n = 10⁴", fmt(10 ** (4 * exponent), 4)],
+      ["√n·bound at n = 10⁶", fmt(10 ** (6 * exponent), 4)],
       [
         "regime",
         regime === "fast"
@@ -696,10 +772,10 @@
     document.getElementById("rate-status").textContent =
       `α = ${fmt(c.alpha, 2)}, β = ${fmt(c.beta, 2)}, so the scaled bound is n^${fmt(exponent, 2)}. ` +
       (regime === "fast"
-        ? "The point lies above the boundary line: the scaled remainder vanishes as n grows."
+        ? "The bound falls below the boundary line and keeps falling: this product bound shows the remainder is negligible on the √n scale (sufficient, with the other conditions)."
         : regime === "slow"
-          ? "The point lies below the boundary line: the scaled remainder grows; the bound does not justify efficient inference."
-          : "The point lies exactly on the boundary line: the scaled remainder stays at 1; equality alone does not justify centered efficient inference.");
+          ? "The bound rises above the boundary line: this product bound cannot show a negligible remainder. The actual signed remainder may be smaller, even zero, if contributions cancel."
+          : "The bound sits exactly on the boundary line: it stays at 1, neither vanishing nor growing, so equality alone does not establish a negligible remainder.");
     document.getElementById("rate-table").innerHTML = table(
       ["n", "Outcome error", "Propensity error", "Scaled product"],
       [100, 1000, 10000, 1000000].map((n) => [
@@ -714,7 +790,6 @@
   render();
 
   /* Step 3: the numeric view of the same 16 patients. */
-  const cf = root.querySelector("[data-figure=crossfit]");
   function foldTable() {
     const preds = cf.figure.predictions();
     document.getElementById("fold-table").innerHTML = table(

@@ -521,6 +521,36 @@ async function main() {
       file + ": new figures did not mount (" + sel + ")",
     );
   }
+  // Figure settings round-trip through the laboratory store: Share carries them, Reset clears them.
+  await nav("lessons/11-inference-lab.html");
+  await ev(
+    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'))`,
+  );
+  await ev(
+    `(()=>{const s=document.querySelector('[data-figure=dr-plane] select');s.value='g';s.dispatchEvent(new Event('change',{bubbles:true}));const p=document.querySelector('[data-figure=dr-plane] .fig-player input');p.value=1;p.dispatchEvent(new Event('input',{bubbles:true}));const l=document.querySelector('[data-figure=crossfit] select');l.value='linear';l.dispatchEvent(new Event('change',{bubbles:true}));return 1})()`,
+  );
+  await delay(100);
+  const saved = await ev(`localStorage.getItem('causality.lab.inference')`);
+  assert(
+    saved.includes('"exact":"g"') &&
+      saved.includes('"n":100000') &&
+      saved.includes('"learner":"linear"'),
+    "inference figure settings did not reach the laboratory store: " + saved,
+  );
+  await click(".reset-lab");
+  await delay(100);
+  assert(
+    (await ev(
+      `document.querySelector('[data-figure=dr-plane] select').value`,
+    )) === "none" &&
+      (await ev(
+        `+document.querySelector('[data-figure=dr-plane] .fig-player input').value`,
+      )) === 0 &&
+      (await ev(
+        `document.querySelector('[data-figure=crossfit] select').value`,
+      )) === "memorise",
+    "laboratory Reset did not reset the figure settings and clocks",
+  );
   report.checks.interaction =
     "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed.";
   assert(

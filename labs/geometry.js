@@ -363,25 +363,26 @@
         }
       }
       point(a, "D", "var(--p)", 16, -24);
-      if (c.restricted || !isMini) point(Q, "D*", "var(--purple)", -38, 5);
+      if (c.restricted || !isMini)
+        point(
+          Q,
+          proj > 0.98 || !c.restricted ? "D*" : "Q",
+          "var(--purple)",
+          -38,
+          5,
+        );
       if (isMini) {
-        const total = S.dot(a, a),
-          kept = S.dot(Q, Q),
-          lost = S.dot(
-            a.map((v, i) => v - Q[i]),
-            a.map((v, i) => v - Q[i]),
-          );
+        const { total, kept, lost, cross } = S.projectionSplit(a, b, proj);
         const bar = document.getElementById("variance-bar");
         bar.querySelector(".kept").style.width =
           `${Math.min(100, (100 * kept) / total)}%`;
         bar.querySelector(".lost").style.width =
           `${Math.min(100, (100 * lost) / total)}%`;
-        bar.classList.toggle("over", kept + lost > total * 1.005);
         document.getElementById("projection-caption").textContent =
           !c.restricted
             ? `Nothing is known about the middle mass, so every mean-zero direction is allowed and D is already inside the tangent space: D* = D and E[D²] = ${fmt(total)}.`
             : proj < 0.98
-              ? `Dropping the perpendicular from D to the allowed line. Kept ${fmt(kept)} + discarded ${fmt(lost)} = ${fmt(kept + lost)} exceeds E[D²] = ${fmt(total)} until the foot is reached: only the orthogonal split adds up.`
+              ? `Q is on its way from D to the allowed line; it becomes D* only when it arrives. Kept ${fmt(kept)} + discarded ${fmt(lost)} = ${fmt(kept + lost)} falls short of E[D²] = ${fmt(total)} by the cross term 2t(1−t)‖D−D*‖² = ${fmt(cross)}: two pieces add up to the whole only when they are orthogonal.`
               : `At the foot of the perpendicular the split is exact: E[(D*)²] ${fmt(kept)} + E[(D−D*)²] ${fmt(lost)} = E[D²] ${fmt(total)}. The purple vector is the canonical gradient; it is the shortest vector in the allowed space that still predicts every allowed slope.`;
       }
     }

@@ -547,6 +547,35 @@
   /* Power-law nuisance errors along a rate path: error_j = scale * (n / n0)^(-rate_j).
    * Returns both errors, the rectangle area (the |R2| bound with constant one),
    * the sampling band c / sqrt(n), and sqrt(n) * area. */
+  /* Observed-data support for the adjusted contrast is separate from causal identification.
+   * computable: the adjustment functional exists in the observed law for the chosen target.
+   * identified: computable AND the causal assumptions hold, so it equals the causal target. */
+  function identification({ target, gHigh, exchange, consistent }) {
+    const computable = target === "att" ? gHigh < 1 : gHigh > 0 && gHigh < 1;
+    return {
+      computable,
+      identified: computable && !!exchange && !!consistent,
+    };
+  }
+  /* Moving point Q(t) = D + t(D* − D) between a gradient and its projection.
+   * kept + lost = total − cross, with cross = 2t(1−t)‖D−D*‖²; equality only at t ∈ {0,1}. */
+  function projectionSplit(d, dstar, t, p) {
+    const q = d.map((v, i) => v + t * (dstar[i] - v)),
+      r = d.map((v, i) => v - dstar[i]),
+      w = (a, b) => (p ? inner(a, b, p) : dot(a, b));
+    const total = w(d, d),
+      kept = w(q, q),
+      lost = w(
+        d.map((v, i) => v - q[i]),
+        d.map((v, i) => v - q[i]),
+      ),
+      cross = 2 * t * (1 - t) * w(r, r);
+    return { q, total, kept, lost, cross };
+  }
+  /* Product boundary in the (propensity error, outcome error) plane. */
+  function productInside(eg, em, band) {
+    return eg * em <= band + 1e-12;
+  }
   function ratePath(
     n,
     {
@@ -612,5 +641,8 @@
     interpolate,
     linearFit,
     ratePath,
+    identification,
+    projectionSplit,
+    productInside,
   };
 });

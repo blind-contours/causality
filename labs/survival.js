@@ -4,13 +4,23 @@
     root = document.querySelector("[data-lab]"),
     state = store(
       "survival",
-      { step: 0, tau: 5, n: 1200, censor: 2, seed: 20260919 },
+      {
+        step: 0,
+        tau: 5,
+        n: 1200,
+        censor: 2,
+        seed: 20260919,
+        stdW: -1,
+        hrT: 1,
+      },
       {
         step: [0, 3],
         tau: [1, 10],
         n: [200, 5000],
         censor: [0, 4],
         seed: [1, 4294967295],
+        stdW: [-1, 1],
+        hrT: [0, 1],
       },
     );
   root.innerHTML = `<section class="lab-step" data-title="Choose a survival target"><h2 tabindex="-1">“Does it improve survival?” still needs a target</h2><p>Extend the severity-and-treatment study to time until an event. Choose a time horizon. Compare the chance of surviving to that time, or average event-free time up to it. These answer different clinical questions from a conditional hazard ratio.</p><label>Horizon τ, years <input id="horizon" type="range" min="1" max="10" step=".5"></label><p class="math" id="survival-target"></p><p>Restricted mean survival time, RMST(τ), is the area under a survival curve from 0 to τ. A difference of 0.4 years means an average additional 0.4 event-free years within that window.</p><button id="save-horizon">Save this horizon to my contract</button><p id="horizon-status" role="status"></p><p class="note">This extension changes the outcome to time until an event. Its treatment effect is not the numerical ATE=2 used in the continuous-outcome simulation.</p></section>
@@ -119,8 +129,10 @@
   /* ---------- cached data and per-figure local state ---------- */
   let cache = null,
     kmClock = 0, // calendar time as a fraction of τ
-    stdW = null, // weight on the high-severity curve; null = follow the cohort share
-    hrClock = 1; // inspected time as a fraction of τ
+    // Figure settings live in the validated store so Reset and Share reproduce them:
+    // stdW < 0 means "follow the cohort share"; hrT is the inspected time as a fraction of τ.
+    stdWget = () => (state.get().stdW < 0 ? null : state.get().stdW),
+    hrClockGet = () => state.get().hrT;
 
   /* ---------- Step 2: Kaplan–Meier construction ---------- */
   const KM_N = 24;
@@ -422,7 +434,7 @@
       p = S.mean(r.rows.map((v) => v.x)),
       treatedRows = r.rows.filter((v) => v.a === 1),
       pT = S.mean(treatedRows.map((v) => v.x)),
-      w = stdW === null ? p : stdW,
+      w = stdWget() === null ? p : stdWget(),
       mix = (t) => (1 - w) * kmS(a.strata[0], t) + w * kmS(a.strata[1], t),
       times = [
         0,
@@ -487,19 +499,21 @@
       0.5,
       { fill: "none", stroke: "var(--phat)", "stroke-width": 2 },
     );
-    [
+    // Legend in reflowing HTML rather than fixed SVG positions.
+    let legend = document.getElementById("std-weights-legend");
+    if (!legend) {
+      legend = document.createElement("p");
+      legend.className = "legend";
+      legend.id = "std-weights-legend";
+      byId("std-weights").after(legend);
+    }
+    legend.innerHTML = [
       ["cohort", "var(--purple)"],
       ["treated only", "var(--muted)"],
       ["chosen w", "var(--phat)"],
-    ].forEach(([k, col], i) =>
-      bars.fg.append(
-        el(
-          "text",
-          { class: "fig-text", x: [42, 106, 214][i], y: 14, fill: col },
-          k,
-        ),
-      ),
-    );
+    ]
+      .map(([k, col]) => `<span style="color:${col}">${k}</span>`)
+      .join("");
     readout("std-readout", [
       ["cohort share high", fmt(p, 3)],
       ["treated share high", fmt(pT, 3)],
@@ -513,10 +527,9 @@
       `Treated patients are ${fmt(pT * 100, 0)}% high severity, so pooled KM (S(τ) = ${fmt(a.naive.s)}) leans on the faster-falling orange curve; move w to ${fmt(pT, 2)} to see roughly where it lands.`;
   }
   const stdSlider = byId("std-weight");
-  stdSlider.addEventListener("input", () => {
-    stdW = +stdSlider.value;
-    if (cache) drawStd();
-  });
+  stdSlider.addEventListener("input", () =>
+    state.set({ stdW: +stdSlider.value }),
+  );
 
   /* ---------- Step 4: marginal hazard ratio over time ---------- */
   function drawHR() {
@@ -536,7 +549,7 @@
         ylabel: "Marginal hazard ratio HR(t)",
         tickFormat: (v) => fmt(v, 2),
       }),
-      t = hrClock * tau;
+      t = hrClockGet() * tau;
     plot.hline(HR, { stroke: "var(--muted)" });
     plot.text(tau * 0.02, HR - 0.012, "conditional HR = 0.65", {
       fill: "var(--muted)",
@@ -566,10 +579,7 @@
       `At t = 0 every risk set has the baseline severity mix and HR(0) = 0.65. By t = ${fmt(t, 2)}, high-severity patients are ${fmt(highShare(0, t) * 100, 0)}% of the control risk set but ${fmt(highShare(1, t) * 100, 0)}% of the treated one (treatment slowed their exit), so the marginal hazard ratio is ${fmt(marginalHR(t))}: the same conditional 0.65 is not the population hazard ratio. Starting from the treated-only mix (${fmt(treatedShare * 100, 0)}% high severity) drifts further.`;
   }
   const hrSlider = byId("hr-time");
-  hrSlider.addEventListener("input", () => {
-    hrClock = +hrSlider.value;
-    if (cache) drawHR();
-  });
+  hrSlider.addEventListener("input", () => state.set({ hrT: +hrSlider.value }));
 
   /* ---------- full render on state change ---------- */
   function render() {
@@ -606,7 +616,9 @@
     drawKM();
     drawSurvival();
     drawStd();
-    stdSlider.value = stdW === null ? S.mean(r.rows.map((v) => v.x)) : stdW;
+    stdSlider.value =
+      stdWget() === null ? S.mean(r.rows.map((v) => v.x)) : stdWget();
+    hrSlider.value = hrClockGet();
     drawHR();
     byId("survival-values").innerHTML = table(
       ["Time", "Truth S₁", "Pooled KM", "Standardized KM"],
@@ -656,4 +668,7 @@
   guided(root, state);
   tools(root, state);
   window.SurvivalLab = { kmTrace, marginalHR, hazard, kmPlayer };
+  window.addEventListener("causality:lab-reset", (e) => {
+    if (e.detail?.name === "survival") kmPlayer.set(0);
+  });
 })();

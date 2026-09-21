@@ -369,11 +369,9 @@
         truth = v.target + kappa,
         name = "adjusted " + c.target.toUpperCase();
       lanes[1].nameEl.textContent = name;
-      lanes[1].mark.classList.toggle("hollow", !v.identified);
+      lanes[1].mark.classList.toggle("hollow", !v.computable);
       lanes[0].val.textContent = fmt(v.naive);
-      lanes[1].val.textContent = v.identified
-        ? fmt(v.target)
-        : "not identified";
+      lanes[1].val.textContent = v.computable ? fmt(v.target) : "no support";
       lanes[2].val.textContent = fmt(truth);
       anim(
         {
@@ -397,19 +395,28 @@
             " because treated patients are " +
             (c.gHigh > S.trueG(0) ? "more" : "less") +
             " often high-severity, and severity raises Y on its own.") +
-          (!v.identified
-            ? " The adjusted value is hollow: the data cannot compute it."
-            : c.exchange
-              ? " With exchangeability the adjusted value is the causal value."
-              : " Without exchangeability every value in the green bracket [" +
+          (!v.computable
+            ? " The adjusted value is hollow: this target needs a stratum the observed data never show, so the adjustment cannot be computed."
+            : !c.exchange
+              ? " The adjusted contrast is still computed from the observed data and stays at " +
+                fmt(v.target, 2) +
+                ". What breaks is its equality to the causal value: every value in the green bracket [" +
                 fmt(v.target - Math.abs(kappa), 2) +
                 ", " +
                 fmt(v.target + Math.abs(kappa), 2) +
-                "] belongs to a world with exactly these observed data."),
+                "] belongs to a world with exactly these observed data."
+              : !c.consistent
+                ? " The adjusted contrast is computed, but without a well-defined intervention it does not answer a causal question."
+                : " With exchangeability the adjusted value is the causal value."),
       );
       f.readout([
         ["observed group difference", fmt(v.naive)],
-        [name, v.identified ? fmt(v.target) : "not identified"],
+        [
+          name,
+          v.computable
+            ? fmt(v.target) + (v.identified ? "" : " (computed, not causal)")
+            : "no support",
+        ],
         ["generator's causal value", fmt(truth)],
         ["observed − adjusted", fmt(gap)],
       ]);
@@ -702,11 +709,8 @@
         fmt(tau[x]),
       ]),
     );
-    const identified =
-      c.exchange &&
-      c.consistent &&
-      (c.target === "att" ? c.gHigh < 1 : c.gHigh > 0 && c.gHigh < 1);
-    const v = { g, naive, target, identified };
+    const { computable, identified } = S.identification(c);
+    const v = { g, naive, target, computable, identified };
     dag2(c, v);
     dag3(c, v);
     lineFig(c, v);
@@ -726,7 +730,9 @@
       : !c.consistent
         ? "Define the intervention and its versions before interpreting an observed contrast causally."
         : !c.exchange
-          ? "Exchangeability removed: the same observed law now supports different causal answers. κ = " +
+          ? "Exchangeability removed: adjustment still computes " +
+            fmt(v.target, 2) +
+            " from the observed data, but that number no longer equals the causal effect. The same observed law supports different causal answers; κ = " +
             fmt(c.hidden) +
             "."
           : "Positivity fails for this target: the observed data do not identify the needed stratum-specific contrast.";

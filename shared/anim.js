@@ -111,7 +111,7 @@
       this.x = o.x || [0, 1];
       this.y = o.y || [0, 1];
       svg.setAttribute("viewBox", `0 0 ${this.W} ${this.H}`);
-      svg.classList.add("fig");
+      svg.classList.add("fig", this.W >= 500 ? "fig-wide" : "fig-narrow");
       svg.replaceChildren();
       this.bg = el("g", { class: "fig-axes" });
       this.marks = el("g", { class: "fig-marks" });

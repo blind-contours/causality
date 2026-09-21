@@ -65,6 +65,9 @@
       subscribe: (f) => listeners.push(f),
       reset() {
         this.set(defaults);
+        window.dispatchEvent(
+          new CustomEvent("causality:lab-reset", { detail: { name } }),
+        );
       },
       share() {
         const u = new URL(location.href);

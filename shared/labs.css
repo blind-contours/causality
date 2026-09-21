@@ -514,6 +514,10 @@ svg.fig .ref-label,
 svg.fig .fig-text {
   font-family: "IBM Plex Mono", monospace;
   font-size: 11.5px;
+}
+svg.fig .tick,
+svg.fig .ref-label:not([fill]),
+svg.fig .fig-text:not([fill]) {
   fill: var(--muted);
 }
 svg.fig .axis-label {
@@ -522,7 +526,7 @@ svg.fig .axis-label {
   font-size: 13.5px;
   fill: var(--ink);
 }
-svg.fig .fig-text.ink {
+svg.fig .fig-text.ink:not([fill]) {
   fill: var(--ink);
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 13px;
@@ -628,15 +632,15 @@ svg.fig .mark-ref {
 
 /* Phones: the viewBox scales to ~55%, so text set in viewBox units grows to stay legible. */
 @media (max-width: 720px) {
-  svg.fig .tick,
-  svg.fig .ref-label,
-  svg.fig .fig-text {
+  svg.fig.fig-wide .tick,
+  svg.fig.fig-wide .ref-label,
+  svg.fig.fig-wide .fig-text {
     font-size: 17px;
   }
-  svg.fig .fig-text.ink {
+  svg.fig.fig-wide .fig-text.ink {
     font-size: 19px;
   }
-  svg.fig .axis-label {
+  svg.fig.fig-wide .axis-label {
     font-size: 20px;
   }
 }
