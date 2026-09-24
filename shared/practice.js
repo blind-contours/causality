@@ -1,11 +1,38 @@
 /* Transfer problems use new numbers, not the displayed worked example. */
 (function () {
   const bank = {
-    "causal-roadmap": (n) => ({
-      q: `Treatment benefits are 1 for low severity and 3 for high severity. High severity is ${n * 10}% of the target population. What is the population ATE?`,
-      a: 1 + (2 * n) / 10,
-      h: "Average the two effects using the target population proportions, not the treated proportions.",
-    }),
+    "causal-roadmap": (n) => [
+      {
+        q: `Treatment benefits are 1 for low severity and 3 for high severity. High severity is ${n * 10}% of everyone. What is the population ATE?`,
+        a: 1 + (2 * n) / 10,
+        h: "Average the two effects using everyone's severity proportions.",
+      },
+      {
+        q: "Benefits are 2 in low severity and 6 in high severity. High severity is 20% of everyone, but 70% of treated people. What is the ATT?",
+        a: 4.8,
+        h: "ATT follows the actually treated people into both worlds: use 0.3 × 2 + 0.7 × 6.",
+      },
+      {
+        q: "Benefits are 1 in low severity and 4 in high severity. High severity is 60% of treated people and 20% of untreated people. What is the ATC?",
+        a: 1.6,
+        h: "ATC uses the untreated population's composition: 0.8 × 1 + 0.2 × 4.",
+      },
+      {
+        q: "For the same population at one year, event risk is 12% under treatment and 18% under control. What is treatment minus control in percentage points?",
+        a: -6,
+        h: "Subtract 12 − 18. The answer is in percentage points, not a proportional percentage change.",
+      },
+      {
+        q: "For the same population at one year, event risk is 6% under treatment and 8% under control. What is the risk ratio, treatment divided by control?",
+        a: .75,
+        h: "Divide 0.06 by 0.08. A ratio has no probability or time units.",
+      },
+      {
+        q: "The survival difference is 0.1 throughout year 0–1 and 0.2 throughout year 1–3 (values at the endpoints do not change the area). What is the RMST difference through year 3, in years?",
+        a: .5,
+        h: "Add the signed areas: 0.1 × 1 + 0.2 × 2. The vertical gap at year 3 is a different quantity.",
+      },
+    ][(n - 2) % 6],
     "canonical-gradient": (n) => ({
       q: `Move probability ${n / 100} from outcome −1 to outcome 2, leaving other masses fixed. How much does the mean change?`,
       a: (3 * n) / 100,

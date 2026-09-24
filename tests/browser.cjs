@@ -553,6 +553,68 @@ async function main() {
       )) === "memorise",
     "laboratory Reset did not reset the figure settings and clocks",
   );
+  // The estimand explorer keeps populations, contrasts, saved questions, and figure state linked.
+  await nav("lessons/00-causal-roadmap.html");
+  await click(".reset-lab");
+  await click("#estimand-example");
+  await set("target", "att");
+  assert((await ev(`document.getElementById('estimand-mean-value').textContent`)).includes("3.4"), "ATT should be 3.4 in the worked example");
+  await set("target", "atc");
+  assert((await ev(`document.getElementById('estimand-mean-value').textContent`)).includes("1.4"), "ATC should be 1.4 in the worked example");
+  await click("#estimand-equal");
+  assert(await ev(`CausalEstimands.means(JSON.parse(localStorage.getItem('causality.lab.roadmap'))).effects.att === 1`), "Equal benefits did not remove population differences");
+  await click("#risk-common");
+  await set("risk-contrast", "rr");
+  assert((await ev(`document.getElementById('estimand-risk-value').textContent`)).includes("0.5"), "Common-event risk ratio should be 0.5");
+  await click("#risk-rare");
+  assert((await ev(`document.getElementById('estimand-risk-value').textContent`)).includes("0.5"), "Rare-event risk ratio should remain 0.5");
+  await set("risk-contrast", "rd");
+  assert((await ev(`document.getElementById('estimand-risk-value').textContent`)).startsWith("-1 percentage"), "Rare-event RD should be -1 percentage point");
+  await set("risk-low", 0); await set("risk-high", 0); await set("risk-contrast", "rr");
+  assert(await ev(`document.getElementById('estimand-risk-value').textContent.includes('undefined') && document.getElementById('save-risk-contract').disabled`), "Zero control risk should make the ratio undefined and unsavable");
+  await set("estimand-delay", 3); await set("estimand-horizon", 2); await set("estimand-survival-contrast", "rmst");
+  assert((await ev(`document.getElementById('estimand-survival-value').textContent`)).startsWith("0 years"), "An effect starting at year 3 cannot change RMST through year 2");
+  await set("estimand-horizon", 6);
+  await click("#save-survival-contract");
+  const savedQuestion = await ev(`Causality.state().contract`);
+  assert(savedQuestion.target === "atc" && savedQuestion.measure === "rmst" && savedQuestion.horizon === 6, "Saved question lost its population, contrast, or horizon");
+  await nav("lessons/10-canonical-gradient.html");
+  const reminder = await ev(`document.querySelector('.contract-reminder').textContent`);
+  assert(reminder.includes("actually received control") && reminder.includes("within 6 years"), "Saved ATC/RMST question did not carry to the geometry lesson");
+  await nav("lessons/00-causal-roadmap.html");
+  await click(".reset-lab");
+  await click("#estimand-restore");
+  assert(await ev(`document.getElementById('target').value==='atc' && +document.getElementById('estimand-delay').value===3 && +document.getElementById('estimand-horizon').value===6`), "Restoring a question did not restore its example settings");
+  const sharedQuestion = await ev(`new URLSearchParams({lab:JSON.stringify({version:1,name:'roadmap',state:JSON.parse(localStorage.getItem('causality.lab.roadmap'))})}).toString()`);
+  await click(".reset-lab");
+  await nav("lessons/00-causal-roadmap.html#" + sharedQuestion);
+  assert(await ev(`document.getElementById('target').value==='atc' && +document.getElementById('estimand-horizon').value===6`), "Shared estimand configuration did not restore the scene");
+  await ev(`Causality.event({type:'settings',value:{mode:'guided'}});document.body.dataset.mode='guided';window.dispatchEvent(new Event('causality:settings'));location.hash='estimand-risk'`);
+  await delay(60);
+  assert(await ev(`[...document.querySelectorAll('.lab-step')].filter(p=>!p.hidden).length===1 && !document.getElementById('estimand-risk').hidden`), "Risk deep link did not select its guided step");
+  await ev(`location.hash='estimand-survival'`); await delay(60);
+  await ev(`document.getElementById('estimand-survival-figure').scrollIntoView({block:'center'})`);
+  await set("estimand-horizon", 4);
+  await click("#estimand-time-player button:nth-child(2)");
+  assert(await ev(`+document.getElementById('estimand-horizon').value===5 && document.querySelector('#estimand-time-player .v').textContent==='5 years'`), "The time player should step in physical years");
+  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "no-preference" }] });
+  await click("#estimand-time-player button:first-child"); await delay(250);
+  const runningTime = await ev(`+document.getElementById('estimand-horizon').value`);
+  await click("#estimand-time-player button:first-child");
+  const pausedTime = await ev(`+document.getElementById('estimand-horizon').value`);
+  await delay(120);
+  assert(runningTime > 5 && (await ev(`+document.getElementById('estimand-horizon').value`)) === pausedTime, "The horizon must advance during playback and stop on pause");
+  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await click("#estimand-time-player button:first-child");
+  assert((await ev(`+document.getElementById('estimand-horizon').value`)) === 10, "Reduced-motion Play should jump to the final horizon");
+  await click(".reset-lab");
+  assert(await ev(`+document.getElementById('estimand-horizon').value===5 && document.querySelector('#estimand-time-player .v').textContent==='5 years' && document.getElementById('target').value==='ate'`), "Reset did not restore the estimand controls and clock");
+  assert(await ev(`+document.getElementById('effect-low').value===1.86 && +document.getElementById('effect-high').value===2.26`), "Effect slider precision must preserve the reference cohort values");
+  await click(".practice .new-case");
+  assert((await ev(`document.querySelector('.practice .question').textContent`)).includes("ATT"), "The estimand transfer bank should include a changed-population problem");
+  await ev(`document.querySelector('.practice .answer').value='4.8'`); await click(".practice .check");
+  assert((await ev(`document.querySelector('.practice .feedback').textContent`)).startsWith("Correct"), "ATT transfer answer was not accepted");
+  report.checks.estimands = "Population weights, equal effects, absolute/relative risks, zero-risk guard, delayed survival, saved/restored/shared questions, guided deep links, playback, reduced motion, reset, and transfer passed.";
   report.checks.interaction =
     "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed.";
   assert(

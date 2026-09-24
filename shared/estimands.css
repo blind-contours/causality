@@ -1,0 +1,62 @@
+/* The question explorer uses the course palette; shape and labels also encode groups. */
+.estimand-controls, .estimand-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+}
+.estimand-controls > *, .estimand-pair > * { min-width: 0; }
+.estimand-workbench { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); gap: 24px; align-items: start; }
+.estimand-workbench > * { min-width: 0; }
+.estimand-workbench .estimand-controls { grid-template-columns: 1fr; }
+.estimand-workbench .estimand-figure { margin-top: 8px; }
+.estimand-workbench .estimand-panel { background: var(--soft); padding: 0 16px 12px; border-radius: 10px; }
+.estimand-workbench .estimand-panel .btns button { flex-grow: 1; }
+.estimand-controls output { font-variant-numeric: tabular-nums; color: var(--purple); }
+.estimand-summary {
+  padding: 18px 20px;
+  border-left: 4px solid var(--teal);
+  border-radius: 0 8px 8px 0;
+  background: var(--soft);
+  margin: 20px 0;
+}
+.estimand-summary p { margin: 6px 0; }
+.estimand-summary .eyebrow { color: var(--teal); }
+.estimand-value { font-size: 30px; font-variant-numeric: tabular-nums; font-weight: 500; }
+.estimand-figure { margin: 20px 0; }
+.estimand-figure svg { background: var(--soft); border-radius: 10px; }
+.estimand-figure svg text { font: 15px "IBM Plex Sans", system-ui, sans-serif; }
+.estimand-figure .est-muted { fill: var(--muted); }
+.estimand-figure .est-axis { stroke: var(--rule); stroke-width: 1.5; }
+.estimand-figure .est-small { font-size: 13px; }
+.estimand-figure .est-number { font: 16px "IBM Plex Mono", monospace; }
+.estimand-weight-row { display: grid; grid-template-columns: 120px 1fr 80px; gap: 12px; align-items: center; margin: 12px 0; }
+.estimand-weight-track { display: flex; height: 26px; border-radius: 4px; overflow: hidden; background: var(--grid); }
+.estimand-weight-track i:first-child { background: var(--teal); }
+.estimand-weight-track i:last-child { background: var(--purple); background-image: repeating-linear-gradient(135deg, transparent 0 6px, #ffffff38 6px 8px); }
+.estimand-weight-row[aria-current="true"] { font-weight: 600; }
+.estimand-key { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+.estimand-key span { display: inline-flex; align-items: center; gap: 7px; }
+.estimand-key i { display: inline-block; width: 13px; height: 13px; border: 2px solid currentColor; }
+.estimand-key .low { color: var(--teal); border-radius: 50%; }
+.estimand-key .high { color: var(--purple); }
+.estimand-key .control { color: var(--or); }
+.estimand-key .treatment { color: var(--p); border-radius: 50%; }
+.estimand-risk-card { border: 1px solid var(--rule); padding: 16px; border-radius: 10px; }
+.estimand-risk-card h3 { margin: 0 0 10px; }
+.estimand-risk-card strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+.estimand-risk-card svg { max-width: 260px; margin: 10px auto; }
+.estimand-risk-card p { margin: 8px 0; }
+#estimand-survival-plot { touch-action: pan-y; cursor: crosshair; }
+.estimand-note { padding: 12px 16px; border: 1px dashed var(--rule); border-radius: 8px; }
+@media (max-width: 700px) {
+  .estimand-controls, .estimand-workbench { grid-template-columns: 1fr; gap: 12px; }
+  .estimand-pair { gap: 10px; }
+  .estimand-risk-card { padding: 10px; }
+  .estimand-risk-card h3 { font-size: 18px; min-height: 2.3em; }
+  .estimand-risk-card strong { display: block; font-size: 17px; line-height: 1.4; min-height: 2.8em; }
+  .estimand-weight-row { grid-template-columns: 72px 1fr 70px; gap: 6px; font-size: 14px; }
+  .estimand-summary { padding: 14px; }
+  .estimand-figure svg text { font-size: 19px; }
+  .estimand-figure .est-small { font-size: 17px; }
+  .estimand-figure .est-number { font-size: 20px; }
+}

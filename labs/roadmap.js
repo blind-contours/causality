@@ -5,18 +5,27 @@
   const state = store(
     "roadmap",
     {
+      ...CausalEstimands.DEFAULTS,
       step: 0,
-      p: 0.35,
-      target: "ate",
-      gHigh: S.trueG(1),
       hidden: 0,
       exchange: true,
       consistent: true,
     },
     {
-      step: [0, 3],
+      step: [0, 5],
+      gLow: [0.05, 0.95],
+      effectLow: [0, 5],
+      effectHigh: [0, 5],
+      riskLow: [0, 0.5],
+      riskHigh: [0, 0.5],
+      riskMultiplier: [0, 2],
+      riskContrast: ["rd", "rr"],
+      tau: [0, 10],
+      hazardRatio: [0.4, 1.6],
+      delay: [0, 3],
+      survivalContrast: ["survival", "rmst"],
       p: [0.05, 0.9],
-      target: ["ate", "att"],
+      target: ["ate", "att", "atc"],
       gHigh: [0, 1],
       hidden: [-1, 1],
     },
@@ -64,13 +73,12 @@
 .strip-label.now{fill:var(--ink);font-weight:600}
 .strip-label.ahead{opacity:.6}
 </style>
-<section class="lab-step" data-title="Question"><h2 tabindex="-1">An analysis begins with a question</h2><p>Consider a synthetic cohort. Severity is measured before treatment. We ask how much an outcome at one year would change if everyone received treatment rather than everyone receiving control. Larger outcomes are better.</p><p>Only one potential outcome is observed for each patient. A regression coefficient does not choose the population, intervention, outcome, or time for us.</p><div class="lab-grid"><div><label>Whose effect? <select id="target"><option value="ate">Everyone in the target population (ATE)</option><option value="att">Those who actually received treatment (ATT)</option></select></label><label>High-severity proportion <input id="population" type="range" min=".05" max=".9" step=".01"></label><p id="population-value"></p><p class="math" id="target-formula"></p></div><div class="lab-card"><h3>Your estimand contract</h3><p>Population: the selected cohort.<br>Interventions: treatment versus control, assigned at baseline.<br>Outcome: numerical outcome at one year.<br>Summary: average individual difference.</p><button id="save-contract">Save this contract across lessons</button><p id="contract-status" role="status"></p></div></div></section>
-<section class="lab-step" data-title="Identify"><h2 tabindex="-1">Why comparing the two observed groups can mislead</h2><p>Severity affects both treatment and outcome. Treatment is more common among high-severity patients. First compare the observed groups; then compare treatment and control within each severity group and average using your target population.</p><div class="figure" id="dag-fig-2"></div><div id="study-values"></div><div class="figure" id="line-fig"></div><details class="formula-details"><summary>Name the operation: identification by adjustment</summary><p class="math">ATE = Σₓ [m₁(x) − m₀(x)] P(X=x)<br>mₐ(x) = E[Y | A=a, X=x]</p><p>This observed-data expression equals the causal target under consistency, conditional exchangeability, and treatment positivity for the target population. For ATT, average over X among treated people and require controls wherever treated people occur.</p></details></section>
-<section class="lab-step" data-title="Break an assumption"><h2 tabindex="-1">Some gaps cannot be repaired by a better estimator</h2><label><span><input id="exchange" type="checkbox"> Severity captures the common causes of treatment and outcome</span></label><label><span><input id="consistent" type="checkbox"> Treatment is well defined and observed outcomes match the corresponding intervention</span></label><label>Treatment probability among high-severity patients <input id="g-high" type="range" min="0" max="1" step=".01"></label><p id="positivity-status"></p><label>Unobserved counterfactual shift κ (when exchangeability is removed) <input id="hidden-shift" type="range" min="-1" max="1" step=".1"></label><p id="identification-status" class="warning" role="status"></p><div class="figure" id="dag-fig-3"></div><p>Two possible worlds can have exactly the same observed patients. In the second world, add κ to Y(1) for the untreated and subtract κ from Y(0) for the treated. Their observed outcomes stay fixed, but their population ATE changes by κ. Observed data alone cannot select between those worlds.</p><div class="figure" id="worlds-fig"></div><p class="note">A zero population propensity is a structural absence. A positive propensity can still produce an empty cell in a small sample. Those are different problems.</p></section>
-<section class="lab-step" data-title="Roadmap"><h2 tabindex="-1">Keep the question while the tools change</h2><div class="figure" id="strip-fig"></div><ol class="road-list"><li><b>Question:</b> choose the population, interventions, outcome, horizon, and contrast.</li><li><b>Identification:</b> state why a causal target equals a function of observed data.</li><li><b>Model:</b> say which probability distributions are allowed. The nonparametric model leaves their shapes unrestricted; semiparametric models combine finite and infinite dimensional components.</li><li><b>Estimation:</b> choose how to learn that function from a sample.</li><li><b>Uncertainty:</b> justify the approximation behind an interval.</li><li><b>Interpretation:</b> answer the original question with its assumptions and limitations.</li></ol><p>Cox regression is already a semiparametric model: a finite coefficient vector and an unspecified baseline hazard. Kaplan–Meier is a nonparametric survival estimator under its censoring conditions. The journey is to make those choices explicit and connect them to the target.</p><a class="course-btn" href="10-canonical-gradient.html">Next: hold a probability distribution in your hands →</a></section>`;
+${CausalEstimandScenes.populationHTML}
+${CausalEstimandScenes.outcomesHTML}
+<section class="lab-step" id="step-2" data-title="Identify"><h2 tabindex="-1">Why comparing the two observed groups can mislead</h2><p>Return to the one-year numerical outcome from the first scene. Severity affects both treatment and outcome; treatment probabilities and benefits are the ones you chose there. First compare the observed groups; then compare treatment and control within each severity group and average using your target population.</p><div class="figure" id="dag-fig-2"></div><div id="study-values"></div><div class="figure" id="line-fig"></div><details class="formula-details"><summary>Name the operation: identification by adjustment</summary><p class="math" id="adjustment-formula"></p><p>This observed-data expression equals the causal target under consistency, conditional exchangeability, and treatment positivity for the target population. For ATT, average over X among treated people and require controls wherever treated people occur. For ATC, average among untreated people and require treated observations wherever those controls occur.</p></details></section>
+<section class="lab-step" id="step-3" data-title="Break an assumption"><h2 tabindex="-1">Some gaps cannot be repaired by a better estimator</h2><label><span><input id="exchange" type="checkbox"> Severity captures the common causes of treatment and outcome</span></label><label><span><input id="consistent" type="checkbox"> Treatment is well defined and observed outcomes match the corresponding intervention</span></label><label>Treatment probability among high-severity patients <input id="g-high" type="range" min="0" max="1" step=".01"></label><p id="positivity-status"></p><label>Unobserved counterfactual shift κ (when exchangeability is removed) <input id="hidden-shift" type="range" min="-1" max="1" step=".1"></label><p id="identification-status" class="warning" role="status"></p><div class="figure" id="dag-fig-3"></div><p>Two possible worlds can have exactly the same observed patients. In the second world, add κ to Y(1) for the untreated and subtract κ from Y(0) for the treated. Their observed outcomes stay fixed, but their population ATE changes by κ. Observed data alone cannot select between those worlds.</p><p class="note">The eight-person illustration below has fixed membership and a 50/50 severity mix. It isolates the missing-counterfactual problem; its ATE is separate from the selected population average above.</p><div class="figure" id="worlds-fig"></div><p class="note">A zero population propensity is a structural absence. A positive propensity can still produce an empty cell in a small sample. Those are different problems.</p></section>
+<section class="lab-step" id="step-4" data-title="Roadmap"><h2 tabindex="-1">Keep the question while the tools change</h2><div class="figure" id="strip-fig"></div><ol class="road-list"><li><b>Question:</b> choose the population, interventions, outcome, horizon, and contrast.</li><li><b>Identification:</b> state why a causal target equals a function of observed data.</li><li><b>Model:</b> say which probability distributions are allowed. The nonparametric model leaves their shapes unrestricted; semiparametric models combine finite and infinite dimensional components.</li><li><b>Estimation:</b> choose how to learn that function from a sample.</li><li><b>Uncertainty:</b> justify the approximation behind an interval.</li><li><b>Interpretation:</b> answer the original question with its assumptions and limitations.</li></ol><p>Cox regression is already a semiparametric model: a finite coefficient vector and an unspecified baseline hazard. Kaplan–Meier is a nonparametric survival estimator under its censoring conditions. The journey is to make those choices explicit and connect them to the target.</p><a class="course-btn" href="10-canonical-gradient.html">Next: hold a probability distribution in your hands →</a></section>`;
   [
-    ["target", "target"],
-    ["population", "p"],
     ["g-high", "gHigh"],
     ["hidden-shift", "hidden"],
     ["exchange", "exchange"],
@@ -283,7 +291,7 @@
       ),
       X0 = 132,
       X1 = 626,
-      dom = [0, 4],
+      dom = [-2, 7],
       sx = (v) => X0 + ((v - dom[0]) / (dom[1] - dom[0])) * (X1 - X0),
       lanes = [
         { key: "obs", y: 22, name: "observed" },
@@ -386,15 +394,9 @@
       const gap = v.naive - v.target;
       f.caption(
         (Math.abs(gap) < 0.005
-          ? "The observed difference equals the adjusted contrast: at this g(high) the treated and control groups have the same severity mix."
-          : "The observed difference is " +
-            fmt(Math.abs(gap), 2) +
-            (gap > 0 ? " above" : " below") +
-            " the adjusted " +
-            c.target.toUpperCase() +
-            " because treated patients are " +
-            (c.gHigh > S.trueG(0) ? "more" : "less") +
-            " often high-severity, and severity raises Y on its own.") +
+          ? "The observed and adjusted contrasts coincide in this configuration. Numerical agreement alone does not establish the identifying assumptions."
+          : "The observed difference is " + fmt(Math.abs(gap), 2) + (gap > 0 ? " above" : " below") +
+            " the adjusted " + c.target.toUpperCase() + ". The observed comparison uses a different severity mix in each arm; adjustment compares within severity and uses one target mix for both arms.") +
           (!v.computable
             ? " The adjusted value is hollow: this target needs a stratum the observed data never show, so the adjustment cannot be computed."
             : !c.exchange
@@ -435,9 +437,10 @@
     { x: 1, a: 0, d: 0 },
   ];
   const mean = (arr) => arr.reduce((s, v) => s + v, 0) / arr.length;
-  function worldValues(kappa) {
-    const y0 = PATIENTS.map((p) => S.trueM(p.x, 0) + p.d - (p.a ? kappa : 0)),
-      y1 = PATIENTS.map((p) => S.trueM(p.x, 1) + p.d + (p.a ? 0 : kappa)),
+  function worldValues(kappa, c) {
+    const m = CausalEstimands.means(c);
+    const y0 = PATIENTS.map((p) => m.control[p.x] + p.d - (p.a ? kappa : 0)),
+      y1 = PATIENTS.map((p) => m.treatment[p.x] + p.d + (p.a ? 0 : kappa)),
       obs1 = mean(y1.filter((_, i) => PATIENTS[i].a)),
       obs0 = mean(y0.filter((_, i) => !PATIENTS[i].a)),
       adj = mean(
@@ -468,7 +471,7 @@
         { a: 0, x0: 152, x1: 372, name: "Y(0)", color: "or" },
         { a: 1, x0: 402, x1: 622, name: "Y(1)", color: "p" },
       ],
-      dom = [-1, 6],
+      dom = [-2, 9],
       sx = (c, v) => c.x0 + ((v - dom[0]) / (dom[1] - dom[0])) * (c.x1 - c.x0),
       rowY = (i) => 44 + i * 23,
       AX = 218;
@@ -585,8 +588,8 @@
     const anim = animator(place);
     return (c) => {
       const kappa = c.exchange ? 0 : c.hidden,
-        w = worldValues(kappa),
-        base = worldValues(0),
+        w = worldValues(kappa, c),
+        base = worldValues(0, c),
         flat = { obs0: w.obs0, obs1: w.obs1, all0: w.all0, all1: w.all1 };
       PATIENTS.forEach((p, i) => {
         flat["y0_" + i] = w.y0[i];
@@ -673,42 +676,20 @@
     ]);
   })();
 
+  let lastIdentification = "";
   function render() {
-    const c = state.get(),
-      p = c.p,
-      g = [S.trueG(0), c.gHigh],
-      w = [1 - p, p],
-      pa = S.dot(w, g),
-      wt = w.map((v, i) => (v * g[i]) / pa),
-      wc = w.map((v, i) => (v * (1 - g[i])) / (1 - pa)),
-      tau = [0, 1].map((x) => S.trueM(x, 1) - S.trueM(x, 0)),
-      ate = S.dot(w, tau),
-      att = S.dot(wt, tau),
-      naive =
-        S.dot(
-          wt,
-          [0, 1].map((x) => S.trueM(x, 1)),
-        ) -
-        S.dot(
-          wc,
-          [0, 1].map((x) => S.trueM(x, 0)),
-        ),
-      target = c.target === "ate" ? ate : att;
-    document.getElementById("population-value").textContent =
-      fmt(p * 100, 0) + "% high severity";
-    document.getElementById("target-formula").textContent =
-      c.target === "ate" ? "E[Y(1) − Y(0)]" : "E[Y(1) − Y(0) | A=1]";
+    const c = state.get();
+    const signature = JSON.stringify([c.p, c.target, c.gLow, c.gHigh, c.effectLow, c.effectHigh, c.hidden, c.exchange, c.consistent]);
+    if (signature === lastIdentification) return;
+    lastIdentification = signature;
+    const m = CausalEstimands.means(c),
+      g = m.propensity, naive = m.naive, target = m.target;
     document.getElementById("study-values").innerHTML = table(
       ["Severity", "Population share", "g(x)", "m₀(x)", "m₁(x)", "Effect"],
-      [0, 1].map((x) => [
-        x ? "High" : "Low",
-        fmt(w[x]),
-        fmt(g[x]),
-        fmt(S.trueM(x, 0)),
-        fmt(S.trueM(x, 1)),
-        fmt(tau[x]),
-      ]),
+      [0, 1].map(x => [x ? "High" : "Low", fmt(m.all[x]), fmt(g[x]), fmt(m.control[x]), fmt(m.treatment[x]), fmt(m.effect[x])]),
     );
+    document.getElementById("adjustment-formula").textContent =
+      `${c.target.toUpperCase()} = Σₓ [m₁(x) − m₀(x)] ${c.target === "ate" ? "P(X=x)" : `P(X=x | A=${c.target === "att" ? 1 : 0})`}\nmₐ(x) = E[Y | A=a, X=x]`;
     const { computable, identified } = S.identification(c);
     const v = { g, naive, target, computable, identified };
     dag2(c, v);
@@ -739,15 +720,7 @@
   }
   state.subscribe(render);
   render();
-  document.getElementById("save-contract").onclick = () => {
-    const c = state.get();
-    Causality.event({
-      type: "contract",
-      value: { target: c.target, population: c.p },
-    });
-    document.getElementById("contract-status").textContent =
-      "Contract saved. It is available beside the roadmap in every lesson.";
-  };
+  CausalEstimandScenes.mount(root, state);
   guided(root, state);
   tools(root, state);
 })();

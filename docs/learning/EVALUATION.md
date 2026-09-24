@@ -22,6 +22,7 @@ Recruit applied statisticians who routinely use KM/Cox, causal-methods learners 
 Session tasks (45–60 minutes, adjustable after piloting):
 
 - Before instruction, ask for an estimand contract and explanations of a score, nuisance direction and influence function.
+- In the estimand explorer, ask why ATE and ATT differ with heterogeneous effects, then equalize the effects. Ask the learner to keep the selected people fixed across both worlds. Use a new event-risk pair to distinguish percentage points from a risk ratio, and a new survival horizon to distinguish a vertical gap from a signed area. Check whether saved questions and later worked-example targets are distinguishable.
 - Observe the roadmap and geometry steps without giving the mathematical terms first. Ask learners to predict a movement before touching controls.
 - Have them construct sensitivities for a new three-outcome distribution and explain why their values work for every allowed direction.
 - Restrict a different probability, and ask whether the bound must fall strictly.

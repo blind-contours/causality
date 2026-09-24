@@ -23,7 +23,7 @@
         hrT: [0, 1],
       },
     );
-  root.innerHTML = `<section class="lab-step" data-title="Choose a survival target"><h2 tabindex="-1">“Does it improve survival?” still needs a target</h2><p>Extend the severity-and-treatment study to time until an event. Choose a time horizon. Compare the chance of surviving to that time, or average event-free time up to it. These answer different clinical questions from a conditional hazard ratio.</p><label>Horizon τ, years <input id="horizon" type="range" min="1" max="10" step=".5"></label><p class="math" id="survival-target"></p><p>Restricted mean survival time, RMST(τ), is the area under a survival curve from 0 to τ. A difference of 0.4 years means an average additional 0.4 event-free years within that window.</p><button id="save-horizon">Save this horizon to my contract</button><p id="horizon-status" role="status"></p><p class="note">This extension changes the outcome to time until an event. Its treatment effect is not the numerical ATE=2 used in the continuous-outcome simulation.</p></section>
+  root.innerHTML = `<section class="lab-step" data-title="Choose a survival target"><h2 tabindex="-1">“Does it improve survival?” still needs a target</h2><p>Extend the severity-and-treatment study to time until an event. Choose a time horizon. Compare the chance of surviving to that time, or average event-free time up to it. These answer different clinical questions from a conditional hazard ratio.</p><label>Horizon τ, years <input id="horizon" type="range" min="1" max="10" step=".5"></label><p class="math" id="survival-target"></p><p>Restricted mean survival time, RMST(τ), is the area under a survival curve from 0 to τ. A difference of 0.4 years means an average additional 0.4 event-free years within that window.</p><button id="save-horizon">Save this survival question</button><p id="horizon-status" role="status"></p><p class="note">This extension changes the outcome to time until an event. Its treatment effect is not the numerical ATE=2 used in the continuous-outcome simulation.</p></section>
 <section class="lab-step" data-title="See selection"><h2 tabindex="-1">The risk set changes as people leave it</h2><p>In this generator, high-severity patients have a higher event rate and receive treatment more often. They can also be censored sooner. Event and censoring times are independent conditional on severity and treatment; they need not be independent within pooled treatment groups.</p><label>Severity dependence of censoring (0 turns censoring off) <input id="censoring" type="range" min="0" max="4" step=".25"></label><label>Cohort size <input id="cohort-n" type="range" min="200" max="5000" step="200"></label><label>Seed <input id="survival-seed" type="number" min="1" step="1"></label><p id="censoring-status"></p>
 <div class="figure" id="km-figure"><div class="fig-row"><div><svg id="km-svg" role="img" aria-label="Kaplan–Meier construction for 24 treated patients: a row of patients ordered by time above a survival curve that steps down at each death as calendar time advances."></svg><div id="km-player"></div></div><div><div class="fig-readout" id="km-readout"></div></div></div><p class="fig-caption" id="km-caption"></p></div>
 <div id="risk-table"></div><p>A low censoring rate is not evidence that censoring is independent. This experiment declares its mechanism so we can check estimators against a known target.</p></section>
@@ -662,8 +662,13 @@
   state.subscribe(render);
   render();
   byId("save-horizon").onclick = () => {
-    Causality.event({ type: "contract", value: { horizon: state.get().tau } });
-    byId("horizon-status").textContent = "Horizon saved to your contract.";
+    const tau = state.get().tau;
+    Causality.event({ type: "contract", value: {
+      target: "ate", population: S.prevalence, horizon: tau,
+      measure: Causality.state().contract.measure === "rmst" ? "rmst" : "survival",
+      scenario: { target: "ate", p: S.prevalence, tau, gLow: S.trueG(0), gHigh: S.trueG(1), hazardRatio: HR, delay: 0 },
+    } });
+    byId("horizon-status").textContent = "Saved this laboratory's survival question for everyone in the reference cohort.";
   };
   guided(root, state);
   tools(root, state);

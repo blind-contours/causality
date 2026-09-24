@@ -5,6 +5,25 @@
   else root.CausalState = api;
 })(globalThis, function () {
   const KEY = "causality.progress.v2";
+  function contract(value = {}) {
+    const c = { target: "ate", population: 0.35, horizon: 5, measure: "mean", ...value };
+    if (!["ate", "att", "atc"].includes(c.target)) c.target = "ate";
+    if (!["mean", "rd", "rr", "survival", "rmst"].includes(c.measure)) c.measure = "mean";
+    c.population = Number.isFinite(+c.population) ? Math.max(0, Math.min(1, +c.population)) : .35;
+    c.horizon = Number.isFinite(+c.horizon) ? Math.max(0, Math.min(10, +c.horizon)) : 5;
+    return c;
+  }
+  function describeContract(value) {
+    const c = contract(value), who = { ate: "everyone in the cohort", att: "people who actually received treatment", atc: "people who actually received control" }[c.target];
+    const question = {
+      mean: "the difference in the average numerical outcome at one year",
+      rd: "the one-year adverse-event risk difference",
+      rr: "the one-year adverse-event risk ratio",
+      survival: `the difference in the chance of being alive at ${c.horizon} years`,
+      rmst: `the difference in average time alive within ${c.horizon} years (RMST)`,
+    }[c.measure];
+    return `Among ${who}, compare ${question} under treatment versus control. ${Math.round(c.population * 100)}% of the whole cohort has high baseline severity. The selected people are held fixed across both intervention worlds.`;
+  }
   function migrate(legacy = {}) {
     return {
       version: 2,
@@ -15,7 +34,7 @@
         ]),
       ),
       settings: { mode: "guided" },
-      contract: { target: "ate", population: 0.35, horizon: 5 },
+      contract: contract(),
       forms: {},
     };
   }
@@ -32,7 +51,7 @@
       return next;
     }
     if (event.type === "contract") {
-      Object.assign(next.contract, event.value);
+      next.contract = contract({ ...next.contract, ...event.value });
       return next;
     }
     if (event.type === "form") {
@@ -81,8 +100,10 @@
         s.forms &&
         s.settings &&
         s.contract
-      )
+      ) {
+        s.contract = contract(s.contract);
         return s;
+      }
       return migrate(
         JSON.parse(storage.getItem("causality.progress.v1") || "{}"),
       );
@@ -90,5 +111,5 @@
       return migrate();
     }
   }
-  return { KEY, migrate, reduce, load };
+  return { KEY, migrate, reduce, load, contract, describeContract };
 });

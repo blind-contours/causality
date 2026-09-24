@@ -332,7 +332,7 @@
           "causal-roadmap",
           "00-causal-roadmap.html",
           "What are we trying to learn?",
-          "Build an estimand contract, adjust for severity, and break an identifying assumption.",
+          "Explore whose effect matters, absolute and relative risks, and survival gaps versus areas. Save your question, then test identification.",
           "identification",
         ),
       ],
@@ -445,6 +445,20 @@
     ],
   });
   const recaps = {
+    "causal-roadmap": [
+      {
+        q: "Switch from ATE to ATT while keeping the treatment effects within each severity group fixed. What changes?",
+        options: ["The treatment itself", "The population weights used to average effects", "Only the name of the estimator"],
+        answer: 1,
+        hint: "ATT averages over the actually treated population, held fixed in both intervention worlds.",
+      },
+      {
+        q: "A gap between survival curves at year 5 and an area between them through year 5 have which units?",
+        options: ["Both are hazard ratios", "Both are years", "Probability and years, respectively"],
+        answer: 2,
+        hint: "Survival at a date is a probability; RMST accumulates time alive within the window.",
+      },
+    ],
     "interference-lab": [
       {
         q: "Two neighbours' outcomes rise together after a heatwave. Is that interference?",
@@ -518,6 +532,7 @@
     "marketplace-decision-lab": ["experiment-design-lab"],
   };
   const minutes = {
+    "causal-roadmap": 25,
     "interference-lab": 30,
     "experiment-design-lab": 30,
     "marketplace-decision-lab": 35,

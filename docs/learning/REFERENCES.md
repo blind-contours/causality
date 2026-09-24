@@ -4,6 +4,9 @@ The experiments are teaching models, not validated clinical tools. Mathematical 
 
 ## Semiparametric and causal theory
 
+- [ICH E9(R1), estimands and sensitivity analysis](https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf): motivates specifying the population, intervention, outcome and summary before selecting an analysis. The opening explorer covers baseline interventions; it does not implement the full trial framework for intercurrent events.
+- [Royston and Parmar (2013), restricted mean survival time](https://pmc.ncbi.nlm.nih.gov/articles/PMC3922847/): motivates the linked survival-gap and signed-area scene. Curves are known synthetic distributions and RMST values are analytic; estimation and censoring are introduced later.
+
 - [Kennedy, Semiparametric theory (2017)](https://arxiv.org/pdf/1709.06418): tangent spaces, projection, influence functions and the ATE. The finite-probability laboratory supplies exact numbers for those geometric relationships.
 - [Hines et al., Demystifying statistical learning based on efficient influence functions](https://arxiv.org/html/2107.00681v3): pathwise derivatives and efficient influence-function reasoning. Point-mass calculations in continuous models are qualified as formal devices.
 - [Hahn (1998)](https://doi.org/10.2307/2998560): propensity-score information and semiparametric efficiency. The course distinguishes ATE from ATT and compares bounds at the same law.

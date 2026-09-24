@@ -39,3 +39,20 @@ test("immutable state updates preserve unrelated data and settings", () => {
   assert.equal(next.contract.target, "att");
   assert.equal(next.contract.population, 0.35);
 });
+test("older saved contracts gain a measure without losing their target or progress", () => {
+  const old = S.migrate();
+  delete old.contract.measure;
+  old.contract.target = "att";
+  const loaded = S.load({ getItem: () => JSON.stringify(old) });
+  assert.equal(loaded.contract.measure, "mean");
+  assert.equal(loaded.contract.target, "att");
+  assert.deepEqual(loaded.units, old.units);
+});
+test("saved questions distinguish untreated populations, risk ratios, and survival time", () => {
+  let state = S.reduce(S.migrate(), { type: "contract", value: { target: "atc", measure: "rr", scenario: { riskLow: .02 } } });
+  assert.match(S.describeContract(state.contract), /actually received control/);
+  assert.match(S.describeContract(state.contract), /risk ratio/);
+  state = S.reduce(state, { type: "contract", value: { measure: "rmst", horizon: 7 } });
+  assert.match(S.describeContract(state.contract), /time alive within 7 years/);
+  assert.equal(state.contract.scenario.riskLow, .02);
+});

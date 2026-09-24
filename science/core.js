@@ -550,8 +550,11 @@
   /* Observed-data support for the adjusted contrast is separate from causal identification.
    * computable: the adjustment functional exists in the observed law for the chosen target.
    * identified: computable AND the causal assumptions hold, so it equals the causal target. */
-  function identification({ target, gHigh, exchange, consistent }) {
-    const computable = target === "att" ? gHigh < 1 : gHigh > 0 && gHigh < 1;
+  function identification({ target, gHigh, gLow = trueG(0), p = prevalence, exchange, consistent }) {
+    const w = [1 - p, p], g = [gLow, gHigh];
+    const selected = w.map((v, i) => v * (target === "att" ? g[i] : target === "atc" ? 1 - g[i] : 1));
+    const computable = sum(selected) > 0 && selected.every((v, i) =>
+      v === 0 || (target === "att" ? g[i] < 1 : target === "atc" ? g[i] > 0 : g[i] > 0 && g[i] < 1));
     return {
       computable,
       identified: computable && !!exchange && !!consistent,

@@ -10,6 +10,12 @@ Classic JavaScript modules attach small namespaces because legacy lesson pages a
 
 ## Scientific contracts
 
+The opening estimand explorer uses `science/estimands.js` and the roadmap's single validated store. `population` holds factual treatment membership fixed across interventions; `means` and `risks` use those same population weights for both arms. The binary event occurs within one year and is a separate outcome from the numerical mean. `survival` uses the existing two-stratum baseline hazards (0.08 and 0.32/year) with an optional delayed hazard multiplier. Its RMST is integrated analytically, independently of the plotting grid. Undefined ratios and empty target populations remain undefined.
+
+`labs/estimands.js` mounts three scenes inside the opening lesson. Their inputs participate in the usual Reset and Share flow. Saved contracts include a measure (`mean`, `rd`, `rr`, `survival`, or `rmst`) and a snapshot of the teaching-world settings. Older version-2 contracts gain `measure: mean` on load. The reminder describes the saved question, while later lessons retain their explicitly labelled worked-example targets. Saving a question does not substitute an ATE influence function for an ATT or risk-ratio influence function. A survival-lab save explicitly selects that lab's reference cohort.
+
+Deep links `#step-1` through `#step-4` retain their original topics; the new outcome scenes use `#estimand-risk` and `#estimand-survival`. The player accepts `formatValue` so its accessible readout can show physical years rather than normalized playback position.
+
 - `score(p,v)`: strictly positive masses and a mass-conserving velocity; returns `v/p`.
 - `path(p,h,epsilon)`: weighted mean-zero score and a valid epsilon; rejects negative probabilities instead of silently clipping invalid paths.
 - `project(d,basis,p)`: probability-weighted Gram–Schmidt projection; dependent basis directions are dropped.

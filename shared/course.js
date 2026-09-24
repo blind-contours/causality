@@ -141,10 +141,10 @@
     const contract = document.createElement("details");
     contract.className = "contract-reminder";
     contract.innerHTML =
-      '<summary>Your estimand contract</summary><p></p><a href="00-causal-roadmap.html">Revise the question and assumptions</a>';
+      '<summary>Your estimand contract</summary><p></p><p class="note">This is your saved question. Each lesson labels the target used in its worked example; an ATE influence function does not automatically apply to ATT, ATC, a risk ratio, or a survival target.</p><a href="00-causal-roadmap.html">Revise the question and assumptions</a>';
     const contractText = () => {
       contract.querySelector("p").textContent =
-        `Target: ${state.contract.target === "ate" ? "population average treatment effect" : "treated population average treatment effect"}. High-severity prevalence: ${Math.round(state.contract.population * 100)}%. Survival horizon: ${state.contract.horizon} years. This is your saved question; individual lessons label their own toy examples.`;
+        CausalState.describeContract(state.contract);
     };
     contractText();
     listeners.push(contractText);

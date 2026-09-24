@@ -154,11 +154,33 @@
           </dd>
         </div>
         <div>
+          <dt>ATE, ATT, ATC</dt>
+          <dd>
+            Average treatment effects for everyone, for those actually treated,
+            and for those actually untreated. The selected people stay fixed
+            across both intervention worlds; their baseline composition changes
+            which group effects receive weight.
+            <a href="lessons/00-causal-roadmap.html#step-1">Move the population weights →</a>
+          </dd>
+        </div>
+        <div>
+          <dt>Risk difference, risk ratio</dt>
+          <dd>
+            For the same population and time horizon, subtract the intervention
+            risks or divide them. A difference of −0.1 is −10 percentage points;
+            a ratio of 0.5 means half the risk. The ratio needs a nonzero
+            denominator.
+            <a href="lessons/00-causal-roadmap.html#estimand-risk">Compare event grids →</a>
+          </dd>
+        </div>
+        <div>
           <dt>Sₐ(t), RMSTₐ(τ)</dt>
           <dd>
             Survival under treatment a, and its area through horizon τ. A
             contrast between arms can be a causal target under stated
-            identifying assumptions.
+            identifying assumptions. A survival difference is a vertical gap
+            (probability); an RMST difference is a signed area (time).
+            <a href="lessons/00-causal-roadmap.html#estimand-survival">Move the time horizon →</a>
           </dd>
         </div>
       </dl>

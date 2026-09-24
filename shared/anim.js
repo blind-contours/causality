@@ -352,7 +352,7 @@
    * whenever the clock or the slider moves. Reduced motion: Play jumps to t = 1. */
   function player(
     mount,
-    { duration = 6000, onT, label = "Progress", loop = false } = {},
+    { duration = 6000, onT, label = "Progress", loop = false, formatValue = t => t.toFixed(2) } = {},
   ) {
     const wrap = html("div", { class: "fig-player" });
     const play = html("button", { type: "button", class: "primary" }, "Play");
@@ -360,7 +360,7 @@
     const reset = html("button", { type: "button" }, "Reset");
     const id = "scrub-" + Math.random().toString(36).slice(2, 8);
     const lab = html("label", { for: id }, label + " ");
-    const val = html("span", { class: "v" }, "0.00");
+    const val = html("span", { class: "v" }, formatValue(0));
     const range = html("input", {
       type: "range",
       id,
@@ -368,6 +368,7 @@
       max: 1,
       step: 0.002,
       value: 0,
+      "aria-valuetext": formatValue(0),
     });
     lab.append(val, range);
     wrap.append(play, step, reset, lab);
@@ -383,7 +384,8 @@
         t = Math.max(0, Math.min(1, v));
         if (!fromClock) api.pause();
         range.value = t;
-        val.textContent = t.toFixed(2);
+        val.textContent = formatValue(t);
+        range.setAttribute("aria-valuetext", formatValue(t));
         onT?.(t);
       },
       play() {

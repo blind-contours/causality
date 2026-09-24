@@ -18,7 +18,7 @@ For browser checks, start an isolated Chrome/Chromium profile with remote debugg
 
 ## The learning route
 
-1. **Ask and identify:** build an estimand contract; distinguish the causal question from an observed-data comparison; deliberately break exchangeability or positivity.
+1. **Ask and identify:** manipulate ATE/ATT/ATC population weights, compare absolute and relative event risks, and drag a survival horizon to distinguish a probability gap from an RMST area. Save the population, outcome, contrast, horizon, and example settings as an estimand contract; then distinguish the causal question from an observed-data comparison and deliberately break exchangeability or positivity.
 2. **Feel the geometry:** move three probabilities, construct scores and sensitivities, rotate the simplex and square-root sphere, restrict the model, and project a canonical gradient. Continue through the existing derivation lessons.
 3. **Build an estimator:** one-step correction, Gaussian tilts, information geometry, clever covariates, binary targeting, and four-patient arithmetic.
 4. **Earn inference and return to survival:** nuisance correctness, product rates, cross-fitting, repeated-sampling experiments, efficiency theory, KM, censoring and RMST versus hazard ratios.
@@ -32,6 +32,7 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 | Location | Responsibility |
 |---|---|
 | `science/core.js` | Pure probability, geometry, targeting, estimation, histogram and survival kernels; available in browsers and Node |
+| `science/estimands.js` | Exact population weights, mean and risk contrasts, and analytic survival/RMST contrasts for the opening estimand explorer |
 | `science/interference.js` | Exact eight-unit interference model: enumeration of every assignment under Bernoulli, complete and cluster designs; exposure support; exact design contrasts and estimands |
 | `science/marketplace.js` | Two-zone shared-fleet simulator (specified minute loop), request and switchback designs, estimators, sharp-null randomization test, full-policy reference, repeated experiments, and the validated finite-history benchmark |
 | `examples/marketplace/` | Python port of the simulator checked against a shared fixture, SQL metric construction with unserved requests in the denominator, the simulation grid, and the report |
@@ -46,7 +47,7 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 | `figures/` | Registered figures that lessons mount with `<div data-figure="name">`; each is built from a mathematical state and a clock, never from a reveal |
 | `shared/river.js`, `shared/hub.js`, `shared/hub.css` | The course map: roadmap stages as a river, lessons as tributaries, progress states, skip-ahead diagnostic |
 | `shared/labs.css`, `shared/lesson.css`, `shared/course.css` | One token set (palette, six stage hues, type) in `labs.css`; legacy lesson components; course navigation and study layer |
-| `lessons/` | Thirteen entry pages; nine existing derivations plus four laboratories |
+| `lessons/` | Sixteen entry pages, including the core route and three interference/marketplace application labs |
 | `tests/` | Scientific invariants, state transitions, source/link checks and browser verification |
 | `docs/learning/` | References, mathematical-review packet and learner-study protocol |
 
