@@ -624,6 +624,8 @@
     cf.figure.player.set(0);
   });
 
+  const sup = (v) =>
+    String(v).replace(/[-0-9]/g, (c) => "⁻⁰¹²³⁴⁵⁶⁷⁸⁹"["-0123456789".indexOf(c)]);
   /* Step 2: rate plot with fixed axes, the boundary line, and the (α, β) square. */
   const RP = new Plot(document.getElementById("rate-plot"), {
       x: [2, 6],
@@ -631,17 +633,12 @@
       width: 420,
       height: 300,
       margin: { l: 54, r: 18, t: 26, b: 46 },
-      xlabel: "sample size, log₁₀ n",
+      xlabel: "sample size n (log scale)",
       ylabel: "√n · |R₂| bound = n^(½ − α − β), log scale",
+      xticks: [2, 3, 4, 5, 6],
       yticks: [-3, -2, -1, 0, 1, 2, 3],
-      tickFormat: (v) =>
-        Number.isInteger(v)
-          ? v < 0
-            ? "10^" + v
-            : v === 0
-              ? "1"
-              : "10^" + v
-          : fmt(v, 2),
+      xTickFormat: (v) => "10" + sup(v),
+      yTickFormat: (v) => (v === 0 ? "1" : "10" + sup(v)),
     }),
     RS = new Plot(document.getElementById("rate-square"), {
       x: [0, 0.6],

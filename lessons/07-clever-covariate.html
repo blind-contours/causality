@@ -23,7 +23,7 @@
 <!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
 <h2>Why ϕ is centered: the uncentered version fails two jobs</h2>
-<p>Take ϕ(z) = z − ψ and the uncentered candidate ϕ̃(z) = z. Job one: predict how much the mean moves when you add ε of mass at z₀. The true move is ε(z₀ − ψ); ϕ̃ predicts εz₀ and is off by εψ. Job two: measure how far a sample is from a fit. Pₙϕ = (sample mean − fitted mean), which is zero exactly when the fit matches; Pₙϕ̃ = sample mean, which is never a measure of misfit. Both jobs are what the next scenes need.</p>
+<p>Take ϕ(z) = z − ψ and the uncentered candidate ϕ̃(z) = z. Job one: predict how much the mean moves when you add ε of mass at z₀. The true move is ε(z₀ − ψ); ϕ̃ predicts εz₀ and is off by εψ. Job two: measure how far a sample is from a fit. Pₙϕ = (sample mean − fitted mean), which is zero exactly when the fit matches; Pₙϕ̃ = sample mean, which is never a measure of misfit. Both jobs are what the next scenes need. In practice ψ is unknown, so the figure evaluates the influence function at a fit with mean μ̂: ϕ̂(z) = z − μ̂.</p>
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="400"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
@@ -55,7 +55,7 @@
 <!-- SCENE 3 -->
 <div class="eyebrow">Scene 3</div>
 <h2>Move along ϕ by maximum likelihood, and the score equation is Pₙϕ = 0</h2>
-<p>Start from a wrong fit p̂ (its mean μ̂ is off). Fluctuate along its own influence function with an exponential tilt, p̂<sub>ε</sub>(z) ∝ p̂(z)·exp(ε·ϕ̂(z)) with ϕ̂(z) = z − μ̂; its score at ε = 0 is ϕ̂ (the linear tilt from earlier pages works the same way but can't take large steps). Choose ε by maximizing the log-likelihood of the sample, Σ log p̂<sub>ε</sub>(Z<sub>i</sub>). The derivative of that in ε at ε = 0 is Σ ϕ̂(Z<sub>i</sub>) = n·Pₙϕ̂. So the likelihood pushes ε in the direction that reduces Pₙϕ̂, and stops where Pₙϕ̂<sub>P̂*</sub> = 0. That quantity Pₙϕ̂ is the one-step's correction term; TMLE spends it inside the model instead of adding it to the number.</p>
+<p>Start from a wrong fit p̂ (its mean μ̂ is off). Fluctuate along its own influence function with an exponential tilt, p̂<sub>ε</sub>(z) ∝ p̂(z)·exp(ε·ϕ̂(z)) with ϕ̂(z) = z − μ̂; its score at ε = 0 is ϕ̂ (the linear tilt from earlier pages works the same way but can't take large steps). Choose ε by maximizing the log-likelihood of the sample, Σ log p̂<sub>ε</sub>(Z<sub>i</sub>). The derivative of that in ε at ε = 0 is Σ ϕ̂(Z<sub>i</sub>) = n·Pₙϕ̂. So the likelihood pushes ε in the direction that reduces Pₙϕ̂, and stops at the updated fit P̂*, where the influence function recomputed at P̂* has sample mean zero: Pₙϕ* = 0, with ϕ*(z) = z − μ*. That quantity Pₙϕ̂ is the one-step's correction term; TMLE spends it inside the model instead of adding it to the number.</p>
 <div class="eq">p̂_ε(z) = p̂(z) exp(ε ϕ̂(z)) / c(ε)        L(ε) = Σᵢ log p̂_ε(Zᵢ) = ε Σᵢ ϕ̂(Zᵢ) − n log c(ε)<br>L'(ε) = Σᵢ ϕ̂(Zᵢ) − n·E_{p̂_ε}[ϕ̂]        L'(0) = n · Pₙϕ̂        ε̂: Pₙϕ̂ = E_{p̂_ε̂}[ϕ̂]  ⇒  mean(p̂_ε̂) = z̄</div>
 <div class="scene">
   <div class="paper"><canvas id="c3" width="800" height="520"></canvas><div class="cap" id="cap3"></div></div>
@@ -134,7 +134,7 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z1').
   // bottom
   const BL=60;txt(g,'Legitimacy: p̂(1 + εϕ) integrates to 1 + ε·E_p̂[ϕ].  With ϕ centered that is 1.  With ϕ̃ = z it is 1 + εμ̂: not a density.',BL,320,C.muted,12,'left');
   txt(g,`E_p̂[ϕ̂] = 0.000     E_p̂[ϕ̃] = μ̂ = ${mh.toFixed(2)}`,BL,345,C.pen,12,'left',FM);
-  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">E_P[ϕ̂] = μ − μ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
+  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ̂(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">E_P[ϕ̂] = μ − μ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
   document.getElementById('cap1').textContent='Teal (centered) predicts the pull of a point mass correctly and measures misfit; red (uncentered) does neither. Move μ̂ onto the population mean μ and E_P[ϕ̂] hits zero.';
 });
 bind('z1','v1z',v=>v.toFixed(2),()=>S1.draw());bind('m1','v1m',v=>v.toFixed(2),()=>S1.draw());

@@ -90,8 +90,8 @@ async function main() {
   await nav("index.html");
   assert(
     (await ev(`document.querySelectorAll('#river a.node').length`)) ===
-      (await ev(`Causality.units.length`)),
-    "river map does not show every lesson",
+      (await ev(`Causality.units.filter((u) => !u.elective).length`)),
+    "river map does not show every core lesson",
   );
   assert(
     await ev(
@@ -112,10 +112,10 @@ async function main() {
   );
   assert(
     (await ev(`document.querySelector('#river a.node.now').dataset.unit`)) ===
-      "canonical-gradient" &&
+      "scores-from-scratch" &&
       (await ev(`Causality.state().units['causal-roadmap'].status`)) !==
         "demonstrated",
-    "after the diagnostic, the map should point at the geometry lab without claiming demonstration",
+    "after the diagnostic, the map should point at the first geometry lesson without claiming demonstration",
   );
   await ev("Causality.reset()");
   const files = [

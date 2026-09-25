@@ -18,12 +18,17 @@ For browser checks, start an isolated Chrome/Chromium profile with remote debugg
 
 ## The learning route
 
-1. **Ask and identify:** manipulate ATE/ATT/ATC population weights, compare absolute and relative event risks, and drag a survival horizon to distinguish a probability gap from an RMST area. Save the population, outcome, contrast, horizon, and example settings as an estimand contract; then distinguish the causal question from an observed-data comparison and deliberately break exchangeability or positivity.
-2. **Feel the geometry:** move three probabilities, construct scores and sensitivities, rotate the simplex and square-root sphere, restrict the model, and project a canonical gradient. Continue through the existing derivation lessons.
-3. **Build an estimator:** one-step correction, Gaussian tilts, information geometry, clever covariates, binary targeting, and four-patient arithmetic.
-4. **Earn inference and return to survival:** nuisance correctness, product rates, cross-fitting, repeated-sampling experiments, efficiency theory, KM, censoring and RMST versus hazard ratios.
+Thirteen core lessons, in this order, plus an elective branch.
 
-5. **Experiment when treatments spill over** (a branch after the inference laboratory; survival is not a prerequisite): define direct, spillover and full-policy effects on an exact eight-unit network; step through a two-zone shared fleet and compare request-level randomization with randomized switchbacks; judge repeated experiments against a named target with a validated benchmark, and write a one-page recommendation. A Python/SQL capstone in `examples/marketplace/` reproduces the analysis and generates the precomputed grid the third lesson reads.
+1. **Ask and identify** (1): manipulate ATE/ATT/ATC population weights, compare absolute and relative event risks, and drag a survival horizon to distinguish a probability gap from an RMST area. Save the population, outcome, contrast, horizon, and example settings as an estimand contract; then distinguish the causal question from an observed-data comparison and deliberately break exchangeability or positivity.
+2. **Feel the geometry** (2 to 5): build paths, scores and influence functions from one density; derive the mean's influence function one line at a time; an optional aside on differentiating under the integral; then move three probabilities, restrict the model and project a canonical gradient.
+3. **Build an estimator** (6 to 10): one-step correction, Gaussian tilts, two strata and the 1/π budget, clever covariates and binary targeting, and four-patient arithmetic.
+4. **Know what uncertainty means** (11 and 12): the whole efficiency story in eight pictures, then nuisance correctness, product rates, cross-fitting and repeated-sampling experiments.
+5. **Return to survival** (13): KM, censoring, and RMST versus hazard ratios.
+
+**Elective: experiments when treatments spill over** (E1 to E3, after the inference laboratory; survival is not a prerequisite): define direct, spillover and full-policy effects on an exact eight-unit network; step through a two-zone shared fleet and compare request-level randomization with randomized switchbacks; judge repeated experiments against a named target with a validated benchmark, and write a one-page recommendation. A Python/SQL capstone in `examples/marketplace/` reproduces the analysis and generates the precomputed grid the third lesson reads. Electives are listed on the course map but sit outside the river and the progress count.
+
+File names keep their original numbers so existing links keep working; `shared/curriculum.js` is the source of truth for the order.
 
 Guided mode presents one topic at a time; Explore shows all topics. Direct entry is always available. The course map and each lesson show prerequisites. A saved estimand contract stays available across lessons; each experiment explicitly states when it uses a different toy target or population.
 

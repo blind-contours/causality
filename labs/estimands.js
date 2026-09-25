@@ -187,7 +187,7 @@
       dots = [0, 1].map(a => el("circle", { r: 5, fill: a ? "var(--p)" : "var(--or)", stroke: "var(--paper)", "stroke-width": 2 }));
     P.marks.append(gap, ...dots);
     let syncing = false;
-    const clock = player(byId("estimand-time-player"), { duration: 10000, label: "Horizon", formatValue: t => fmt(t * 10, 1) + " years", onT(t) {
+    const clock = player(byId("estimand-time-player"), { duration: 10000, autoplay: false, label: "Horizon", formatValue: t => fmt(t * 10, 1) + " years", onT(t) {
       const tau = Math.round(t * 100) / 10;
       if (!syncing && tau !== state.get().tau) state.set({ tau });
     } });

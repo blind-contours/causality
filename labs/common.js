@@ -128,7 +128,8 @@
     panels.forEach((p, i) => {
       p.id ||= "step-" + (i + 1);
       const b = document.createElement("button");
-      b.textContent = i + 1 + ". " + p.dataset.title;
+      if (window.CausalCourseNav) CausalCourseNav.label(b, i + 1, p.dataset.title);
+      else b.textContent = i + 1 + ". " + p.dataset.title;
       b.onclick = () => {
         state.set({ step: i });
         p.querySelector("h2")?.focus();

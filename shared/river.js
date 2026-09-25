@@ -43,7 +43,7 @@
         const f = (k + 1) / (list.length + 1),
           s = s0 + (s1 - s0) * (0.12 + 0.8 * f);
         const sign = vertical ? 1 : k % 2 ? 1 : -1,
-          reach = vertical ? 96 : [108, 132, 150][Math.floor(k / 2) % 3];
+          reach = vertical ? 96 : 96 + 28 * Math.floor(k / 2); // same-side neighbours step outward so their labels sit at different heights
         const join = map(s, wave(i) * (0.5 + 0.5 * f)),
           node = map(s - (vertical ? 0 : 30), sign * reach);
         const path = vertical
@@ -159,19 +159,24 @@
             fill: color(u.stage),
           }),
         );
+      // Wide layout: every node carries its number, and only the current lesson carries its name,
+      // so labels never collide; hovering or focusing a node shows its full card below the map.
+      // The vertical (phone) layout has room for every name.
       const up = sign < 0,
-        tx = g.vertical ? x + 18 : x + 10,
-        ty = g.vertical ? y + 4 : y + (up ? -20 : 33);
+        named = g.vertical || status === "now",
+        tx = g.vertical ? x + 18 : x,
+        ty = g.vertical ? y + 4 : y + (up ? -18 : 27);
       const t = el("text", {
         x: tx,
         y: ty,
-        "text-anchor": g.vertical ? "start" : "end",
+        "text-anchor": g.vertical ? "start" : "middle",
       });
       t.append(
-        el("tspan", { class: "n" }, String(u.n).padStart(2, "0") + "  "),
-        u.short,
+        el("tspan", { class: "n" }, String(u.n).padStart(2, "0") + (named ? "  " : "")),
       );
+      if (named) t.append(u.short);
       a.append(t);
+      a.append(el("title", {}, `${u.n}. ${u.title}`));
       if (opts.onSelect) {
         a.addEventListener("mouseenter", () => opts.onSelect(u));
         a.addEventListener("focus", () => opts.onSelect(u));

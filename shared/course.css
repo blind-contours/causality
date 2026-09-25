@@ -595,3 +595,58 @@ select {
 .recap-strip {
   border-left-color: var(--stage, var(--teal));
 }
+
+/* Single navigation. Guided mode keeps one strip of numbered step pills; the current pill shows
+   its title. The scene index and the legacy table of contents only appear in Explore mode. */
+.step-nav {
+  align-items: center;
+}
+.step-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.step-nav .sn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+}
+.step-nav .sn::after {
+  content: ".";
+}
+body[data-mode="guided"] .step-nav {
+  gap: 6px;
+}
+body[data-mode="guided"] .step-nav button {
+  min-width: 34px;
+  min-height: 34px;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 17px;
+}
+body[data-mode="guided"] .step-nav .sn::after {
+  content: "";
+}
+body[data-mode="guided"] .step-nav button:not([aria-current="step"]) .st {
+  display: none;
+}
+body[data-mode="guided"] .step-nav button[aria-current="step"] {
+  background: var(--stage, var(--purple));
+  border-color: var(--stage, var(--purple));
+  color: #fff;
+}
+body[data-mode="guided"] .scene-index,
+body[data-mode="guided"] .toc,
+body[data-mode="guided"] .legacy-step > .eyebrow {
+  display: none;
+}
+body[data-mode="explore"] .wrap:has(.toc) .scene-index {
+  display: none;
+}
+@media (max-width: 600px) {
+  body[data-mode="guided"] .step-nav button[aria-current="step"] .st {
+    display: none;
+  }
+  .roadmap {
+    display: none;
+  }
+}

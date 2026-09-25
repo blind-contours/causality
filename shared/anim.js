@@ -160,7 +160,9 @@
         el("line", { class: "axis", x1: L, x2: R, y1: B, y2: B }),
         el("line", { class: "axis", x1: L, x2: L, y1: T, y2: B }),
       );
-      const f = o.tickFormat || ((v) => fmt(v, 3));
+      const f = o.tickFormat || ((v) => fmt(v, 3)),
+        fx = o.xTickFormat || f,
+        fy = o.yTickFormat || f;
       xt.forEach((v) =>
         this.bg.append(
           el(
@@ -171,7 +173,7 @@
               y: B + 16,
               "text-anchor": "middle",
             },
-            f(v),
+            fx(v),
           ),
         ),
       );
@@ -185,7 +187,7 @@
               y: this.sy(v) + 4,
               "text-anchor": "end",
             },
-            f(v),
+            fy(v),
           ),
         ),
       );
@@ -347,12 +349,12 @@
     }
   }
 
-  /* player(mount, {duration, onT, label, loop}) → {t, set(t), play(), pause(), toggle()}
+  /* player(mount, {duration, onT, label, loop, autoplay}) → {t, set(t), play(), pause(), toggle()}
    * Renders Play/Pause, Step, Reset and a scrub slider. onT(t) is called with t in [0,1]
    * whenever the clock or the slider moves. Reduced motion: Play jumps to t = 1. */
   function player(
     mount,
-    { duration = 6000, onT, label = "Progress", loop = false, formatValue = t => t.toFixed(2) } = {},
+    { duration = 6000, onT, label = "Progress", loop = false, autoplay = true, formatValue = t => t.toFixed(2) } = {},
   ) {
     const wrap = html("div", { class: "fig-player" });
     const play = html("button", { type: "button", class: "primary" }, "Play");
@@ -423,9 +425,21 @@
       "visibilitychange",
       () => document.hidden && api.pause(),
     );
+    // Alive on arrival: play once the first time the figure comes into view.
+    // It resumes if it left the view mid-play; any user control ends autoplay.
+    let auto = loop || !autoplay ? "off" : "pending";
+    const stopAuto = () => (auto = "off");
+    wrap.addEventListener("click", stopAuto, { capture: true });
+    range.addEventListener("pointerdown", stopAuto);
+    range.addEventListener("keydown", stopAuto);
+    range.addEventListener("input", stopAuto);
     if ("IntersectionObserver" in window)
       new IntersectionObserver(
-        (e) => !e[0].isIntersecting && api.pause(),
+        (e) => {
+          if (!e[0].isIntersecting) api.pause();
+          else if (auto === "pending" && t < 1 && !raf) api.play();
+        },
+        { threshold: 0.35 },
       ).observe(mount);
     return api;
   }

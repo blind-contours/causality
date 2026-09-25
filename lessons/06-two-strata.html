@@ -47,7 +47,7 @@
     <label><span>δ<sub>O</sub>, shift of the old curve</span> <span class="v" id="v2o">3.00</span><input type="range" id="do2" min="0" max="3.2" step="0.01" value="3"></label>
     <div class="btns"><button id="b2a">All young (cost 50)</button><button id="b2b">All old (cost 50)</button><button id="b2c">Optimal (cost 50)</button></div>
     <div class="readout" id="ro2"></div>
-    <div class="note">Cost is drawn as one small square per treated person, side δ. Forty-five squares of side 0.33 have the same total area as five squares of side 1.0. The likelihood cannot tell those two moves apart; ψ can.</div>
+    <div class="note">Cost is drawn as one small square per treated person, side δ. Forty-five squares of side ⅓ have the same total area as five squares of side 1 (both 5). At the starting setting, the young curve moves ⅓ and costs 5, while the old curve moves 3 and its five squares cost 45. The likelihood cannot tell those two moves apart; ψ can.</div>
   </div>
 </div>
 <div class="say"><b>In one sentence</b>Per unit of likelihood distance, a shift of the outcome curve moves E[μ₁(X)] most where treated people are rare, because the payoff is weighted by the population and the cost by the treated.</div>
@@ -351,7 +351,7 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);
   txt(g,`ψ moves by ε·(0.5/0.9 + 0.5/0.1) = ε·5.56 = ${dpsi.toFixed(3)}`,RX,484,C.green,12.5,'left',FM);txt(g,`one-step correction Pₙ[H r] = ${sumHr.toFixed(1)}/100 = ${os.toFixed(3)}`,RX,506,C.teal,12.5,'left',FM);
   if(t>0.95)txt(g,'equal here because π uses empirical stratum counts',430,495,C.pen,12.5,'left',FS,true);
   document.getElementById('ro5').innerHTML=`<span class="k">r̄ young</span><span>${mY.toFixed(3)}</span><span class="k">r̄ old</span><span>${mO.toFixed(3)}</span><span class="k">Σ H r</span><span>${sumHr.toFixed(2)}</span><span class="k">Σ H²</span><span>${sumH2.toFixed(1)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Δψ (TMLE)</span><span>${(ehat*(0.5*HY+0.5*HO)).toFixed(3)}</span><span class="k">Δψ (one-step)</span><span>${os.toFixed(3)}</span>`;
-  document.getElementById('cap5').textContent=t<0.3?'Residuals of the treated around the initial fit. Both strata sit about 1 too high.':t<0.6?'Weight each residual by H = 1/π. The five old residuals become as loud as the forty-five young ones.':t<0.95?'Grow ε until the weighted residuals balance: Σ H(r − εH) = 0. The old curve travels 9× as far.':'At ε̂ the score equation holds. Equality to the one-step here uses π equal to the empirical treated fractions; it is not general for Gaussian fluctuations.';
+  document.getElementById('cap5').textContent=t<0.3?'Residuals of the treated around the initial fit. In both strata the data sit about 1 above the fit: the model is too low by 1.':t<0.6?'Weight each residual by H = 1/π. The five old residuals become as loud as the forty-five young ones.':t<0.95?'Grow ε until the weighted residuals balance: Σ H(r − εH) = 0. The old curve travels 9× as far.':'At ε̂ the score equation holds. Equality to the one-step here uses π equal to the empirical treated fractions; it is not general for Gaussian fluctuations.';
 },{dur:6000});
 document.getElementById('n5').onclick=()=>{gen5();S5.draw();};bind('s5','v5s',v=>v.toFixed(2),()=>{gen5();S5.draw();});
 

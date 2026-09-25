@@ -20,7 +20,7 @@
 <div class="wrap">
 <div class="eyebrow">Foundations · everything computed from a density you can see</div>
 <h1>Scores and Influence, From Scratch</h1>
-<p class="lede">The efficiency-theory pictures use four words as if they were obvious: a <em>path</em> through the model, its <em>score</em> h, the <em>pathwise derivative</em> of a parameter, and the <em>influence function</em>. Here each one is built from a single concrete density p(z) on the line. Nothing is abstract: every curve is computed numerically and every number in the readouts is an integral you can check.</p><p class="note">The density calculations use one normalized finite grid on [−4,4]. Every score is centered under that same law. The bounded scores and displayed ε range keep pε nonnegative.</p>
+<p class="lede">The rest of the course uses four words as if they were obvious: a <em>path</em> through the model, its <em>score</em> h, the <em>pathwise derivative</em> of a parameter, and the <em>influence function</em>. Here each one is built from a single concrete density p(z) on the line. Nothing is abstract: every curve is computed numerically and every number in the readouts is an integral you can check.</p><p class="note">The density calculations use one normalized finite grid on [−4,4]. Every score is centered under that same law. The bounded scores and displayed ε range keep pε nonnegative.</p>
 <ul class="toc">
 <li><a href="#s1">1 · A distribution is a point</a></li><li><a href="#s2">2 · A path through the model</a></li><li><a href="#s3">3 · The score is a slope</a></li><li><a href="#s4">4 · Scores have mean zero</a></li><li><a href="#s5">5 · The parameter along the path</a></li><li><a href="#s6">6 · One ϕ for every h</a></li><li><a href="#s7">7 · Why it's called influence</a></li><li><a href="#s8">8 · Influence for the ATE</a></li><li><a href="#s9">9 · The hardest direction</a></li>
 </ul>
@@ -120,7 +120,7 @@
 <!-- 7 -->
 <div class="eyebrow" id="s7">Scene 7</div>
 <h2>Why it's called "influence": one observation's pull on the parameter</h2>
-<p>Take a special path: contaminate P with a tiny point mass at z₀, <span class="m">P<sub>ε</sub> = (1 − ε)P + ε δ<sub>z₀</sub></span>. For a discrete mass function with p(z₀)&gt;0, its score is <span class="m">h(z) = 𝟙{z = z₀}/p(z₀) − 1</span> (a spike minus one). For a continuous density this contamination is a formal device, generally not a regular dominated L² path; and plugging that into E[ϕ h] gives exactly <span class="m">ϕ(z₀)</span>. So <span class="m">ψ(P<sub>ε</sub>) ≈ ψ(P) + ε ϕ(z₀)</span>: the influence function at z₀ is how much the parameter moves when you add a little mass at z₀. Move the spike and watch the mean move by ε(z₀ − μ). For the mean, the empirical error equals P<sub>n</sub>(Z−μ) exactly. For a general asymptotically linear estimator, the leading error is P<sub>n</sub>ϕ under additional conditions; P<sub>n</sub>−P is a signed empirical perturbation, not a single small point-mass contamination.</p>
+<p>Take a special path: contaminate P with a tiny point mass at z₀, <span class="m">P<sub>ε</sub> = (1 − ε)P + ε δ<sub>z₀</sub></span>. For a discrete mass function with p(z₀)&gt;0, its score is <span class="m">h(z) = 𝟙{z = z₀}/p(z₀) − 1</span> (a spike minus one). Plugging that score into E[ϕ h] gives exactly <span class="m">ϕ(z₀)</span>. (For a continuous density the same contamination is only a formal device, not a regular L² path; see the note below.) So <span class="m">ψ(P<sub>ε</sub>) ≈ ψ(P) + ε ϕ(z₀)</span>: the influence function at z₀ is how much the parameter moves when you add a little mass at z₀. Move the spike and watch the mean move by ε(z₀ − μ). For the mean, the empirical error equals P<sub>n</sub>(Z−μ) exactly. For a general asymptotically linear estimator, the leading error is P<sub>n</sub>ϕ under additional conditions; P<sub>n</sub>−P is a signed empirical perturbation, not a single small point-mass contamination.</p>
 <div class="scene">
   <div class="paper"><canvas id="c7" width="800" height="400"></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
@@ -132,7 +132,7 @@
 <h2>Draw the influence function from the action</h2>
 <p>Do not read the formula first. Add a droplet of mass at z₀ and watch the balance point of the density move. Sweep z₀ across the line and record the shift per unit of added mass at each place. The recorded points are the influence function; the formula ϕ(z) = z − ψ names what you already traced.</p>
 <div data-figure="influence"></div>
-<div class="say"><b>In one sentence</b>The influence function evaluated at z is the Gateaux derivative of the parameter toward a point mass at z: how much one extra observation there would pull the estimate. Averaging it over the sample is the first-order error of any regular estimator.</div>
+<div class="say"><b>In one sentence</b>The influence function evaluated at z is the Gateaux derivative of the parameter toward a point mass at z: how much one extra observation there would pull the estimate. Averaging it over the sample gives the first-order error of any regular asymptotically linear estimator of this parameter, because in the nonparametric model the influence function is unique.</div>
 
 <!-- 8 -->
 <div class="eyebrow" id="s8">Scene 8</div>

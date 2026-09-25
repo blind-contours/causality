@@ -18,7 +18,7 @@
 <div class="wrap">
 <div class="eyebrow">One derivation, six moves, each one drawn</div>
 <h1>The Mean Along a Path</h1>
-<p class="lede">The claim to be understood: for the mean ψ(P) = ∫ z p(z) dz, the rate of change along any path with score h is E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). Every step of the algebra is a picture, and every picture is computed from the same density p(z). Each scene animates exactly one line of the derivation.</p>
+<p class="lede">The claim to be understood: for the mean ψ(P) = ∫ z p(z) dz, the rate of change along any path with score h is E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). Every step of the algebra is a picture, and every picture is computed from the same density p(z). Each scene animates exactly one line of the derivation. Scores and Influence stated this result in two scenes; here it is earned one line at a time. If it already feels obvious, skim the moves and try the transfer check at the end.</p>
 
 <div class="eq">ψ(P_ε) = ∫ z · p(z)(1 + ε h(z)) dz<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ∫ z p(z) dz  +  ε ∫ z h(z) p(z) dz          <span style="color:var(--muted)">(move 3: split)</span><br>
@@ -27,7 +27,7 @@
 ⇒  dψ(P_ε)/dε |₀ = <span class="hp">E_P[ϕ h]</span></div>
 
 <!-- MOVE 1 -->
-<p class="note">Fine-grid identities use a normalized probability grid on [−4,4]. Coarse midpoint bars on [−3.5,3.5] approximate that distribution and omit tail mass: their arithmetic is an approximation, not an exact discretization of the same law. Use the three-outcome laboratory for exact finite sums.</p>
+<p class="note">The bars are a coarse picture on [−3.5,3.5]. From move 2 on, every number in the readouts comes from one fine probability grid on [−4,4], so the identities (for example old + ε·slope = total) hold exactly as displayed. Move 1’s running sum is the coarse picture and lands close to, not exactly on, ψ(P).</p>
 <div class="eyebrow">Move 1</div>
 <h2>ψ(P) = ∫ z p(z) dz is a weighted sum: position times mass, added up</h2>
 <p>Cut the line into small bins of width dz. Each bin holds mass p(z)dz. The mean is the sum over bins of (position of the bin) × (mass in the bin). Watch the bins being added one at a time; the running total lands on the balance point of the density.</p>
@@ -163,7 +163,7 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);const bw=+document.getElementById('d1'
   const RL=600,RR=770,RT=60,RB=260;line(g,RL,RT,RL,RB,C.pen,1.2);txt(g,'running sum',RL+8,RT-14,C.pen,13,'left',FS,true);
   const ry=v=>RB-(RB-RT)*(v+0.4)/1.4;line(g,RL-4,ry(0),RL+4,ry(0),C.pen,1);txt(g,'0',RL-10,ry(0),C.muted,11,'right',FM);
   const barCol=run<0?C.red:C.green;rect(g,RL+20,Math.min(ry(0),ry(run)),60,Math.abs(ry(0)-ry(run)),barCol,0.55);txt(g,run.toFixed(3),RL+50,ry(run)+(run<0?14:-12),C.pen,12.5,'center',FM);
-  line(g,RL+10,ry(MU),RR,ry(MU),C.p,1.2,[4,3]);txt(g,'ψ(P) = '+MU.toFixed(3),RL+90,ry(MU),C.p,12,'left',FM);
+  line(g,RL+10,ry(MU),RR,ry(MU),C.p,1.2,[4,3]);txt(g,'ψ(P) = '+MU.toFixed(3),RL+90,ry(MU)-11,C.p,12,'left',FM);
   // balance point marker on axis
   if(k>=B.length){line(g,xs(MU),Bt,xs(MU),Bt-16,C.p,3);txt(g,'ψ(P): balance point',xs(MU),Bt+30,C.p,12.5,'center',FS,true);}
   document.getElementById('ro1').innerHTML=`<span class="k">bins</span><span>${B.length}</span><span class="k">Σ z·p(z)·dz so far</span><span>${run.toFixed(4)}</span><span class="k">exact ψ(P)</span><span>${MU.toFixed(4)}</span>`;
@@ -176,8 +176,9 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e2')
   const L=60,R=540,T=40,Bt=260;const xs=z=>L+(R-L)*(z+4)/8,ys=v=>Bt-(Bt-T)*v/0.5,xw=bw*(R-L)/8;
   axis(g,L,R,Bt,C.pen);for(const z of [-3,-2,-1,0,1,2,3])txt(g,z,xs(z),Bt+14,C.muted,11,'center',FM);
   let me=0,mass=0;B.forEach(z=>{const p0=pAt(z),pe=p0*(1+e*h(z));rect(g,xs(z)-xw/2+1,ys(p0),xw-2,Bt-ys(p0),C.grid,0.9);
-    const col=pe>p0?C.green:C.red;rect(g,xs(z)-xw/2+1,Math.min(ys(p0),ys(pe)),xw-2,Math.abs(ys(p0)-ys(pe)),col,0.6);line(g,xs(z)-xw/2+1,ys(pe),xs(z)+xw/2-1,ys(pe),C.p,2);me+=z*pe*bw;mass+=pe*bw;});
-  me/=mass;
+    const col=pe>p0?C.green:C.red;rect(g,xs(z)-xw/2+1,Math.min(ys(p0),ys(pe)),xw-2,Math.abs(ys(p0)-ys(pe)),col,0.6);line(g,xs(z)-xw/2+1,ys(pe),xs(z)+xw/2-1,ys(pe),C.p,2);});
+  // Readouts use the fine grid: h has mean zero there, so p(1+εh) keeps total mass 1 with no renormalization.
+  for(let i=0;i<N;i++)me+=Z[i]*P0[i]*(1+e*h(Z[i]))*dz;
   txt(g,'grey: old mass p·dz.  blue tops: new mass p(1+εh)·dz',L+10,T-14,C.pen,12.5,'left',FS,true);
   line(g,xs(MU),Bt,xs(MU),Bt-18,C.muted,3);txt(g,'ψ(P)',xs(MU)-6,Bt+32,C.muted,12.5,'right',FS,true);line(g,xs(me),Bt,xs(me),Bt-24,C.p,3);txt(g,'ψ(P_ε)',xs(me)+6,Bt+32,C.p,12.5,'left',FS,true);
   if(Math.abs(me-MU)>0.01)arrow(g,xs(MU),Bt-30,xs(me),Bt-30,C.or,1.8);
@@ -198,18 +199,20 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const e=+document.getElementById('e3')
   // three stacked strips: z*p (old), eps*z*h*p (new), total
   const strips=[['old part:  z · p(z) · dz',z=>z*pAt(z)*bw,C.or,70],['ε × new part:  ε · z · h(z) · p(z) · dz',z=>e*z*h(z)*pAt(z)*bw,C.purple,200],['total:  z · p(z)(1+εh(z)) · dz',z=>z*pAt(z)*(1+e*h(z))*bw,C.p,330]];
   const sc=650;let sums=[0,0,0];
-  strips.forEach(([lab,f,col,y],k)=>{const mid=y+40;line(g,L,mid,R,mid,C.grid,1);txt(g,lab,L,y,col,13,'left',FS,true);B.forEach(z=>{const v=f(z);sums[k]+=v;rect(g,xs(z)-xw/2+1,Math.min(mid,mid-v*sc),xw-2,Math.abs(v*sc),col,0.5);});
-    txt(g,`Σ = ${sums[k].toFixed(4)}`,R+12,mid,col,12.5,'left',FM);});
+  strips.forEach(([lab,f,col,y],k)=>{const mid=y+40;line(g,L,mid,R,mid,C.grid,1);txt(g,lab,L,y,col,13,'left',FS,true);B.forEach(z=>{const v=f(z);rect(g,xs(z)-xw/2+1,Math.min(mid,mid-v*sc),xw-2,Math.abs(v*sc),col,0.5);});});
+  // Sums come from the fine grid (the bars are a coarse picture of the same integrands), so old + ε·slope = total exactly.
+  let slope=0;for(let i=0;i<N;i++)slope+=Z[i]*h(Z[i])*P0[i]*dz;sums=[MU,e*slope,MU+e*slope];
+  strips.forEach(([lab,f,col,y],k)=>txt(g,`Σ = ${sums[k].toFixed(4)}`,R+12,y+40,col,12.5,'left',FM));
   // plus and equals signs
   txt(g,'+',R+40,155,C.pen,22,'center',FS);txt(g,'=',R+40,285,C.pen,22,'center',FS);
   // right: line in eps
   const RL=640,RR=770,RT=60,RB=200;line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'ψ(P_ε)',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
-  let slope=0;for(let i=0;i<N;i++)slope+=Z[i]*h(Z[i])*P0[i]*dz;let cslope=0;B.forEach(z=>{cslope+=z*h(z)*pAt(z)*bw;});const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-sums[0])/1.0);
+  const ex=v=>RL+(RR-RL)*(v+0.5),ey=v=>RB-(RB-RT)*(0.5+(v-sums[0])/1.0);
   if(S3.sweeping)trace3.push([e,sums[2]]);
-  line(g,ex(-0.5),ey(sums[0]-0.5*cslope),ex(0.5),ey(sums[0]+0.5*cslope),C.grid,1.2,[3,3]);
+  line(g,ex(-0.5),ey(sums[0]-0.5*slope),ex(0.5),ey(sums[0]+0.5*slope),C.grid,1.2,[3,3]);
   if(trace3.length>1)poly(g,trace3.map(q=>[ex(q[0]),ey(q[1])]),C.p,2.6);
   dot(g,ex(0),ey(sums[0]),C.pen,4,true);dot(g,ex(e),ey(sums[2]),C.or,6,true);
-  txt(g,`slope (bins) = ${cslope.toFixed(3)}`,RL,RB+18,C.purple,12,'left',FM);txt(g,`fine grid = ${slope.toFixed(3)}`,RL,RB+34,C.purple,11,'left',FM);txt(g,trace3.length?'traced: a straight line in ε':'Play sweeps ε and traces Σ total',RL,RB+52,C.muted,11,'left');
+  txt(g,`slope = ${slope.toFixed(3)}`,RL,RB+18,C.purple,12,'left',FM);txt(g,trace3.length?'traced: a straight line in ε':'Play sweeps ε and traces Σ total',RL,RB+36,C.muted,11,'left');
   document.getElementById('ro3').innerHTML=`<span class="k">Σ old</span><span>${sums[0].toFixed(4)}  (= ψ(P))</span><span class="k">Σ ε·new</span><span>${sums[1].toFixed(4)}</span><span class="k">Σ total</span><span>${sums[2].toFixed(4)}</span><span class="k">∫ z h p (slope)</span><span>${slope.toFixed(4)}</span>`;
   document.getElementById('cap3').textContent='Bin by bin, orange + purple = blue. The purple strip is ε times a shape that does not depend on ε, so its sum is ε times a fixed slope.';
 },{t0:0,sweep:{id:'e3',at:t=>(-0.5+t).toFixed(3),label:'v3e',fmt:v=>v.toFixed(2)},onT:t=>{if(t===0)trace3.length=0;}});

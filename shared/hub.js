@@ -13,7 +13,14 @@
             "'": "&#39;",
           })[c],
       );
-  const numbered = units.map((u, i) => ({ ...u, n: i + 1 }));
+  // Core lessons are numbered 1..n; electives are numbered E1, E2, ... and sit outside the main route.
+  let coreN = 0,
+    electiveN = 0;
+  const numbered = units.map((u) => ({
+    ...u,
+    n: u.elective ? "E" + ++electiveN : ++coreN,
+  }));
+  const core = numbered.filter((u) => !u.elective);
   const stageName = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const label = {
     new: "Not started",
@@ -36,8 +43,8 @@
     const holds = (st) =>
       !st || st === "new" || st === "attempted" || st === "assisted";
     const next =
-      numbered.find((u) => holds(s[u.id]?.status)) ||
-      numbered.find((u) => s[u.id]?.status !== "demonstrated") ||
+      core.find((u) => holds(s[u.id]?.status)) ||
+      core.find((u) => s[u.id]?.status !== "demonstrated") ||
       null;
     const status = (u) => {
       const st = s[u.id]?.status || "new";
@@ -45,8 +52,8 @@
       if (next && u.id === next.id) return "now";
       return st === "new" ? "new" : "part";
     };
-    const done = numbered.filter((u) => status(u) === "done").length;
-    const left = numbered
+    const done = core.filter((u) => status(u) === "done").length;
+    const left = core
       .filter((u) => status(u) !== "done")
       .reduce((a, u) => a + u.minutes, 0);
     const recent = numbered
@@ -70,7 +77,7 @@
     const startedAny = p.done > 0 || !!p.recent;
     el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">${startedAny ? "Up next" : "Start here"} · ${esc(u.chapter.title)}</span><span class="mono dim">${u.minutes} min</span></div>
       <h2>${esc(u.title)}</h2><p>${esc(u.blurb)}</p>
-      <div class="prog"><span class="mono">${p.done} of ${numbered.length}</span><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${numbered.length}" aria-valuenow="${p.done}" aria-label="Lessons with a demonstrated transfer check"><i style="width:${(100 * p.done) / numbered.length}%"></i></div><span class="mono">${hours(p.left)} left</span></div>
+      <div class="prog"><span class="mono">${p.done} of ${core.length}</span><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${core.length}" aria-valuenow="${p.done}" aria-label="Core lessons with a demonstrated transfer check"><i style="width:${(100 * p.done) / core.length}%"></i></div><span class="mono">${hours(p.left)} left</span></div>
       <div class="actions"><a class="go" href="lessons/${u.file}">${startedAny ? "Continue" : "Begin"} <span aria-hidden="true">→</span></a>${
         u.id === COURSE.diagnostic.unit
           ? '<a class="skip" href="#skip-ahead">Know identification already? Take the three-question check</a>'
@@ -102,7 +109,7 @@
     const draw = () =>
       CausalRiver.render(svg, {
         stages: COURSE.roadmap,
-        units: numbered,
+        units: core,
         status: p.status,
         label: (s) => label[s],
         href: (u) => "lessons/" + u.file,
@@ -128,7 +135,8 @@
       sec.style.setProperty("--stage", `var(--s-${c.stage})`);
       const mins = c.units.reduce((a, u) => a + u.minutes, 0),
         done = c.units.filter((u) => p.status(u) === "done").length;
-      sec.innerHTML = `<div class="chapter-h"><span class="stage">${esc(stageName(c.stage))}</span><h3>${esc(c.title)}</h3><span class="sum mono">${done}/${c.units.length} · ${mins} min</span></div>`;
+      if (c.elective) sec.classList.add("elective");
+      sec.innerHTML = `<div class="chapter-h"><span class="stage">${c.elective ? "Elective" : esc(stageName(c.stage))}</span><h3>${esc(c.title)}</h3><span class="sum mono">${done}/${c.units.length} · ${mins} min</span></div>`;
       c.units.forEach((cu) => {
         const u = numbered.find((x) => x.id === cu.id),
           st = p.status(u);
@@ -221,8 +229,8 @@
   ];
   const titleEl = document.getElementById("itin-title");
   if (titleEl) {
-    const w = words[units.length] || String(units.length);
-    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} lessons, one study carried through and one carried further`;
+    const w = words[core.length] || String(core.length);
+    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, one study carried through, and an elective branch`;
   }
   function refresh() {
     const p = progress();

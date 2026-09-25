@@ -125,7 +125,7 @@
             file: "04-under-the-integral.html",
             title: "Differentiating Under the Integral",
             blurb:
-              "Leibniz's rule as a table: rows ε, columns z. The slope of a sum is the sum of slopes.",
+              "Optional aside. Leibniz's rule as a table: rows ε, columns z. The slope of a sum is the sum of slopes.",
             recap: [
               {
                 q: "In the (ε, z) table, the value in one cell is linear in ε with slope:",
@@ -285,7 +285,7 @@
             file: "09-efficiency-theory-story.html",
             title: "Efficiency Theory, Drawn",
             blurb:
-              "Nine pictures: parameter as map, tangent space, projection, plug-in bias, double robustness, TMLE walk, coverage.",
+              "Eight pictures: parameter as map, asymptotic linearity, tangent space, projection, plug-in bias, double robustness, and the TMLE walk.",
             recap: [],
           },
         ],
@@ -344,6 +344,9 @@
         "Move probability before naming scores and tangent spaces. The guided route introduces one representation at a time.",
       stage: "model",
       units: [
+        old["scores-from-scratch"],
+        old["mean-along-a-path"],
+        old["under-the-integral"],
         add(
           "canonical-gradient",
           "10-canonical-gradient.html",
@@ -351,9 +354,6 @@
           "Move three probabilities, predict slopes, then rotate and project the geometry.",
           "model",
         ),
-        old["mean-along-a-path"],
-        old["scores-from-scratch"],
-        old["under-the-integral"],
       ],
     },
     {
@@ -374,9 +374,10 @@
       id: "inference",
       title: "Know what your uncertainty means",
       description:
-        "Separate consistency from efficiency and return to the survival analyses you already know.",
+        "See the whole efficiency story in one picture, then separate consistency from efficiency and test when an interval can be trusted.",
       stage: "uncertainty",
       units: [
+        old["efficiency-theory-story"],
         add(
           "inference-lab",
           "11-inference-lab.html",
@@ -384,7 +385,15 @@
           "Experiment with nuisance correctness, product rates, cross-fitting, and repeated samples.",
           "uncertainty",
         ),
-        old["efficiency-theory-story"],
+      ],
+    },
+    {
+      id: "survival",
+      title: "Return to survival",
+      description:
+        "Bring the estimand, the geometry and the estimators back to Kaplan–Meier, Cox and restricted mean survival.",
+      stage: "interpretation",
+      units: [
         add(
           "survival-lab",
           "12-survival-lab.html",
@@ -416,10 +425,11 @@
   };
   groups.push({
     id: "spillover",
-    title: "Experiment when treatments spill over",
+    title: "Elective: experiments when treatments spill over",
+    elective: true,
     description:
-      "A branch after the inference laboratory: define effects when one unit's treatment reaches another, choose what to randomize in a shared fleet, and judge whether the evidence supports a decision. The clinical study stays as it is; the marketplace is a transfer to a new setting.",
-    stage: "estimation",
+      "An optional branch after the inference laboratory: define effects when one unit's treatment reaches another, choose what to randomize in a shared fleet, and judge whether the evidence supports a decision. The clinical study stays as it is; the marketplace is a transfer to a new setting.",
+    stage: "identification",
     units: [
       add(
         "interference-lab",
@@ -541,17 +551,18 @@
   for (const chapter of groups)
     for (const unit of chapter.units) {
       unit.stage ||= chapter.stage;
+      if (chapter.elective) unit.elective = true;
       unit.short ||= short[unit.id] || unit.title;
       if (minutes[unit.id]) unit.minutes = minutes[unit.id];
       if (recaps[unit.id]) unit.recap = recaps[unit.id];
       unit.prerequisites =
         explicitPrerequisites[unit.id] || (previous ? [previous] : []);
-      previous = unit.id;
+      if (!chapter.elective) previous = unit.id;
     }
   // Three questions that let someone who already knows identification skip the roadmap lesson.
   const diagnostic = {
     unit: "causal-roadmap",
-    next: "canonical-gradient",
+    next: "scores-from-scratch",
     questions: [
       {
         q: "Which assumption lets E[Y | A=1, X] stand in for E[Y(1) | X]?",

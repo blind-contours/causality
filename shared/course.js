@@ -1,6 +1,21 @@
 /* Shared navigation, learning events and persistence. No completion by scrolling. */
 (function () {
   "use strict";
+  // One step button: a number pill, plus a title that guided mode shows only for the current step.
+  window.CausalCourseNav = {
+    label(b, n, title) {
+      b.replaceChildren();
+      const num = document.createElement("span"),
+        t = document.createElement("span");
+      num.className = "sn";
+      num.textContent = n;
+      t.className = "st";
+      t.textContent = title;
+      b.append(num, t);
+      b.title = n + ". " + title;
+      b.setAttribute("aria-label", "Step " + n + ": " + title);
+    },
+  };
   const COURSE = window.CausalCurriculum,
     units = COURSE.chapters.flatMap((ch) =>
       ch.units.map((u) => ({ ...u, chapter: ch })),
@@ -118,15 +133,18 @@
     if (!id) return;
     const i = units.findIndex((u) => u.id === id);
     if (i < 0) return;
+    // Navigation stays inside a track: the core route or the elective branch.
     const u = units[i],
-      prev = units[i - 1],
-      next = units[i + 1];
+      track = units.filter((v) => !!v.elective === !!u.elective),
+      t = track.findIndex((v) => v.id === u.id),
+      prev = track[t - 1],
+      next = track[t + 1];
     document.body.style.setProperty("--stage", `var(--s-${u.stage})`);
     document.body.dataset.stage = u.stage;
     const bar = document.createElement("nav");
     bar.className = "course-bar";
     bar.setAttribute("aria-label", "Course");
-    bar.innerHTML = `<a class="course-home" href="../index.html">Causality</a><span class="course-where"><span class="course-stage">${esc(u.stage)}</span> ${i + 1} / ${units.length} · ${esc(u.chapter.title)}</span><span class="course-nav">${prev ? `<a href="${prev.file}">← Previous</a>` : ""}<a href="../index.html">Map</a><a href="../glossary.html">Symbols</a>${next ? `<a href="${next.file}">Next →</a>` : ""}</span>`;
+    bar.innerHTML = `<a class="course-home" href="../index.html">Causality</a><span class="course-where"><span class="course-stage">${u.elective ? "elective" : esc(u.stage)}</span> ${u.elective ? "E" : ""}${t + 1} / ${track.length} · ${esc(u.chapter.title)}</span><span class="course-nav">${prev ? `<a href="${prev.file}">← Previous</a>` : ""}<a href="../index.html">Map</a><a href="../glossary.html">Symbols</a>${next ? `<a href="${next.file}">Next →</a>` : ""}</span>`;
     document.body.insertBefore(bar, wrap);
     const road = document.createElement("nav");
     road.className = "roadmap";
@@ -243,7 +261,7 @@
         };
         panels.forEach((p, k) => {
           const b = document.createElement("button");
-          b.textContent = k + 1 + ". " + headings[k].textContent;
+          CausalCourseNav.label(b, k + 1, headings[k].textContent);
           b.onclick = () => select(k);
           nav.append(b);
           const row = document.createElement("div");

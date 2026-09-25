@@ -59,7 +59,7 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
 <div class="scene">
   <div class="paper"><canvas id="c3" width="800" height="420"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
-    <label>Column z <span class="v" id="v3z">1.20</span><input type="range" id="z3" min="-3" max="3" step="0.25" value="1.2"></label>
+    <label>Column z <span class="v" id="v3z">1.13</span><input type="range" id="z3" min="-3.375" max="3.375" step="0.25" value="1.125"></label>
     <div class="readout" id="ro3"></div>
     <div class="note">For other functionals the cell is not exactly linear in ε and the per-cell derivative is a genuine limit; the argument is the same, with a remainder that is second order in ε.</div>
   </div>
@@ -76,7 +76,7 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
     <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
     <label>Bin width dz <span class="v" id="v4d">0.25</span><input type="range" id="d4" min="0.05" max="0.5" step="0.05" value="0.25"></label>
     <div class="readout" id="ro4"></div>
-    <div class="note">Shrink dz: more bins, the same sum. That's the sense in which Σ becomes ∫. The expectation was there at every bin width; it just gets more exact.</div>
+    <div class="note">Shrink dz: more, thinner bins, and the bin sum settles onto the integral in the readout. That's the sense in which Σ becomes ∫. The expectation was there at every bin width; thinner bins only make its value more precise.</div>
   </div>
 </div>
 <div class="say"><b>In one sentence</b>ψ(P_ε) is a row sum over z; its derivative in ε is the same row sum applied to the per-cell derivatives, because sums and derivatives are both linear and act on different variables. Each cell's derivative is z·h·p·dz, so the slope is Σ z h p dz = E[Zh]. Centering with the mean-zero score gives E[(Z − ψ)h].</div>
@@ -143,9 +143,9 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const D=+document.getElementById('d2')
   txt(g,'Way B',AX,260,C.purple,13,'left',FS,true);txt(g,'Σ of differences so far',AX,280,C.muted,11.5,'left');txt(g,'= '+sB.toFixed(4),AX,302,C.purple,16,'left',FM);
   // exact derivative
   let ex=0;B.forEach(z=>ex+=z*pAt(z)*h(z)*dz);
-  if(t>0.9){txt(g,'exact  Σ z·h·p·dz',AX,345,C.muted,11.5,'left');txt(g,'= '+ex.toFixed(4),AX,367,C.teal,16,'left',FM);txt(g,'A = B for any Δ here, because',L,330,C.pen,12.5,'left');txt(g,'each cell is linear in ε. Sum of differences = difference of sums.',L,350,C.pen,12.5,'left');
+  if(t>0.9){txt(g,'Σ z·h·p·dz over these bins',AX,345,C.muted,11.5,'left');txt(g,'= '+ex.toFixed(4),AX,367,C.teal,16,'left',FM);txt(g,'A = B for any Δ here, because',L,330,C.pen,12.5,'left');txt(g,'each cell is linear in ε. Sum of differences = difference of sums.',L,350,C.pen,12.5,'left');
     txt(g,'ψ(ε) plotted:',L,395,C.muted,11.5,'left');const PL=150,PR=520,PY=395;line(g,PL,PY,PR,PY,C.grid,1);const px=e=>PL+(PR-PL)*(e+0.5);for(const e of EPS){let s=0;B.forEach(z=>s+=f(z,e,dz));dot(g,px(e),PY-(s-s0)*120,C.p,3);}dot(g,px(e0),PY,C.or,5,true);dot(g,px(e1),PY-(s1-s0)*120,C.or,5,true);line(g,px(e0),PY,px(e1),PY-(s1-s0)*120,C.or,1.5);}
-  document.getElementById('ro2').innerHTML=`<span class="k">Way A</span><span>${((s1-s0)/D).toFixed(5)}</span><span class="k">Way B (full)</span><span>${(()=>{let s=0;B.forEach(z=>s+=(f(z,e1,dz)-f(z,e0,dz))/D);return s.toFixed(5)})()}</span><span class="k">exact Σ z h p dz</span><span>${ex.toFixed(5)}</span>`;
+  document.getElementById('ro2').innerHTML=`<span class="k">Way A</span><span>${((s1-s0)/D).toFixed(5)}</span><span class="k">Way B (full)</span><span>${(()=>{let s=0;B.forEach(z=>s+=(f(z,e1,dz)-f(z,e0,dz))/D);return s.toFixed(5)})()}</span><span class="k">Σ z h p dz (these bins)</span><span>${ex.toFixed(5)}</span>`;
   document.getElementById('cap2').textContent=t<0.4?'Way A: total each row, then subtract the totals. The derivative of the integral.':t<0.9?'Way B: subtract cell by cell first, then total. The integral of the derivative.':'Same number. That equality is what "the derivative passes inside the integral" means.';
 });
 bind('d2','v2d',v=>v.toFixed(2),()=>S2.draw());
@@ -163,7 +163,7 @@ const S3=scene(3,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z3').
   line(g,ex(-0.5),ey(base-0.5*slope),ex(0.5),ey(base+0.5*slope),C.purple,2);for(const e of EPS)dot(g,ex(e),ey(base+e*slope),C.purple,3.5,true);dot(g,ex(0),ey(base),C.pen,4,true);
   line(g,ex(0),ey(base),ex(0.4),ey(base),C.or,1.2,[3,3]);line(g,ex(0.4),ey(base),ex(0.4),ey(base+0.4*slope),C.or,1.2,[3,3]);txt(g,'slope',ex(0.42),ey(base+0.2*slope),C.or,11.5,'left',FS,true);
   txt(g,`f = ${base.toFixed(4)} + ε · ${slope.toFixed(4)}`,RL,RB+22,C.pen,12,'left',FM);txt(g,`∂f/∂ε = z·p(z)·h(z)·dz = ${slope.toFixed(4)}`,RL,RB+42,C.purple,12,'left',FM);
-  txt(g,`z = ${zc.toFixed(2)},  p(z)dz = ${(pAt(zc)*dz).toFixed(4)},  h(z) = ${h(zc).toFixed(3)}`,RL,RB+66,C.muted,11.5,'left',FM);
+  txt(g,`z = ${zc.toFixed(2)},  p(z)dz = ${(pAt(zc)*dz).toFixed(4)}`,RL,RB+64,C.muted,11.5,'left',FM);txt(g,`h(z) = ${h(zc).toFixed(3)}`,RL,RB+82,C.muted,11.5,'left',FM);
   document.getElementById('ro3').innerHTML=`<span class="k">cell at ε=0</span><span>${base.toFixed(4)}</span><span class="k">∂f/∂ε</span><span>${slope.toFixed(4)}</span><span class="k">= z·p·h·dz</span><span>${(zc*pAt(zc)*h(zc)*dz).toFixed(4)}</span>`;
   document.getElementById('cap3').textContent='Reading down one column: the cell values lie on a straight line in ε. Its slope is the coefficient of ε in z·p(z)(1+εh(z))dz, which is z·p(z)·h(z)·dz.';
 });

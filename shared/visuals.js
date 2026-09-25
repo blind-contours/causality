@@ -204,7 +204,10 @@
       last = now;
       update();
       if (S.t < 1) raf = requestAnimationFrame(tick);
-      else S.pause();
+      else {
+        S.pause();
+        if (auto === "pending") auto = "off";
+      }
     }
     if (tEl)
       tEl.addEventListener("input", () => {
@@ -247,10 +250,24 @@
         if (event.matches) S.pause();
       },
     );
+    // A figure should be alive on arrival: the first time a scene that starts at t = 0 scrolls
+    // into view (or its guided step is opened), play it once. Reduced motion jumps to the end state.
+    // If the figure leaves the view mid-play, it resumes on return; any user control ends autoplay.
+    let auto = !pb || opts.noplay || !!sw || opts.autoplay === false ? "off" : "pending";
     if ("IntersectionObserver" in window)
-      new IntersectionObserver((entries) => {
-        if (!entries[0].isIntersecting) S.pause();
-      }).observe(cv);
+      new IntersectionObserver(
+        (entries) => {
+          if (!entries[0].isIntersecting) S.pause();
+          else if (auto === "pending" && S.t < 1 && !S.playing) S.play();
+        },
+        { threshold: 0.35 },
+      ).observe(cv);
+    const stopAuto = () => (auto = "off");
+    tEl?.addEventListener("pointerdown", stopAuto);
+    tEl?.addEventListener("keydown", stopAuto);
+    tEl?.addEventListener("input", stopAuto);
+    pb?.addEventListener("click", stopAuto, { capture: true });
+    pb?.parentElement?.addEventListener("click", stopAuto);
     return S;
   }
   function enhance() {

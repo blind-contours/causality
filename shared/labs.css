@@ -286,6 +286,20 @@ td:first-child {
   flex-wrap: wrap;
   font-size: 14px;
 }
+.legend-swatches span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.legend svg.swatch {
+  flex: none;
+  display: inline-block;
+  width: 28px;
+  height: 10px;
+  margin: 0;
+  border: 0;
+  background: none;
+}
 .pill {
   padding: 3px 10px;
   background: var(--soft);

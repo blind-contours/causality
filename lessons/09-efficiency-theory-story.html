@@ -16,11 +16,11 @@
 </head>
 <body data-lesson="efficiency-theory-story">
 <div class="wrap">
-<div class="eyebrow">Semiparametric efficiency theory in nine moving pictures</div>
+<div class="eyebrow">Semiparametric efficiency theory in eight moving pictures</div>
 <h1>Efficiency Theory, Drawn</h1>
 <p class="lede">The story of how you get from "a parameter of a distribution" to "an estimator with a known sampling distribution and the smallest possible variance," told in the geometry Schuler and van der Laan use in <em>Introduction to Modern Causal Inference</em>. Each scene has a Play button where the clock moves a mathematical state, a Reveal button where it only uncovers annotations, a scrubber, and the one or two dials that matter. Under each scene is the sentence to say out loud.</p>
 <ul class="toc">
-<li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · Asymptotically linear</a></li><li><a href="#s3">3 · Pathwise derivative</a></li><li><a href="#s4">4 · Tangent space</a></li><li><a href="#s5">5 · The efficient influence function</a></li><li><a href="#s6">6 · Plug-in bias and the one-step</a></li><li><a href="#s7">7 · Double robustness is a rectangle</a></li><li><a href="#s8">8 · TMLE walks; the one-step jumps</a></li><li><a href="#s9">9 · Inference</a></li>
+<li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · Asymptotically linear</a></li><li><a href="#s3">3 · Pathwise derivative</a></li><li><a href="#s4">4 · Tangent space</a></li><li><a href="#s5">5 · The efficient influence function</a></li><li><a href="#s6">6 · Plug-in bias and the one-step</a></li><li><a href="#s7">7 · Double robustness is a rectangle</a></li><li><a href="#s8">8 · TMLE walks; the one-step jumps</a></li>
 </ul>
 
 <!-- SCENE 1 -->
@@ -62,7 +62,7 @@
   <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p3">Reveal</button></div>
-    <label>Direction of the path, angle θ <span class="v" id="v3">110°</span><input type="range" id="a3" min="0" max="360" step="1" value="110"></label>
+    <label>Direction of the path, angle θ from ϕ <span class="v" id="v3">110°</span><input type="range" id="a3" min="0" max="360" step="1" value="110"></label>
     <div class="readout" id="ro3"></div>
     <div class="note">Regularity of an estimator is the requirement that its limit not depend on which of these paths the truth drifts along. The Hájek–Le Cam convolution theorem then says the best regular estimator has the gradient as its influence function.</div>
   </div>
@@ -102,7 +102,7 @@
 <!-- SCENE 6 -->
 <div class="eyebrow" id="s6">Scene 6</div>
 <h2>Plug-in bias, and one step to remove it</h2>
-<p>Fit nuisances, get <span class="m">P̂</span>, evaluate <span class="m">ψ(P̂)</span>: the plug-in. Walk the straight path from <span class="m">P̂</span> to the truth <span class="m">P</span> and lift it: the curve is <span class="m">ψ(P̂ + ε(P − P̂))</span>. Its tangent at <span class="m">P̂</span> has slope <span class="m">Pϕ̂</span>, which you cannot compute, and sample slope <span class="m">P<sub>n</sub>ϕ̂</span>, which you can. Add the sample slope back and the first-order bias is gone. Three gaps remain visible: plug-in bias (removed), empirical process (order n<sup>−1/2</sup>), second-order remainder (order of the squared nuisance error).</p>
+<p>Fit nuisances, get <span class="m">P̂</span>, evaluate <span class="m">ψ(P̂)</span>: the plug-in. Walk the straight path from <span class="m">P̂</span> to the truth <span class="m">P</span> and lift it: the curve is <span class="m">ψ(P̂ + ε(P − P̂))</span>. Its tangent at <span class="m">P̂</span> has slope <span class="m">Pϕ̂</span>, which you cannot compute, and sample slope <span class="m">P<sub>n</sub>ϕ̂</span>, which you can. Add the sample slope back and the first-order bias is gone. Three gaps remain visible: plug-in bias (removed); the sampling term <span class="m">(P<sub>n</sub> − P)ϕ̂</span>, of order n<sup>−1/2</sup>, which is the noise a confidence interval accounts for (its piece <span class="m">(P<sub>n</sub> − P)(ϕ̂ − ϕ)</span> must be o<sub>P</sub>(n<sup>−1/2</sup>), which is where Donsker conditions or cross-fitting come in); and the second-order remainder (order of the squared nuisance error).</p>
 <div class="scene">
   <div class="paper"><canvas id="c6" width="800" height="560"></canvas><div class="cap" id="cap6"></div></div>
   <div class="ctl">
@@ -137,7 +137,7 @@
 <!-- SCENE 8 -->
 <div class="eyebrow" id="s8">Scene 8</div>
 <h2>TMLE walks through the model; the one-step jumps in ψ</h2>
-<p>Here is a fully specified finite model: Z follows N₂(θ,I), and Ψ(θ)=2+0.9θ₁+0.5θ₂+c(0.6θ₁²−0.7θ₁θ₂+0.2θ₂²). Its EIF is ∇Ψ(θ)·(Z−θ). The information metric on θ is Euclidean. A line θ+ε∇Ψ(θ) is locally least favorable, and Gaussian likelihood gives ε̂=∇Ψ(θ)·(Z̄−θ)/‖∇Ψ(θ)‖². Fit that line once, or recompute the direction and iterate until the current EIF equation is small. The point labelled Pₙ represents its sufficient statistic Z̄ in this model, not an empirical density in the Gaussian family.</p>
+<p>Here is a fully specified finite model: Z follows N₂(θ,I), and Ψ(θ) = 2 + 0.9θ₁ + 0.5θ₂ + c(0.6θ₁² − 0.7θ₁θ₂ + 0.2θ₂²). Its EIF is ∇Ψ(θ)·(Z−θ). The information metric on θ is Euclidean. A line θ+ε∇Ψ(θ) is locally least favorable, and Gaussian likelihood gives ε̂=∇Ψ(θ)·(Z̄−θ)/‖∇Ψ(θ)‖². Fit that line once, or recompute the direction and iterate until the current EIF equation is small. The point labelled Pₙ represents its sufficient statistic Z̄ in this model, not an empirical density in the Gaussian family.</p>
 <div class="scene">
   <div class="paper"><canvas id="c8" width="800" height="560"></canvas><div class="cap" id="cap8"></div></div>
   <div class="ctl">
@@ -150,9 +150,7 @@
 </div>
 <div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable submodel until the empirical mean of the efficient influence function is zero, then plugs in. The one-step never moves in 𝓜 at all; it corrects the number. TMLE applies the same first-order correction to the distribution instead, so the estimate stays inside the parameter space.</div>
 
-<!-- SCENE 9 -->
-<div class="eyebrow" id="s9">Scene 9</div>
-<h2>Inference: test the assumptions behind the promise</h2><p>Bias, variance and coverage need separate checks. One correct nuisance model can give consistency without efficiency. Try the four correctness cases and compare the empirical spread with the efficient bound; fitted-nuisance intervals can also fail under misspecification.</p><div class="lab-card" data-simulation="efficiency"></div>
+<p class="note">Next, the inference laboratory puts these promises to the test: run repeated samples under each of the four nuisance-correctness cases and compare bias, spread and coverage with the efficient bound.</p>
 <p class="src">Geometry follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a>, ch. 3–4; the influence-function projection picture is Tsiatis's; the rectangle in scene 7 is the Cauchy–Schwarz bound on the ATE remainder as in Kennedy's notes and Chernozhukov et al. (2018).</p>
 </div>
 
@@ -254,7 +252,8 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const th=+document.getElementById('a3'
   // gradient arrow
   const GL=0.42;arrow(g,X(P[0]),Y(P[1]),X(P[0]+GL*gu[0]),Y(P[1]+GL*gu[1]),C.green,2.4);txt(g,'ϕ  (gradient)',X(P[0]+GL*gu[0])+10,Y(P[1]+GL*gu[1])+12,C.green,14,'left',FS,true);
   // direction h at angle theta
-  const h=[Math.cos(th),Math.sin(th)];const HL=0.36;arrow(g,X(P[0]),Y(P[1]),X(P[0]+HL*h[0]),Y(P[1]+HL*h[1]),C.or,2.4);txt(g,'h',X(P[0]+HL*h[0])+10*h[0]+6,Y(P[1]+HL*h[1])-10*h[1],C.or,16,'left',FS,true);
+  const h=[gu[0]*Math.cos(th)-gu[1]*Math.sin(th),gu[0]*Math.sin(th)+gu[1]*Math.cos(th)];const HL=0.36;// θ is measured from the gradient, so cos θ in the readout is the slider's angle
+  arrow(g,X(P[0]),Y(P[1]),X(P[0]+HL*h[0]),Y(P[1]+HL*h[1]),C.or,2.4);txt(g,'h',X(P[0]+HL*h[0])+10*h[0]+6,Y(P[1]+HL*h[1])-10*h[1],C.or,16,'left',FS,true);
   // path P_eps along h (short curve)
   const pts=[];for(let e=-0.5;e<=0.5;e+=0.02)pts.push([X(P[0]+e*h[0]),Y(P[1]+e*h[1])]);poly(g,pts,C.or,1,[4,4]);
   dot(g,X(P[0]),Y(P[1]),C.p,6,true);txt(g,'P',X(P[0])-14,Y(P[1])+14,C.p,17,'right',FS,true);
@@ -419,6 +418,6 @@ new MutationObserver(all).observe(document.documentElement,{attributes:true,attr
 <script src="../shared/state.js"></script>
 <script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
-<script src="../labs/common.js"></script><script src="../labs/simulation.js"></script>
+<script src="../labs/common.js"></script>
 </body>
 </html>
