@@ -1,0 +1,47 @@
+/* Motion kit styles. Term colours are the course colour roles. */
+:root {
+  --term-plugin: var(--or);
+  --term-correction: var(--purple);
+  --term-gweight: var(--p);
+  --term-cweight: var(--teal);
+  --term-truth: var(--green);
+  --term-residual: var(--phat);
+}
+.term {
+  border-radius: 4px;
+  padding: 0 2px;
+  cursor: help;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.term[data-term="plugin"] { color: var(--term-plugin); }
+.term[data-term="correction"] { color: var(--term-correction); }
+.term[data-term="gweight"] { color: var(--term-gweight); }
+.term[data-term="cweight"] { color: var(--term-cweight); }
+.term[data-term="truth"] { color: var(--term-truth); }
+.term[data-term="residual"] { color: var(--term-residual); }
+.term.term-on {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 35%, transparent);
+}
+.term:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+/* In the figure: when a term is focused, everything else fades. */
+.term-focus [data-term] { transition: opacity 0.2s; }
+.term-focus [data-term]:not(.term-on) { opacity: 0.25; }
+.term-focus [data-term].term-on { opacity: 1; filter: drop-shadow(0 0 3px currentColor); }
+.dots .dot { stroke: var(--paper); stroke-width: 1; }
+@keyframes motion-pulse {
+  0% { transform: scale(1); filter: none; }
+  40% { transform: scale(1.35); filter: drop-shadow(0 0 6px currentColor); }
+  100% { transform: scale(1); filter: none; }
+}
+.pulse { transform-box: fill-box; transform-origin: center; animation: motion-pulse 0.55s ease-out; }
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+.eq-linked {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  line-height: 1.9;
+  padding: 10px 14px;
+  background: var(--soft);
+  border-radius: 10px;
+  overflow-x: auto;
+}

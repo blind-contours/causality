@@ -17,6 +17,7 @@
     />
     <link rel="stylesheet" href="../shared/labs.css" />
     <link rel="stylesheet" href="../shared/course.css" />
+    <link rel="stylesheet" href="../shared/motion.css" />
     <style>
       /* This lesson draws its SVGs at the container's pixel width, so text sizes are real pixels. */
       [data-lab="targeted-survival"] svg.fig .tick,
@@ -89,7 +90,10 @@
         studies of 800 patients each (scripts/targeted-survival-precompute.cjs).
         The derivation is exact for this discrete-time model; the risk-set
         strip shows 16 patients per severity level as a picture of the whole
-        treated arm, whose counts are in the table.
+        treated arm, whose counts are in the table. The moving-mass figure uses
+        the course cohort's 58 treated patients with a severity-dependent
+        dropout rate; its curves and weights are exact for those patients, and
+        its truth is their own simulated event times.
       </p>
       <p class="sources">
         Further reading:
@@ -111,6 +115,10 @@
           >Stitelman and van der Laan (2010), Collaborative targeted maximum
           likelihood for time to event data, Int J Biostat 6(1)</a
         >;
+        <a href="https://doi.org/10.1198/000313001317098185"
+          >Satten and Datta (2001), The Kaplan–Meier estimator as an
+          inverse-probability-of-censoring weighted average, Am Stat 55(3)</a
+        >;
         <a href="https://doi.org/10.1186/1471-2288-13-152"
           >Royston and Parmar (2013), Restricted mean survival time: an
           alternative to the hazard ratio, BMC Med Res Methodol 13:152</a
@@ -124,5 +132,8 @@
     <script src="../shared/anim.js"></script>
     <script src="../labs/common.js"></script>
     <script src="../labs/targeted-survival.js"></script>
+    <script src="../science/cohort.js"></script>
+    <script src="../shared/motion.js"></script>
+    <script src="../figures/redistribute.js"></script>
   </body>
 </html>

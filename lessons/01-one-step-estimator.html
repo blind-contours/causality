@@ -58,6 +58,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 </style>
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/motion.css" />
 <link rel="stylesheet" href="../shared/r-drawer.css" />
 <script src="../shared/r-drawer.js" defer></script>
 <script src="../science/core.js"></script>
@@ -126,6 +127,11 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     <div class="note">This linear outcome model is misspecified even at λ=0: it omits X² and A×X. At λ=0, κ=0, its correction is zero by the OLS normal equations, not evidence that the outcome model is correct. Symmetry can also cancel ATE bias here. The experiment below uses explicit correctness cases and an asymmetric population.</div>
   </div>
 </div>
+
+<h2>The same formula, one patient at a time</h2>
+<p>Now the course's 100 patients, where severity confounds treatment and the true average effect is 2. Here the outcome model is written m̂ (μ̂ above) and the propensity ĝ (π̂ above): ĝ(X) is simply the fraction treated in each severity stratum. The equation is the legend. Hover or focus a coloured term to light its pieces in the figure, or hover the figure to find its term. Each patient carries two sticks, and Play adds 1/n of every stick, tip to tail, into the two sums of the formula.</p>
+<div data-figure="aipw-anatomy" data-model="wrong"></div>
+<p class="note">Exact, not simulated: every number is computed from the cohort. With ĝ equal to the stratum fractions, AIPW equals the severity-stratified estimate for any outcome model that depends only on arm and severity, because within a stratum the weighted residuals of an arm add up to exactly n<sub>x</sub>·(Ȳ<sub>ax</sub> − m̂<sub>a</sub>(x)), which cancels m̂. A smoother propensity model would repair the wrong outcome model only to first order, which is the general double-robustness story of Act 3.</p>
 
 <!-- ============ ACT 3 ============ -->
 <div class="eyebrow">Act 3</div>
@@ -336,6 +342,9 @@ new MutationObserver(all).observe(document.documentElement,{attributes:true,attr
 <script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
 <script src="../shared/anim.js"></script>
+<script src="../science/cohort.js"></script>
+<script src="../shared/motion.js"></script>
+<script src="../figures/aipw-anatomy.js"></script>
 <script src="../labs/common.js"></script><script src="../labs/simulation.js"></script>
 </body>
 </html>

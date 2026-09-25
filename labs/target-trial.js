@@ -163,6 +163,7 @@ ${zeroRadios("tt-zero-2")}
 <section class="lab-step" data-title="Compare with the truth">
 <h2 tabindex="-1">A benefit made from nothing, measured</h2>
 <p>Now use the whole registry: 2,000 simulated patients from the same generator. Because we built the world, we know the truth exactly. The green dashed curve is survival if everyone had the procedure on the eligibility date, and if nobody ever had it; with no true effect those two curves are the same curve.</p>
+<div id="tt-guess"></div>
 ${zeroRadios("tt-zero-3")}
 <div class="tt-controls">
 <label>True effect of the procedure <select id="tt-effect"><option value="null">None (hazard ratio 1)</option><option value="benefit">Modest benefit (hazard ratio 0.7 after the procedure)</option></select></label>
@@ -615,6 +616,47 @@ ${zeroRadios("tt-zero-3")}
       `One-year risks, Kaplan–Meier, seed ${c.seed}, n = ${s.counts.n}: ${s.counts.treated} had the procedure, ${s.counts.diedWaiting} died while waiting, ${s.counts.neverScheduled} were never scheduled`,
     );
   }
+
+  /* Draw your guess before the Kaplan–Meier comparison: misaligned time zero (b), no true effect. */
+  if (window.CausalGuess)
+    CausalGuess.mount(byId("tt-guess"), {
+      id: "tt-misaligned-km",
+      kind: "survival",
+      prompt:
+        "Draw the treated and untreated survival curves you expect when time zero is misaligned: choice (b), the procedure date for treated patients and eligibility for untreated ones. The device does nothing.",
+      xDomain: [0, 1],
+      yDomain: [0.4, 1],
+      xLabel: "Months since time zero",
+      yLabel: "Alive",
+      xTicks: () => [0, 0.25, 0.5, 0.75, 1],
+      yTicks: [0.4, 0.6, 0.8, 1],
+      xTickFormat: (v) => fmt(v * 12, 0),
+      xFormat: (v) => fmt(v * 12, 1) + " months",
+      yFormat: (v) => pct(v, 0),
+      diffFormat: (v) => fmt(v * 100, 1) + " points",
+      tolerance: 0.05,
+      tolText: "5 percentage points",
+      spanWord: "of follow-up",
+      truthLabel: "Kaplan–Meier curves",
+      truthName: "Kaplan–Meier curves",
+      series: [
+        { id: "treated", label: "Treated", color: "var(--p)" },
+        { id: "untreated", label: "Untreated", color: "var(--teal)" },
+      ],
+      veil: () => [byId("tt-km"), byId("tt-km-readout"), byId("tt-km-caption"), byId("tt-rd"), byId("tt-km-table")],
+      truth: () => {
+        const a = studyFor({ ...state.get(), effect: "null" }).analyses.procedure;
+        return { treated: a.treated.km.points, untreated: a.untreated.km.points };
+      },
+      feedback: (r) => {
+        const [t, u] = r.series,
+          gT = t.endTruth - u.endTruth,
+          gG = t.endGuess - u.endGuess;
+        return gG >= gT / 2
+          ? `You saw it coming: your treated curve ends ${fmt(gG * 100, 0)} points above the untreated one, and the misaligned clock produces ${fmt(gT * 100, 0)} points for a device that does nothing.`
+          : `The device does nothing, yet the treated curve ends ${fmt(gT * 100, 0)} points above the untreated one: treated patients had to survive the wait, and every death on the waiting list is charged to the untreated curve.`;
+      },
+    });
 
   /* ---------- step 4: schematics and the exact post-baseline calculation ---------- */
   function schematic(svg, spec) {

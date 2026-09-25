@@ -11,10 +11,14 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/motion.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 <script src="../shared/anim.js"></script>
 <script src="../figures/influence.js"></script>
+<script src="../science/cohort.js"></script>
+<script src="../shared/motion.js"></script>
+<script src="../figures/seesaw.js"></script>
 </head>
 <body data-lesson="scores-from-scratch">
 <div class="wrap">
@@ -121,6 +125,8 @@
 <!-- 7 -->
 <div class="eyebrow" id="s7">Scene 7</div>
 <h2>Why it's called "influence": one observation's pull on the parameter</h2>
+<p>Start with something you can hold. The mean of the course's 100 patients is the point where their outcomes balance on a beam. Drop one more patient on it and watch how hard they tip it: that push, per unit of mass, is the influence function.</p>
+<div data-figure="seesaw"></div>
 <p>Take a special path: contaminate P with a tiny point mass at z₀, <span class="m">P<sub>ε</sub> = (1 − ε)P + ε δ<sub>z₀</sub></span>. For a discrete mass function with p(z₀)&gt;0, its score is <span class="m">h(z) = 𝟙{z = z₀}/p(z₀) − 1</span> (a spike minus one). Plugging that score into E[ϕ h] gives exactly <span class="m">ϕ(z₀)</span>. (For a continuous density the same contamination is only a formal device, not a regular L² path; see the note below.) So <span class="m">ψ(P<sub>ε</sub>) ≈ ψ(P) + ε ϕ(z₀)</span>: the influence function at z₀ is how much the parameter moves when you add a little mass at z₀. Move the spike and watch the mean move by ε(z₀ − μ). For the mean, the empirical error equals P<sub>n</sub>(Z−μ) exactly. For a general asymptotically linear estimator, the leading error is P<sub>n</sub>ϕ under additional conditions; P<sub>n</sub>−P is a signed empirical perturbation, not a single small point-mass contamination.</p>
 <div class="scene">
   <div class="paper"><canvas id="c7" width="800" height="400"></canvas><div class="cap" id="cap7"></div></div>

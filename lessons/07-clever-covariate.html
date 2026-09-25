@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/motion.css" />
 <link rel="stylesheet" href="../shared/r-drawer.css" />
 <script src="../shared/r-drawer.js" defer></script>
 <style>
@@ -30,6 +31,9 @@ table.fp td.star{color:var(--purple);font-weight:500}
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 <script src="../shared/anim.js"></script>
+<script src="../science/cohort.js"></script>
+<script src="../shared/motion.js"></script>
+<script src="../figures/aipw-anatomy.js"></script>
 </head>
 <body data-lesson="clever-covariate">
 <div class="wrap">
@@ -104,6 +108,9 @@ table.fp td.star{color:var(--purple);font-weight:500}
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The clever covariate is the coefficient of the outcome residual in the efficient influence function. Fluctuating the outcome regression along it, with ε chosen by likelihood, solves the empirical EIF equation for the ATE. The inverse-propensity weights are in it because that's how much each observation's residual moves the parameter.</div>
+
+<p>The clever covariate H(A, X) is the weight in the AIPW correction with the arm's sign attached: A/ĝ(X) − (1−A)/(1−ĝ(X)). Below, on the course cohort, each residual stick is drawn as thick as its |H|, and the correction is Pₙ[H·(Y − m̂<sub>A</sub>(X))], exactly the sum the fluctuation above drives to zero. Hover a coloured term to find it in the figure. With stratum means as the outcome model the correction is already zero, which is why TMLE would not move at all: ε̂ = 0.</p>
+<div data-figure="aipw-anatomy" data-model="wrong"></div>
 
 <!-- SCENE 5 -->
 <div class="eyebrow">Scene 5</div>

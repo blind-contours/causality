@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/motion.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
@@ -52,6 +53,11 @@
     <div class="note">The influence function is literally each observation's contribution to the estimator's error. Its variance is the estimator's asymptotic variance; its empirical sd over √n is your standard error.</div>
   </div>
 </div>
+<p>Now the same promise for a real causal estimator. Each ball below is one whole study of n patients from the one-step lesson's trial (binary severity, confounded treatment, true ATE 2). For the first three studies the path is drawn as arrows placed tip to tail: patient i pushes the ball sideways by <span class="m">ϕ(O<sub>i</sub>)/n</span>, so it reaches <span class="m">ψ + P<sub>n</sub>ϕ</span>. A last small nudge, the remainder, moves it to the actual estimate. Then the balls rain down and pile up under <span class="m">N(ψ, Var(ϕ)/n)</span>. Each ball also carries its 95% interval; red means it missed the truth.</p>
+<div class="predict" data-options="It halves|It shrinks to a quarter|It stays the same; there are just more patients per ball" data-answer="0" data-hint="The pile's SD is √(Var ϕ / n), so four times the patients gives half the width: 0.174 at n = 100, 0.087 at n = 400.">Switch from n = 100 to n = 400 patients per study. What happens to the width of the AIPW pile?</div>
+<div data-figure="galton" data-n="100" data-boards="both"></div>
+<div class="predict" data-options="It rises toward 95%|It stays near 95%|It falls toward 0%" data-answer="2" data-hint="The plug-in's intervals shrink like 1/√n around 2.64, so its fixed bias of 0.64 becomes more and more standard errors: 109 of 200 intervals cover at n = 50, 47 at n = 100, none at n = 400.">The plug-in (orange) is also asymptotically linear, but around 2.64, not 2. As n grows from 50 to 800, what happens to the share of its intervals that cover the truth?</div>
+<p class="note">Simulated: 200 seeded studies for each n (the course's <code>generate()</code> study; AIPW with both nuisance models fitted, no cross-fitting; the plug-in uses the outcome model [1, A], which is the treated-minus-control difference). The arrows use the true influence function, which only a simulation can know. Exact: the centres 2 and 2.64 and the outline curves, computed from the known law. Schematic: the pegs.</p>
 <div class="say"><b>In one sentence</b>Asymptotic linearity means the estimator behaves like a sample mean of its influence function. That's what gives a normal limit, and Var(ϕ) is the number we'll try to make as small as possible.</div>
 
 <!-- SCENE 3 -->
@@ -453,5 +459,9 @@ new MutationObserver(all).observe(document.documentElement,{attributes:true,attr
 <script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
 <script src="../labs/common.js"></script>
+<script src="../shared/anim.js"></script>
+<script src="../science/cohort.js"></script>
+<script src="../shared/motion.js"></script>
+<script src="../figures/galton.js"></script>
 </body>
 </html>

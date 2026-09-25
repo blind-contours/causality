@@ -11,14 +11,22 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/motion.css">
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
+<script src="../shared/anim.js"></script>
+<script src="../science/cohort.js"></script>
+<script src="../shared/motion.js"></script>
+<script src="../figures/seesaw.js"></script>
 </head>
 <body data-lesson="mean-along-a-path">
 <div class="wrap">
 <div class="eyebrow">One derivation, six moves, each one drawn</div>
 <h1>The Mean Along a Path</h1>
 <p class="lede">This is the slow-motion version of one scene you have already watched: scene 5 of <a href="02-scores-from-scratch.html#s5">Scores and Influence, From Scratch</a>, "the parameter along the path". Same density, same four directions h, same result: along a path with score h the mean moves at rate E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). There it took one scene; here each line of the algebra below gets its own picture. If it already feels obvious, skim the moves and try the transfer check at the end.</p>
+
+<p>The intuition first, with the course's 100 patients: the mean is the balance point of a seesaw, and one extra patient of mass ε at z moves it by exactly ε(z − ψ). The slow-motion version below takes that one line apart.</p>
+<div data-figure="seesaw"></div>
 
 <div class="eq">ψ(P_ε) = ∫ z · p(z)(1 + ε h(z)) dz<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ∫ z p(z) dz  +  ε ∫ z h(z) p(z) dz          <span style="color:var(--muted)">(move 3: split)</span><br>

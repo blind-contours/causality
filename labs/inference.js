@@ -610,7 +610,7 @@
   root.innerHTML = `<section class="lab-step" data-title="Three terms"><h2 tabindex="-1">A correction leaves three different sources of error</h2><p>The leading error is an average of true influence-function values. A second term comes from estimating that influence function. A third term is nonlinear bias: the remainder. Each needs its own argument.</p><div class="math">ψ̂ − ψ₀ = (Pₙ−P₀)D*(P₀)<br>+ (Pₙ−P₀)[D*(P̂)−D*(P₀)]<br>+ R₂(P̂,P₀)</div><p>The remainder is bounded by a product of two nuisance errors: a rectangle. Play lets n grow and asks whether the rectangle's area gets inside the sampling band before n runs out.</p><div data-figure="dr-plane" data-alpha="0.25" data-beta="0.25"></div><p>The first term gives the efficient variance. Cross-fitting helps control the second. Appropriate nuisance accuracy makes the last negligible. Identification is needed before any of these terms can describe a causal answer.</p><details><summary>Exact ATE remainder and its sign convention</summary><p class="math">Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂<br>R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]</p><p>Under positivity and bounded inverse estimated propensities, its magnitude is bounded by a constant times the product of L² nuisance errors. A rectangle of side lengths “outcome error” and “propensity error” depicts a bound on magnitude, not the signed exact remainder. In the figure the errors start at 0.5 when n = 100 and the band constant c = 2.5 is chosen so that the boundary case α + β = ½ rides exactly along the band's edge.</p></details></section>
 <section class="lab-step" data-title="Rates"><h2 tabindex="-1">The boundary matters: one quarter plus one quarter</h2><label>Outcome convergence exponent α <input id="alpha" type="range" min="0" max=".6" step=".01"></label><label>Propensity convergence exponent β <input id="beta" type="range" min="0" max=".6" step=".01"></label><div class="figure" id="rate-figure"><div class="fig-row"><div><svg id="rate-plot" role="img" aria-label="Square-root-n scaled remainder bound versus log10 sample size, with the boundary line at one. Values and interpretation follow."></svg></div><div><svg id="rate-square" role="img" aria-label="The rate square: alpha against beta with the boundary line alpha plus beta equals one half and the current point."></svg><div class="fig-readout" id="rate-readout"></div></div></div><p id="rate-status" class="fig-caption" role="status"></p></div><div id="rate-table"></div><p>If the errors are exactly n⁻¹⁄⁴ each, their product is n⁻¹⁄². Multiplication by √n leaves a constant. For centered efficient inference, require a little-o remainder: √n R₂ → 0. A rate sum strictly greater than ½ is sufficient under the other conditions; equality is not enough by itself.</p><p class="note">This plot sets bounding constants to one and uses exact power laws. It illustrates rates, not a finite-sample guarantee. One nuisance can be slower if the other is faster.</p></section>
 <section class="lab-step" data-title="Cross-fitting"><h2 tabindex="-1">Make a prediction before seeing that patient's outcome</h2><p>Imagine a learner that memorizes the training outcomes. Its training residuals are all zero, even if it predicts new patients poorly. For cross-fitting, fit on one fold and evaluate on the other, then swap. Every patient receives a prediction from a model trained without that patient's observation.</p><div data-figure="crossfit" data-n="16" data-seed="872"></div><div id="fold-table"></div><p class="math">Fit fold A → evaluate fold B<br>Fit fold B → evaluate fold A<br>Combine the held-out influence-function contributions.</p><p>Conditional on the training fold, independent validation observations make the empirical-process term easier to control. Consistency in L² and suitable moments are still needed. Cross-fitting does not correct a persistently wrong model, weak overlap, confounding that was not measured, or a remainder that fails to vanish.</p><p class="note">In the table, “own-fold prediction” is what the learner says about a patient it was trained on: the memorising learner returns the outcome exactly. The held-out prediction comes from the model fitted on the other fold. Neither is advertised as an adequate nuisance learner. The purpose is to expose data reuse.</p></section>
-<section class="lab-step" data-title="Cross-fitting on or off"><h2 tabindex="-1">Turn cross-fitting off and watch the interval shrink below the truth</h2><p>Step 3 used sixteen patients. Now run the same idea at scale. The outcome learner is k-nearest neighbours, as flexible as it gets: with k = 1 it predicts each patient by the single closest patient in the same arm. Fitted and evaluated on the same data, that closest patient is the patient itself, so every own-arm residual Y − m̂ is exactly zero.</p><div class="predict" data-options="Too narrow: coverage well below 95%|Too wide: coverage near 100%|About right: the propensity model is correct, so nothing breaks" data-answer="0" data-hint="The influence-function values are built from residuals. If the learner has memorised the outcomes, the residuals are zero and the values lose the outcome noise, so their spread understates the estimator's real spread.">With k = 1 and no cross-fitting, what happens to the AIPW 95% interval?</div><div data-simulation="crossfit" data-layout="grid"></div><p>Read the two panels from top to bottom. Without cross-fitting the estimates are roughly centred, but the IF-based standard error is about half the real spread, so nearly two intervals in five miss the truth. With two folds each patient is predicted by a model that never saw it, the residuals are honest again, and coverage returns close to 95%. Cross-fitting does not buy efficiency: a 1-nearest-neighbour fit never becomes accurate, so the cross-fitted SD stays well above the efficient bound. Try k = 25: a smoother learner cannot memorise, and fitting on the same patients does far less harm.</p><p class="note">This is the empirical-process term (Pₙ−P₀)[D*(P̂)−D*(P₀)] from step 1 made visible: when P̂ is fitted on the same patients it is evaluated on, that term need not be negligible. Consistency of the point estimate, efficiency and coverage are three separate promises, and each has its own condition.</p></section></section>`;
+<section class="lab-step" data-title="Cross-fitting on or off"><h2 tabindex="-1">Turn cross-fitting off and watch the interval shrink below the truth</h2><p>Step 3 used sixteen patients. Now run the same idea at scale. The outcome learner is k-nearest neighbours, as flexible as it gets: with k = 1 it predicts each patient by the single closest patient in the same arm. Fitted and evaluated on the same data, that closest patient is the patient itself, so every own-arm residual Y − m̂ is exactly zero.</p><div class="predict" data-options="Too narrow: coverage well below 95%|Too wide: coverage near 100%|About right: the propensity model is correct, so nothing breaks" data-answer="0" data-hint="The influence-function values are built from residuals. If the learner has memorised the outcomes, the residuals are zero and the values lose the outcome noise, so their spread understates the estimator's real spread.">With k = 1 and no cross-fitting, what happens to the AIPW 95% interval?</div><div id="cf-guess"></div><div data-simulation="crossfit" data-layout="grid"></div><p>Read the two panels from top to bottom. Without cross-fitting the estimates are roughly centred, but the IF-based standard error is about half the real spread, so nearly two intervals in five miss the truth. With two folds each patient is predicted by a model that never saw it, the residuals are honest again, and coverage returns close to 95%. Cross-fitting does not buy efficiency: a 1-nearest-neighbour fit never becomes accurate, so the cross-fitted SD stays well above the efficient bound. Try k = 25: a smoother learner cannot memorise, and fitting on the same patients does far less harm.</p><p class="note">This is the empirical-process term (Pₙ−P₀)[D*(P̂)−D*(P₀)] from step 1 made visible: when P̂ is fitted on the same patients it is evaluated on, that term need not be negligible. Consistency of the point estimate, efficiency and coverage are three separate promises, and each has its own condition.</p></section></section>`;
   CausalFigures.mountAll();
   control(document.getElementById("alpha"), state, "alpha");
   control(document.getElementById("beta"), state, "beta");
@@ -834,4 +834,62 @@
   foldTable();
   guided(root, state);
   tools(root, state);
+
+  /* Draw your guess: where does coverage land without cross-fitting? The answer is recomputed
+   * here with the grid's default configuration (k = 1, n = 400, 300 samples, same seed), so it
+   * matches the "Cross-fitting off" panel below until its controls are changed. */
+  const CF_DEFAULT = { k: 1, mode: "fitted", n: 400, reps: 300, seed: 20260919, study: "smooth", crossfit: false };
+  let cfSummary = null;
+  const mountGuess = () =>
+    window.CausalGuess &&
+    CausalGuess.mount(document.getElementById("cf-guess"), {
+      id: "cf-coverage-off",
+      kind: "point",
+      prompt:
+        "Where will the coverage land without cross-fitting? Drag the marker to the share of nominal 95% intervals you expect to contain the true ATE (k = 1, n = 400, 300 repeated samples).",
+      xDomain: [0, 1],
+      xLabel: "Coverage of nominal 95% intervals",
+      xTicks: (phone) => (phone ? [0, 0.25, 0.5, 0.75, 1] : [0, 0.2, 0.4, 0.6, 0.8, 1]),
+      xTickFormat: (v) => fmt(v * 100, 0) + "%",
+      xFormat: (v) => fmt(v * 100, 1) + "%",
+      valueFormat: (v) => fmt(v * 100, 1) + "%",
+      diffFormat: (v) => fmt(v * 100, 1) + " percentage points",
+      snap: 0.005,
+      initial: 0.5,
+      pointLabel: "Your guess for coverage without cross-fitting",
+      truthLabel: "Simulated coverage",
+      truthShort: "simulated",
+      truthColor: "var(--purple)",
+      margin: { l: 22, r: 26, t: 36, b: 48 },
+      background: (svg, P, g) => {
+        const X = P.sx(0.95);
+        g.append(
+          CausalAnim.el("line", { x1: X, x2: X, y1: P.m.t - 8, y2: P.H - P.m.b, stroke: "var(--muted)", "stroke-width": 1.5, "stroke-dasharray": "5 4" }),
+          CausalAnim.el("text", { class: "guess-text", x: X - 6, y: P.m.t - 14, "text-anchor": "end" }, "promised 95%"),
+        );
+      },
+      veil: () => {
+        const sim = root.querySelector('[data-simulation="crossfit"]');
+        return sim ? [sim.querySelector(".simgrid"), sim.querySelector(".sim-results")] : [];
+      },
+      truth: () =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            cfSummary = CausalScience.simulation(CF_DEFAULT, () => {}).summary;
+            resolve(cfSummary.coverage);
+          }, 30),
+        ),
+      feedback: (r) => {
+        const s = cfSummary,
+          ratio = s ? s.meanSE / s.aipw.sd : NaN;
+        return r.error > 0.1
+          ? `Most people expect a small dent. With k = 1 every own-arm residual is exactly zero, so the influence-function standard error is about ${fmt(ratio, 2)} of the real spread and roughly ${fmt((1 - r.truth) * 100, 0)} intervals in 100 miss.`
+          : Math.abs(r.error) <= 0.1
+            ? `Well judged. The memorised residuals are zero, the standard error comes out at about ${fmt(ratio, 2)} of the real spread, and coverage collapses even though the estimates stay roughly centred.`
+            : `Coverage falls, but not all the way: the estimates stay roughly centred and the standard error is about ${fmt(ratio, 2)} of the real spread, so most intervals still reach the truth.`;
+      },
+    });
+  // The simulation grid is mounted by labs/simulation.js, which loads after this file.
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountGuess);
+  else mountGuess();
 })();

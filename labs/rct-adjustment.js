@@ -63,6 +63,7 @@ ${legend([["var(--or)", "bar", "Difference in means (unadjusted)"], ["var(--gree
 <p>The target has not changed. It is still the average effect over the whole trial population, the same marginal quantity the difference in means estimates. The model is a tool for removing predictable noise, not a new question.</p>
 <div class="predict" data-options="About 20 patients|About 100 patients|About 200 patients" data-answer="2" data-hint="Adjustment divides the variance by about 1 − R² = 0.5, so 200 adjusted patients do the work of 400 unadjusted ones: 200 extra.">X explains half of the outcome variance (R² = 0.5). The trial has 200 patients. How many extra unadjusted patients would give the same precision as adjusting?</div>
 <label><span>How prognostic is X? Share of outcome variance it explains, R² = <strong class="rct-v" id="r2-v"></strong></span> <input id="r2" type="range" min="0" max="0.8" step="0.1"></label>
+<div id="ci-guess"></div>
 <div class="figure"><div class="fig-row"><div>
 <svg id="std-scatter" role="img" aria-label="One simulated trial: each patient's baseline covariate against walk-distance change, colored by arm, with a fitted line per arm."></svg>
 ${legend([["var(--p)", "dot", "Device arm"], ["var(--teal)", "dot", "Control arm"], ["var(--p)", "line", "Device fit"], ["var(--teal)", "line", "Control fit", "6 4"]])}
@@ -581,6 +582,64 @@ ${legend([["var(--or)", "dot", "Unadjusted, Welch SE"], ["var(--red)", "dot", "A
   window.addEventListener("causality:lab-reset", (e) => {
     if (e.detail?.name === "rct-adjustment") repPlayer.set(0);
   });
+  /* Draw your guess: the width of this trial's standardized interval, before it appears. */
+  const guessTrial = () => {
+    const r2 = nearest(G.r2, state.get().r2),
+      d = R.trial({ r2 }, S.rng(G.seed));
+    return { r2, u: R.unadjusted(d), s: R.standardized(d, "linear") };
+  };
+  if (window.CausalGuess) {
+    const g0 = guessTrial().u,
+      ciOf = (r) => [(r.est - R.Z * r.se) * M, (r.est + R.Z * r.se) * M];
+    let shown = null;
+    CausalGuess.mount(byId("ci-guess"), {
+      id: "rct-adjusted-width",
+      kind: "band",
+      prompt:
+        "Drag the adjusted interval's width. The bar starts as this trial's unadjusted 95% interval; move its ends to where you expect the standardized interval, adjusted for X, to sit at the R² chosen above.",
+      xDomain: [X0, X1],
+      xLabel: "95% interval from this trial, m",
+      xTicks: (phone) => (phone ? [-20, 0, 20, 40] : [-20, -10, 0, 10, 20, 30, 40, 50]),
+      xTickFormat: (v) => fmt(v, 0),
+      xFormat: (v) => fx(v, 1) + " m",
+      valueFormat: (v) => fx(v, 1) + " m",
+      initial: ciOf(g0),
+      snap: 0.5,
+      step: 0.5,
+      bandY: 0.34,
+      bandLabel: "Adjusted?",
+      guessColor: "var(--ink)",
+      truthLabel: "The standardized interval",
+      truthShort: "standardized",
+      truthColor: "var(--purple)",
+      margin: { l: 104, r: 22, t: 40, b: 48 },
+      marginPhone: { l: 90, r: 16 },
+      background: (svg, P, g) => {
+        const [lo, hi] = ciOf(guessTrial().u),
+          y = P.sy(0.84),
+          T = P.sx(truth * M);
+        g.append(
+          el("line", { x1: T, x2: T, y1: P.m.t - 10, y2: P.H - P.m.b, stroke: "var(--green)", "stroke-width": 2, "stroke-dasharray": "6 4" }),
+          el("text", { class: "guess-text", x: T - 6, y: P.m.t - 16, "text-anchor": "end", fill: "var(--green)" }, `true effect ${fx(truth * M, 0)} m`),
+          el("line", { x1: P.sx(lo), x2: P.sx(hi), y1: y, y2: y, stroke: "var(--or)", "stroke-width": 5, "stroke-linecap": "round" }),
+          el("text", { class: "guess-text ink", x: P.m.l - 10, y: y + 5, "text-anchor": "end" }, "Unadjusted"),
+        );
+      },
+      veil: () => [byId("ci-pair"), byId("adj-readout"), byId("adj-caption")],
+      truth: () => {
+        shown = guessTrial();
+        return ciOf(shown.s);
+      },
+      feedback: (r) => {
+        const { r2, u, s } = shown,
+          ratio = s.se / u.se;
+        return r2 === 0
+          ? "With R² = 0 there is nothing to remove: the adjusted interval is essentially as wide as the unadjusted one."
+          : `Adjusting for X divides the variance by about 1/(1 − R²), so widths shrink by about √(1 − ${fx(r2, 1)}) = ${fx(Math.sqrt(1 - r2), 2)}. In this trial the ratio is ${fx(ratio, 2)}: from ${m(2 * R.Z * u.se)} m to ${m(2 * R.Z * s.se)} m, with the same target.`;
+      },
+    });
+  }
+
   fetch("../science/rct-adjustment.json")
     .then((r) => {
       if (!r.ok) throw Error("HTTP " + r.status);
