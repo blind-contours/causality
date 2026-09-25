@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Weight for censoring, augment with the efficient influence function, and target survival at a horizon and the RMST difference with an interval you can defend."
+    />
+    <title>Targeted survival curves and ΔRMST · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      /* This lesson draws its SVGs at the container's pixel width, so text sizes are real pixels. */
+      [data-lab="targeted-survival"] svg.fig .tick,
+      [data-lab="targeted-survival"] svg.fig .fig-text,
+      [data-lab="targeted-survival"] svg.fig .ref-label {
+        font-size: 13px;
+      }
+      [data-lab="targeted-survival"] svg.fig .fig-text.ink {
+        font-size: 13.5px;
+      }
+      [data-lab="targeted-survival"] svg.fig .axis-label {
+        font-size: 14px;
+      }
+      [data-lab="targeted-survival"] .figure .fig-readout {
+        font-size: 13px;
+      }
+      [data-lab="targeted-survival"] .fig-player label {
+        font-size: 13px;
+      }
+      [data-lab="targeted-survival"] svg.fig + svg.fig {
+        margin-top: 10px;
+      }
+      [data-lab="targeted-survival"] pre.code {
+        font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace;
+        background: var(--soft);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 12px;
+        overflow-x: auto;
+        max-width: 100%;
+      }
+      [data-lab="targeted-survival"] details {
+        margin: 12px 0;
+      }
+      [data-lab="targeted-survival"] summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      [data-lab="targeted-survival"] select,
+      [data-lab="targeted-survival"] button {
+        min-height: 40px;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/targeted-survival.js"></script>
+    <script src="../shared/visuals.js"></script>
+  </head>
+  <body data-lesson="targeted-survival">
+    <main class="wrap">
+      <div class="eyebrow">Causality · return to survival</div>
+      <h1>Targeted survival curves and ΔRMST</h1>
+      <p class="lede">
+        Weight for censoring, augment with the efficient influence function, and
+        target survival at a horizon and the RMST difference, with an interval
+        you can defend.
+      </p>
+      <noscript
+        >This laboratory requires JavaScript. Its computations are in
+        science/targeted-survival.js.</noscript
+      >
+      <div data-lab="targeted-survival"></div>
+      <p class="note">
+        What is exact, simulated and schematic: the true curves, RMSTs and the
+        efficiency bound E[D²] are computed exactly from the data-generating
+        law (discrete months, three severity levels). The single study on each
+        step is one seeded simulation of 1000 patients, analysed live with
+        pooled logistic hazard models, so its numbers change when you draw a new
+        study. The double-robustness histograms are 1000 precomputed seeded
+        studies of 800 patients each (scripts/targeted-survival-precompute.cjs).
+        The derivation is exact for this discrete-time model; the risk-set
+        strip shows 16 patients per severity level as a picture of the whole
+        treated arm, whose counts are in the table.
+      </p>
+      <p class="sources">
+        Further reading:
+        <a href="https://doi.org/10.1080/10543400903243017"
+          >Moore and van der Laan (2009), Increasing power in randomized trials
+          with right censored outcomes through covariate adjustment, J Biopharm
+          Stat 19(6)</a
+        >;
+        <a href="https://doi.org/10.1111/biom.12076"
+          >Bai, Tsiatis and O’Brien (2013), Doubly-robust estimators of
+          treatment-specific survival distributions in observational studies
+          with stratified sampling, Biometrics 69(4)</a
+        >;
+        <a href="https://doi.org/10.1002/sim.7337"
+          >Benkeser, Carone and Gilbert (2018), Improved estimation of the
+          cumulative incidence of rare outcomes, Stat Med 37(2)</a
+        >;
+        <a href="https://doi.org/10.2202/1557-4679.1249"
+          >Stitelman and van der Laan (2010), Collaborative targeted maximum
+          likelihood for time to event data, Int J Biostat 6(1)</a
+        >;
+        <a href="https://doi.org/10.1186/1471-2288-13-152"
+          >Royston and Parmar (2013), Restricted mean survival time: an
+          alternative to the hazard ratio, BMC Med Res Methodol 13:152</a
+        >.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../shared/anim.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/targeted-survival.js"></script>
+  </body>
+</html>

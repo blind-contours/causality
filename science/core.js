@@ -203,7 +203,83 @@
     const beta = solve(A, b);
     return (x, a) => dot(beta, features(x, a));
   }
+  /* A second study for the inference lab: the same target (ATE = 2) with a continuous severity
+   * score X ~ Uniform(0, 1), strong confounding, and a jump in the outcome at X = 0.6 that a
+   * straight line cannot follow. Its outcome learner is k-nearest neighbours within each arm;
+   * with k = 1 and no cross-fitting every patient is its own nearest neighbour. */
+  const smoothG = (x) => expit(-2 + 4 * x);
+  const smoothM = (x, a) =>
+    0.5 + x + 0.6 * x * x + (x > 0.6 ? 1.2 : 0) + a * (2 + 0.4 * (x - 0.5));
+  function generateSmooth(n, random) {
+    return Array.from({ length: n }, () => {
+      const x = random(),
+        a = +(random() < smoothG(x));
+      return { x, a, y: smoothM(x, a) + 0.8 * randn(random) };
+    });
+  }
+  // Average of the k training outcomes in arm a whose x is closest (ties: the larger x first).
+  function knn(train, k) {
+    const arms = [0, 1].map((a) =>
+      train.filter((r) => r.a === a).sort((p, q) => p.x - q.x),
+    );
+    return (x, a) => {
+      const arr = arms[a];
+      if (!arr.length) throw Error("An arm has no training patients");
+      let lo = 0,
+        hi = arr.length;
+      while (lo < hi) {
+        const m = (lo + hi) >> 1;
+        if (arr[m].x < x) lo = m + 1;
+        else hi = m;
+      }
+      let i = lo - 1,
+        j = lo,
+        s = 0,
+        c = 0;
+      while (c < k && (i >= 0 || j < arr.length)) {
+        if (j >= arr.length || (i >= 0 && x - arr[i].x < arr[j].x - x))
+          s += arr[i--].y;
+        else s += arr[j++].y;
+        c++;
+      }
+      return s / c;
+    };
+  }
+  // Main-terms logistic regression of A on (1, X) by Newton-Raphson; correctly specified here.
+  function logistic(train) {
+    let b = [0, 0];
+    for (let it = 0; it < 30; it++) {
+      const g = [0, 0],
+        H = [
+          [1e-9, 0],
+          [0, 1e-9],
+        ];
+      for (const r of train) {
+        const v = [1, r.x],
+          p = expit(b[0] + b[1] * r.x);
+        for (let i = 0; i < 2; i++) {
+          g[i] += v[i] * (r.a - p);
+          for (let j = 0; j < 2; j++) H[i][j] += v[i] * v[j] * p * (1 - p);
+        }
+      }
+      const step = solve(H, g);
+      b = [b[0] + step[0], b[1] + step[1]];
+      if (Math.abs(step[0]) + Math.abs(step[1]) < 1e-10) break;
+    }
+    return (x) => expit(b[0] + b[1] * x);
+  }
+  // Nonparametric bound for the continuous study, in closed form:
+  // E[0.64(1/g + 1/(1−g))] = 0.64(2 + sinh 2) and Var τ(X) = 0.16/12.
+  const smoothVariance = () => 0.64 * (2 + Math.sinh(2)) + 0.16 / 12;
   function nuisance(data, config) {
+    if (config.study === "smooth") {
+      if (config.mode === "oracle") return { m: smoothM, g: smoothG };
+      const g = logistic(data);
+      return {
+        m: knn(data, Math.max(1, Math.round(config.k || 1))),
+        g: (x) => Math.max(0.02, Math.min(0.98, g(x))),
+      };
+    }
     const goodM = ["both", "outcome"].includes(config.preset),
       goodG = ["both", "propensity"].includes(config.preset);
     if (config.mode === "oracle")
@@ -258,7 +334,7 @@
       }),
     );
   }
-  function summarize(estimates, n) {
+  function summarize(estimates, n, boundVariance = efficiencyVariance()) {
     const describe = (a) => {
       const bias = mean(a) - 2,
         sd = Math.sqrt(variance(a));
@@ -278,21 +354,27 @@
       meanSE: mean(estimates.map((r) => r.se)),
       coverage,
       coverageMCSE: Math.sqrt((coverage * (1 - coverage)) / estimates.length),
-      boundSE: Math.sqrt(efficiencyVariance() / n),
+      boundSE: Math.sqrt(boundVariance / n),
     };
   }
   function simulation(config, onProgress = () => {}) {
     const random = rng(config.seed),
+      smooth = config.study === "smooth",
+      draw = smooth ? generateSmooth : generate,
       results = [];
     for (let i = 0; i < config.reps; i++) {
-      const { plugin, aipw, se } = estimate(generate(config.n, random), config);
+      const { plugin, aipw, se } = estimate(draw(config.n, random), config);
       results.push({ plugin, aipw, se });
       if (i % 25 === 0) onProgress(i);
     }
     return {
       config: { ...config },
       results,
-      summary: summarize(results, config.n),
+      summary: summarize(
+        results,
+        config.n,
+        smooth ? smoothVariance() : efficiencyVariance(),
+      ),
     };
   }
   function histogram(values, bins = 24, domain = null) {
@@ -629,6 +711,12 @@
     trueG,
     trueM,
     generate,
+    smoothG,
+    smoothM,
+    generateSmooth,
+    knn,
+    logistic,
+    smoothVariance,
     nuisance,
     estimate,
     efficiencyVariance,

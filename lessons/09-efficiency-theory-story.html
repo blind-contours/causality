@@ -18,7 +18,7 @@
 <div class="wrap">
 <div class="eyebrow">Semiparametric efficiency theory in eight moving pictures</div>
 <h1>Efficiency Theory, Drawn</h1>
-<p class="lede">The story of how you get from "a parameter of a distribution" to "an estimator with a known sampling distribution and the smallest possible variance," told in the geometry Schuler and van der Laan use in <em>Introduction to Modern Causal Inference</em>. Each scene has a Play button where the clock moves a mathematical state, a Reveal button where it only uncovers annotations, a scrubber, and the one or two dials that matter. Under each scene is the sentence to say out loud.</p>
+<p class="lede">The whole story on one page, now that you have built every piece. You have already met each object on its own: the parameter as a map, the influence function as each patient's contribution, the tangent space, the efficient influence function as a projection, the one-step correction, the remainder, and TMLE's targeting step. Here they are in order, drawn in one geometry, so you can see how each piece hands off to the next before the inference laboratory tests the promises they make. Each scene has a Play or Reveal button, a scrubber where the clock matters, and the one or two dials that change the picture; under each is the sentence to say out loud. The geometry follows Schuler and van der Laan, <em>Introduction to Modern Causal Inference</em>.</p>
 <ul class="toc">
 <li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · Asymptotically linear</a></li><li><a href="#s3">3 · Pathwise derivative</a></li><li><a href="#s4">4 · Tangent space</a></li><li><a href="#s5">5 · The efficient influence function</a></li><li><a href="#s6">6 · Plug-in bias and the one-step</a></li><li><a href="#s7">7 · Double robustness is a rectangle</a></li><li><a href="#s8">8 · TMLE walks; the one-step jumps</a></li>
 </ul>
@@ -121,13 +121,14 @@
 <h2>Double robustness is a rectangle</h2>
 <p>For the ATE, using Ψ(P̂)−Ψ(P₀)=−P₀D*(P̂)+R₂, the remainder is E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ+(m̂₀−m₀₀)/(1−ĝ)}]. With inverse propensities bounded, its magnitude is bounded by a constant times the product of nuisance L² errors. The rectangle depicts that magnitude bound, not the signed exact remainder. Exactly n<sup>−1/4</sup> errors give a product at the same order as sampling error; efficient inference needs a negligible product or a sharper argument.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c7" width="800" height="460"></canvas><div class="cap" id="cap7"></div></div>
+  <div class="paper"><canvas id="c7" width="800" height="460" role="img" aria-label="Left: the plane of propensity error against outcome error, with the rectangle whose area bounds the remainder and the shaded region under the hyperbola where the product is at most c over root n. Right: both errors, their product and c over root n against sample size on log scales. Values are in the readout."></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
-    <div class="btns"><button class="primary" id="p7">Reveal</button></div>
-    <label>Propensity error ‖π̂ − π‖ <span class="v" id="v7a">0.60</span><input type="range" id="a7" min="0" max="1" step="0.01" value="0.6"></label>
-    <label>Outcome-model error ‖μ̂ − μ‖ <span class="v" id="v7b">0.50</span><input type="range" id="b7" min="0" max="1" step="0.01" value="0.5"></label>
-    <label>Rate of π̂: error ∝ n<sup>−α</sup>, α <span class="v" id="v7ra">0.25</span><input type="range" id="ra7" min="0.15" max="0.5" step="0.01" value="0.25"></label>
-    <label>Rate of μ̂: error ∝ n<sup>−β</sup>, β <span class="v" id="v7rb">0.25</span><input type="range" id="rb7" min="0.15" max="0.5" step="0.01" value="0.25"></label>
+    <div class="btns"><button class="primary" id="p7">Play</button></div>
+    <label>Sample size n (log scale) <span class="v" id="v7n">100</span><input type="range" id="t7" min="0" max="1" step="0.002" value="0"></label>
+    <label>Propensity error at n = 100 <span class="v" id="v7a">0.60</span><input type="range" id="a7" min="0" max="1" step="0.01" value="0.6"></label>
+    <label>Outcome-model error at n = 100 <span class="v" id="v7b">0.50</span><input type="range" id="b7" min="0" max="1" step="0.01" value="0.5"></label>
+    <label>Outcome rate α (error shrinks like 1/n^α) <span class="v" id="v7ra">0.25</span><input type="range" id="ra7" min="0.1" max="0.5" step="0.01" value="0.25"></label>
+    <label>Propensity rate β (error shrinks like 1/n^β) <span class="v" id="v7rb">0.25</span><input type="range" id="rb7" min="0.1" max="0.5" step="0.01" value="0.25"></label>
     <div class="readout" id="ro7"></div>
     <div class="note">The plug-in's error, by contrast, is a single side: the whole of ‖μ̂ − μ‖, at the outcome model's own rate. That's why a slow biased outcome fit alone need not justify √n inference. The correction helps under additional conditions.</div>
   </div>
@@ -150,7 +151,7 @@
 </div>
 <div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable submodel until the empirical mean of the efficient influence function is zero, then plugs in. The one-step never moves in 𝓜 at all; it corrects the number. TMLE applies the same first-order correction to the distribution instead, so the estimate stays inside the parameter space.</div>
 
-<p class="note">Next, the inference laboratory puts these promises to the test: run repeated samples under each of the four nuisance-correctness cases and compare bias, spread and coverage with the efficient bound.</p>
+<p class="note">Next, the inference laboratory puts these promises to the test: the rate boundary from scene 7, cross-fitting, and what happens to interval coverage when a flexible learner is fitted and evaluated on the same patients.</p>
 <p class="src">Geometry follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a>, ch. 3–4; the influence-function projection picture is Tsiatis's; the rectangle in scene 7 is the Cauchy–Schwarz bound on the ATE remainder as in Kennedy's notes and Chernozhukov et al. (2018).</p>
 </div>
 
@@ -172,12 +173,12 @@ function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283
 function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function bracket(g,x,y1,y2,col){line(g,x,y1,x,y2,col,1.6);line(g,x-5,y1,x+5,y1,col,1.6);line(g,x-5,y2,x+5,y2,col,1.6);}
-function blob(cx,cy,rx,ry,seed){const r=mulberry(seed),pts=[],k=[];for(let i=0;i<4;i++)k.push([r()*3+1,r()*6.28,r()*0.1]);for(let i=0;i<=90;i++){const t=i/90*6.283;let s=1;for(const [f,ph,a] of k)s+=a*Math.sin(f*t+ph);pts.push([cx+rx*s*Math.cos(t),cy+ry*s*Math.sin(t)]);}return pts;}
+function blob(cx,cy,rx,ry,seed){const r=mulberry(seed),pts=[],k=[];for(let i=0;i<4;i++)k.push([Math.round(r()*3+1),r()*6.28,r()*0.1]);/* whole-number frequencies close the outline without a notch */for(let i=0;i<=90;i++){const t=i/90*6.283;let s=1;for(const [f,ph,a] of k)s+=a*Math.sin(f*t+ph);pts.push([cx+rx*s*Math.cos(t),cy+ry*s*Math.sin(t)]);}return pts;}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
 // landscape of psi on the blob: contour drawing by bisection
-function contours(g,X,Y,psi,levels,clipPts,labelCol){g.save();g.beginPath();clipPts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.clip();
+function contours(g,X,Y,psi,levels,clipPts,labelCol){const clipPath=new Path2D();clipPts.forEach((p,i)=>i?clipPath.lineTo(p[0],p[1]):clipPath.moveTo(p[0],p[1]));clipPath.closePath();const inside=(x,y)=>{const m=g.getTransform();return g.isPointInPath(clipPath,x*m.a+m.e,y*m.d+m.f);};g.save();g.beginPath();clipPts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.clip();
   for(const lv of levels){const pts=[];for(let u=-1.4;u<=1.4;u+=0.02){let lo=-1.8,hi=1.8;const f=v=>psi(u,v)-lv;if(f(lo)*f(hi)<0){for(let i=0;i<28;i++){const m=(lo+hi)/2;if(f(lo)*f(m)<=0)hi=m;else lo=m;}pts.push([X(u),Y((lo+hi)/2)]);}}
-    if(pts.length>1){poly(g,pts,C.grid,1.2);if(labelCol){const m=pts[Math.floor(pts.length*0.22)];txt(g,lv.toFixed(1),m[0],m[1]-7,labelCol,11,'center',FM);}}}
+    if(pts.length>1){poly(g,pts,C.grid,1.2);if(labelCol){const m=pts.slice(Math.floor(pts.length*0.22)).concat(pts).find(q=>inside(q[0]-16,q[1]-14)&&inside(q[0]+16,q[1]-14)&&inside(q[0],q[1]+2));if(m)txt(g,lv.toFixed(1),m[0],m[1]-7,labelCol,11,'center',FM);}}}
   g.restore();}
 // scene scaffolding
 function scene(id,draw,opts){return CausalVisuals.scene(id,draw,{...opts,parameter:id===4||id===5});}
@@ -351,27 +352,59 @@ document.getElementById('p6').onclick=()=>{noise6=(Math.random()-0.5)*2;S6.play(
 bind('d6','v6d',v=>v.toFixed(2),()=>S6.draw());bind('n6','v6n',v=>v,()=>S6.draw());
 
 // ============ SCENE 7 ============
-const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);const a=+document.getElementById('a7').value,b=+document.getElementById('b7').value,ra=+document.getElementById('ra7').value,rb=+document.getElementById('rb7').value,sum=ra+rb;
-  const verdict=sum>0.5001?'faster than sampling error: the remainder is negligible':Math.abs(sum-0.5)<1e-4?'the same order as sampling error: the boundary':'slower than sampling error: the remainder dominates';
-  const short=sum>0.5001?'product beats n^-1/2: remainder negligible':Math.abs(sum-0.5)<1e-4?'product = n^-1/2: the boundary case':'product slower than n^-1/2: remainder dominates';
-  const L=90,B=380,S=260;line(g,L,B,L+S+30,B,C.pen,1.4);line(g,L,B,L,B-S-30,C.pen,1.4);txt(g,'‖π̂ − π‖',L+S+10,B+22,C.pen,14,'right',FS,true);txt(g,'‖μ̂ − μ‖',L-8,B-S-20,C.pen,14,'left',FS,true);
-  const rt=seg(t,0,0.4);const aw=a*S*rt,bh=b*S*rt;
-  g.fillStyle=C.or;g.globalAlpha=0.22;g.fillRect(L,B-bh,aw,bh);g.globalAlpha=1;poly(g,[[L,B],[L+aw,B],[L+aw,B-bh],[L,B-bh]],C.or,1.8,null,true);
-  txt(g,'|R₂| ≲ area',L+aw/2,B-bh/2,C.or,15,'center',FS,true);
-  txt(g,a.toFixed(2),L+aw,B+16,C.muted,11,'center',FM);txt(g,b.toFixed(2),L-10,B-bh,C.muted,11,'right',FM);
-  // plug-in comparison: the full side
-  const pt=seg(t,0.35,0.6);if(pt>0){g.fillStyle=C.phat;g.globalAlpha=0.9;g.fillRect(L-34,B-b*S*pt,8,b*S*pt);g.globalAlpha=1;txt(g,'plug-in error bounded by outcome error',L+aw+14,B-b*S+8,C.phat,12,'left');}
-  // right: rate panel
-  const RL=470,RR=770,RT=70,RB=380;const rr=seg(t,0.55,1);if(rr>0){line(g,RL,RB,RR,RB,C.pen,1.2);line(g,RL,RB,RL,RT,C.pen,1.2);txt(g,'n',RR+8,RB,C.pen,14,'left',FS,true);txt(g,'error',RL-6,RT-14,C.pen,13,'left',FS,true);
-    const ns=[100,200,400,800,1600,3200,6400];const xN=i=>RL+(RR-RL)*(i+0.5)/ns.length;const yE=e=>RB-(RB-RT)*Math.min(e,0.55)/0.55;
-    for(const v of [0.25,0.5]){line(g,RL-4,yE(v),RL,yE(v),C.pen,1);txt(g,v.toFixed(2),RL-7,yE(v),C.muted,10,'right',FM);}
-    const series=[[`n^-${ra.toFixed(2)}  π̂ error`,i=>Math.pow(ns[i],-ra),C.green,null,1.8],[`n^-${rb.toFixed(2)}  μ̂ error`,i=>Math.pow(ns[i],-rb),C.purple,[2,3],1.8],[`n^-${sum.toFixed(2)}  their product`,i=>Math.pow(ns[i],-sum),C.or,null,2.8],['n^-0.50  sampling error',i=>Math.pow(ns[i],-0.5),C.teal,[5,4],2]];
-    series.forEach(([lab,f,col,dash,w],k)=>{const pts=[];for(let i=0;i<ns.length*rr;i++)pts.push([xN(i),yE(f(i))]);if(pts.length>1)poly(g,pts,col,w,dash);txt(g,lab,RR-4,RT+16+k*17,col,12,'right',FM);});
-    if(rr>=1)txt(g,short,RL,RB+34,C.or,11.5,'left');
-    for(let i=0;i<ns.length;i+=2)txt(g,ns[i],xN(i),RB+14,C.muted,10.5,'center',FM);}
-  const area=a*b;document.getElementById('ro7').innerHTML=`<span class="k">‖π̂−π‖·‖μ̂−μ‖</span><span>${area.toFixed(3)}</span><span class="k">plug-in ∝</span><span>${b.toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span><span class="k">α + β</span><span>${sum.toFixed(2)} ${sum>0.5001?'> ½':Math.abs(sum-0.5)<1e-4?'= ½':'< ½'}</span>`;
-  document.getElementById('cap7').textContent=t<0.35?'The remainder is bounded by the product of the two nuisance errors: the area of this rectangle.':t<0.55?'A plug-in error can be bounded by outcome error; cancellation or a faster target rate is possible.':`Rates: π̂ at n^−${ra.toFixed(2)} (green) and μ̂ at n^−${rb.toFixed(2)} (purple) make the product n^−${sum.toFixed(2)} (orange), against sampling error at n^−0.50 (teal). The product is ${verdict}. A sum above ½ makes this bound negligible on the √n scale, which is sufficient under the other conditions; a sum of ½ or less means the bound cannot show the remainder is negligible, though signed contributions can still cancel.`;
-},{playLabel:'Reveal'});
+const C7=2.5; // sampling scale: the product must fall below C7/√n
+const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);
+  const a=+document.getElementById('a7').value,b=+document.getElementById('b7').value,al=+document.getElementById('ra7').value,be=+document.getElementById('rb7').value,sum=al+be;
+  const n=Math.pow(10,2+3*t),eg=a*Math.pow(n/100,-be),em=b*Math.pow(n/100,-al),area=eg*em,band=C7/Math.sqrt(n);
+  document.getElementById('v7n').textContent=Math.round(n).toLocaleString('en-US');
+  const halo=(s,x,y,col,size,al2,font)=>{g.save();g.font=`${size}px ${font||F}`;g.textAlign=al2||'left';g.textBaseline='middle';g.lineWidth=4;g.strokeStyle=C.paper;g.lineJoin='round';g.strokeText(s,x,y);g.restore();txt(g,s,x,y,col,size,al2,font);};
+  // ---- left: the error plane ----
+  const L=96,R=410,T=52,B=380,sx=v=>L+(R-L)*v,sy=v=>B-(B-T)*v;
+  for(const v of [0.25,0.5,0.75,1]){line(g,sx(v),T,sx(v),B,C.grid,1);line(g,L,sy(v),R,sy(v),C.grid,1);}
+  // region under the hyperbola x·y = c/√n
+  g.beginPath();g.moveTo(sx(0),sy(0));g.lineTo(sx(0),sy(1));const x0=Math.min(1,band);g.lineTo(sx(x0),sy(1));
+  const hyp=[];for(let k=0;k<=80;k++){const x=x0+(1-x0)*k/80;hyp.push([sx(x),sy(Math.min(1,band/x))]);}
+  hyp.forEach(p=>g.lineTo(p[0],p[1]));g.lineTo(sx(1),sy(0));g.closePath();g.fillStyle=C.or;g.globalAlpha=0.13;g.fill();g.globalAlpha=1;
+  poly(g,hyp,C.or,2);
+  // rectangle
+  g.fillStyle=C.purple;g.globalAlpha=0.2;g.fillRect(sx(0),sy(em),sx(eg)-sx(0),sy(0)-sy(em));g.globalAlpha=1;
+  poly(g,[[sx(0),sy(0)],[sx(eg),sy(0)],[sx(eg),sy(em)],[sx(0),sy(em)]],C.purple,2,null,true);dot(g,sx(eg),sy(em),C.purple,5,true);
+  // axes
+  line(g,L,B,R,B,C.pen,1.4);line(g,L,B,L,T,C.pen,1.4);
+  for(const v of [0,0.5,1]){txt(g,v.toFixed(1),sx(v),B+16,C.muted,12,'center',FM);txt(g,v.toFixed(1),L-8,sy(v),C.muted,12,'right',FM);}
+  txt(g,'propensity error ‖π̂ − π‖',(L+R)/2,B+40,C.pen,14,'center',FS,true);
+  g.save();g.translate(L-46,(T+B)/2);g.rotate(-Math.PI/2);txt(g,'outcome error ‖μ̂ − μ‖',0,0,C.pen,14,'center',FS,true);g.restore();
+  txt(g,'n = '+Math.round(n).toLocaleString('en-US'),L,T-26,C.pen,14,'left',FM);
+  txt(g,'shaded: product ≤ c/√n',R,T-26,C.or,13,'right',F);
+  const big=(sx(eg)-sx(0))>120&&(sy(0)-sy(em))>44;
+  halo('area = '+area.toFixed(3),big?(sx(0)+sx(eg))/2:sx(eg)+10,big?(sy(0)+sy(em))/2:sy(em)-14,C.purple,14,big?'center':'left',FM);
+  // ---- right: rates on log-log axes ----
+  const RL=520,RR=660,RT=52,RB=380,lx=v=>RL+(RR-RL)*(v-2)/3,ly=v=>RB-(RB-RT)*(Math.max(-3.2,v)+3.2)/3.2; // log10 value in [-3.2, 0]
+  for(const v of [0,-1,-2,-3]){line(g,RL,ly(v),RR,ly(v),C.grid,1);txt(g,v===0?'1':'10'+['','⁻¹','⁻²','⁻³'][-v],RL-8,ly(v),C.muted,12,'right',FM);}
+  for(const v of [2,3,4,5]){line(g,lx(v),RB,lx(v),RB+4,C.pen,1);txt(g,'10'+['²','³','⁴','⁵'][v-2],lx(v),RB+16,C.muted,12,'center',FM);}
+  line(g,RL,RB,RR,RB,C.pen,1.4);line(g,RL,RB,RL,RT,C.pen,1.4);
+  txt(g,'n (log scale)',(RL+RR)/2,RB+40,C.pen,14,'center',FS,true);txt(g,'error (log scale)',RL-44,RT-26,C.pen,14,'left',FS,true);
+  const series=[
+    ['π̂ error',u=>a*Math.pow(10,-be*(u-2)),C.teal,null,2],
+    ['μ̂ error',u=>b*Math.pow(10,-al*(u-2)),C.p,[6,4],2],
+    ['product (area)',u=>a*b*Math.pow(10,-sum*(u-2)),C.purple,null,2.8],
+    ['c/√n',u=>C7*Math.pow(10,-u/2),C.or,[3,3],2]];
+  const ends=[];
+  series.forEach(([lab,f,col,dash,w])=>{const pts=[];for(let k=0;k<=60;k++){const u=2+3*k/60,v=f(u);if(v>0)pts.push([lx(u),ly(Math.log10(v))]);}
+    // dashed μ̂ over solid π̂ keeps both visible when they coincide
+    poly(g,pts,col,w,dash);const v=f(5);ends.push({lab,col,y:ly(v>0?Math.log10(v):-3.2)});});
+  // de-overlap the end labels (at least 17 px apart), keeping their order
+  ends.sort((p,q)=>p.y-q.y);for(let i=1;i<ends.length;i++)ends[i].y=Math.max(ends[i].y,ends[i-1].y+17);
+  const over=ends[ends.length-1].y-(RB-4);if(over>0)ends.forEach(e=>e.y-=over);
+  for(let i=ends.length-2;i>=0;i--)ends[i].y=Math.min(ends[i].y,ends[i+1].y-17);
+  ends.forEach(e=>txt(g,e.lab,RR+8,e.y,e.col,12.5,'left',F));
+  // current n
+  line(g,lx(2+3*t),RT,lx(2+3*t),RB,C.muted,1,[2,3]);[series[2]].forEach(([,f,col])=>dot(g,lx(2+3*t),ly(Math.log10(f(2+3*t))),col,4.5,true));
+  const verdict=sum>0.5001?'shrinks faster than c/√n: the bound becomes negligible':Math.abs(sum-0.5)<1e-4?'shrinks exactly like c/√n: the boundary case':'shrinks more slowly than c/√n: the bound dominates';
+  document.getElementById('ro7').innerHTML=`<span class="k">n</span><span>${Math.round(n).toLocaleString('en-US')}</span><span class="k">‖π̂−π‖ · ‖μ̂−μ‖</span><span>${eg.toFixed(3)} × ${em.toFixed(3)} = ${area.toFixed(4)}</span><span class="k">c/√n</span><span>${band.toFixed(4)}</span><span class="k">√n · area</span><span>${(Math.sqrt(n)*area).toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span><span class="k">α + β</span><span>${sum.toFixed(2)} ${sum>0.5001?'> ½':Math.abs(sum-0.5)<1e-4?'= ½':'< ½'}</span>`;
+  document.getElementById('cap7').textContent=(a===0||b===0)?'One side is zero, so the rectangle has no area at any n: the remainder bound vanishes however slowly the other error shrinks. That is double robustness of the point estimate.':
+    `The remainder is bounded by the rectangle's area, ‖π̂ − π‖ · ‖μ̂ − μ‖. Play grows n from 100 to 100,000: both sides shrink, and so does the shaded region under the hyperbola, whose edge is c/√n, the scale of sampling error. With α + β = ${sum.toFixed(2)} the product ${verdict}. A sum above ½ is sufficient under the other conditions; at ½ or below this bound cannot show the remainder is negligible, though signed contributions can still cancel.`;
+},{dur:7000});
 bind('a7','v7a',v=>v.toFixed(2),()=>S7.draw());bind('b7','v7b',v=>v.toFixed(2),()=>S7.draw());bind('ra7','v7ra',v=>v.toFixed(2),()=>S7.draw());bind('rb7','v7rb',v=>v.toFixed(2),()=>S7.draw());
 
 // ============ SCENE 8 ============
@@ -397,10 +430,11 @@ const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('c8s'
   dot(g,nx(psiPh),NL,C.phat,6,true);txt(g,'plug-in',nx(psiPh),NL+34,C.phat,13,'center',FS,true);
   arrow(g,nx(psiPh),NL-14,nx(os),NL-14,C.teal,1.6);dot(g,nx(os),NL,C.teal,5,true);txt(g,'one-step (jump)',nx(os)+(psiT<os?10:-10),NL+34,C.teal,13,psiT<os?'left':'right',FS,true);
   if(show>0){dot(g,nx(psi(...cur)),NL,C.purple,6,true);}if(show>=path8.length-1)txt(g,'updated plug-in ψ(P̂*)',nx(psiT)+(psiT<os?-10:10),NL-52,C.purple,13,psiT<os?'right':'left',FS,true);
-  const score=gc[0]*(Pn8[0]-cur[0])+gc[1]*(Pn8[1]-cur[1]);
-  document.getElementById('ro8').innerHTML=`<span class="k">step</span><span>${show} / ${path8.length-1}</span><span class="k">Pₙϕ at P̃</span><span>${score.toFixed(4)}</span><span class="k">ψ(P̃) now</span><span>${psi(...cur).toFixed(3)}</span><span class="k">one-step</span><span>${os.toFixed(3)}</span><span class="k">updated plug-in</span><span>${psiT.toFixed(3)}</span><span class="k">ψ(P)</span><span>${psiP.toFixed(3)}</span>`;
-  document.getElementById('cap8').textContent=shown8===0?'The green field is the efficient influence function at each point: the gradient of ψ, the hardest direction. Start at P̂.':show<path8.length-1?'Move along the current direction by the ε̂ that zeroes the score on that line; then re-aim.':(document.getElementById('mode8').value==='fixed'?'One line fit has finished. Inspect the updated EIF score: with curvature it may still be nonzero.':'The iterated fits stop when the updated EIF score is small. The one-step corrects the number directly.');
-},{noplay:true,onT:t=>{shown8=Math.floor(t*Math.max(1,path8.length-1)+1e-9);}});
+  const score=gc[0]*(Pn8[0]-cur[0])+gc[1]*(Pn8[1]-cur[1]);const psiPn=psi(...Pn8),sg=v=>(v<0?'−':'+')+Math.abs(v).toFixed(2);
+  const gap=`Why ψ(P̂*) = ${psiT.toFixed(2)} and not ψ(P) = ${psiP.toFixed(2)}: ψ(Pₙ) − ψ(P) = ${sg(psiPn-psiP)} is sampling error (TMLE aims at the sample Pₙ, not at P), and ψ(P̂*) − ψ(Pₙ) = ${sg(psiT-psiPn)} is the second-order remainder, large here because P̂ starts far from Pₙ on a curved ψ. Set the curvature to 0 and the remainder vanishes.`;
+  document.getElementById('ro8').innerHTML=`<span class="k">step</span><span>${show} / ${path8.length-1}</span><span class="k">Pₙϕ at P̃</span><span>${score.toFixed(4)}</span><span class="k">ψ(P̃) now</span><span>${psi(...cur).toFixed(3)}</span><span class="k">one-step</span><span>${os.toFixed(3)}</span><span class="k">updated plug-in</span><span>${psiT.toFixed(3)}</span><span class="k">ψ(Pₙ)</span><span>${psiPn.toFixed(3)}</span><span class="k">ψ(P)</span><span>${psiP.toFixed(3)}</span>`;
+  document.getElementById('cap8').textContent=shown8===0?'The green field is the efficient influence function at each point: the gradient of ψ, the hardest direction. Start at P̂.':show<path8.length-1?'Move along the current direction by the ε̂ that zeroes the score on that line; then re-aim.':(document.getElementById('mode8').value==='fixed'?'One line fit has finished. Inspect the updated EIF score: with curvature it may still be nonzero. ':'The iterated fits stop when the updated EIF score is small. The one-step corrects the number directly. ')+gap;
+},{noplay:true,onT:t=>{shown8=Math.max(0,Math.floor(t*Math.max(1,path8.length-1)+1e-9));}});
 const steps8=()=>Math.max(1,tmle8().length-1);
 const reset8=()=>{S8.pause();shown8=0;S8.t=0;S8.draw();};
 document.getElementById('st8').onclick=()=>{S8.pause();shown8=Math.min(shown8+1,steps8());S8.t=shown8/steps8();S8.draw();};

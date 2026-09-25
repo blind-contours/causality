@@ -22,7 +22,8 @@
       survival: `the difference in the chance of being alive at ${c.horizon} years`,
       rmst: `the difference in average time alive within ${c.horizon} years (RMST)`,
     }[c.measure];
-    return `Among ${who}, compare ${question} under treatment versus control. ${Math.round(c.population * 100)}% of the whole cohort has high baseline severity. The selected people are held fixed across both intervention worlds.`;
+    const ice = c.intercurrent && typeof c.intercurrent.sentence === "string" ? ` Intercurrent events: ${c.intercurrent.sentence}` : "";
+    return `Among ${who}, compare ${question} under treatment versus control. ${Math.round(c.population * 100)}% of the whole cohort has high baseline severity. The selected people are held fixed across both intervention worlds.${ice}`;
   }
   function migrate(legacy = {}) {
     return {

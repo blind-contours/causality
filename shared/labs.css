@@ -590,7 +590,7 @@ svg.fig .mark-ref {
 }
 .figure .fig-readout {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 12.5px;
+  font-size: 13px;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 12px;

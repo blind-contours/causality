@@ -11,14 +11,31 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/r-drawer.css" />
+<script src="../shared/r-drawer.js" defer></script>
+<style>
+.fp-wrap{overflow-x:auto;max-width:100%}
+table.fp{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:13px;margin:8px 0;min-width:640px;background:var(--paper);border:1px solid var(--rule)}
+table.fp th,table.fp td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+table.fp th{font-weight:500;color:var(--muted)}
+table.fp td:first-child,table.fp th:first-child{text-align:left}
+table.fp tr.rare td{background:color-mix(in srgb,var(--or) 9%,var(--paper))}
+table.fp td.star{color:var(--purple);font-weight:500}
+.scroll-hint{display:none;font-size:13px;color:var(--muted);margin:10px 0 0}
+@media (max-width:700px){.scroll-hint{display:block}}
+.bin-legend{display:flex;flex-direction:column;gap:3px;font-size:13.5px;margin-top:8px;color:var(--ink)}
+.bin-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.bin-legend .out{color:var(--red);font-weight:600}
+</style>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
+<script src="../shared/anim.js"></script>
 </head>
 <body data-lesson="clever-covariate">
 <div class="wrap">
 <div class="eyebrow">From "any direction h" to "the direction we use"</div>
 <h1>Where the Clever Covariate Comes From</h1>
-<p class="lede">So far h was anything with mean zero, and ϕ told you the slope of ψ along it. Now the question flips: you have an initial fit P̂ that is wrong, and you want to move it. Which direction? This page shows that the answer is h = ϕ<sub>P̂</sub>, the influence function at your current fit, for three reasons that are each a picture. The last picture is the ATE, and the direction there is the clever covariate.</p>
+<p class="lede">The two-strata lesson found the direction to move the fit by budgeting: spend likelihood where ψ gets the most for it, and the answer was 1/π. This lesson derives the same direction in general. You have an initial fit P̂ that is wrong, and you want to move it. Which direction? The answer is h = ϕ<sub>P̂</sub>, the influence function at your current fit, for three reasons that are each a picture. For the ATE that direction is the clever covariate, and for a binary outcome the move is made on the logit scale, which is TMLE's practical selling point: its estimates stay inside [0, 1] when a one-step correction can leave it.</p>
 
 <!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
@@ -83,10 +100,35 @@
     <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
     <label>Shrinkage on the initial outcome model's treatment effect λ <span class="v" id="v4l">0.60</span><input type="range" id="l4" min="0" max="1" step="0.05" value="0.6"></label>
     <div class="readout" id="ro4"></div>
-    <div class="note">With a Gaussian outcome the fluctuation is linear and ε̂ = Σ H(Y − μ̂) / Σ H². For binary Y it's on the logit scale, which keeps μ<sub>ε</sub> in [0, 1]; the score equation is the same.</div>
+    <div class="note">With a Gaussian outcome the fluctuation is linear and ε̂ = Σ H(Y − μ̂) / Σ H². For binary Y it's on the logit scale, which keeps μ<sub>ε</sub> in [0, 1]; the score equation is the same. Scene 5 shows why that matters.</div>
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The clever covariate is the coefficient of the outcome residual in the efficient influence function. Fluctuating the outcome regression along it, with ε chosen by likelihood, solves the empirical EIF equation for the ATE. The inverse-propensity weights are in it because that's how much each observation's residual moves the parameter.</div>
+
+<!-- SCENE 5 -->
+<div class="eyebrow">Scene 5</div>
+<h2>For a binary outcome, fluctuate on the logit scale and stay inside [0, 1]</h2>
+<p>Now Y is an event (1 = yes). Eight patients, an initial outcome model Q̂(a, x) = P(Y = 1 | A = a, X = x), and a propensity π(x). Patients 7 and 8 share a covariate value where treatment is rare, and patient 7 was treated anyway and had the event that the model thought unlikely (Q̂ = 0.30). The one-step estimator adds the mean of H·(Y − Q̂) to the plug-in, and H = 1/π for patient 7 is large. Nothing stops that sum from carrying an estimated risk above 1.</p>
+<p>TMLE moves the model instead: logit Q*(1, x) = logit Q̂(1, x) + ε₁/π(x) for the treated regression and logit Q*(0, x) = logit Q̂(0, x) + ε₀/(1 − π(x)) for the control one (the two pieces of H, one ε each), with ε chosen by logistic maximum likelihood. Every Q* is an expit, so every Q* is a probability, and so is their mean.</p>
+<div class="eq">logit Q*(a, x) = logit Q̂(a, x) + ε_a · H_a(x),   H₁ = 1/π,   H₀ = 1/(1 − π)        score:  Σ_{A=a} H_a (Y − Q*) = 0<br>ψ* = (1/n) Σᵢ [Q*(1, Xᵢ) − Q*(0, Xᵢ)]        one-step = ψ̂ + (1/n) Σᵢ H(Aᵢ, Xᵢ)(Yᵢ − Q̂(Aᵢ, Xᵢ))</div>
+<div class="predict" data-options="Also above 1|A number inside [0, 1]|Exactly 1" data-answer="1" data-hint="Q*(1, x) is an expit of something, so it is strictly between 0 and 1, and so is the average of eight of them.">With π = 0.10 for patient 7, the one-step estimate of the treated risk E[Y(1)] is 1.41, an impossible probability. What will the logistic TMLE give?</div>
+<div class="scene" data-title="Binary outcome: logistic fluctuation">
+  <div class="figure" id="bin-fig"></div>
+  <div class="ctl">
+    <label>Propensity of patients 7 and 8, π(x₇) <span class="v" id="bin-pi-v">0.10</span><input id="bin-pi" type="range" min="0.05" max="0.5" step="0.01" value="0.1"></label>
+    <div class="readout" id="bin-ro"></div>
+    <div class="note">Slide π(x₇) up to 0.5 and the one-step comes back inside [0, 1]: the problem is the large weight 1/π on a surprising outcome, which is exactly the near-positivity situation where a bounded estimator is worth having.</div>
+  </div>
+</div>
+<p class="scroll-hint" aria-hidden="true">Swipe the table sideways to see every column →</p>
+<div class="fp-wrap" tabindex="0" role="region" aria-label="Eight-patient table, scrolls sideways"><table class="fp" id="bin-table"></table></div>
+<p class="math" id="bin-psi"></p>
+<p class="math" id="bin-score"></p>
+<p class="note">This example has a finite logistic fit in each arm. Completely separated samples (every treated Y equal to 1, say) put the optimum at ε = ±∞; they need separate diagnostics.</p>
+<div class="say"><b>In one sentence</b>The logistic fluctuation solves the same score equation as the linear one, but every updated prediction is a probability, so the TMLE of a risk is a risk and the TMLE of a risk difference lies in [−1, 1]; the one-step estimator adds an unbounded correction and can leave the parameter space when weights are large.</div>
+<p class="note">What is exact here: every number in Scene 5 and the grid computations of Scenes 2 and 3. What is simulated: the samples in Scenes 3 and 4 (press New sample). What is schematic: the Gaussian-mixture truth and the linear outcome model in Scene 4.</p>
+<div data-r="tmle-ate"></div>
+<p class="sources">Further reading: <a href="https://doi.org/10.2202/1557-4679.1043">van der Laan and Rubin (2006), Targeted maximum likelihood learning</a>; <a href="https://doi.org/10.2202/1557-4679.1260">Gruber and van der Laan (2010), A targeted maximum likelihood estimator of a causal effect on a bounded continuous outcome</a>; <a href="https://doi.org/10.1093/aje/kww165">Schuler and Rose (2017), Targeted maximum likelihood estimation for causal inference in observational studies</a>; <a href="https://doi.org/10.1007/978-1-4419-9782-1">van der Laan and Rose (2011), Targeted Learning</a>.</p>
 </div>
 
 <script>
@@ -215,22 +257,30 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const lam=+document.getElementById('l4
   const muE=(x,a)=>mu(x,a)+eps*Hc(a,x);
   const L=60,R=520,T=40,B=330;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);
   // points with residual sticks weighted by |H|
-  const st=seg(t,0,0.35);for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];const col=a?C.p:C.red;if(st>0.5){const Hi=Math.abs(Hc(a,x));g.globalAlpha=0.35;line(g,xs(x),ys(muE(x,a)),xs(x),ys(y),col,Math.min(7,0.7*Hi));g.globalAlpha=1;}dot(g,xs(x),ys(y),col,2.2);}
+  const st=seg(t,0,0.35);for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];const col=a?C.p:C.teal;if(st>0.5){const Hi=Math.abs(Hc(a,x));g.globalAlpha=0.35;line(g,xs(x),ys(muE(x,a)),xs(x),ys(y),col,Math.min(7,0.7*Hi));g.globalAlpha=1;}dot(g,xs(x),ys(y),col,2.2);}
   // regression curves before/after
-  for(const a of [1,0]){const c0=[],c1=[];for(let x=-2;x<=2.001;x+=0.05){c0.push([xs(x),ys(mu(x,a))]);c1.push([xs(x),ys(muE(x,a))]);}poly(g,c0,a?C.p:C.red,1.4,[5,4]);poly(g,c1,a?C.p:C.red,2.4);}
-  txt(g,'dashed: initial μ̂_a(x)   solid: μ̂_a(x) + ε·H(a,x)',L+10,T-14,C.pen,12.5,'left',FS,true);txt(g,'stick width ∝ |H| = 1/P(observed arm | x)',L+10,B+34,C.muted,12,'left');
+  for(const a of [1,0]){const c0=[],c1=[];for(let x=-2;x<=2.001;x+=0.05){c0.push([xs(x),ys(mu(x,a))]);c1.push([xs(x),ys(muE(x,a))]);}poly(g,c0,a?C.p:C.teal,1.4,[5,4]);poly(g,c1,a?C.p:C.teal,2.4);}
+  txt(g,'dashed: initial μ̂_a(x)   solid: μ̂_a(x) + ε·H(a,x)',L+10,T-14,C.pen,12.5,'left',FS,true);txt(g,'stick width ∝ |H| = 1/P(observed arm | x)',L+10,T+8,C.muted,11,'left');
   // H strip
-  const HT=360,HB=420;txt(g,'clever covariate H(a,x) for each arm',L,HT-10,C.pen,12.5,'left',FS,true);line(g,L,(HT+HB)/2,R,(HT+HB)/2,C.grid,1);const h1=[],h0=[];for(let x=-2;x<=2.001;x+=0.05){h1.push([xs(x),(HT+HB)/2-Math.min(6,1/pi(x))*4]);h0.push([xs(x),(HT+HB)/2+Math.min(6,1/(1-pi(x)))*4]);}poly(g,h1,C.p,1.8);poly(g,h0,C.red,1.8);txt(g,'A=1: 1/π(x)',R-8,HT+4,C.p,11,'right',FS,true);txt(g,'A=0: −1/(1−π(x))',R-8,HB-4,C.red,11,'right',FS,true);
+  const HT=384,HB=436;txt(g,'clever covariate H(a,x) for each arm',L,HT-10,C.pen,12.5,'left',FS,true);line(g,L,(HT+HB)/2,R,(HT+HB)/2,C.grid,1);const h1=[],h0=[];for(let x=-2;x<=2.001;x+=0.05){h1.push([xs(x),(HT+HB)/2-Math.min(6,1/pi(x))*4]);h0.push([xs(x),(HT+HB)/2+Math.min(6,1/(1-pi(x)))*4]);}poly(g,h1,C.p,1.8);poly(g,h0,C.teal,1.8);txt(g,'A=1: 1/π(x)',R-8,HT+4,C.p,11,'right',FS,true);txt(g,'A=0: −1/(1−π(x))',R-8,HB+8,C.teal,11,'right',FS,true);
   // psi values
   let plug=0,tm=0,corr=0;for(let i=0;i<d.n;i++){const x=d.X[i];plug+=mu(x,1)-mu(x,0);tm+=muE(x,1)-muE(x,0);corr+=Hc(d.A[i],x)*(d.Y[i]-mu(x,d.A[i]));}plug/=d.n;tm/=d.n;corr/=d.n;
   let scoreE=0;for(let i=0;i<d.n;i++)scoreE+=Hc(d.A[i],d.X[i])*(d.Y[i]-muE(d.X[i],d.A[i]));scoreE/=d.n;
   const RL=560;txt(g,'score equation',RL,60,C.pen,13,'left',FS,true);txt(g,'Pₙ[ H · (Y − μ_ε) ]',RL,82,C.muted,12,'left',FM);txt(g,`at ε = 0:  ${corr.toFixed(4)}`,RL,104,C.teal,12,'left',FM);txt(g,`at ε = ${eps.toFixed(3)}:  ${scoreE.toFixed(4)}`,RL,124,C.purple,12,'left',FM);
   txt(g,'ε̂ = Σ H(Y−μ̂) / Σ H²',RL,156,C.muted,11.5,'left',FM);txt(g,`= ${ehat.toFixed(4)}`,RL,176,C.purple,13,'left',FM);
-  txt(g,'ATE estimates',RL,222,C.pen,13,'left',FS,true);txt(g,`plug-in       ${plug.toFixed(3)}`,RL,244,C.phat,12,'left',FM);txt(g,`one-step      ${(plug+corr).toFixed(3)}`,RL,264,C.teal,12,'left',FM);txt(g,`TMLE (ε now)  ${tm.toFixed(3)}`,RL,284,C.purple,12,'left',FM);txt(g,'truth         2.000',RL,304,C.p,12,'left',FM);
-  // number line
-  const NL=470,nx=v=>60+(520-60)*(v-0.5)/3;line(g,60,NL,520,NL,C.pen,1.2);for(let v=1;v<=3;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,v.toFixed(1),nx(v),NL+14,C.muted,10.5,'center',FM);}
-  line(g,nx(2),NL-20,nx(2),NL+6,C.p,2);txt(g,'truth',nx(2),NL-30,C.p,11.5,'center',FS,true);dot(g,nx(plug),NL,C.phat,6,true);txt(g,'plug-in',nx(plug),NL+30,C.phat,11.5,'center',FS,true);dot(g,nx(tm),NL,C.purple,6,true);if(t>0.85)txt(g,'TMLE',nx(tm),NL-30,C.purple,11.5,'center',FS,true);dot(g,nx(plug+corr),NL-12,C.teal,4,true);
-  txt(g,'The pull is largest where H is largest: controls at high x, treated at low x. The regression moves most where the arm is rare.',60,515,C.muted,12,'left');
+  txt(g,'ATE estimates',RL,222,C.pen,13,'left',FS,true);txt(g,`● plug-in     ${plug.toFixed(3)}`,RL,244,C.or,12,'left',FM);txt(g,`○ one-step    ${(plug+corr).toFixed(3)}`,RL,264,C.purple,12,'left',FM);txt(g,`● TMLE (ε now) ${tm.toFixed(3)}`,RL,284,C.purple,12,'left',FM);txt(g,'┆ truth       2.000',RL,304,C.green,12,'left',FM);
+  // number line: the range always contains every plotted value; labels take the first free slot above or below
+  const vals=[['truth',2,C.green],['plug-in',plug,C.or],['one-step',plug+corr,C.purple],['TMLE',tm,C.purple]];
+  const vmin=Math.min(...vals.map(v=>v[1])),vmax=Math.max(...vals.map(v=>v[1]));
+  const span=Math.max(0.4,vmax-vmin),lo=vmin-0.12*span,hi=vmax+0.12*span,NL=492,NX0=70,NX1=510,nx=v=>NX0+(NX1-NX0)*(v-lo)/(hi-lo);
+  const stp=[0.05,0.1,0.2,0.25,0.5,1].find(q=>(hi-lo)/q<=7);line(g,NX0-10,NL,NX1+10,NL,C.pen,1.2);
+  for(let v=Math.ceil(lo/stp)*stp;v<=hi+1e-9;v+=stp){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,(+v.toFixed(2)).toString(),nx(v),NL+14,C.muted,10.5,'center',FM);}
+  txt(g,'ATE',NX0-18,NL,C.muted,11,'right',FS,true);
+  line(g,nx(2),NL-22,nx(2),NL+6,C.green,2,[4,3]);dot(g,nx(plug),NL,C.or,6,true);
+  g.strokeStyle=C.purple;g.lineWidth=2.2;g.beginPath();g.arc(nx(plug+corr),NL,7,0,6.283);g.stroke();dot(g,nx(tm),NL,C.purple,4.5,true);
+  const slots=[NL-17,NL+29,NL-31,NL+43],used=slots.map(()=>[]);
+  [...vals].sort((a,b)=>a[1]-b[1]).forEach(([name,v,col])=>{const x=clamp(nx(v),NX0+10,NX1-10);let k=slots.findIndex((_,i)=>used[i].every(u=>Math.abs(u-x)>62));if(k<0)k=3;used[k].push(x);txt(g,name,x,slots[k],col,11.5,'center',FS,true);});
+  txt(g,'The pull is largest where H is largest: controls at high x, treated at low x. The regression moves most where the arm is rare.',60,553,C.muted,12,'left');
   document.getElementById('ro4').innerHTML=`<span class="k">Pₙ H(Y−μ̂)</span><span>${corr.toFixed(4)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Pₙ H(Y−μ_ε̂)</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=Hc(d.A[i],d.X[i])*(d.Y[i]-mu(d.X[i],d.A[i])-ehat*Hc(d.A[i],d.X[i]));return (s/d.n).toExponential(1)})()}</span><span class="k">plug-in</span><span>${plug.toFixed(3)}</span><span class="k">TMLE</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=mu(d.X[i],1)+ehat*Hc(1,d.X[i])-mu(d.X[i],0)-ehat*Hc(0,d.X[i]);return (s/d.n).toFixed(3)})()}</span>`;
   document.getElementById('cap4').textContent=t<0.35?'Cohort and the initial (shrunk) outcome model. Residual sticks are as wide as the clever covariate is large.':t<0.85?'Fluctuate μ̂ along H by ε. Where H is large the curve moves a lot; where the arm is common it barely moves.':'At ε̂ the score equation Pₙ H(Y − μ_ε) = 0 holds. Plug the fluctuated regression into g-computation: that is the TMLE.';
 });
@@ -242,9 +292,65 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
 new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
+<script>
+// ---------- SCENE 5: binary outcome, logistic fluctuation vs linear one-step ----------
+(function(){
+const {el,html,Plot,fmt}=CausalAnim,S=CausalScience;
+const expit=z=>1/(1+Math.exp(-z)),logit=p=>Math.log(p/(1-p)),mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+// [π(x), A, Y, Q̂(1,x), Q̂(0,x)]; patients 7 and 8 share the covariate value whose propensity the slider sets
+const base=[[0.8,1,1,0.70,0.50],[0.8,0,0,0.70,0.50],[0.6,1,1,0.60,0.40],[0.6,0,1,0.60,0.40],[0.5,1,0,0.55,0.35],[0.5,0,0,0.55,0.35],[null,1,1,0.30,0.20],[null,0,0,0.30,0.20]];
+function compute(p7){
+  const rows=base.map(r=>({pi:r[0]??p7,A:r[1],Y:r[2],q1:r[3],q0:r[4]}));
+  const T=rows.filter(r=>r.A),C=rows.filter(r=>!r.A);
+  // one ε per piece of H: the treated and control score equations separate
+  const f1=S.binaryTarget(T.map(r=>r.Y),T.map(r=>r.q1),T.map(r=>1/r.pi)),f0=S.binaryTarget(C.map(r=>r.Y),C.map(r=>r.q0),C.map(r=>1/(1-r.pi)));
+  rows.forEach(r=>{r.H=r.A/r.pi-(1-r.A)/(1-r.pi);r.s1=expit(logit(r.q1)+f1.epsilon/r.pi);r.s0=expit(logit(r.q0)+f0.epsilon/(1-r.pi));});
+  const plug1=mean(rows.map(r=>r.q1)),plug0=mean(rows.map(r=>r.q0));
+  const os1=plug1+mean(rows.map(r=>r.A/r.pi*(r.Y-r.q1))),os0=plug0+mean(rows.map(r=>(1-r.A)/(1-r.pi)*(r.Y-r.q0)));
+  const tm1=mean(rows.map(r=>r.s1)),tm0=mean(rows.map(r=>r.s0));
+  const score=mean(rows.map(r=>r.H*(r.Y-(r.A?r.s1:r.s0))));
+  return {rows,e1:f1.epsilon,e0:f0.epsilon,plug1,os1,tm1,plug:plug1-plug0,os:os1-os0,tm:tm1-tm0,score};
+}
+const fig=document.getElementById('bin-fig'),piIn=document.getElementById('bin-pi');
+const svg=el('svg',{class:'fig',role:'img','aria-label':'Two number lines. Top: the treated risk E[Y(1)], with its possible range 0 to 1 shaded. Bottom: the ATE, with its possible range minus 1 to 1 shaded. Plug-in, one-step and TMLE are marked on each.'});
+const legend=html('div',{class:'bin-legend'});
+fig.append(svg,legend);
+function draw(){
+  const p7=+piIn.value,r=compute(p7);
+  document.getElementById('bin-pi-v').textContent=p7.toFixed(2);
+  const vals=[r.plug1,r.os1,r.tm1,r.plug,r.os,r.tm];
+  const lo=Math.min(-1,...vals)-0.08,hi=Math.max(1,...vals)+0.08;
+  const P=new Plot(svg,{x:[lo,hi],y:[0,2],width:560,height:210,margin:{l:172,r:20,t:16,b:40},grid:false,yticks:[],xticks:[-1,-0.5,0,0.5,1,1.5,2,2.5].filter(v=>v>=lo&&v<=hi),xlabel:'estimate'});
+  const row=(y,name,sub,band,pl,os,tm)=>{
+    P.marks.append(el('rect',{x:P.sx(band[0]),y:P.sy(y+0.34),width:P.sx(band[1])-P.sx(band[0]),height:P.sy(y-0.34)-P.sy(y+0.34),style:'fill:var(--green);opacity:.13'}));
+    P.line([[lo,y],[hi,y]],{style:'stroke:var(--grid);stroke-width:1'});
+    P.fg.append(el('text',{class:'fig-text ink',x:8,y:P.sy(y)-2},name),el('text',{class:'fig-text',x:8,y:P.sy(y)+16},sub));
+    const out=os<band[0]||os>band[1];
+    P.marks.append(el('circle',{cx:P.sx(pl),cy:P.sy(y),r:6,style:'fill:var(--or);stroke:var(--paper);stroke-width:2'}));
+    P.marks.append(el('circle',{cx:P.sx(os),cy:P.sy(y),r:7.5,style:'fill:none;stroke:'+(out?'var(--red)':'var(--purple)')+';stroke-width:2.5'}));
+    P.marks.append(el('circle',{cx:P.sx(tm),cy:P.sy(y),r:6,style:'fill:var(--purple);stroke:var(--paper);stroke-width:2'}));
+    return out;};
+  const out1=row(1.45,'E[Y(1)]','risk in [0, 1]',[0,1],r.plug1,r.os1,r.tm1),outA=row(0.55,'ATE','in [−1, 1]',[-1,1],r.plug,r.os,r.tm);
+  const it=(col,ring,text,cls)=>html('span',{class:cls||''},html('i',{style:ring?`border:2.5px solid ${col};box-sizing:border-box`:`background:${col}`}),text);
+  legend.replaceChildren(
+    it('var(--or)',false,`plug-in: risk ${r.plug1.toFixed(3)}, ATE ${r.plug.toFixed(3)}`),
+    it(out1||outA?'var(--red)':'var(--purple)',true,`one-step (linear correction): risk ${r.os1.toFixed(3)}, ATE ${r.os.toFixed(3)}`+(out1||outA?'  (outside the possible range)':''),out1||outA?'out':''),
+    it('var(--purple)',false,`TMLE (logistic fluctuation): risk ${r.tm1.toFixed(3)}, ATE ${r.tm.toFixed(3)}`),
+    html('span',{style:'color:var(--muted)'},'Shaded bands: the values a risk and a risk difference can take.'));
+  document.getElementById('bin-table').innerHTML='<thead><tr><th>Patient</th><th>π(X)</th><th>A</th><th>Y</th><th>Q̂(1,X)</th><th>Q̂(0,X)</th><th>H(A,X)</th><th>Q*(1,X)</th><th>Q*(0,X)</th></tr></thead><tbody>'+
+    r.rows.map((q,i)=>`<tr${i>=6?' class="rare"':''}><td>${i+1}</td><td>${q.pi.toFixed(2)}</td><td>${q.A}</td><td>${q.Y}</td><td>${q.q1.toFixed(2)}</td><td>${q.q0.toFixed(2)}</td><td>${q.H>0?'+':''}${q.H.toFixed(2)}</td><td class="star">${q.s1.toFixed(3)}</td><td class="star">${q.s0.toFixed(3)}</td></tr>`).join('')+
+    `<tr><td>mean</td><td></td><td></td><td></td><td>${r.plug1.toFixed(3)}</td><td>${(r.plug1-r.plug).toFixed(3)}</td><td></td><td class="star">${r.tm1.toFixed(3)}</td><td class="star">${(r.tm1-r.tm).toFixed(3)}</td></tr></tbody>`;
+  document.getElementById('bin-psi').textContent=`ψ* = mean of Q*(1,X) − Q*(0,X) = ${r.tm1.toFixed(3)} − ${(r.tm1-r.tm).toFixed(3)} = ${r.tm.toFixed(3)}.   One-step = ψ̂ + Pₙ[H(Y − Q̂)] = ${r.plug.toFixed(3)} + ${(r.os-r.plug).toFixed(3)} = ${r.os.toFixed(3)}${r.os>1||r.os<-1?' (not a possible risk difference)':''}.`;
+  document.getElementById('bin-score').textContent=`ε̂₁ = ${r.e1.toFixed(4)} (treated, along 1/π), ε̂₀ = ${r.e0.toFixed(4)} (control, along 1/(1 − π)).  Pₙ[H(A,X)(Y − Q*(A,X))] = ${r.score.toExponential(1)}: the ATE score equation is solved.`;
+  document.getElementById('bin-ro').innerHTML=`<span class="k">π(x₇), weight 1/π</span><span>${p7.toFixed(2)}, ${(1/p7).toFixed(1)}</span><span class="k">risk: one-step</span><span${out1?' style="color:var(--red)"':''}>${r.os1.toFixed(3)}</span><span class="k">risk: TMLE</span><span>${r.tm1.toFixed(3)}</span><span class="k">ATE: one-step</span><span${outA?' style="color:var(--red)"':''}>${r.os.toFixed(3)}</span><span class="k">ATE: TMLE ψ*</span><span>${r.tm.toFixed(3)}</span>`;
+}
+piIn.addEventListener('input',draw);
+draw();
+})();
+</script>
 <script src="../shared/curriculum.js"></script>
 <script src="../shared/state.js"></script>
 <script src="../shared/practice.js"></script>
 <script src="../shared/course.js"></script>
-<script src="../labs/common.js"></script><script src="../labs/binary.js"></script></body>
+</body>
 </html>

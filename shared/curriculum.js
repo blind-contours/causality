@@ -249,7 +249,7 @@
             file: "08-four-patients.html",
             title: "Four Patients",
             blurb:
-              "Type the four values of D(Zᵢ) yourself and watch their mean equal the correction. Then ε̂ by hand.",
+              "Type the four values of D(Zᵢ) yourself and watch their mean equal the correction. Then ε̂, TMLE, a standard error and a 95% interval by hand.",
             recap: [
               {
                 q: "With four patients, the one-step correction PₙD(P̂) is:",
@@ -325,7 +325,7 @@
       id: "question",
       title: "Ask, identify, and choose a target",
       description:
-        "Start with the scientific question. Keep the estimand visible as the models change.",
+        "Start with the scientific question and write it down precisely, including what happens when patients die, cross over or stop treatment.",
       stage: "question",
       units: [
         add(
@@ -334,6 +334,52 @@
           "What are we trying to learn?",
           "Explore whose effect matters, absolute and relative risks, and survival gaps versus areas. Save your question, then test identification.",
           "identification",
+        ),
+        add(
+          "intercurrent-events",
+          "17-intercurrent-events.html",
+          "When something happens after treatment starts",
+          "Death, explant, crossover, rescue: the five ICH E9(R1) strategies rewrite what counts for each patient, and the answer moves with them.",
+          "question",
+        ),
+      ],
+    },
+    {
+      id: "design",
+      title: "Design the study you wish you had run",
+      description:
+        "Write the protocol of the randomized trial you would run, then emulate it with the data you have. Time zero, eligibility and assignment must line up.",
+      stage: "identification",
+      units: [
+        add(
+          "target-trial",
+          "18-target-trial.html",
+          "Design the target trial",
+          "Specify the trial, then emulate it. Drag time zero and watch immortal time manufacture a benefit.",
+          "identification",
+        ),
+        add(
+          "clone-censor-weight",
+          "19-clone-censor-weight.html",
+          "Clone, censor, weight",
+          "Copy each patient into every strategy, cut the copies that deviate, and reweight the rest.",
+          "identification",
+        ),
+      ],
+    },
+    {
+      id: "hook",
+      title: "The payoff, first",
+      description:
+        "Before any geometry: the same estimator the course builds, used where it is easiest to trust, in a randomized trial.",
+      stage: "estimation",
+      units: [
+        add(
+          "rct-adjustment",
+          "16-rct-adjustment.html",
+          "Your trial, adjusted",
+          "Adjust a randomized trial for prognostic covariates: same estimand, narrower interval. See how many patients it is worth, and why it stays valid.",
+          "estimation",
         ),
       ],
     },
@@ -364,17 +410,17 @@
       stage: "estimation",
       units: [
         old["one-step-estimator"],
-        old["one-move-two-faces"],
         old["two-strata"],
         old["clever-covariate"],
+        old["one-move-two-faces"],
         old["four-patients"],
       ],
     },
     {
       id: "inference",
-      title: "Know what your uncertainty means",
+      title: "Trust the answer",
       description:
-        "See the whole efficiency story in one picture, then separate consistency from efficiency and test when an interval can be trusted.",
+        "See the whole efficiency story in one picture, test when an interval can be trusted, report a standard error, check positivity, and ask how wrong unmeasured confounding could make you.",
       stage: "uncertainty",
       units: [
         old["efficiency-theory-story"],
@@ -385,13 +431,34 @@
           "Experiment with nuisance correctness, product rates, cross-fitting, and repeated samples.",
           "uncertainty",
         ),
+        add(
+          "standard-errors",
+          "20-standard-errors.html",
+          "Standard errors you can report",
+          "Influence-function, sandwich and bootstrap standard errors side by side, and why they disagree when a model is wrong.",
+          "uncertainty",
+        ),
+        add(
+          "positivity",
+          "21-positivity.html",
+          "Positivity and weights",
+          "Overlap plots, effective sample size, and what trimming or truncating weights buys and costs.",
+          "uncertainty",
+        ),
+        add(
+          "sensitivity",
+          "22-sensitivity.html",
+          "How wrong could unmeasured confounding make you?",
+          "A bias map, the E-value, and the κ from the first lesson made quantitative.",
+          "uncertainty",
+        ),
       ],
     },
     {
       id: "survival",
       title: "Return to survival",
       description:
-        "Bring the estimand, the geometry and the estimators back to Kaplan–Meier, Cox and restricted mean survival.",
+        "Bring the estimand, the geometry and the estimators back to Kaplan–Meier, Cox and restricted mean survival, then target the survival curve itself.",
       stage: "interpretation",
       units: [
         add(
@@ -399,6 +466,13 @@
           "12-survival-lab.html",
           "From KM and Cox back to the question",
           "Compare survival and restricted mean survival under confounding and censoring.",
+          "interpretation",
+        ),
+        add(
+          "targeted-survival",
+          "23-targeted-survival.html",
+          "Targeted survival curves and ΔRMST",
+          "Weight for censoring, augment, and target S(τ) and RMST with an influence-function interval.",
           "interpretation",
         ),
       ],
@@ -419,6 +493,14 @@
     "inference-lab": "Inference lab",
     "efficiency-theory-story": "Efficiency theory",
     "survival-lab": "Survival lab",
+    "intercurrent-events": "Intercurrent events",
+    "target-trial": "Target trial",
+    "clone-censor-weight": "Clone, censor, weight",
+    "rct-adjustment": "Your trial, adjusted",
+    "standard-errors": "Standard errors",
+    "positivity": "Positivity",
+    "sensitivity": "Sensitivity",
+    "targeted-survival": "Targeted survival",
     "interference-lab": "Spillovers",
     "experiment-design-lab": "What to randomize",
     "marketplace-decision-lab": "Decide from evidence",
@@ -455,6 +537,42 @@
     ],
   });
   const recaps = {
+    "intercurrent-events": [
+      { q: "Under a treatment-policy strategy, control patients who cross over to the device keep their post-crossover scores. The estimated device benefit is usually:", options: ["Larger than without crossover", "Smaller, because the control arm gains some device benefit", "Unchanged, because crossover happens after randomization"], answer: 1, hint: "Pair C's control patient scored 48 after crossover instead of 24: the control mean rises and the difference shrinks." },
+      { q: "Why does the principal-stratum strategy need extra assumptions?", options: ["Its sample size is smaller", "Membership depends on events under both arms, and each patient reveals only one", "Randomization is broken by death"], answer: 1, hint: "Being event-free on the device does not show you would have been event-free on medical therapy." },
+    ],
+    "target-trial": [
+      { q: "In a target trial emulation, what three things must happen at time zero?", options: ["Eligibility is met, a strategy is assigned, and follow-up starts", "The procedure is performed, the outcome is measured, and the patient is censored", "Propensity scores are fitted, weights are trimmed, and follow-up starts"], answer: 0, hint: "In a randomized trial all three happen at randomization. A registry analysis must make them coincide on purpose." },
+      { q: "A device truly does nothing. Treated patients' follow-up starts at the procedure, untreated patients' at eligibility. What happens?", options: ["The estimate is unbiased because both clocks start at an event", "The device looks protective: waiting-list deaths are charged to the untreated", "The device looks harmful because treated patients are older"], answer: 1, hint: "To be counted as treated, a patient had to survive the wait. That waiting time is immortal time." },
+    ],
+    "clone-censor-weight": [
+      { q: "With a 3-month grace period, a patient dies in month 2 while still waiting for the procedure. Where does the death count?", options: ["Only in the No procedure arm", "In both arms", "In neither arm; the clone is censored"], answer: 1, hint: "Up to death the history is compatible with both strategies, so both clones record the death." },
+      { q: "Why are unweighted Kaplan–Meier curves of the clones biased?", options: ["Cloning doubles the sample size", "Artificial censoring depends on prognosis, because treatment decisions do", "KM cannot handle ties at monthly times"], answer: 1, hint: "Frail patients wait longer: the Operate arm loses its frailest clones at the end of the window, the No procedure arm loses its most robust." },
+    ],
+    "rct-adjustment": [
+      { q: "In a randomized trial you adjust for baseline covariates with a linear outcome model that turns out to be wrong. What happens to the standardized estimate?", options: ["It is biased toward the model's prediction", "It stays centered on the marginal effect; only the precision gain shrinks", "It becomes a conditional effect"], answer: 1, hint: "Randomization makes the propensity known, and the standardized estimator is AIPW with that known propensity." },
+      { q: "With perfect randomization and a strongly prognostic covariate, the logistic-regression odds ratio for treatment is:", options: ["The same number as the marginal odds ratio", "Farther from 1 than the marginal odds ratio (non-collapsibility)", "Biased by confounding"], answer: 1, hint: "Within-stratum odds ratios of 3 gave a whole-population odds ratio of 2.18. Standardize to recover the marginal effect." },
+    ],
+    "inference-lab": [
+      { q: "With a 1-nearest-neighbour outcome model fitted and evaluated on the same patients, what goes wrong with the AIPW interval?", options: ["It is too narrow, because the own-arm residuals are zero", "It is centred far from the truth", "Nothing, if the propensity model is correct"], answer: 0, hint: "Each patient is its own nearest neighbour, so the influence-function values lose the outcome noise." },
+      { q: "In the 2×2 grid of nuisance cases, which panel's AIPW estimates are centred away from the true ATE?", options: ["Only outcome and propensity both wrong", "Any panel with one wrong model", "All four"], answer: 0, hint: "One correct nuisance model is enough for the point estimate: double robustness." },
+    ],
+    "standard-errors": [
+      { q: "AIPW uses a correctly specified logistic propensity model and a misspecified outcome model. The influence-function SE, which treats the fitted models as fixed, will tend to be:", options: ["Too small", "Too large (conservative)", "Correct"], answer: 1, hint: "Estimating a correct propensity model lowers the estimator's variance; the fixed-nuisance formula measures the known-propensity estimator instead." },
+      { q: "Both nuisance models are wrong and AIPW is biased by 0.6. A bootstrap that refits both models in every resample gives SE 0.118, equal to the true SD. What will 95% interval coverage be?", options: ["About 95%", "Close to 0%", "Above 95%"], answer: 1, hint: "A standard error measures spread, not bias; intervals around a biased centre miss the truth." },
+    ],
+    "positivity": [
+      { q: "Trimming patients whose ĝ lies outside [0.1, 0.9] mainly changes:", options: ["Only the variance; the target is still the ATE", "The target population, so the estimand is no longer the ATE", "Nothing, if the propensity model is correct"], answer: 1, hint: "The kept patients have a different covariate mix, so their average effect differs whenever effects vary with covariates (Crump et al. 2009)." },
+      { q: "Capping weights at their 99th percentile:", options: ["Keeps the ATE as the target but biases the estimator for it", "Changes the estimand to the ATO", "Removes both bias and variance"], answer: 0, hint: "The question is unchanged; the capped patients stand in for fewer people than they should, so the thin region is under-represented." },
+    ],
+    "sensitivity": [
+      { q: "An observed RR of 1.5 has E-value 2.37. Which statement is correct?", options: ["There is a 2.37-to-1 chance the effect is causal", "A confounder tied to treatment and outcome by RR 2.37 each, beyond measured covariates, could explain it away; one weaker on both could not", "The true RR is at least 2.37"], answer: 1, hint: "The E-value is a strength of association on the RR scale, where the diagonal meets the curve B = RR." },
+      { q: "A 95% CI for a risk ratio is 0.9 to 1.6. What is the E-value for the interval?", options: ["1", "1.6 + √(1.6 × 0.6)", "1/0.9"], answer: 0, hint: "The interval already contains 1, so no confounding is needed to reach the null." },
+    ],
+    "targeted-survival": [
+      { q: "Why does 1/G(t−|A,X) appear in the influence function of S₁(τ)?", options: ["It makes the curve monotone", "The risk set at month t is thinned by the probability of still being followed, so each patient still followed stands in for 1/G similar patients", "It converts hazards to odds"], answer: 1, hint: "P(T̃ ≥ t | a, x) = S(t−1 | a, x) · G(t− | a, x)." },
+      { q: "The event-hazard model omits severity but the censoring and treatment models are right. The one-step estimate of S₁(τ) is:", options: ["Biased like the plug-in", "Still consistent: the augmentation repairs the hazard model", "Undefined"], answer: 1, hint: "Double robustness: the correction has mean zero whenever g and G are right." },
+    ],
     "causal-roadmap": [
       {
         q: "Switch from ATE to ATT while keeping the treatment effects within each severity group fixed. What changes?",
@@ -543,6 +661,14 @@
   };
   const minutes = {
     "causal-roadmap": 25,
+    "intercurrent-events": 18,
+    "target-trial": 20,
+    "clone-censor-weight": 18,
+    "rct-adjustment": 15,
+    "standard-errors": 15,
+    "positivity": 15,
+    "sensitivity": 15,
+    "targeted-survival": 25,
     "interference-lab": 30,
     "experiment-design-lab": 30,
     "marketplace-decision-lab": 35,
@@ -562,7 +688,7 @@
   // Three questions that let someone who already knows identification skip the roadmap lesson.
   const diagnostic = {
     unit: "causal-roadmap",
-    next: "scores-from-scratch",
+    next: "intercurrent-events",
     questions: [
       {
         q: "Which assumption lets E[Y | A=1, X] stand in for E[Y(1) | X]?",

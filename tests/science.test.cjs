@@ -166,6 +166,51 @@ test("fitted cross-fold estimates are finite and correctly specified estimators 
   assert.ok(r.results.every((x) => Number.isFinite(x.aipw) && x.se > 0));
   assert.ok(Math.abs(r.summary.aipw.bias) < 5 * r.summary.aipw.biasMCSE);
 });
+test("continuous study: kNN memorises without cross-fitting, bound is exact, existing presets unchanged", () => {
+  // Closed-form bound agrees with numerical integration over X ~ U(0, 1).
+  let v = 0;
+  const K = 200000;
+  for (let i = 0; i < K; i++) {
+    const x = (i + 0.5) / K,
+      g = S.smoothG(x),
+      tau = S.smoothM(x, 1) - S.smoothM(x, 0);
+    v += (0.64 * (1 / g + 1 / (1 - g)) + (tau - 2) ** 2) / K;
+  }
+  close(S.smoothVariance(), v, 1e-6);
+  // The true ATE is exactly 2: E[0.4(X - 0.5)] = 0.
+  let ate = 0;
+  for (let i = 0; i < K; i++) {
+    const x = (i + 0.5) / K;
+    ate += (S.smoothM(x, 1) - S.smoothM(x, 0)) / K;
+  }
+  close(ate, 2, 1e-9);
+  // In-sample 1-NN returns each patient's own outcome, so every own-arm residual is zero.
+  const data = S.generateSmooth(200, S.rng(5)),
+    m = S.knn(data, 1);
+  assert.ok(data.every((r) => m(r.x, r.a) === r.y));
+  // k larger than an arm averages the whole arm (boundary case).
+  const m1 = S.knn(data, 10000),
+    treated = data.filter((r) => r.a === 1);
+  close(m1(0.5, 1), S.mean(treated.map((r) => r.y)), 1e-12);
+  // Logistic fit recovers the true propensity on a large sample.
+  const g = S.logistic(S.generateSmooth(20000, S.rng(6)));
+  for (const x of [0.1, 0.5, 0.9]) assert.ok(Math.abs(g(x) - S.smoothG(x)) < 0.03);
+  // The displayed lesson numbers (n = 400, 300 samples, seed 20260919, k = 1).
+  const base = { study: "smooth", k: 1, mode: "fitted", n: 400, reps: 300, seed: 20260919 },
+    off = S.simulation({ ...base, crossfit: false }).summary,
+    on = S.simulation({ ...base, crossfit: true }).summary;
+  assert.ok(off.coverage < 0.7, `no cross-fitting covers ${off.coverage}`);
+  assert.ok(off.meanSE < 0.6 * off.aipw.sd);
+  assert.ok(on.coverage > 0.9, `cross-fitting covers ${on.coverage}`);
+  assert.ok(Math.abs(on.meanSE / on.aipw.sd - 1) < 0.15);
+  close(on.boundSE, Math.sqrt(S.smoothVariance() / 400), 1e-12);
+  // Without study: "smooth", configurations keep their meaning (lesson 7's displayed numbers).
+  const old = S.simulation({ preset: "outcome", mode: "fitted", crossfit: true, n: 400, reps: 300, seed: 20260919 }).summary;
+  close(old.coverage, 0.9233333333333333, 1e-12);
+  const prop = S.simulation({ preset: "propensity", mode: "fitted", crossfit: true, n: 400, reps: 300, seed: 20260919 }).summary;
+  assert.equal(prop.meanSE.toFixed(3), "0.142");
+  assert.equal(prop.aipw.sd.toFixed(3), "0.096");
+});
 test("KM handles censoring ties and RMST is area under the step curve", () => {
   const r = S.km(
     [

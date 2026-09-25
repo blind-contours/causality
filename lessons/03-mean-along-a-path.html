@@ -18,7 +18,7 @@
 <div class="wrap">
 <div class="eyebrow">One derivation, six moves, each one drawn</div>
 <h1>The Mean Along a Path</h1>
-<p class="lede">The claim to be understood: for the mean ψ(P) = ∫ z p(z) dz, the rate of change along any path with score h is E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). Every step of the algebra is a picture, and every picture is computed from the same density p(z). Each scene animates exactly one line of the derivation. Scores and Influence stated this result in two scenes; here it is earned one line at a time. If it already feels obvious, skim the moves and try the transfer check at the end.</p>
+<p class="lede">This is the slow-motion version of one scene you have already watched: scene 5 of <a href="02-scores-from-scratch.html#s5">Scores and Influence, From Scratch</a>, "the parameter along the path". Same density, same four directions h, same result: along a path with score h the mean moves at rate E<sub>P</sub>[ϕ h] with ϕ(z) = z − ψ(P). There it took one scene; here each line of the algebra below gets its own picture. If it already feels obvious, skim the moves and try the transfer check at the end.</p>
 
 <div class="eq">ψ(P_ε) = ∫ z · p(z)(1 + ε h(z)) dz<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ∫ z p(z) dz  +  ε ∫ z h(z) p(z) dz          <span style="color:var(--muted)">(move 3: split)</span><br>
@@ -45,7 +45,7 @@
 <!-- MOVE 2 -->
 <div class="eyebrow">Move 2</div>
 <h2>Along the path the masses change; the positions do not</h2>
-<p>On the path p<sub>ε</sub>(z) = p(z)(1 + εh(z)), each bin's mass becomes p(z)(1 + εh(z))dz. The bin positions z are the same as before. So the mean along the path is the same weighted sum with new weights. Move ε and watch the bar heights change and the balance point slide.</p>
+<p>Same path as in Scores and Influence: each bin's mass becomes p(z)(1 + εh(z))dz, and the positions z stay put. So the mean along the path is the same weighted sum with new weights. Move ε and watch the bars change and the balance point slide.</p>
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
@@ -105,17 +105,21 @@
 
 <!-- MOVE 6 -->
 <div class="eyebrow">Move 6</div>
-<h2>Why this ϕ and not another: it must work for every h, and have mean zero</h2>
-<p>Could a different function ϕ̃ give the same slope? Suppose ϕ̃ = ϕ + g. Then ∫ ϕ̃ h p − ∫ ϕ h p = ∫ g h p. For this to vanish for every mean-zero h, g has to be constant (a constant is orthogonal to all mean-zero h, and nothing else is). And the convention that influence functions have mean zero pins the constant to 0. So in the nonparametric model ϕ(z) = z − ψ(P) is the only influence function of the mean: the efficient one, with variance Var(Z). Pick a g and watch ∫ g h p fail to vanish for some h, unless g is constant.</p>
+<h2>Why this ϕ and not another: test candidates against every direction</h2>
+<p>Could ϕ̃ = ϕ + g give the same slopes? Only if adding g changes no slope, that is, ∫ g h p = 0 for every allowed direction h. The grid tests four candidate g (rows) against several directions h (columns). A tick means that direction cannot tell ϕ̃ from ϕ; a cross means ϕ̃ predicts the wrong slope there.</p>
+<div class="predict" data-options="0.5 z (a straight line)|0.8 (a constant)|exp(−(z−1)²) (a bump)" data-answer="1" data-hint="A constant times any score integrates to zero, because every score has ∫ h p = 0. Any g that is not constant fails its own column h = g − E[g], where ∫ g h p = Var(g) &gt; 0.">Which candidate g can be added to ϕ without changing the slope in a single direction?</div>
 <div class="scene">
-  <div class="paper"><canvas id="c6" width="800" height="400"></canvas><div class="cap" id="cap6"></div></div>
+  <div class="paper"><canvas id="c6" width="800" height="480"></canvas><div class="cap" id="cap6"></div></div>
   <div class="ctl">
-    <label>Perturbation g <select id="g6"><option value="const">constant (g = 0.8)</option><option value="lin" selected>linear (g = 0.5 z)</option><option value="bump">bump (g = exp(−(z−1)²))</option><option value="sq">quadratic (g = 0.3 z²)</option></select></label>
+    <div class="btns"><button class="primary" id="p6">Play</button></div>
+    <label>Scrub <span class="v" id="v6">0.00</span><input type="range" id="t6" min="0" max="1" step="0.002" value="0"></label>
+    <label>Inspect row: candidate g <select id="g6"><option value="const">constant (g = 0.8)</option><option value="lin" selected>linear (g = 0.5 z)</option><option value="bump">bump (g = exp(−(z−1)²))</option><option value="sq">quadratic (g = 0.3 z²)</option></select></label>
+    <label>Inspect column: direction h <select id="h6"><option value="tilt">tilt</option><option value="bump">bump</option><option value="wave">wave</option><option value="spread">spread</option><option value="own" selected>g's own direction, g − E[g]</option></select></label>
     <div class="readout" id="ro6"></div>
-    <div class="note">In a smaller model (fewer allowed h) the test is weaker, so more g pass it and there are several influence functions; the efficient one is the projection onto the allowed directions. In the nonparametric model the test is as strong as it gets and ϕ is unique.</div>
+    <div class="note">The last column is the proof. For any g, the direction h = g − E[g] is a valid mean-zero score (scaled small enough), and there ∫ g h p = Var(g), which is zero only when g is constant. The mean-zero convention for influence functions then removes the constant, so ϕ(z) = z − ψ(P) is the only one in the nonparametric model. In a smaller model fewer columns are allowed, more rows pass, and the efficient one is the projection (lesson 10).</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>Differentiating the mean along a path with score h gives ∫ z h p, and since scores have mean zero, z can be centered at the mean for free: dψ/dε = E[(Z − μ) h]. That identifies ϕ(z) = z − μ as the gradient; it's unique in the nonparametric model because it has to reproduce the derivative for every mean-zero h.</div>
+<div class="say"><b>In one sentence</b>The slope of the mean along h is ∫ z h p; centering z is free because ∫ h p = 0, which leaves E[(Z − μ) h]; and only a constant can be added without failing some column, so ϕ(z) = z − μ is unique in the nonparametric model.</div>
 </div>
 
 <script>
@@ -275,25 +279,51 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const h=hFn(document.getElementById('h
 bind('h5',null,v=>v,()=>S5.draw());
 
 // ================= MOVE 6 =================
-const S6=scene(6,(g,W,H)=>{clear(g,W,H);const kind=document.getElementById('g6').value;const gf=z=>kind==='const'?0.8:kind==='lin'?0.5*z:kind==='bump'?Math.exp(-Math.pow(z-1,2)):0.3*z*z;
-  const L=60,R=440,xs=z=>L+(R-L)*(z+4)/8;const T=40,B=200,mid=(T+B)/2;line(g,L,mid,R,mid,C.grid,1);
-  const ph=[],gp=[];for(let i=0;i<N;i++){ph.push([xs(Z[i]),mid-(Z[i]-MU)*18]);gp.push([xs(Z[i]),mid-((Z[i]-MU)+gf(Z[i]))*18]);}poly(g,ph,C.purple,2.2);poly(g,gp,C.red,1.8,[5,4]);
-  txt(g,'ϕ = z − ψ (purple)   vs   ϕ̃ = ϕ + g (red dashed)',L,T-14,C.pen,13,'left',FS,true);
-  // test against the four h
-  const HN=['tilt','bump','wave','spread'];txt(g,'direction h      ∫ g h p     same slope?',480,50,C.muted,11.5,'left',FM);line(g,480,62,770,62,C.grid,1);let allzero=true;
-  HN.forEach((k,j)=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;const ok=Math.abs(s)<1e-3;if(!ok)allzero=false;txt(g,`${k.padEnd(10)}   ${s>=0?' ':''}${s.toFixed(4)}     ${ok?'yes':'no'}`,480,84+j*22,ok?C.green:C.red,12.5,'left',FM);});
-  txt(g,allzero?'g passes for every h: g is a constant.':'g fails for some h: ϕ̃ is not a gradient.',480,190,allzero?C.green:C.red,13,'left',FS,true);
-  // mean-zero test
-  let mg=0;for(let i=0;i<N;i++)mg+=((Z[i]-MU)+gf(Z[i]))*P0[i]*dz;txt(g,`E[ϕ̃] = ${mg.toFixed(3)}`,480,230,C.pen,12.5,'left',FM);txt(g,allzero?(Math.abs(mg)<1e-3?'and mean zero: ϕ̃ = ϕ.':'a valid gradient but not mean zero; centering it gives ϕ back.'):'',480,250,C.muted,11.5,'left');
-  // bottom: g h p for the worst h
-  const T2=240,B2=360,m2=(T2+B2)/2;line(g,L,m2,R,m2,C.grid,1);let worst='tilt',wv=0;HN.forEach(k=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;if(Math.abs(s)>Math.abs(wv)){wv=s;worst=k;}});const hw=hFn(worst);
-  const X=[],Y=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y.push(m2-gf(Z[i])*hw(Z[i])*P0[i]*260);}
-  g.fillStyle=wv>=0?C.green:C.red;g.globalAlpha=.35;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Y[i]):g.moveTo(x,Y[i]));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m2);g.closePath();g.fill();g.globalAlpha=1;poly(g,X.map((x,i)=>[x,Y[i]]),C.pen,1.2);
-  txt(g,`g · h · p  for h = ${worst}:  area ${wv.toFixed(4)}`,L,T2-12,C.pen,12.5,'left',FS,true);
-  document.getElementById('ro6').innerHTML=HN.map(k=>{const h=hFn(k);let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;return `<span class="k">∫ g h p (${k})</span><span>${s.toFixed(4)}</span>`;}).join('');
-  document.getElementById('cap6').textContent=allzero?'A constant g is orthogonal to every mean-zero h, so it changes no derivative. The mean-zero convention then removes it.':'This g changes the derivative along at least one allowed direction, so ϕ + g does not reproduce ψ\'s derivatives. It is not a gradient of the mean.';
+const GS=[['const','g = 0.8',z=>0.8],['lin','g = 0.5 z',z=>0.5*z],['bump','g = exp(−(z−1)²)',z=>Math.exp(-Math.pow(z-1,2))],['sq','g = 0.3 z²',z=>0.3*z*z]];
+const HS=['tilt','bump','wave','spread','own'];
+const Eg=gf=>{let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*P0[i]*dz;return s;};
+const colFn=(k,gf)=>{if(k!=='own')return hFn(k);const m=Eg(gf);return z=>gf(z)-m;};
+const ghp=(gf,h)=>{let s=0;for(let i=0;i<N;i++)s+=gf(Z[i])*h(Z[i])*P0[i]*dz;return s;};
+const GRID=GS.map(([k,lab,gf])=>HS.map(c=>ghp(gf,colFn(c,gf))));
+const PASS=v=>Math.abs(v)<1e-3;
+function spark(g,x0,x1,yc,amp,f,col,w){let mx=1e-9;for(let i=0;i<N;i++)if(Z[i]>=-3&&Z[i]<=3)mx=Math.max(mx,Math.abs(f(Z[i])));const k=mx>1e-6?1/mx:0,pts=[];for(let i=0;i<N;i+=4){const z=Z[i];if(z<-3||z>3)continue;pts.push([x0+(x1-x0)*(z+3)/6,yc-f(z)*k*amp]);}line(g,x0,yc,x1,yc,C.grid,1);poly(g,pts,col,w||1.6);}
+const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const rsel=GS.findIndex(r=>r[0]===document.getElementById('g6').value),csel=HS.indexOf(document.getElementById('h6').value);
+  const CL=250,CW=92,RT=112,RH=56,VX=CL+5*CW+8;
+  txt(g,'∫ g · h · p  for each candidate g (row) and direction h (column)',20,22,C.pen,13.5,'left',FS,true);
+  txt(g,'candidate g',20,62,C.muted,12,'left');
+  const colName={tilt:'tilt',bump:'bump',wave:'wave',spread:'spread',own:'g − E[g]'};
+  HS.forEach((c,j)=>{const x=CL+j*CW;txt(g,colName[c],x+CW/2,48,j===4?C.purple:C.green,12.5,'center',FM);
+    if(c!=='own')spark(g,x+10,x+CW-10,80,10,hFn(c),C.green,1.4);else txt(g,'(its own)',x+CW/2,80,C.purple,11.5,'center');});
+  txt(g,'all pass?',VX+4,48,C.muted,12,'left');
+  line(g,20,98,W-12,98,C.grid,1);
+  // cells revealed in reading order by the clock; the last column arrives last in each row
+  const total=GS.length*HS.length,shown=Math.floor(seg(t,0,0.9)*total+1e-9);
+  GS.forEach(([k,lab,gf],r)=>{const y=RT+r*RH;
+    if(r===rsel){g.strokeStyle=C.purple;g.lineWidth=2;g.strokeRect(14,y-4,W-26,RH-6);}
+    txt(g,lab,20,y+12,C.pen,12.5,'left',FM);spark(g,24,210,y+32,9,z=>gf(z)-Eg(gf),C.red,1.4);
+    let all=true,done=true;
+    HS.forEach((c,j)=>{const idx=r*HS.length+j,x=CL+j*CW,v=GRID[r][j],ok=PASS(v);if(!ok)all=false;
+      if(idx>=shown){done=false;rect(g,x+4,y,CW-8,RH-14,C.grid,0.35);return;}
+      rect(g,x+4,y,CW-8,RH-14,ok?C.green:C.red,0.16);
+      if(r===rsel&&j===csel){g.strokeStyle=C.or;g.lineWidth=2.4;g.strokeRect(x+4,y,CW-8,RH-14);}
+      txt(g,ok?'✓':'✗',x+18,y+(RH-14)/2,ok?C.green:C.red,18,'center');
+      txt(g,(Math.abs(v)<5e-5?0:v).toFixed(3),x+CW-10,y+(RH-14)/2,C.pen,12,'right',FM);});
+    if(done)txt(g,all?'yes':'no',VX+4,y+(RH-14)/2,all?C.green:C.red,14,'left',FS,true);});
+  // bottom: the product g·h·p for the inspected cell
+  const [rk,rlab,gf]=GS[rsel],hc=colFn(HS[csel],gf),v=GRID[rsel][csel];
+  const L=60,R=560,T2=372,B2=462,m2=(T2+B2)/2,xs=z=>L+(R-L)*(z+4)/8;
+  let mx=1e-9;for(let i=0;i<N;i++)mx=Math.max(mx,Math.abs(gf(Z[i])*hc(Z[i])*P0[i]));const sc=(B2-T2)/2/mx*0.9;
+  line(g,L,m2,R,m2,C.grid,1);const X=[],Y=[];for(let i=0;i<N;i++){X.push(xs(Z[i]));Y.push(m2-gf(Z[i])*hc(Z[i])*P0[i]*sc);}
+  g.fillStyle=C.green;g.globalAlpha=.35;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Math.min(Y[i],m2)):g.moveTo(x,Math.min(Y[i],m2)));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m2);g.closePath();g.fill();
+  g.fillStyle=C.red;g.beginPath();X.forEach((x,i)=>i?g.lineTo(x,Math.max(Y[i],m2)):g.moveTo(x,Math.max(Y[i],m2)));for(let i=N-1;i>=0;i--)g.lineTo(X[i],m2);g.closePath();g.fill();g.globalAlpha=1;poly(g,X.map((x,i)=>[x,Y[i]]),C.pen,1.2);
+  txt(g,`inspected cell: g · h · p for ${rlab}, h = ${colName[HS[csel]]}`,L,T2-14,C.pen,12.5,'left',FS,true);
+  txt(g,'signed area',600,T2+14,C.muted,12,'left');txt(g,(Math.abs(v)<5e-5?0:v).toFixed(4),600,T2+38,PASS(v)?C.green:C.red,18,'left',FM);
+  txt(g,PASS(v)?'green = red: no slope changes':'areas do not cancel: a slope changes',600,T2+64,C.muted,11.5,'left');
+  const passers=GS.filter((r,i)=>GRID[i].every(PASS)).map(r=>r[1]);
+  document.getElementById('ro6').innerHTML=HS.map((c,j)=>`<span class="k">∫ g h p, h = ${colName[c]}</span><span>${GRID[rsel][j].toFixed(4)}</span>`).join('')+`<span class="k">rows passing every column</span><span>${passers.join(', ')||'none'}</span>`;
+  document.getElementById('cap6').textContent=shown<total?'Filling the grid one cell at a time: each cell asks whether direction h can tell ϕ + g apart from ϕ.':'Only the constant row passes every column. Every other g fails somewhere, and always in its own column g − E[g], where the area is Var(g). A constant is invisible to every score, and the mean-zero convention removes it.';
 });
-bind('g6',null,v=>v,()=>S6.draw());
+bind('g6',null,v=>v,()=>S6.draw());bind('h6',null,v=>v,()=>S6.draw());
 
 function all(){readC();[S1,S2,S3,S4,S5,S6].forEach(s=>s.draw());}
 all();

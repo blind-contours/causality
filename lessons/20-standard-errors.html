@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Influence-function, sandwich and bootstrap standard errors side by side for AIPW, and why they disagree when a working model is wrong."
+    />
+    <title>Standard errors you can report · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      .se-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin: 12px 0 16px;
+      }
+      @media (max-width: 760px) {
+        .se-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .se-panel {
+        margin: 0;
+        min-width: 0;
+      }
+      .se-panel figcaption {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 6px;
+      }
+      .se-panel-title {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 600;
+        font-size: 18px;
+      }
+      .se-cov {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+      }
+      .se-cov-item {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+      .se-cov-num {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 30px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      .se-cov-lab {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .se-cov-item.bad .se-cov-lab::after {
+        content: " (not 95%)";
+      }
+      .se-panel svg.fig .tick,
+      .se-panel svg.fig .fig-text {
+        font-size: 13px;
+      }
+      .se-panel svg.fig .axis-label {
+        font-size: 14px;
+      }
+      @media (max-width: 760px) {
+        .se-panel svg.fig .tick,
+        .se-panel svg.fig .fig-text {
+          font-size: 16.5px;
+        }
+        .se-panel svg.fig .axis-label {
+          font-size: 17px;
+        }
+      }
+      /* Single-study figures switch to a 380-unit viewBox on phones (labs/standard-errors.js). */
+      @media (max-width: 720px) {
+        [data-lab="standard-errors"] svg.fig.fig-narrow .tick,
+        [data-lab="standard-errors"] svg.fig.fig-narrow .fig-text,
+        [data-lab="standard-errors"] svg.fig.fig-narrow .ref-label {
+          font-size: 16.5px;
+        }
+        [data-lab="standard-errors"] svg.fig.fig-narrow .axis-label {
+          font-size: 17px;
+        }
+      }
+      .se-method {
+        max-width: 420px;
+      }
+      .se-code {
+        background: var(--soft);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 12px 14px;
+        overflow-x: auto;
+        max-width: 100%;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .se-recipe li {
+        margin: 6px 0;
+        max-width: 72ch;
+      }
+      .lab-step .table-wrap td,
+      .lab-step .table-wrap th {
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/standard-errors.js"></script>
+    <script src="../shared/visuals.js"></script>
+    <script src="../shared/anim.js"></script>
+  </head>
+  <body data-lesson="standard-errors">
+    <main class="wrap">
+      <div class="eyebrow">
+        Causality · a question you can hold in your hands
+      </div>
+      <h1>Standard errors you can report</h1>
+      <p class="lede">
+        The influence-function standard error can be too small or too large
+        when a working model is wrong. See why, and compare it with the
+        bootstrap and the full sandwich in four nuisance cases.
+      </p>
+      <noscript
+        >These laboratories require JavaScript for interaction. The course
+        repository includes a mathematical review and scientific
+        references.</noscript
+      >
+      <div data-lab="standard-errors"></div>
+      <p class="sources">
+        Further reading:
+        <a href="https://doi.org/10.1002/sim.1903"
+          >Lunceford and Davidian (2004), Stratification and weighting via the
+          propensity score in estimation of causal treatment effects, Statistics
+          in Medicine 23:2937–2960</a
+        >;
+        <a href="https://doi.org/10.1111/1468-0262.00442"
+          >Hirano, Imbens and Ridder (2003), Efficient estimation of average
+          treatment effects using the estimated propensity score, Econometrica
+          71:1161–1189</a
+        >;
+        <a href="https://doi.org/10.1093/aje/kwq439"
+          >Funk et al. (2011), Doubly robust estimation of causal effects,
+          American Journal of Epidemiology 173:761–767</a
+        >;
+        <a href="https://doi.org/10.1198/000313002753631330"
+          >Stefanski and Boos (2002), The calculus of M-estimation, The American
+          Statistician 56:29–38</a
+        >;
+        <a href="https://doi.org/10.1201/9780429246593"
+          >Efron and Tibshirani (1993), An Introduction to the Bootstrap,
+          Chapman &amp; Hall</a
+        >. Repeated-study numbers are precomputed by
+        <code>scripts/standard-errors-precompute.cjs</code> (seeded); large-sample
+        limits are exact calculations from the known law.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/standard-errors.js"></script>
+  </body>
+</html>

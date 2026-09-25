@@ -18,17 +18,21 @@ For browser checks, start an isolated Chrome/Chromium profile with remote debugg
 
 ## The learning route
 
-Thirteen core lessons, in this order, plus an elective branch.
+Twenty-one core lessons in seven units, plus an elective branch. `shared/curriculum.js` is the source of truth for the order.
 
-1. **Ask and identify** (1): manipulate ATE/ATT/ATC population weights, compare absolute and relative event risks, and drag a survival horizon to distinguish a probability gap from an RMST area. Save the population, outcome, contrast, horizon, and example settings as an estimand contract; then distinguish the causal question from an observed-data comparison and deliberately break exchangeability or positivity.
-2. **Feel the geometry** (2 to 5): build paths, scores and influence functions from one density; derive the mean's influence function one line at a time; an optional aside on differentiating under the integral; then move three probabilities, restrict the model and project a canonical gradient.
-3. **Build an estimator** (6 to 10): one-step correction, Gaussian tilts, two strata and the 1/π budget, clever covariates and binary targeting, and four-patient arithmetic.
-4. **Know what uncertainty means** (11 and 12): the whole efficiency story in eight pictures, then nuisance correctness, product rates, cross-fitting and repeated-sampling experiments.
-5. **Return to survival** (13): KM, censoring, and RMST versus hazard ratios.
+1. **Ask** (1 to 2): population weights, absolute vs relative risks, survival gap vs RMST area, identification; then intercurrent events and the five ICH E9(R1) strategies, completing the estimand contract.
+2. **Design** (3 to 4): write the target trial protocol and emulate it; move time zero and watch immortal time manufacture a benefit; then clone, censor and weight for sustained strategies with a grace period.
+3. **The payoff, first** (5): covariate adjustment in a randomized trial. Same estimand, narrower interval, robust standard errors, the conditional vs marginal odds ratio, and a prognostic score (the FDA 2023 guidance and PROCOVA ideas).
+4. **Geometry** (6 to 9): paths, scores and influence functions from one density; the mean's influence function one line at a time; an optional aside on differentiating under the integral; the canonical gradient by projection.
+5. **Estimation** (10 to 14): one-step, two strata and the 1/π budget, the clever covariate and logistic TMLE, the density tilt as a regression shift, and four patients by hand through TMLE, a standard error and a 95% interval.
+6. **Trust the answer** (15 to 19): the efficiency story on one page; when an interval is earned (rates and cross-fitting with an overfitting learner); standard errors you can report (influence function, sandwich, bootstrap); positivity and weights; sensitivity to unmeasured confounding (bias factor, E-value, benchmarking).
+7. **Survival** (20 to 21): KM, censoring and RMST vs hazard ratios, then targeted survival curves and ΔRMST with IPCW, the survival influence function, TMLE and a double-robustness experiment.
+
+Estimator lessons carry a "Now in R" drawer (`shared/r-drawer.js`, scripts in `examples/r/`, base R only, with their verified output).
 
 **Elective: experiments when treatments spill over** (E1 to E3, after the inference laboratory; survival is not a prerequisite): define direct, spillover and full-policy effects on an exact eight-unit network; step through a two-zone shared fleet and compare request-level randomization with randomized switchbacks; judge repeated experiments against a named target with a validated benchmark, and write a one-page recommendation. A Python/SQL capstone in `examples/marketplace/` reproduces the analysis and generates the precomputed grid the third lesson reads. Electives are listed on the course map but sit outside the river and the progress count.
 
-File names keep their original numbers so existing links keep working; `shared/curriculum.js` is the source of truth for the order.
+File names keep their original numbers so existing links keep working.
 
 Guided mode presents one topic at a time; Explore shows all topics. Direct entry is always available. The course map and each lesson show prerequisites. A saved estimand contract stays available across lessons; each experiment explicitly states when it uses a different toy target or population.
 

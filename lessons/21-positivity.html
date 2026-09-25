@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Overlap plots, effective sample size, and what capping, trimming or overlap-weighting buys and costs, including which responses quietly change the estimand."
+    />
+    <title>Positivity and weights · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      .pos-meters { display: grid; gap: 12px; margin: 4px 0 14px; }
+      .pos-meter-label { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+      .pos-meter-label span:last-child { font-family: "IBM Plex Mono", monospace; color: var(--muted); }
+      .pos-track { height: 14px; border-radius: 7px; background: var(--grid); overflow: hidden; margin-top: 4px; }
+      .pos-track i { display: block; height: 100%; border-radius: 7px; }
+      .figure .fig-readout { font-size: 13px; }
+      .pos-draft { border-left: 3px solid var(--purple); background: var(--soft); padding: 12px 16px; font-style: italic; }
+      .figure .fig-controls button { justify-self: start; }
+      @media (max-width: 720px) {
+        .figure .fig-readout { grid-template-columns: auto minmax(0, 1fr); overflow-wrap: anywhere; }
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/positivity.js"></script>
+    <script src="../shared/visuals.js"></script>
+    <script src="../shared/anim.js"></script>
+  </head>
+  <body data-lesson="positivity">
+    <main class="wrap">
+      <div class="eyebrow">Causality · trust the answer</div>
+      <h1>Positivity and weights</h1>
+      <p class="lede">
+        Weighting estimators need every kind of patient to have had a real
+        chance of either treatment. Watch weights balloon as the arms separate,
+        count how much information survives, and decide which fix keeps your
+        question and which one quietly replaces it.
+      </p>
+      <noscript
+        >These laboratories require JavaScript for interaction. The course
+        repository includes a mathematical review and scientific
+        references.</noscript
+      >
+      <div data-lab="positivity"></div>
+      <p class="sources">
+        Further reading:
+        Petersen, Porter, Gruber, Wang and van der Laan (2012),
+        <a href="https://doi.org/10.1177/0962280210386207"
+          >Diagnosing and responding to violations in the positivity
+          assumption</a
+        >, <i>Statistical Methods in Medical Research</i> 21(1):31–54;
+        Crump, Hotz, Imbens and Mitnik (2009),
+        <a href="https://doi.org/10.1093/biomet/asn055"
+          >Dealing with limited overlap in estimation of average treatment
+          effects</a
+        >, <i>Biometrika</i> 96(1):187–199;
+        Li, Morgan and Zaslavsky (2018),
+        <a href="https://doi.org/10.1080/01621459.2016.1260466"
+          >Balancing covariates via propensity score weighting</a
+        >, <i>Journal of the American Statistical Association</i>
+        113(521):390–400;
+        <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf"
+          >ICH E9(R1)</a
+        >. Targets and population densities are exact numerical integrals;
+        the cohort and the repeated samples are seeded simulations from the
+        accompanying scientific kernel.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/positivity.js"></script>
+  </body>
+</html>

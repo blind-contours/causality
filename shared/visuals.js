@@ -182,6 +182,7 @@
       setSweepLabel();
     }
     function update() {
+      S.t = Math.max(0, Math.min(1, S.t));
       if (tEl) tEl.value = S.t;
       if (ownsV) vEl.textContent = S.t.toFixed(2);
       if (swEl) {

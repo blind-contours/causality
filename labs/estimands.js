@@ -56,19 +56,20 @@
 </section>
 <section class="lab-step" id="estimand-survival" data-title="A gap or an area?">
   <h2 tabindex="-1">Surviving to a date, or accumulating time alive?</h2>
-  <p>Now the outcome is time until death. Use the same target population for both survival curves. Drag the time marker, move the horizon slider, or play time forward.</p>
-  <div class="predict" data-options="The area between the curves from year 2 to year 5|Only the vertical gap at year 5|The hazard ratio multiplied by 3" data-answer="0" data-hint="RMST adds time alive throughout the window. Extending the horizon adds the signed area over the new interval.">Predict: when the horizon moves from two to five years, what gets added to the RMST difference?</div>
+  <p>Now the outcome is time until death. Use the same target population for both survival curves. The shaded region between them is the RMST difference: extra time alive, accumulated from year 0 up to the horizon marker.</p>
+  <div class="predict" data-options="It keeps growing: every extra year adds a new strip of area|It stays at its five-year value|It shrinks, because fewer people are alive late in follow-up" data-answer="0" data-hint="The RMST difference grows at a rate equal to the current vertical gap. While treatment keeps more people alive, each new year adds a positive strip. Drag the marker from 5 to 10 and watch the new band and the running total.">Predict before you drag: the treated curve stays above the control curve after year 5. If you move the horizon from 5 to 10 years, what happens to the RMST difference?</div>
   <div class="estimand-workbench"><div>
   <div class="estimand-figure" id="estimand-survival-figure">
     <div class="estimand-key"><span><i class="control"></i>Control · dashed curve</span><span><i class="treatment"></i>Treatment · solid curve</span></div>
-    <svg id="estimand-survival-plot" role="img" aria-label="Two survival curves. In probability mode the marker measures the vertical gap; in RMST mode the signed area between the curves is shaded up to the horizon. Use the labelled horizon slider for keyboard control."></svg>
+    <svg id="estimand-survival-plot" role="img" aria-label="Two survival curves. The signed area between them is shaded from 0 to the horizon marker; the band added by the latest drag is darker. In probability mode the marker also measures the vertical gap. Use the horizon slider below for keyboard control; running totals follow as text."></svg>
+    <p id="estimand-sweep-readout" class="estimand-sweep"></p>
     <div id="estimand-time-player"></div>
   </div>
   </div><div class="estimand-panel">
   <div class="estimand-controls">
     <label>Target population <select id="survival-population" data-est-key="target">${options}</select></label>
     <label>What matters to the decision? <select id="estimand-survival-contrast" data-est-key="survivalContrast"><option value="survival">Survival at the horizon</option><option value="rmst">Time alive within horizon (RMST)</option></select></label>
-    <label>Horizon, years <output data-est-output="tau"></output><input id="estimand-horizon" data-est-key="tau" type="range" min="0" max="10" step=".1"></label>
+    <label style="display:none">Horizon, years <output data-est-output="tau"></output><input id="estimand-horizon" data-est-key="tau" type="range" min="0" max="10" step=".1"></label>
     <label>When the treatment effect begins, years <output data-est-output="delay"></output><input id="estimand-delay" data-est-key="delay" type="range" min="0" max="3" step=".5"></label>
     <label>Treated hazard ÷ control hazard after that time <output data-est-output="hazardRatio"></output><input id="estimand-hazard-ratio" data-est-key="hazardRatio" type="range" min=".4" max="1.6" step=".05"></label>
   </div>
@@ -179,15 +180,16 @@
       margin: { l: 46, r: 24, t: 28, b: 46 }, xticks: [0, 5, 10], yticks: [0, .5, 1],
       xlabel: "Years since baseline", ylabel: "Survival probability",
     });
-    const shaded = P.line([[0, 1]], { stroke: "none", "fill-opacity": .23 }),
+    const shaded = P.line([[0, 1]], { stroke: "none", "fill-opacity": .2 }),
+      sweep = P.line([[0, 1]], { "fill-opacity": .5, "stroke-width": 1.5 }),
       curve0 = P.line([[0, 1]], { stroke: "var(--or)", "stroke-dasharray": "7 5" }),
       curve1 = P.line([[0, 1]], { stroke: "var(--p)" }),
       marker = P.vline(5, { stroke: "var(--muted)" }),
       gap = el("line", { stroke: "var(--purple)", "stroke-width": 5 }),
       dots = [0, 1].map(a => el("circle", { r: 5, fill: a ? "var(--p)" : "var(--or)", stroke: "var(--paper)", "stroke-width": 2 }));
     P.marks.append(gap, ...dots);
-    let syncing = false;
-    const clock = player(byId("estimand-time-player"), { duration: 10000, autoplay: false, label: "Horizon", formatValue: t => fmt(t * 10, 1) + " years", onT(t) {
+    let syncing = false, anchor = null, prevTau = null, lastMove = 0;
+    const clock = player(byId("estimand-time-player"), { duration: 10000, autoplay: false, label: "Horizon τ", formatValue: t => fmt(t * 10, 1) + " years", onT(t) {
       const tau = Math.round(t * 100) / 10;
       if (!syncing && tau !== state.get().tau) state.set({ tau });
     } });
@@ -238,9 +240,25 @@
       curve0.setAttribute("d", P.d(times.map(t => [t, s.at(t, 0)])));
       curve1.setAttribute("d", P.d(times.map(t => [t, s.at(t, 1)])));
       const kept = [...new Set([...times.filter(t => t <= c.tau), c.tau])].sort((a, b) => a - b);
-      shaded.setAttribute("d", P.d([...kept.map(t => [t, s.at(t, 1)]), ...kept.slice().reverse().map(t => [t, s.at(t, 0)])]) + " Z");
-      shaded.setAttribute("fill", s.rmstDifference < 0 ? "var(--red)" : "var(--purple)");
-      shaded.style.display = c.survivalContrast === "rmst" ? "" : "none";
+      // The area is always shown. A drag or playback that starts after a pause anchors a new band.
+      const now = performance.now();
+      if (prevTau === null) prevTau = anchor = c.tau;
+      else if (c.tau !== prevTau) {
+        if (now - lastMove > 900) anchor = prevTau;
+        lastMove = now; prevTau = c.tau;
+      }
+      const lo = Math.min(anchor, c.tau), hi = Math.max(anchor, c.tau),
+        region = (a, b) => { const ts = [...new Set([a, ...times.filter(t => t > a && t < b), b])]; return P.d([...ts.map(t => [t, s.at(t, 1)]), ...ts.slice().reverse().map(t => [t, s.at(t, 0)])]) + " Z"; },
+        colour = v => v < 0 ? "var(--red)" : "var(--purple)",
+        atAnchor = E.survival({ ...c, tau: anchor }).rmstDifference, band = s.rmstDifference - atAnchor;
+      shaded.setAttribute("d", region(0, lo));
+      shaded.setAttribute("fill", colour(E.survival({ ...c, tau: lo }).rmstDifference));
+      sweep.setAttribute("d", hi > lo ? region(lo, hi) : "M0 0");
+      sweep.setAttribute("fill", c.tau >= anchor ? colour(band) : "none");
+      sweep.setAttribute("stroke", colour(c.tau >= anchor ? band : -band));
+      sweep.setAttribute("stroke-dasharray", c.tau >= anchor ? "" : "4 3");
+      byId("estimand-sweep-readout").innerHTML = `Area so far, 0 to ${fmt(c.tau, 1)} years: <b>${signed(s.rmstDifference, 3)} years</b>` +
+        (hi > lo ? ` <span>(${c.tau > anchor ? `new band ${fmt(anchor, 1)} → ${fmt(c.tau, 1)} y added` : `band ${fmt(c.tau, 1)} → ${fmt(anchor, 1)} y removed`}: ${signed(band, 3)} years)</span>` : ` <span>Drag the plot or press Play to sweep a new band.</span>`);
       const x = P.sx(c.tau), y0 = P.sy(s.s0), y1 = P.sy(s.s1), line = marker.firstElementChild;
       line.setAttribute("x1", x); line.setAttribute("x2", x);
       Object.entries({ x1: x, x2: x, y1: y0, y2: y1 }).forEach(([k, v]) => gap.setAttribute(k, v));
@@ -248,7 +266,7 @@
       dots.forEach((d, a) => { d.setAttribute("cx", x); d.setAttribute("cy", a ? y1 : y0); });
       byId("estimand-survival-question").textContent = q.survival;
       byId("estimand-survival-value").textContent = c.survivalContrast === "rmst" ? signed(s.rmstDifference, 3) + " years per person" : signed(s.difference * 100, 1) + " percentage points";
-      byId("estimand-survival-caption").textContent = c.survivalContrast === "rmst" ? `The signed area from 0 to ${fmt(c.tau, 1)} years is ${signed(s.rmstDifference * 12, 2)} months of average survival time under treatment versus control, within this window.` : `At ${fmt(c.tau, 1)} years, ${fmt(s.s1 * 100, 1)} per 100 would be alive under treatment versus ${fmt(s.s0 * 100, 1)} under control. The vertical gap answers a question about this date.`;
+      byId("estimand-survival-caption").textContent = c.survivalContrast === "rmst" ? `The signed area from 0 to ${fmt(c.tau, 1)} years is ${signed(s.rmstDifference * 12, 2)} months of average survival time under treatment versus control, within this window.` : `At ${fmt(c.tau, 1)} years, ${fmt(s.s1 * 100, 1)} per 100 would be alive under treatment versus ${fmt(s.s0 * 100, 1)} under control. The vertical gap answers a question about this date; the shaded area (${signed(s.rmstDifference, 3)} years) answers a different one.`;
       byId("estimand-survival-table").innerHTML = table(["Intervention", `Survival at ${fmt(c.tau, 1)} years`, "RMST (years)"], [["Control", pct(s.s0), fmt(s.rmst0)], ["Treatment", pct(s.s1), fmt(s.rmst1)], ["Treatment − control", signed(s.difference * 100, 1) + " pp", signed(s.rmstDifference, 3)]], "Same target population; exact curves and analytic integrals");
       byId("save-survival-contract").disabled = c.tau === 0;
       syncClock(c);

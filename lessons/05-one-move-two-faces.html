@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<style>.ratio-big{font-size:17px;margin:4px 0 8px;color:var(--ink)}.ratio-big b{color:var(--or);font-size:22px;font-family:"IBM Plex Mono",monospace}.ratio-big span{display:block;font-size:13px;color:var(--muted)}</style>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
@@ -18,7 +19,7 @@
 <div class="wrap">
 <div class="eyebrow">From probability paths to regression fluctuations</div>
 <h1>One Move, Two Faces</h1>
-<p class="lede">The path lessons moved a density: p<sub>ε</sub> = p(1 + εh). The targeting lessons move a regression: μ<sub>ε</sub> = μ̂ + εH. Those look like different operations on different objects. They are one move. Tilting the conditional density of Y by a factor that grows with the residual has score H·(y − μ̂), and its mean is μ̂ + εH. This page shows that, then shows the other object that has been hiding: the empirical distribution Pₙ is a probability measure, though it need not belong to a smooth-density model containing P and P̂, and the one-step correction is the gap between averaging D under Pₙ and under P̂.</p>
+<p class="lede">You have now seen two pictures of "moving the fit". In the scores lessons you tilted a density, p<sub>ε</sub> = p(1 + εh), and read off a score. In the two-strata and clever-covariate lessons you shifted a regression, μ<sub>ε</sub> = μ̂ + εH, and chose ε by least squares. This lesson ties them together: they are one move. Tilting the conditional density of Y by a factor that grows with the residual has score H·(y − μ̂), and its mean is μ̂ + εH, so the old stratum's curve moves 9× as far as the young one's for the same reason it did in the two-strata budget. Then it shows the other object that has been hiding: the empirical distribution Pₙ is a probability measure too (though not a smooth density), and the one-step correction is the gap between averaging D under Pₙ and under P̂.</p>
 
 <!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
@@ -31,8 +32,9 @@
   <div class="ctl">
     <label>ε <span class="v" id="v1e">0.18</span><input type="range" id="e1" min="0" max="0.4" step="0.005" value="0.18"></label>
     <label>π(old) (sets H = 1/π) <span class="v" id="v1p">0.10</span><input type="range" id="pi1" min="0.05" max="0.5" step="0.01" value="0.1"></label>
+    <div class="ratio-big" id="ratio1" role="status" aria-live="polite"></div>
     <div class="readout" id="ro1"></div>
-    <div class="note">The mean of the tilted density is computed by numerical integration, not from the formula, so the readout is a check that the algebra is right.</div>
+    <div class="note">The mean of the tilted density is computed by numerical integration over a wide window (both means ± 12 SD), not from the formula, so the readout is a check that the algebra is right. The score panels share one vertical scale, so the steeper old line is really steeper.</div>
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The TMLE fluctuation of the outcome regression is a one-parameter exponential tilt of the conditional density of Y along the outcome component of the efficient influence function. For a Gaussian working model that tilt is a location shift by εH, which is why the update looks like a regression with H as the covariate.</div>
@@ -55,6 +57,8 @@
   </div>
 </div>
 <div class="say"><b>In one sentence</b>The one-step correction PₙD(P̂) is the empirical average of the influence function at the fit. Because P̂D(P̂) = 0, it equals (Pₙ − P̂)D(P̂): the sample’s disagreement with the fit, measured in the direction that matters for ψ. It estimates the negative of the plug-in bias, with sampling noise of order 1/√n.</div>
+<p class="note">What is exact here: the tilted mean in Scene 1 is a numerical integral that matches μ̂ + εH to many decimals. What is simulated: the sample in Scene 2 (press New sample). What is schematic: the Gaussian working model with variance 1.</p>
+<p class="sources">Further reading: <a href="https://doi.org/10.2202/1557-4679.1043">van der Laan and Rubin (2006), Targeted maximum likelihood learning</a>; <a href="https://doi.org/10.1080/00031305.2020.1717620">Fisher and Kennedy (2021), Visually communicating and teaching intuition for influence functions</a>; <a href="https://doi.org/10.1080/00031305.2021.2021984">Hines, Dukes, Diaz-Ordaz and Vansteelandt (2022), Demystifying statistical learning based on efficient influence functions</a>.</p>
 </div>
 <script>
 (function(){
@@ -84,29 +88,40 @@ const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
 const MUY=3,MUO=2;
 const S1=scene(1,(g,W,H)=>{clear(g,W,H);
   const E=+document.getElementById('e1').value,pio=+document.getElementById('pi1').value;const HY=1/0.9,HO=1/pio;
-  const pan=(L,R,title,mu,Hv,col)=>{const T=40,B=250,shifted=mu-1+E*Hv,ymin=Math.min(mu-1,shifted)-8,ymax=Math.max(mu-1,shifted)+8,dy=0.01;const x=v=>L+(R-L)*(v-ymin)/(ymax-ymin);
-    // densities
-    let Z=0,m=0;const pts0=[],pts1=[];let pk=0;
-    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=Math.exp(-.5*(v-(mu-1))**2+E*Hv*(v-(mu-1))-.5*(E*Hv)**2)/Math.sqrt(2*Math.PI);Z+=p1*dy;m+=v*p1*dy;pk=Math.max(pk,p0);}
-    m/=Z;pk=Math.max(pk,nrm(0,0,1)/1);const y=v=>B-(B-T)*v/(pk*1.15);
-    for(let v=ymin;v<=ymax;v+=dy){const p0=nrm(v,mu-1,1);const p1=Math.exp(-.5*(v-(mu-1))**2+E*Hv*(v-(mu-1))-.5*(E*Hv)**2)/Math.sqrt(2*Math.PI)/Z;pts0.push([x(v),y(p0)]);pts1.push([x(v),y(p1)]);}
-    line(g,L,B,R,B,C.pen,1.2);for(let v=Math.ceil(ymin/2)*2;v<=ymax;v+=2){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
-    txt(g,title,L+6,T-14,C.pen,14,'left',FS,true);txt(g,`H = 1/π = ${Hv.toFixed(2)}`,R-4,T-14,C.muted,11.5,'right',FM);
+  const T=40,B=228,T2=300,B2=420;
+  const tilted=(v,m0,s)=>Math.exp(-.5*(v-m0)**2+s*(v-m0)-.5*s*s)/Math.sqrt(2*Math.PI);
+  // Window for each panel: both means and the truth, with 3.2 SD either side. The score panels share one scale.
+  const win=(mu,Hv)=>{const m0=mu-1,sh=m0+E*Hv;return [Math.min(m0,sh)-3.2,Math.max(mu,sh)+3.2];};
+  const wY=win(MUY,HY),wO=win(MUO,HO);
+  const smax=Math.max(HY*Math.max(Math.abs(wY[0]-(MUY-1)),Math.abs(wY[1]-(MUY-1))),HO*Math.max(Math.abs(wO[0]-(MUO-1)),Math.abs(wO[1]-(MUO-1))));
+  const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(v)));return [1,2,2.5,5,10].map(k=>k*p).find(k=>k>=v);};
+  const S=nice(smax),mid=(T2+B2)/2,ys=v=>mid-(B2-T2)/2*v/S;
+  const pan=(L,R,title,mu,Hv,col,w)=>{const m0=mu-1,shifted=m0+E*Hv,[ymin,ymax]=w;const x=v=>L+(R-L)*(v-ymin)/(ymax-ymin);
+    // mean of the tilted density by numerical integration over a wide window (±12 SD)
+    let Z=0,m=0;const dy=0.005;for(let v=Math.min(m0,shifted)-12;v<=Math.max(m0,shifted)+12;v+=dy){const p1=tilted(v,m0,E*Hv);Z+=p1*dy;m+=v*p1*dy;}m/=Z;
+    const pk=nrm(0,0,1),y=v=>B-(B-T)*v/(pk*1.15);const pts0=[],pts1=[];
+    for(let v=ymin;v<=ymax;v+=0.02){pts0.push([x(v),y(nrm(v,m0,1))]);pts1.push([x(v),y(tilted(v,m0,E*Hv)/Z)]);}
+    line(g,L,B,R,B,C.pen,1.2);const step=ymax-ymin>12?4:2;for(let v=Math.ceil(ymin/step)*step;v<=ymax;v+=step){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
+    txt(g,title,L+6,T-22,C.pen,14,'left',FS,true);txt(g,`H = 1/π = ${Hv.toFixed(2)}`,R-4,T-22,C.muted,11.5,'right',FM);
     poly(g,pts0,C.phat,1.5,[3,3]);poly(g,pts1,col,2.5);
-    line(g,x(mu-1),B,x(mu-1),y(nrm(mu-1,mu-1,1)),C.phat,1,[2,3]);txt(g,'μ̂',x(mu-1),B+26,C.phat,11,'center',FM);
-    line(g,x(m),B,x(m),y(nrm(m,m,1)),col,1.5);txt(g,`μ̂ + εH = ${(mu-1+E*Hv).toFixed(2)}`,R-4,T+6,col,11,'right',FM);txt(g,`∫ y p̂_ε = ${m.toFixed(2)}`,R-4,T+22,col,11,'right',FM);
-    if(E>0){arrow(g,x(mu-1),T+40,x(m),T+40,col,1.5);}
-    line(g,x(mu),B,x(mu),T+56,C.p,1,[5,4]);txt(g,'truth',x(mu),B+26,C.p,10.5,'center',FM);
-    // score panel below: H(y-mu) line, and tilt factor
-    const T2=300,B2=440;const ys=v=>B2-(B2-T2)*(v+30)/60;line(g,L,ys(0),R,ys(0),C.grid,1);line(g,L,B2,L,T2,C.pen,1.2);
-    const sp=[];for(let v=ymin;v<=ymax;v+=0.1)sp.push([x(v),ys(Math.max(-30,Math.min(30,Hv*(v-(mu-1)))))]);poly(g,sp,C.teal,2);
-    txt(g,'score H·(y−μ̂), display clipped ±30',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
-    txt(g,`slope = H = ${Hv.toFixed(2)}`,R-4,B2-10,C.teal,11,'right',FM);
+    // μ̂ label sits above the initial peak; the truth label sits at the top of its own line, to its right
+    line(g,x(m0),B,x(m0),y(pk),C.phat,1,[2,3]);txt(g,'μ̂',x(m0),y(pk)-10,C.phat,12,'center',FM);
+    line(g,x(mu),B,x(mu),T-4,C.green,1.2,[5,4]);txt(g,'truth',x(mu)+4,T-6,C.green,10.5,'left',FM);
+    line(g,x(m),B,x(m),y(pk),col,1.5);
+    if(E>0)arrow(g,x(m0),B-14,x(m),B-14,col,1.5);
+    txt(g,`mean moved ε·H = ${(E*Hv).toFixed(2)}   (∫ y p̂_ε = ${m.toFixed(2)})`,L+6,B+32,col,11,'left',FM);
+    // score panel: H·(y − μ̂) is a straight line of slope H, drawn on a scale shared by both panels
+    line(g,L,mid,R,mid,C.grid,1);line(g,L,B2,L,T2,C.pen,1.2);
+    for(const v of [-S,0,S]){line(g,L-4,ys(v),L,ys(v),C.pen,1);txt(g,v>0?'+'+S:v,L-6,ys(v),C.muted,10,'right',FM);}
+    poly(g,[[x(ymin),ys(Hv*(ymin-m0))],[x(ymax),ys(Hv*(ymax-m0))]],C.teal,2);
+    txt(g,'score H·(y − μ̂)',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,`slope H = ${Hv.toFixed(2)}`,R-4,T2-12,C.teal,11.5,'right',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
     return m;};
-  const mY=pan(50,380,'Young stratum',MUY,HY,C.p),mO=pan(430,760,'Old stratum',MUO,HO,C.or);
-  txt(g,`same ε = ${E.toFixed(3)} for both.  Young moves ε·${HY.toFixed(2)} = ${(E*HY).toFixed(2)},  old moves ε·${HO.toFixed(2)} = ${(E*HO).toFixed(2)}`,50,470,C.pen,12.5,'left',FM);
-  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">young: μ̂+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">young: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">old: μ̂+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">old: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span>`;
-  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth. The teal line is the score of the tilt at each y.':`Tilting slides each density by εH. Old/young shift ratio = ${(0.9/pio).toFixed(2)}. Integration domain covers both means ±8 SD; absolute mean error ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
+  const mY=pan(50,380,'Young stratum',MUY,HY,C.p,wY),mO=pan(430,760,'Old stratum',MUO,HO,C.or,wO);
+  const ratio=HO/HY;
+  txt(g,`same ε = ${E.toFixed(3)} for both.  Old moved ${ratio.toFixed(1)}× young:  ${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}`,50,466,C.pen,13,'left',FM);
+  document.getElementById('ratio1').innerHTML=`Old moved <b>${ratio.toFixed(1)}×</b> young <span>(${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}; ratio = H<sub>old</sub>/H<sub>young</sub> = 0.9/${pio.toFixed(2)})</span>`;
+  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">young: μ̂+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">young: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">old: μ̂+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">old: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span><span class="k">old shift ÷ young shift</span><span>${ratio.toFixed(1)}×</span>`;
+  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth (green). The teal line is the score of the tilt at each y.':`Tilting slides each density by εH: old moved ${ratio.toFixed(1)}× young. Numerical mean matches μ̂ + εH to within ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
 },{noplay:true});
 bind('e1','v1e',v=>v.toFixed(3),()=>S1.draw());bind('pi1','v1p',v=>v.toFixed(2),()=>S1.draw());
 
@@ -120,13 +135,15 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);
   line(g,L,B,R,B,C.pen,1.2);for(let v=-3;v<=4;v++){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
   const pts=[],ph=[];for(let v=zmin;v<=zmax;v+=0.02){pts.push([x(v),y(pT(v))]);ph.push([x(v),y(0.55*nrm(v,-0.4+mh-MU,0.7)+0.45*nrm(v,1.6+mh-MU,0.8))]);}
   const a=seg(t,0,0.3),b=seg(t,0.3,0.6);
-  poly(g,pts,C.p,2);txt(g,'P (truth)',x(2.6),y(pT(2.6))-14,C.p,12,'left',FS,true);
+  poly(g,pts,C.green,2);txt(g,'P (truth)',x(2.6),y(pT(2.6))-14,C.green,12,'left',FS,true);
   if(a>0){g.globalAlpha=a;poly(g,ph,C.phat,2,[4,3]);txt(g,'P̂ (fit, mean μ̂)',x(-3.3),T+10,C.phat,12,'left',FS,true);g.globalAlpha=1;}
   if(b>0){g.globalAlpha=b;const h=Math.min(60,(B-T)*0.25*40/n+8);Z2.forEach(z=>line(g,x(z),B,x(z),B-h,C.teal,1.2));txt(g,`Pₙ (sample, n = ${n}): mass 1/n at each spike`,x(-3.3),T+30,C.teal,12,'left',FS,true);g.globalAlpha=1;}
-  line(g,x(mh),B,x(mh),B-8,C.phat,3);txt(g,'μ̂',x(mh),B+26,C.phat,11,'center',FM);line(g,x(MU),B,x(MU),B-8,C.p,3);txt(g,'μ',x(MU),B+26,C.p,11,'center',FM);if(b>0.99){line(g,x(zbar),B,x(zbar),B-8,C.teal,3);txt(g,'z̄',x(zbar),B+38,C.teal,11,'center',FM);}
+  // marker labels below the axis: each takes the first row where it does not collide with an earlier one
+  const lrows=[[],[],[]],place=(xx,s,col)=>{const k=lrows.findIndex(r=>r.every(q=>Math.abs(q-xx)>22));const r=k<0?2:k;lrows[r].push(xx);txt(g,s,xx,B+26+r*13,col,11,'center',FM);};
+  line(g,x(MU),B,x(MU),B-8,C.green,3);place(x(MU),'μ',C.green);line(g,x(mh),B,x(mh),B-8,C.phat,3);place(x(mh),'μ̂',C.phat);if(b>0.99){line(g,x(zbar),B,x(zbar),B-8,C.teal,3);place(x(zbar),'z̄',C.teal);}
   // bars of averages of D̂ = z - μ̂
-  const c=seg(t,0.6,1);const rows=[['P̂ D̂  (fit averages itself)',0,C.phat],['Pₙ D̂  = z̄ − μ̂  (correction)',zbar-mh,C.teal],['P D̂  = μ − μ̂  (− plug-in bias)',MU-mh,C.p]];
-  const bx=400,bw=300,sc=bw/2.2;txt(g,'Average of D̂(z) = z − μ̂ under each distribution',50,296,C.pen,13,'left',FS,true);
+  const c=seg(t,0.6,1);const rows=[['P̂ D̂  (fit averages itself)',0,C.phat],['Pₙ D̂  = z̄ − μ̂  (correction)',zbar-mh,C.teal],['P D̂  = μ − μ̂  (− plug-in bias)',MU-mh,C.green]];
+  const bx=400,bw=300,sc=(bw/2-4)/Math.max(1.1,...rows.map(r=>Math.abs(r[1])));txt(g,'Average of D̂(z) = z − μ̂ under each distribution',50,296,C.pen,13,'left',FS,true);
   rows.forEach((r,i)=>{const yy=326+i*44;txt(g,r[0],50,yy+6,r[2],12,'left',FM);rect(g,bx,yy-1,bw,14,C.grid);const v=r[1]*c;rect(g,bx+bw/2+Math.min(0,v*sc),yy-1,Math.abs(v)*sc,14,r[2],0.85);line(g,bx+bw/2,yy-6,bx+bw/2,yy+18,C.pen,1);txt(g,(r[1]*c).toFixed(3),bx+bw+8,yy+6,r[2],11.5,'left',FM);});
   if(c>0.99){txt(g,`one-step = μ̂ + PₙD̂ = ${mh.toFixed(2)} + ${(zbar-mh).toFixed(3)} = ${zbar.toFixed(3)} = z̄`,50,462,C.pen,12.5,'left',FM);txt(g,`sampling error (Pₙ − P)D̂ = ${(zbar-MU).toFixed(3)}`,50,484,C.muted,12,'left',FM);}
   document.getElementById('ro2').innerHTML=`<span class="k">μ (truth)</span><span>${MU.toFixed(3)}</span><span class="k">μ̂</span><span>${mh.toFixed(3)}</span><span class="k">z̄</span><span>${zbar.toFixed(3)}</span><span class="k">PₙD̂</span><span>${(zbar-mh).toFixed(3)}</span><span class="k">PD̂</span><span>${(MU-mh).toFixed(3)}</span><span class="k">(Pₙ−P)D̂</span><span>${(zbar-MU).toFixed(3)}</span>`;

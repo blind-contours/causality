@@ -112,7 +112,7 @@ async function main() {
   );
   assert(
     (await ev(`document.querySelector('#river a.node.now').dataset.unit`)) ===
-      "scores-from-scratch" &&
+      "intercurrent-events" &&
       (await ev(`Causality.state().units['causal-roadmap'].status`)) !==
         "demonstrated",
     "after the diagnostic, the map should point at the first geometry lesson without claiming demonstration",
@@ -302,11 +302,21 @@ async function main() {
     report.checks.rates.includes("stays at 1"),
     "quarter-rate equality incorrectly vanishes",
   );
-  await ev(
-    `const sim=document.querySelector('[data-simulation]');for(const [key,value]of [['mode','oracle'],['n',100],['reps',20]]){const e=sim.querySelector('[data-key='+key+']');e.value=value;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}sim.querySelector('.run').click()`,
-  );
+  // Grid panels run a default experiment on arrival; let it finish before configuring a new run.
   for (let i = 0; i < 100; i++) {
     if (await ev(`!document.querySelector('.download').disabled`)) break;
+    await delay(100);
+  }
+  await ev(
+    `const sim=document.querySelector('[data-simulation]');for(const [key,value]of [['mode','oracle'],['n',100],['reps',20]]){const e=sim.querySelector('[data-key='+key+']');if(!e)continue;e.value=value;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}sim.querySelector('.run').click()`,
+  );
+  for (let i = 0; i < 100; i++) {
+    if (
+      await ev(
+        `!document.querySelector('.download').disabled && document.querySelector('.hist-table').innerText.includes('total per estimator = 20')`,
+      )
+    )
+      break;
     await delay(100);
   }
   report.checks.simulation = await ev(

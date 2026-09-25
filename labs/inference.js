@@ -95,10 +95,12 @@
         width: 280,
         height: 240,
         margin: { l: 44, r: 14, t: 24, b: 40 },
-        xlabel: "log₁₀ n",
+        xlabel: "n (log scale)",
         ylabel: "√n · area (log scale)",
+        xticks: [2, 3, 4, 5],
+        xTickFormat: (v) => ["10²", "10³", "10⁴", "10⁵"][v - 2] ?? fmt(v, 1),
         yticks: [-2, -1, 0, 1, 2],
-        tickFormat: (v) =>
+        yTickFormat: (v) =>
           Number.isInteger(v) && v >= -2 && v <= 2
             ? ["0.01", "0.1", "1", "10", "100"][v + 2]
             : fmt(v, 2),
@@ -109,7 +111,13 @@
         stroke: "var(--or)",
         "stroke-width": 1.5,
       }),
-      bandLab = el("text", { class: "fig-text", "text-anchor": "end" }),
+      halo = {
+        stroke: "var(--paper)",
+        "stroke-width": 4,
+        "paint-order": "stroke",
+        "stroke-linejoin": "round",
+      },
+      bandLab = el("text", { class: "fig-text", "text-anchor": "end", ...halo }),
       pathAll = P.line([[0, 0]], {
         stroke: "var(--purple)",
         "stroke-opacity": 0.35,
@@ -127,12 +135,22 @@
         "stroke-width": 1.5,
       }),
       dot = el("circle", { r: 6, fill: "var(--purple)" }),
-      areaLab = el("text", { class: "fig-text ink", "text-anchor": "middle" }),
+      areaLab = el("text", {
+        class: "fig-text ink",
+        "text-anchor": "middle",
+        ...halo,
+      }),
       nLab = el("text", { class: "fig-text ink", "text-anchor": "end" });
     P.marks.prepend(band);
     P.marks.append(rect, dot);
     P.fg.append(bandLab, areaLab, nLab);
-    T.hline(Math.log10(C), { stroke: "var(--or)" }, "band scale c");
+    T.hline(Math.log10(C), { stroke: "var(--or)" });
+    // The trace can sit on the dashed line, so its label lives in the always-empty top-left corner.
+    T.text(2.08, 1.65, "dashed: band scale c = 2.5", {
+      class: "fig-text",
+      fill: "var(--or)",
+      "text-anchor": "start",
+    });
     // Region where ‖ĝ−g‖·‖m̂−m‖ ≤ band: everything under the hyperbola x·y = band.
     const hyperbola = (b) => {
       const xTop = b / P.y[1];
@@ -165,10 +183,11 @@
         r = at(n),
         sum = cfg.alpha + cfg.beta;
       band.setAttribute("d", hyperbola(r.band));
-      const yEdge = Math.min(P.y[1], r.band / P.x[1]);
+      // Errors start at 0.5, so the band above 0.5 is always free for this label.
       bandLab.setAttribute("x", P.sx(P.x[1]) - 6);
-      bandLab.setAttribute("y", P.sy(yEdge) - 6);
-      bandLab.textContent = `boundary ‖ĝ−g‖·‖m̂−m‖ = c/√n = ${fmt(r.band, 3)}`;
+      bandLab.setAttribute("y", P.m.t + 38);
+      bandLab.style.fill = "var(--or)";
+      bandLab.textContent = `shaded: ‖ĝ−g‖·‖m̂−m‖ ≤ c/√n = ${fmt(r.band, 3)}`;
       pathAll.setAttribute(
         "d",
         P.d(
@@ -591,7 +610,7 @@
   root.innerHTML = `<section class="lab-step" data-title="Three terms"><h2 tabindex="-1">A correction leaves three different sources of error</h2><p>The leading error is an average of true influence-function values. A second term comes from estimating that influence function. A third term is nonlinear bias: the remainder. Each needs its own argument.</p><div class="math">ψ̂ − ψ₀ = (Pₙ−P₀)D*(P₀)<br>+ (Pₙ−P₀)[D*(P̂)−D*(P₀)]<br>+ R₂(P̂,P₀)</div><p>The remainder is bounded by a product of two nuisance errors: a rectangle. Play lets n grow and asks whether the rectangle's area gets inside the sampling band before n runs out.</p><div data-figure="dr-plane" data-alpha="0.25" data-beta="0.25"></div><p>The first term gives the efficient variance. Cross-fitting helps control the second. Appropriate nuisance accuracy makes the last negligible. Identification is needed before any of these terms can describe a causal answer.</p><details><summary>Exact ATE remainder and its sign convention</summary><p class="math">Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂<br>R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]</p><p>Under positivity and bounded inverse estimated propensities, its magnitude is bounded by a constant times the product of L² nuisance errors. A rectangle of side lengths “outcome error” and “propensity error” depicts a bound on magnitude, not the signed exact remainder. In the figure the errors start at 0.5 when n = 100 and the band constant c = 2.5 is chosen so that the boundary case α + β = ½ rides exactly along the band's edge.</p></details></section>
 <section class="lab-step" data-title="Rates"><h2 tabindex="-1">The boundary matters: one quarter plus one quarter</h2><label>Outcome convergence exponent α <input id="alpha" type="range" min="0" max=".6" step=".01"></label><label>Propensity convergence exponent β <input id="beta" type="range" min="0" max=".6" step=".01"></label><div class="figure" id="rate-figure"><div class="fig-row"><div><svg id="rate-plot" role="img" aria-label="Square-root-n scaled remainder bound versus log10 sample size, with the boundary line at one. Values and interpretation follow."></svg></div><div><svg id="rate-square" role="img" aria-label="The rate square: alpha against beta with the boundary line alpha plus beta equals one half and the current point."></svg><div class="fig-readout" id="rate-readout"></div></div></div><p id="rate-status" class="fig-caption" role="status"></p></div><div id="rate-table"></div><p>If the errors are exactly n⁻¹⁄⁴ each, their product is n⁻¹⁄². Multiplication by √n leaves a constant. For centered efficient inference, require a little-o remainder: √n R₂ → 0. A rate sum strictly greater than ½ is sufficient under the other conditions; equality is not enough by itself.</p><p class="note">This plot sets bounding constants to one and uses exact power laws. It illustrates rates, not a finite-sample guarantee. One nuisance can be slower if the other is faster.</p></section>
 <section class="lab-step" data-title="Cross-fitting"><h2 tabindex="-1">Make a prediction before seeing that patient's outcome</h2><p>Imagine a learner that memorizes the training outcomes. Its training residuals are all zero, even if it predicts new patients poorly. For cross-fitting, fit on one fold and evaluate on the other, then swap. Every patient receives a prediction from a model trained without that patient's observation.</p><div data-figure="crossfit" data-n="16" data-seed="872"></div><div id="fold-table"></div><p class="math">Fit fold A → evaluate fold B<br>Fit fold B → evaluate fold A<br>Combine the held-out influence-function contributions.</p><p>Conditional on the training fold, independent validation observations make the empirical-process term easier to control. Consistency in L² and suitable moments are still needed. Cross-fitting does not correct a persistently wrong model, weak overlap, confounding that was not measured, or a remainder that fails to vanish.</p><p class="note">In the table, “own-fold prediction” is what the learner says about a patient it was trained on: the memorising learner returns the outcome exactly. The held-out prediction comes from the model fitted on the other fold. Neither is advertised as an adequate nuisance learner. The purpose is to expose data reuse.</p></section>
-<section class="lab-step" data-title="Repeat samples"><h2 tabindex="-1">Consistency, efficiency, and coverage are separate questions</h2><p>Predict first: when only one nuisance model is correctly specified, does the correction remove asymptotic bias? Must it attain the efficient bound? Must its empirical influence-function interval be valid? Use the four cases to separate those claims.</p><div data-simulation="inference"></div></section>`;
+<section class="lab-step" data-title="Cross-fitting on or off"><h2 tabindex="-1">Turn cross-fitting off and watch the interval shrink below the truth</h2><p>Step 3 used sixteen patients. Now run the same idea at scale. The outcome learner is k-nearest neighbours, as flexible as it gets: with k = 1 it predicts each patient by the single closest patient in the same arm. Fitted and evaluated on the same data, that closest patient is the patient itself, so every own-arm residual Y − m̂ is exactly zero.</p><div class="predict" data-options="Too narrow: coverage well below 95%|Too wide: coverage near 100%|About right: the propensity model is correct, so nothing breaks" data-answer="0" data-hint="The influence-function values are built from residuals. If the learner has memorised the outcomes, the residuals are zero and the values lose the outcome noise, so their spread understates the estimator's real spread.">With k = 1 and no cross-fitting, what happens to the AIPW 95% interval?</div><div data-simulation="crossfit" data-layout="grid"></div><p>Read the two panels from top to bottom. Without cross-fitting the estimates are roughly centred, but the IF-based standard error is about half the real spread, so nearly two intervals in five miss the truth. With two folds each patient is predicted by a model that never saw it, the residuals are honest again, and coverage returns close to 95%. Cross-fitting does not buy efficiency: a 1-nearest-neighbour fit never becomes accurate, so the cross-fitted SD stays well above the efficient bound. Try k = 25: a smoother learner cannot memorise, and fitting on the same patients does far less harm.</p><p class="note">This is the empirical-process term (Pₙ−P₀)[D*(P̂)−D*(P₀)] from step 1 made visible: when P̂ is fitted on the same patients it is evaluated on, that term need not be negligible. Consistency of the point estimate, efficiency and coverage are three separate promises, and each has its own condition.</p></section></section>`;
   CausalFigures.mountAll();
   control(document.getElementById("alpha"), state, "alpha");
   control(document.getElementById("beta"), state, "beta");

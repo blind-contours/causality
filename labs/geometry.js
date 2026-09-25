@@ -12,7 +12,7 @@
       restricted: false,
       yaw: -0.55,
       pitch: 0.55,
-      view: "simplex",
+      view: "plane",
     },
     {
       step: [0, 5],
@@ -22,15 +22,15 @@
       direction: ["transfer", "nuisance"],
       yaw: [-3.14, 3.14],
       pitch: [-1.4, 1.4],
-      view: ["simplex", "sphere", "scores", "plane"],
+      view: ["plane", "simplex", "sphere", "scores"],
     },
   );
   root.innerHTML = `<section class="lab-step" data-title="Move mass"><h2 tabindex="-1">A distribution is a position you can move</h2><p>Three possible outcomes: −1, 0, and 2. Their probabilities add to one. Set the probabilities at −1 and at 0; outcome 2 takes whatever is left. Watch the mean move while the outcome positions stay fixed.</p><label>Probability at outcome −1 <input id="mass" type="range" min=".05" max=".45" step=".01"></label><label>Probability at outcome 0 <input id="middle" type="range" min=".05" max=".8" step=".01"></label><div id="mass-bars"></div><p class="readout" id="mean-value"></p><p class="note">This is an exact finite statistical model. A three-outcome distribution lives on a two-dimensional triangle in three coordinates. The later function spaces can be infinite dimensional.</p></section>
 <section class="lab-step" data-title="Choose a path"><h2 tabindex="-1">A score describes relative changes in probability</h2><p>In the full model, choose a direction, then scrub ε to travel along it. Probability velocity is vᵢ. The score is hᵢ = vᵢ / pᵢ: the same absolute movement is a larger relative change in a small bin.</p><label>Direction <select id="direction"><option value="transfer">Move mass from −1 to 2</option><option value="nuisance">Move without changing the mean</option></select></label><label>Position along the path ε <input id="epsilon" type="range" min="-.15" max=".15" step=".005"></label><div id="path-table"></div><p class="math" id="path-identity"></p><p>Scores have probability-weighted mean zero because mass is conserved. That condition alone is not enough for arbitrary ε: every probability must also stay nonnegative.</p><p class="note">A direction can visibly change the distribution while leaving this target unchanged. That is a nuisance direction for the mean. Under the middle-mass restriction, this direction is disallowed; only the outer-mass transfer remains.</p></section>
-<section class="lab-step" data-title="Build the predictor"><h2 tabindex="-1">One set of numbers predicts every slope</h2><p>Try assigning a sensitivity to each outcome. Multiply sensitivity × score × probability, then add. Can your three numbers reproduce the target slope for both independent directions? A constant shift does not change the slope prediction; mean-zero centering fixes that freedom in the full model.</p><div class="geometry-controls"><label>Sensitivity at −1 <input id="guess0" type="number" step=".1" value="0"></label><label>Sensitivity at 0 <input id="guess1" type="number" step=".1" value="0"></label><label>Sensitivity at 2 <input id="guess2" type="number" step=".1" value="0"></label></div><button id="check-gradient">Test my sensitivities</button><button id="show-gradient">Show a worked construction</button><p id="gradient-feedback" role="status"></p><details><summary>Give the successful construction its name</summary><p class="math">Dᵢ = zᵢ − μ<br>dΨ(Pε)/dε |₀ = Σᵢ Dᵢ hᵢ pᵢ = Eₚ[Dh]<br>Eₚ[D] = 0</p><p>These sensitivities form the mean's efficient influence function in the full three-outcome model. Its inner product with a score gives the target derivative along that direction.</p></details></section>
-<section class="lab-step" data-title="Rotate the geometry"><h2 tabindex="-1">Three views of the same movement</h2><p>The triangle shows probability mass. The sphere shows square-root probabilities. The score view uses √pᵢ hᵢ coordinates, so ordinary Euclidean dot products equal probability-weighted score inner products.</p><label>Representation <select id="view"><option value="simplex">Probability simplex</option><option value="sphere">Square-root probability sphere</option><option value="scores">Weighted score vectors and projection</option><option value="plane">Flat tangent plane (2D alternative)</option></select></label><svg id="geometry" class="geometry-figure" viewBox="0 0 600 420" role="img" tabindex="0" aria-label="Rotatable three-dimensional probability geometry. Drag, use arrow keys, or use the camera sliders. Exact values are in the table below."></svg><div class="geometry-controls"><label>Camera yaw <input id="yaw" type="range" min="-3.14" max="3.14" step=".02"></label><label>Camera pitch <input id="pitch" type="range" min="-1.4" max="1.4" step=".02"></label></div><div class="btns"><button id="reset-camera">Reset camera</button><button id="plane-camera">Look straight at the probability plane</button></div><p class="legend">Blue D: original gradient · purple D*: canonical gradient · dashed orange: discarded component · teal: chosen unit score. In the score view, the shaded plane is the full tangent space; the purple line is the restricted tangent space when selected.</p><div id="geometry-table"></div><p class="note">Rotating changes only the camera. The square-root-density velocity is ½√p h, not √p h; the displayed score vectors use the latter coordinates to preserve inner products.</p></section>
-<section class="lab-step" data-title="Restrict and project"><h2 tabindex="-1">Now tell the model what it already knows</h2><label><span><input id="restricted" type="checkbox"> The middle probability is known: allow only paths that keep it fixed</span></label><div class="figure"><svg id="projection-figure" viewBox="0 0 600 360" role="img" aria-label="The gradient D, the allowed tangent space, and the perpendicular dropped from D to the canonical gradient D*"></svg><div class="btns"><button id="replay-projection" type="button">Replay the projection</button></div><div class="variance-bar" id="variance-bar" aria-hidden="true"><i class="kept"></i><i class="lost"></i></div><p class="fig-caption" id="projection-caption"></p></div><p>The full tangent space contains every mean-zero score. With the middle mass fixed, only one independent direction remains. Project the original gradient onto the allowed tangent space. The discarded component predicts no slope along an allowed path, so it adds variance without adding relevant information.</p><div id="projection-table"></div><p class="math" id="projection-values"></p><p>This projection is the <b>canonical gradient</b>, D*. It lies in the tangent space and represents all target derivatives there. Every other mean-zero gradient is D* plus an element orthogonal to that tangent space.</p><p>The nuisance tangent space consists of allowed directions with zero target derivative. It is not the whole tangent space. Projecting a gradient onto the model tangent space and projecting a parameter score away from nuisance scores are related, distinct constructions.</p><button id="reference-example">Load the reference example (0.2, 0.5, 0.3)</button></section>
-<section class="lab-step" data-title="Connect to estimation"><h2 tabindex="-1">Sensitivity becomes sampling error</h2><p>For an asymptotically linear estimator, the leading estimation error is the average of its influence-function values. Its variance is therefore approximately E[D²]/n. The canonical gradient has the smallest variance among the influence functions of regular asymptotically linear estimators in this model (the gradients).</p><p class="math" id="variance-values"></p><p>Knowing something about a model can lower the bound, or leave it unchanged when the removed directions were already orthogonal to the gradient. For the population ATE at the same observed law, knowing the treatment mechanism is such an unchanged-bound case.</p><p>When a paper says “let D* be the canonical gradient,” translate it as: find the shortest mean-zero vector inside the allowed tangent space whose dot product with every allowed direction predicts the target's slope.</p><p class="note">This picture establishes exact identities in a finite model. Extending it uses closed linear spans in L²(P), differentiability, and regularity conditions; a rotatable surface is an illustration of those ideas.</p></section>`;
+<section class="lab-step" data-title="Build the predictor"><h2 tabindex="-1">One set of numbers predicts every slope</h2><p>Try assigning a sensitivity to each outcome. Multiply sensitivity × score × probability, then add. Can your three numbers reproduce the target slope for both independent directions? A constant shift does not change the slope prediction; mean-zero centering fixes that freedom in the full model.</p><div class="geometry-controls"><label>Sensitivity at −1 <input id="guess0" type="number" step=".1" value="0"></label><label>Sensitivity at 0 <input id="guess1" type="number" step=".1" value="0"></label><label>Sensitivity at 2 <input id="guess2" type="number" step=".1" value="0"></label></div><p class="note" id="gradient-strategy"><b>Strategy:</b> start with each outcome's own value as its sensitivity (−1, 0, 2), test it, then subtract one common number from all three so their probability-weighted average is zero.</p><button id="check-gradient">Test my sensitivities</button><button id="show-gradient">Show a worked construction</button><p id="gradient-feedback" role="status"></p><details><summary>Give the successful construction its name</summary><p class="math">Dᵢ = zᵢ − μ<br>dΨ(Pε)/dε |₀ = Σᵢ Dᵢ hᵢ pᵢ = Eₚ[Dh]<br>Eₚ[D] = 0</p><p>These sensitivities form the mean's efficient influence function in the full three-outcome model. Its inner product with a score gives the target derivative along that direction.</p></details></section>
+<section class="lab-step" data-title="See the geometry"><h2 tabindex="-1">The tangent plane: every allowed direction, drawn flat</h2><p>Every mean-zero score direction at P lives in one flat plane. Here it is drawn head-on, in √pᵢ hᵢ coordinates, so ordinary lengths and angles on the page are probability-weighted ones: the length of a vector is its standard deviation, and a right angle means zero covariance. Blue D is the gradient from the previous step; teal is the unit score of the path you chose.</p><label>Representation <select id="view"><option value="plane">Flat tangent plane (default)</option><option value="simplex">Optional 3D: probability simplex</option><option value="sphere">Optional 3D: square-root probability sphere</option><option value="scores">Optional 3D: score vectors in space</option></select></label><svg id="geometry" class="geometry-figure" style="max-width:680px;margin-inline:auto;display:block" viewBox="0 0 600 420" role="img" tabindex="0" aria-label="Probability geometry: the flat tangent plane by default, or a rotatable three-dimensional view. In 3D views drag, use arrow keys, or use the camera sliders. Exact values are in the table below."></svg><div id="camera-controls"><p class="note">The 3D views show the same objects inside the three probability coordinates. Drag the figure, use the arrow keys, or the sliders.</p><div class="geometry-controls"><label>Camera yaw <input id="yaw" type="range" min="-3.14" max="3.14" step=".02"></label><label>Camera pitch <input id="pitch" type="range" min="-1.4" max="1.4" step=".02"></label></div><div class="btns"><button id="reset-camera">Reset camera</button><button id="plane-camera">Look straight at the probability plane</button></div></div><p class="legend">Blue D: original gradient · purple D*: canonical gradient · dashed orange: discarded component · teal: chosen unit score. The shaded plane is the full tangent space; the purple line is the restricted tangent space when the middle mass is known.</p><div id="geometry-table"></div><p class="note">Rotating changes only the camera. The square-root-density velocity is ½√p h, not √p h; the displayed score vectors use the latter coordinates to preserve inner products.</p></section>
+<section class="lab-step" data-title="Restrict and project"><h2 tabindex="-1">Now tell the model what it already knows</h2><p>Arriving here runs the projection once: the model is told the middle probability, and the gradient D drops onto the only direction still allowed. Untick the box to compare with the full model; Replay runs it again.</p><label><span><input id="restricted" type="checkbox"> The middle probability is known: allow only paths that keep it fixed</span></label><div class="figure"><svg id="projection-figure" style="max-width:680px;margin-inline:auto;display:block;width:100%" viewBox="0 0 600 360" role="img" aria-label="The gradient D, the allowed tangent space, and the perpendicular dropped from D to the canonical gradient D*"></svg><div class="btns"><button id="replay-projection" type="button">Replay the projection</button></div><div class="variance-bar" id="variance-bar" aria-hidden="true"><i class="kept"></i><i class="lost"></i></div><p class="fig-caption" id="projection-caption"></p></div><p>The full tangent space contains every mean-zero score. With the middle mass fixed, only one independent direction remains. Project the original gradient onto the allowed tangent space. The discarded component predicts no slope along an allowed path, so it adds variance without adding relevant information.</p><div id="projection-table"></div><p class="math" id="projection-values"></p><p>This projection is the <b>canonical gradient</b>, D*. It lies in the tangent space and represents all target derivatives there. Every other mean-zero gradient is D* plus an element orthogonal to that tangent space.</p><p>The nuisance tangent space consists of allowed directions with zero target derivative. It is not the whole tangent space. Projecting a gradient onto the model tangent space and projecting a parameter score away from nuisance scores are related, distinct constructions.</p><button id="reference-example">Load the reference example (0.2, 0.5, 0.3)</button></section>
+<section class="lab-step" data-title="Connect to estimation"><h2 tabindex="-1">Sensitivity becomes sampling error</h2><p>For an asymptotically linear estimator, the leading estimation error is the average of its influence-function values. Its variance is therefore approximately E[D²]/n. The canonical gradient has the smallest variance among the influence functions of regular asymptotically linear estimators in this model (the gradients).</p><p class="math" id="variance-values"></p><p>Knowing something about a model can lower the bound, or leave it unchanged when the removed directions were already orthogonal to the gradient.</p><p><b>Randomized trials.</b> Knowing the propensity, as the protocol does in a randomized trial, is the same move as fixing the middle mass here: it restricts the model, because paths that change the treatment mechanism are no longer allowed. For the ATE the removed directions are orthogonal to the efficient influence function, so the bound itself does not move. What changes is that more gradients now exist: the unadjusted difference in means has one of them, and it is not the canonical one. Projecting it onto the smaller tangent space is exactly covariate adjustment, and the variance of the discarded piece, E[(D − D*)²], is what adjustment gains. <a href="16-rct-adjustment.html">Your trial, adjusted</a> does this with a real trial design.</p><p>When a paper says “let D* be the canonical gradient,” translate it as: find the shortest mean-zero vector inside the allowed tangent space whose dot product with every allowed direction predicts the target's slope.</p><p class="note">This picture establishes exact identities in a finite model. Extending it uses closed linear spans in L²(P), differentiability, and regularity conditions; a rotatable surface is an illustration of those ideas.</p></section>`;
   const ids = {
     mass: "mass",
     middle: "middle",
@@ -172,6 +172,8 @@
     projAnim = null,
     lastRestricted = null;
   function draw(m) {
+    const cam = document.getElementById("camera-controls");
+    if (cam) cam.hidden = m.c.view === "plane";
     drawInto(document.getElementById("geometry"), m, proj);
     const mini = document.getElementById("projection-figure");
     if (mini)
@@ -181,7 +183,10 @@
     const { c, p, q, d, dstar, h } = m;
     el.replaceChildren();
     const isScore = ["scores", "plane"].includes(c.view);
-    const scale = isScore ? (isMini ? 165 : 95) : 260,
+    // Scales keep every vertex, label and plane corner inside the 600 × 420 view box at any camera
+    // angle: in the 3D simplex and sphere views no drawn point is farther than √(2/3) from the centre.
+    const scale = isMini ? 150 : c.view === "plane" ? 160 : isScore ? 95 : 225,
+      cy0 = isMini ? 185 : 210,
       center = isScore ? [0, 0, 0] : [1 / 3, 1 / 3, 1 / 3];
     const rawBasis = S.score(p, [-1, 0, 1]).map((v, i) => v * Math.sqrt(p[i])),
       basisLength = Math.sqrt(S.dot(rawBasis, rawBasis)),
@@ -194,13 +199,13 @@
       ];
     const project = (a) => {
       if (c.view === "plane")
-        return [300 + scale * S.dot(a, basis1), 230 - scale * S.dot(a, basis2)];
+        return [300 + scale * S.dot(a, basis1), cy0 - scale * S.dot(a, basis2)];
       const [x, y, z] = a.map((v, i) => v - center[i]),
         X = Math.cos(c.yaw) * x - Math.sin(c.yaw) * y,
         Y = Math.sin(c.yaw) * x + Math.cos(c.yaw) * y;
       return [
         300 + scale * X,
-        230 - scale * (Math.cos(c.pitch) * z - Math.sin(c.pitch) * Y),
+        cy0 - scale * (Math.cos(c.pitch) * z - Math.sin(c.pitch) * Y),
       ];
     };
     const line = (a, b, color, dash = "") => {
@@ -225,7 +230,7 @@
           "text",
           {
             x: Math.max(10, Math.min(590 - labelWidth, x + dx)),
-            y: Math.max(25, Math.min(400, y + dy)),
+            y: Math.max(25, Math.min(isMini ? 345 : 405, y + dy)),
           },
           label,
         ),
@@ -237,8 +242,19 @@
       [0, 1, 0],
       [0, 0, 1],
     ].forEach((a, i) => {
+      if (c.view === "plane") return;
       line(origin, a, "var(--muted)", "3 5");
-      if (c.view !== "plane") point(a, ["−1", "0", "2"][i], "var(--muted)");
+      // Vertex labels sit just outside the figure, away from its centre, so they never cover P.
+      const [vx, vy] = project(a),
+        [ox, oy] = project(center),
+        len = Math.hypot(vx - ox, vy - oy) || 1;
+      point(
+        a,
+        ["−1", "0", "2"][i],
+        "var(--muted)",
+        (18 * (vx - ox)) / len - 5,
+        (18 * (vy - oy)) / len + 5,
+      );
     });
     if (c.view === "simplex") {
       const corners = [
@@ -257,8 +273,8 @@
       if (c.restricted)
         line([0, p[1], 1 - p[1]], [1 - p[1], p[1], 0], "var(--purple)");
       line(p, q, "var(--purple)");
-      point(p, "P", "var(--teal)");
-      point(q, "Pε", "var(--purple)");
+      point(p, "P", "var(--teal)", -22, -10);
+      if (Math.abs(m.epsilon) > 1e-9) point(q, "Pε", "var(--purple)");
     } else if (c.view === "sphere") {
       for (let a = 0; a <= Math.PI / 2; a += Math.PI / 12) {
         for (let j = 0; j < 40; j++) {
@@ -281,8 +297,9 @@
           b = p.map((v, k) => Math.sqrt(v + ((q[k] - v) * (i + 1)) / 40));
         line(a, b, "var(--purple)");
       }
-      point(p.map(Math.sqrt), "√P", "var(--teal)");
-      point(q.map(Math.sqrt), "√Pε", "var(--purple)");
+      point(p.map(Math.sqrt), "√P", "var(--teal)", -34, -10);
+      if (Math.abs(m.epsilon) > 1e-9)
+        point(q.map(Math.sqrt), "√Pε", "var(--purple)");
     } else {
       const weighted = (v) => v.map((x, i) => x * Math.sqrt(p[i]));
       const b1 = weighted(S.score(p, [-1, 0, 1]));
@@ -313,7 +330,7 @@
           b1.map((v) => 1.7 * v),
           "var(--purple)",
         );
-      if (isMini) {
+      if (isMini || c.view === "plane") {
         const [px, py] = project(b1.map((v) => 1.7 * v)),
           [cx, cy] = project(b1.map((v, i) => -1.5 * v + 1.1 * b2[i]));
         el.append(
@@ -331,7 +348,7 @@
               {
                 // Start of the purple line, below it: clear of D, D* and the right-angle marker.
                 x: Math.max(8, Math.min(qx, px) + 4),
-                y: (px < qx ? py : qy) + 20,
+                y: (px < qx ? py : qy) + (innerWidth < 760 ? 34 : 22),
                 fill: "var(--purple)",
                 "font-size": 12,
               },
@@ -346,7 +363,7 @@
       const Q = a.map((v, i) => v + (b[i] - v) * proj);
       line(origin, a, "var(--p)");
       line(origin, hScaled, "var(--teal)");
-      if (c.restricted || !isMini) {
+      if (c.restricted) {
         line(origin, Q, "var(--purple)");
         if (proj > 0.02) line(Q, a, "var(--or)", "5 5");
         if (c.restricted && proj > 0.98) {
@@ -364,8 +381,15 @@
           line(p2, p3, "var(--muted)");
         }
       }
-      point(a, "D", "var(--p)", 16, -24);
-      if (c.restricted || !isMini)
+      {
+        // Put D's label beyond the tip, on the side away from the origin, clear of vertex labels.
+        const lab = c.restricted ? "D" : "D = D*",
+          [tx, ty] = project(a),
+          [ox, oy] = project(origin),
+          w = lab.length * (innerWidth < 760 ? 15 : 9);
+        point(a, lab, "var(--p)", tx < ox ? -w - 12 : 14, ty < oy ? -14 : 22);
+      }
+      if (c.restricted)
         point(
           Q,
           proj > 0.98 || !c.restricted ? "D*" : "Q",
@@ -382,7 +406,7 @@
           `${Math.min(100, (100 * lost) / total)}%`;
         document.getElementById("projection-caption").textContent =
           !c.restricted
-            ? `Nothing is known about the middle mass, so every mean-zero direction is allowed and D is already inside the tangent space: D* = D and E[D²] = ${fmt(total)}.`
+            ? `Full model: nothing is known about the middle mass, so every mean-zero direction is allowed and D is already inside the tangent space, D* = D and E[D²] = ${fmt(total)}. Tick the box or press Replay to project.`
             : proj < 0.98
               ? `Q is on its way from D to the allowed line; it becomes D* only when it arrives. Kept ${fmt(kept)} + discarded ${fmt(lost)} = ${fmt(kept + lost)} falls short of E[D²] = ${fmt(total)} by the cross term 2t(1−t)‖D−D*‖² = ${fmt(cross)}: two pieces add up to the whole only when they are orthogonal.`
               : `At the foot of the perpendicular the split is exact: E[(D*)²] ${fmt(kept)} + E[(D−D*)²] ${fmt(lost)} = E[D²] ${fmt(total)}. The purple vector is the canonical gradient; it is the shortest vector in the allowed space that still predicts every allowed slope.`;
@@ -408,6 +432,21 @@
     state.set({ yaw: Math.PI / 4, pitch: Math.asin(1 / Math.sqrt(3)) });
   document.getElementById("reference-example").onclick = () =>
     state.set({ mass: 0.2, middle: 0.5, restricted: true });
+  // Alive on arrival: the first time the projection figure comes into view on this page, run the
+  // projection once (restricting the model if needed). The checkbox shows what happened and undoes it.
+  const projFig = document.getElementById("projection-figure");
+  if (projFig && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        if (!state.get().restricted) state.set({ restricted: true });
+        else animateProjection();
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(projFig);
+  }
   document.getElementById("replay-projection").onclick = () => {
     if (!state.get().restricted) state.set({ restricted: true });
     else animateProjection();

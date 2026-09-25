@@ -22,20 +22,20 @@
 <h1>Scores and Influence, From Scratch</h1>
 <p class="lede">The rest of the course uses four words as if they were obvious: a <em>path</em> through the model, its <em>score</em> h, the <em>pathwise derivative</em> of a parameter, and the <em>influence function</em>. Here each one is built from a single concrete density p(z) on the line. Nothing is abstract: every curve is computed numerically and every number in the readouts is an integral you can check.</p><p class="note">The density calculations use one normalized finite grid on [−4,4]. Every score is centered under that same law. The bounded scores and displayed ε range keep pε nonnegative.</p>
 <ul class="toc">
-<li><a href="#s1">1 · A distribution is a point</a></li><li><a href="#s2">2 · A path through the model</a></li><li><a href="#s3">3 · The score is a slope</a></li><li><a href="#s4">4 · Scores have mean zero</a></li><li><a href="#s5">5 · The parameter along the path</a></li><li><a href="#s6">6 · One ϕ for every h</a></li><li><a href="#s7">7 · Why it's called influence</a></li><li><a href="#s8">8 · Influence for the ATE</a></li><li><a href="#s9">9 · The hardest direction</a></li>
+<li><a href="#s1">1 · A distribution is a point</a></li><li><a href="#s2">2 · A path through the model</a></li><li><a href="#s3">3 · The score is a slope</a></li><li><a href="#s4">4 · What a score averages to</a></li><li><a href="#s5">5 · The parameter along the path</a></li><li><a href="#s6">6 · One ϕ for every h</a></li><li><a href="#s7">7 · Why it's called influence</a></li><li><a href="#s8">8 · Influence for the ATE</a></li><li><a href="#s9">9 · The hardest direction</a></li>
 </ul>
 
 <!-- 1 -->
 <div class="eyebrow" id="s1">Scene 1</div>
 <h2>A distribution is a point; the model is the set of points you allow</h2>
-<p>On the left is a density <span class="m">p(z)</span>. The whole curve is one point in the model. In a parametric model, say Normal(μ, σ), two numbers pin the curve down, so the model is a two-dimensional sheet and the point has coordinates. In a nonparametric model the curve can be any shape, so there are infinitely many coordinates: the model is the whole blob and "a point" is a full function. Move the dials and watch both views.</p>
+<p>On the left is a density <span class="m">p(z)</span>. The whole curve is one point in the model. In a parametric model, say Normal(μ, σ), two numbers pin the curve down, so the Normal model is a two-dimensional sheet with coordinates μ and σ, and a Normal density is a point on it. In a nonparametric model the curve can be any shape: the model is the whole region around the sheet and "a point" is a full function. Move μ and σ and the point slides across the sheet; add the bump and it lifts off.</p>
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="380"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <label>μ (parametric coordinate) <span class="v" id="v1a">0.00</span><input type="range" id="a1" min="-1.5" max="1.5" step="0.01" value="0"></label>
     <label>σ (parametric coordinate) <span class="v" id="v1b">1.00</span><input type="range" id="b1" min="0.5" max="1.8" step="0.01" value="1"></label>
     <label>Nonparametric bump (a direction a Normal can't move in) <span class="v" id="v1c">0.00</span><input type="range" id="c1s" min="0" max="1" step="0.01" value="0"></label>
-    <div class="note">The bump slider adds a shape that no choice of (μ, σ) can produce. In the parametric picture the point can't move that way at all; in the nonparametric picture it's just another direction. That difference is the whole reason tangent spaces have different sizes.</div>
+    <div class="note">The bump slider adds a shape that no choice of (μ, σ) can produce. The Normal model has no direction for it; the nonparametric model does. That difference is the whole reason tangent spaces have different sizes. The model picture is schematic: the sheet's grid is exact in μ and σ, the height of the lift is not a distance.</div>
   </div>
 </div>
 
@@ -73,7 +73,8 @@
 
 <!-- 4 -->
 <div class="eyebrow" id="s4">Scene 4</div>
-<h2>Scores have mean zero, because total mass is always one</h2>
+<h2>What a score averages to, and why</h2>
+<div class="predict" data-options="It depends on which h you picked|Exactly 0, for every allowed h|Exactly 1, the total mass" data-answer="1" data-hint="Total mass is 1 at every ε, so its ε-derivative, ∫ h p, is 0 whatever the direction.">Take any direction h that keeps p<sub>ε</sub> a density (total mass 1 for every ε). Weight h by the density and add it up: what is ∫ h(z) p(z) dz?</div>
 <p><span class="m">∫ p<sub>ε</sub>(z) dz = 1</span> for every ε. Differentiate in ε: <span class="m">∫ h(z) p(z) dz = 0</span>. Geometrically, the positive part of h (weighted by p) exactly balances the negative part. That is the fact drawn as "scores are orthogonal to √p" on the sphere. Watch the two shaded areas being measured and cancelled.</p>
 <div class="eq">d/dε ∫ p_ε = ∫ d/dε [p(1+εh)] = ∫ p·h = E_P[h] = 0</div>
 <div class="scene">
@@ -137,6 +138,7 @@
 <!-- 8 -->
 <div class="eyebrow" id="s8">Scene 8</div>
 <h2>The same construction for the ATE, term by term</h2>
+<div class="predict" data-options="The same pull: the residual is the same|Four times the pull|A quarter of the pull" data-answer="1" data-hint="The regression part is the residual divided by P(A = a₀ | x₀): 1/0.2 = 5 against 1/0.8 = 1.25, a factor of 4. Move x₀ below to where the arm is rare and watch it.">A treated patient's outcome is 1 unit above μ₁(x₀). At x₀ where P(A = 1 | x₀) = 0.2, compared with a place where it is 0.8, how hard does this one observation pull the ATE through its own regression?</div>
 <p>Now the observation is <span class="m">Z = (X, A, Y)</span> and the parameter is <span class="m">ψ = ∫ [μ<sub>1</sub>(x) − μ<sub>0</sub>(x)] p(x) dx</span>. Contaminate with a point mass at one observation <span class="m">(x₀, a₀, y₀)</span> and ask how ψ moves. Two things change: the distribution of X gets a little more mass at x₀, which moves ψ by <span class="m">μ<sub>1</sub>(x₀) − μ<sub>0</sub>(x₀) − ψ</span>; and the regression μ<sub>a₀</sub> at x₀ gets pulled toward y₀, by the residual scaled by how rare that arm is at x₀, <span class="m">(y₀ − μ<sub>a₀</sub>(x₀)) / P(A = a₀ | x₀)</span>, with a sign depending on the arm. Add them and you have the efficient influence function of the ATE, derived by asking "what does one observation do" rather than by looking it up.</p>
 <div class="eq">ϕ(x₀,a₀,y₀) = [μ₁(x₀) − μ₀(x₀) − ψ]  +  (2a₀ − 1) · (y₀ − μ_{a₀}(x₀)) / P(A = a₀ | x₀)</div>
 <div class="scene">
@@ -216,16 +218,27 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);const mu=+document.getElementById('a1').
   const p=new Float64Array(N);for(let i=0;i<N;i++){p[i]=nrm(Z[i],mu,sd)+bp*0.18*(Math.exp(-Math.pow((Z[i]-1.8)/0.35,2))-0.35*Math.exp(-Math.pow((Z[i]+0.2)/1.2,2)));}
   const {xs,ys}=densityPanel(g,60,440,40,300,[{p,col:C.p,w:2.2,fill:true}],{ymax:0.9});txt(g,'p(z)',70,30,C.pen,14,'left',FS,true);txt(g,'z',450,300,C.pen,14,'left',FS,true);
   if(bp>0.02)txt(g,'not a Normal any more',xs(1.8),ys(0.75),C.or,12,'center',FS,true);
-  // parametric sheet
-  const L=520,R=770,T=50,B=200;g.fillStyle=C.soft;g.fillRect(L,T,R-L,B-T);poly(g,[[L,T],[R,T],[R,B],[L,B]],C.rule||C.grid,1,null,true);txt(g,'parametric model: (μ, σ)',L,T-12,C.muted,12,'left');
-  const px=L+(R-L)*(mu+1.5)/3,py=B-(B-T)*(sd-0.5)/1.3;txt(g,'μ',R+8,B,C.muted,12,'left',FS,true);txt(g,'σ',L-10,T+4,C.muted,12,'right',FS,true);
-  if(bp>0.02){dot(g,px,py,C.grid,6);txt(g,'no coordinate for the bump',L+(R-L)/2,B+16,C.or,11.5,'center');}else dot(g,px,py,C.p,6,true);
-  // nonparametric blob
-  const bx=645,by=300,rx=120,ry=48;g.fillStyle=C.soft;g.beginPath();g.ellipse(bx,by,rx,ry,0,0,6.283);g.fill();g.strokeStyle=C.pen;g.lineWidth=1.4;g.stroke();txt(g,'nonparametric model',L,by-ry-12,C.muted,12,'left');
-  // 2-D sheet inside blob as a thin band; point moves off it with bump
-  line(g,bx-90,by+10,bx+90,by-10,C.grid,10);txt(g,'the Normal sheet',bx,by+30,C.muted,10.5,'center');
-  const qx=bx-90+180*(mu+1.5)/3,qy=by+10-20*(mu+1.5)/3-(sd-1)*18-bp*38;dot(g,qx,qy,C.p,6,true);
-  document.getElementById('cap1').textContent=bp>0.02?'The bump moved the point off the two-dimensional sheet. The parametric model cannot represent it; the nonparametric model has a direction for it.':'Move μ and σ: the curve changes and the point slides across the sheet. Every curve is one point.';
+  // One picture of the model space: the nonparametric model (every density) is the large region;
+  // the Normal family is a flat sheet inside it with labelled (μ, σ) coordinates. Schematic, not to scale.
+  const bx=640,by=190,rx=150,ry=160;g.fillStyle=C.soft;g.beginPath();g.ellipse(bx,by,rx,ry,0,0,6.283);g.fill();g.strokeStyle=C.pen;g.lineWidth=1.2;g.stroke();
+  txt(g,'nonparametric model: every density',bx,by-ry-12,C.muted,12,'center');
+  const O=[530,290],U=[190,0],Vv=[50,-120]; // sheet origin at (μ,σ)=(−1.5,0.5); U along μ, V along σ
+  const at=(m,s)=>{const u=(m+1.5)/3,v=(s-0.5)/1.3;return [O[0]+u*U[0]+v*Vv[0],O[1]+u*U[1]+v*Vv[1]];};
+  const c00=at(-1.5,0.5),c10=at(1.5,0.5),c11=at(1.5,1.8),c01=at(-1.5,1.8);
+  g.fillStyle=C.p;g.globalAlpha=0.13;g.beginPath();g.moveTo(...c00);g.lineTo(...c10);g.lineTo(...c11);g.lineTo(...c01);g.closePath();g.fill();g.globalAlpha=1;
+  for(const m of [-1.5,0,1.5])line(g,...at(m,0.5),...at(m,1.8),C.grid,1);for(const sg of [0.5,1,1.8])line(g,...at(-1.5,sg),...at(1.5,sg),C.grid,1);
+  poly(g,[c00,c10,c11,c01],C.p,1.4,null,true);
+  for(const m of [-1.5,0,1.5]){const q=at(m,0.5);txt(g,m.toFixed(1),q[0],q[1]+13,C.muted,10.5,'center',FM);}
+  txt(g,'μ',c10[0]+10,c10[1]+2,C.p,14,'left',FS,true);
+  for(const sg of [1,1.8]){const q=at(-1.5,sg);txt(g,sg.toFixed(1),q[0]-7,q[1],C.muted,10.5,'right',FM);}
+  {const q=at(-1.5,1.4);txt(g,'σ',q[0]-14,q[1]+2,C.p,14,'right',FS,true);}
+  txt(g,'Normal(μ, σ) sheet',c11[0]-6,c11[1]-12,C.p,12,'right');
+  // Where the current density sits: on the sheet at (μ, σ) when the bump is 0; the bump lifts it off.
+  const foot=at(mu,sd),lift=bp*95,pt=[foot[0],foot[1]-lift];
+  if(bp>0.02){dot(g,foot[0],foot[1],C.paper,5);g.strokeStyle=C.p;g.lineWidth=1.5;g.beginPath();g.arc(foot[0],foot[1],5,0,6.283);g.stroke();line(g,foot[0],foot[1]-5,pt[0],pt[1]+7,C.or,1.6,[4,3]);
+    txt(g,'lifted off the sheet',pt[0]+11,pt[1]+(lift>40?14:-12),C.or,11.5,'left');}
+  dot(g,pt[0],pt[1],bp>0.02?C.or:C.p,6.5,true);txt(g,'p',pt[0]-10,pt[1]-10,bp>0.02?C.or:C.p,13,'right',FS,true);
+  document.getElementById('cap1').textContent=bp>0.02?`The bump lifted the point off the Normal sheet. Its shadow on the sheet (hollow circle) is the Normal with the dials' μ and σ, but the curve is no longer that Normal: no (μ, σ) reaches it. The nonparametric model still contains it. Schematic picture; distances are not to scale.`:`The point sits on the Normal sheet at μ = ${mu.toFixed(2)}, σ = ${sd.toFixed(2)}. Move μ and σ: the curve changes and the point slides across the sheet. Every curve is one point.`;
 });
 bind('a1','v1a',v=>v.toFixed(2),()=>S1.draw());bind('b1','v1b',v=>v.toFixed(2),()=>S1.draw());bind('c1s','v1c',v=>v.toFixed(2),()=>S1.draw());
 

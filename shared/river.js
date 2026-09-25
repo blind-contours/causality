@@ -17,11 +17,17 @@
       across = 380,
       axis = vertical ? 64 : across / 2;
     const map = (s, t) => (vertical ? [axis + t, s] : [s, axis + t]);
+    // Lessons attached to the first stage join before its station, so leave room on the left.
+    const firstHas = units.some((u) => u.stage === stages[0]),
+      start = firstHas && !vertical ? 170 : 60;
     const stationS = stages.map(
-      (_, i) => 60 + (i * (L - 120)) / (stages.length - 1),
+      (_, i) => start + (i * (L - 60 - start)) / (stages.length - 1),
     );
     const wave = (i) => (vertical ? 0 : [22, -18, 12, -22, 10, -16][i % 6]);
-    const pts = stationS.map((s, i) => map(s, wave(i)));
+    const stations = stationS.map((s, i) => map(s, wave(i)));
+    // With lessons on the first stage the channel starts upstream of its station (the headwaters).
+    const head = start > 60 ? [map(40, -wave(0))] : [];
+    const pts = [...head, ...stations];
     let d = `M ${pts[0][0]} ${pts[0][1]}`;
     for (let i = 0; i < pts.length - 1; i++) {
       const p0 = pts[i - 1] || pts[i],
@@ -38,7 +44,7 @@
     stages.forEach((key, i) => {
       const list = byStage[key] || [];
       const s1 = stationS[i],
-        s0 = i ? stationS[i - 1] : s1 - 60;
+        s0 = i ? stationS[i - 1] : s1 - (start - 20);
       list.forEach((u, k) => {
         const f = (k + 1) / (list.length + 1),
           s = s0 + (s1 - s0) * (0.12 + 0.8 * f);
@@ -52,7 +58,7 @@
         tribs.push({ u, node, sign, path });
       });
     });
-    return { L, across, pts, d, tribs, vertical };
+    return { L, across, pts, stations, head: head.length, d, tribs, vertical };
   }
 
   /* opts: { stages, units, status(u) -> "new"|"part"|"done"|"now", href(u), label(status),
@@ -73,7 +79,7 @@
         el("path", {
           class: "channel",
           d: `${start} C ${seg}`,
-          stroke: color(stages[i + 1]),
+          stroke: color(stages[Math.max(0, i + 1 - g.head)]),
           style: `animation-delay:${i * 0.18}s`,
         }),
       );
@@ -90,19 +96,19 @@
       ),
     );
     const [sx, sy] = g.pts[0];
-    svg.append(
+    if (!g.head) svg.append(
       el(
         "text",
         {
           class: "source",
-          x: g.vertical ? sx + 20 : sx - 46,
-          y: g.vertical ? sy + 4 : sy + 44,
+          x: g.vertical ? sx + 20 : Math.max(8, sx - 46),
+          y: g.vertical ? sy + 4 : sy + (g.head ? 40 : 44),
           "text-anchor": "start",
         },
         "headwaters: a question",
       ),
     );
-    g.pts.forEach(([x, y], i) => {
+    g.stations.forEach(([x, y], i) => {
       const st = el("g", {
         class: "station",
         style: `animation-delay:${0.2 + i * 0.18}s`,

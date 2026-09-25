@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Emulate a trial of treatment strategies with a grace period: clone each eligible patient into every strategy, censor clones that deviate, and reweight the rest with inverse probability of censoring weights."
+    />
+    <title>Clone, censor, weight · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <style>
+      /* Lane and KM figures are drawn at their on-screen pixel width, so text sizes here are real sizes. */
+      [data-lab="clone-censor-weight"] svg.fig.ccw-lanes .tick,
+      [data-lab="clone-censor-weight"] svg.fig.ccw-km .tick,
+      [data-lab="clone-censor-weight"] svg.fig.ccw-km .fig-text,
+      [data-lab="clone-censor-weight"] svg.fig.ccw-lanes .fig-text {
+        font-size: 13px;
+      }
+      [data-lab="clone-censor-weight"] svg.fig .fig-text.ink {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      [data-lab="clone-censor-weight"] svg.fig .axis-label {
+        font-size: 14px;
+      }
+      .ccw-pair {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .ccw-pair {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      [data-lab="clone-censor-weight"] svg.fig .ccw-lane-name {
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .ccw-check {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+      }
+      .ccw-grace {
+        color: var(--p);
+      }
+      .ccw-never {
+        color: var(--teal);
+      }
+      [data-lab="clone-censor-weight"] .fig-readout {
+        font-size: 13px;
+      }
+      [data-lab="clone-censor-weight"] input[type="range"] {
+        min-height: 28px;
+      }
+      [data-lab="clone-censor-weight"] input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+        vertical-align: middle;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../shared/visuals.js"></script>
+    <script src="../science/clone-censor-weight.js"></script>
+  </head>
+  <body data-lesson="clone-censor-weight">
+    <main class="wrap">
+      <div class="eyebrow">Causality · emulating a trial of strategies</div>
+      <h1>Clone, censor, weight</h1>
+      <p class="lede">
+        Time zero must be at eligibility, but "operate within three months" and
+        "do not operate" look identical on day one. Copy each patient into
+        every strategy, cut the copies that deviate, and reweight the rest.
+      </p>
+      <noscript
+        >This laboratory requires JavaScript. Its scientific kernel is
+        science/clone-censor-weight.js.</noscript
+      >
+      <div data-lab="clone-censor-weight"></div>
+      <p class="sources">
+        Further reading:
+        <a href="https://doi.org/10.1136/bmj.k182"
+          >Hernán MA (2018). How to estimate the effect of treatment duration on
+          survival outcomes using observational data. BMJ 360:k182</a
+        >;
+        <a href="https://doi.org/10.1093/ije/dyaa057"
+          >Maringe C, et al. (2020). Reflection on modern methods: trial
+          emulation in the presence of immortal-time bias. Assessing the benefit
+          of major surgery for elderly lung cancer patients using observational
+          data. Int J Epidemiol 49(5):1719</a
+        >;
+        <a href="https://doi.org/10.2202/1557-4679.1212"
+          >Cain LE, Robins JM, Lanoy E, Logan R, Costagliola D, Hernán MA (2010).
+          When to start treatment? A systematic approach to the comparison of
+          dynamic regimes using observational data. Int J Biostat 6(2):18</a
+        >. The registry is simulated with known potential outcomes; the
+        population truth is an exact calculation; the lane figures show 12
+        illustrative patients.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../shared/anim.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/clone-censor-weight.js"></script>
+  </body>
+</html>

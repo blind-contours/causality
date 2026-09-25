@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Adjust a randomized trial for prognostic covariates: same estimand, narrower interval. See how many patients it is worth, and why it stays valid."
+    />
+    <title>Your trial, adjusted · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+<link rel="stylesheet" href="../shared/r-drawer.css" />
+<script src="../shared/r-drawer.js" defer></script>
+    <style>
+      .rct-meter {
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        background: var(--soft);
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+      .rct-meter-head {
+        font-size: 16px;
+      }
+      .rct-meter-head strong {
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--purple);
+      }
+      .rct-meter-bar {
+        display: flex;
+        height: 14px;
+        border-radius: 7px;
+        background: var(--grid);
+        overflow: hidden;
+        margin: 10px 0 4px;
+      }
+      .rct-meter-bar i {
+        display: block;
+        height: 100%;
+      }
+      .rct-meter-bar .base {
+        background: var(--muted);
+      }
+      .rct-meter-bar .gain {
+        background: var(--purple);
+      }
+      .rct-meter-scale {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      [data-lab="rct-adjustment"] svg.fig .tick,
+      [data-lab="rct-adjustment"] svg.fig .ref-label,
+      [data-lab="rct-adjustment"] svg.fig .fig-text {
+        font-size: 13px;
+      }
+      [data-lab="rct-adjustment"] svg.fig .fig-text.ink {
+        font-size: 14px;
+      }
+      [data-lab="rct-adjustment"] svg.fig .axis-label {
+        font-size: 14px;
+      }
+      .rct-v {
+        color: var(--purple);
+        font-variant-numeric: tabular-nums;
+      }
+      .figure .fig-readout {
+        font-size: 13px;
+      }
+      .rct-meter p {
+        margin: 8px 0 0;
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/rct-adjustment.js"></script>
+    <script src="../shared/visuals.js"></script>
+  </head>
+  <body data-lesson="rct-adjustment">
+    <main class="wrap">
+      <div class="eyebrow">
+        Causality · a question you can hold in your hands
+      </div>
+      <h1>Your trial, adjusted</h1>
+      <p class="lede">
+        Adjust a randomized trial for what you knew at baseline. The
+        estimand stays the same and the interval gets narrower. See how many
+        patients that is worth, and why a wrong model cannot bias it.
+      </p>
+      <noscript
+        >These laboratories require JavaScript for interaction. The course
+        repository includes a mathematical review and scientific
+        references.</noscript
+      >
+      <div data-lab="rct-adjustment"></div>
+      <div data-r="rct-adjustment"></div>
+<p class="sources">
+        Further reading:
+        <a href="https://www.fda.gov/media/148910/download"
+          >FDA (2023), Adjusting for Covariates in Randomized Clinical Trials
+          for Drugs and Biological Products</a
+        >;
+        <a href="https://doi.org/10.1002/sim.3113"
+          >Tsiatis, Davidian, Zhang and Lu (2008), Covariate adjustment for
+          two-sample treatment comparisons in randomized clinical trials,
+          Statistics in Medicine</a
+        >;
+        <a href="https://doi.org/10.1111/biom.13377"
+          >Benkeser, Díaz, Luedtke, Segal, Scharfstein and Rosenblum (2021),
+          Improving precision and power in randomized trials for COVID-19
+          treatments using covariate adjustment, Biometrics</a
+        >;
+        <a
+          href="https://www.ema.europa.eu/en/documents/regulatory-procedural-guideline/qualification-opinion-prognostic-covariate-adjustment-procovatm_en.pdf"
+          >EMA (2022), Qualification opinion for Prognostic Covariate
+          Adjustment (PROCOVA)</a
+        >. The trial, the device and its outcome scale are a teaching world.
+        Exact values and seeded simulations are labelled beside each figure.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../shared/anim.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/rct-adjustment.js"></script>
+  </body>
+</html>

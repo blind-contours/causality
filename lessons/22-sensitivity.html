@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Make the κ from the first lesson quantitative: a bias map for an unmeasured confounder, the E-value, benchmarks from measured covariates, and what to report."
+    />
+    <title>How wrong could unmeasured confounding make you? · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <script src="../science/core.js"></script>
+    <script src="../science/sensitivity.js"></script>
+    <script src="../shared/visuals.js"></script>
+  </head>
+  <body data-lesson="sensitivity">
+    <main class="wrap">
+      <div class="eyebrow">Causality · trust the answer</div>
+      <h1>How wrong could unmeasured confounding make you?</h1>
+      <p class="lede">
+        Observed data cannot rule out a hidden confounder. They can tell you
+        how strong one would have to be to change your conclusion, and you can
+        compare that strength with the confounders you did measure.
+      </p>
+      <noscript
+        >This laboratory requires JavaScript for interaction. The formulas and
+        references are listed at the end of the page.</noscript
+      >
+      <div data-lab="sensitivity"></div>
+      <p class="sources">
+        Further reading:
+        <a href="https://doi.org/10.1097/EDE.0000000000000457"
+          >Ding P, VanderWeele TJ (2016). Sensitivity analysis without
+          assumptions. Epidemiology 27(3):368–377</a
+        >;
+        <a href="https://doi.org/10.7326/M16-2607"
+          >VanderWeele TJ, Ding P (2017). Sensitivity analysis in
+          observational research: introducing the E-value. Annals of Internal
+          Medicine 167(4):268–274</a
+        >;
+        <a href="https://doi.org/10.1111/rssb.12348"
+          >Cinelli C, Hazlett C (2020). Making sense of sensitivity: extending
+          omitted variable bias. Journal of the Royal Statistical Society
+          Series B 82(1):39–67</a
+        >. The bias factor, curves and E-values are exact formulas. The study is
+        simulated with a fixed seed (n = 4,000, four independent binary
+        covariates, a log-linear risk model and no unmeasured confounder); its
+        estimates use standardization with an influence-function interval.
+        Benchmarks are computed exactly in the population that generated it.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../shared/anim.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/sensitivity.js"></script>
+  </body>
+</html>

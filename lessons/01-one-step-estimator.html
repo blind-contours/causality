@@ -58,6 +58,8 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 </style>
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/course.css">
+<link rel="stylesheet" href="../shared/r-drawer.css" />
+<script src="../shared/r-drawer.js" defer></script>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
@@ -99,7 +101,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <h2>One step on data: g-computation, then the correction</h2>
 <p>Simulated cohort. Treatment is more likely for higher X, the outcome is nonlinear in X, and the true average treatment effect is exactly 2. The outcome model is an S-learner: one linear regression of Y on (X, A). The slider shrinks its treatment coefficient toward zero, the way a regularized learner would. The propensity model can be made anywhere from correct to useless. Step through and watch where the correction comes from: it is the inverse-propensity-weighted average of the outcome model's own residuals.</p>
 <div class="eq">ψ̂<sub>one-step</sub> = P<sub>n</sub>[ μ̂<sub>1</sub>(X) − μ̂<sub>0</sub>(X) ]  +  P<sub>n</sub>[ A/π̂(X) · (Y − μ̂<sub>1</sub>(X))  −  (1−A)/(1−π̂(X)) · (Y − μ̂<sub>0</sub>(X)) ]</div>
-<div class="predict" data-options="Toward the truth, by about the size of the bias|Away from the truth|It doesn't move; the correction averages to zero" data-answer="0" data-hint="The correction PₙD(P̂) estimates −(plug-in bias) up to second order, so it moves the estimate most of the way back.">The S-learner plug-in is below the truth. When you add the correction PₙD(P̂), which way does the estimate move?</div>
+<div class="predict" data-options="Closer to the truth|Farther from the truth|Nowhere: the correction always averages to zero" data-answer="0" data-hint="The correction PₙD(P̂) estimates minus the plug-in's first-order bias, so it moves the estimate most of the way back toward the truth, whichever side the plug-in started on.">Step through the figure below. When the correction PₙD(P̂) is added to the S-learner plug-in, where does the estimate end up?</div>
 <div class="act">
   <div class="stage">
     <canvas id="c2" width="760" height="520"></canvas>
@@ -127,8 +129,12 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 
 <!-- ============ ACT 3 ============ -->
 <div class="eyebrow">Act 3</div>
-<h2>Repeat samples and separate the promises</h2><p>This experiment uses an asymmetric binary-severity cohort, separate from the continuous-X illustration above. It includes four explicit nuisance-correctness cases. Predict bias first, then compare sampling spread, the efficient bound, and actual interval coverage.</p><div class="lab-card" data-simulation="one-step"></div>
+<h2>Repeat samples and separate the promises</h2><p>One data set gives one estimate. To see bias, spread and interval coverage you need the whole sampling distribution, so repeat the study hundreds of times. This experiment uses an asymmetric binary-severity cohort, separate from the continuous-X illustration above, and crosses the two nuisance models: the outcome model is either right or wrong, and so is the propensity model.</p>
+<div class="predict" data-options="Only the panel where both models are wrong|Every panel with at least one wrong model|All four panels" data-answer="0" data-hint="AIPW is doubly robust: one correct nuisance model is enough to remove the first-order bias. Only when both are wrong does the purple histogram leave the truth.">In which panels will the AIPW (purple) histogram be centred away from the true ATE?</div>
+<div class="lab-card" data-simulation="one-step" data-layout="grid"></div>
+<p class="note">Centred is not the same as covered. In the default run (fitted, cross-fitted, n = 400, 300 samples) the outcome-only panel covers about 92%, a little short, because its influence-function SE (0.083) is smaller than the actual spread (0.089). The propensity-only panel is centred but over-covers: its IF-based SE averages 0.142 while the estimates actually spread with SD 0.096, because the formula treats the fitted propensity as if it were known, and with a wrong outcome model, estimating the propensity removes variance that the formula still counts. Getting a standard error you can report is its own problem: see <a href="20-standard-errors.html">Standard errors you can report</a>.</p>
 <h2>Explain the correction</h2><p>The tangent toward the truth has slope P₀D*(P̂); the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and convergence to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]<br>Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
+<div data-r="one-step-ate"></div>
 </div>
 
 <script>
@@ -266,7 +272,7 @@ function draw2(){
   const ymin=-4,ymax=12; const xs=x=>L+(R-L)*(x+2)/4, ys=y=>B-(B-T)*(y-ymin)/(ymax-ymin);
   g2.strokeStyle=css('--grid');g2.lineWidth=1;for(let v=-4;v<=12;v+=2){g2.beginPath();g2.moveTo(L,ys(v));g2.lineTo(R,ys(v));g2.stroke();}
   g2.fillStyle=css('--muted');g2.font='12px "IBM Plex Mono",monospace';g2.textAlign='right';for(let v=-4;v<=12;v+=4)g2.fillText(v,L-8,ys(v)+4);
-  g2.textAlign='center';g2.fillText('X',(L+R)/2,B+16);
+  g2.textAlign='right';g2.fillText('covariate X →',R,B-8);
   const tr=css('--treated'),co=css('--control');
   // sticks (steps 2,3)
   if(s2>=2){

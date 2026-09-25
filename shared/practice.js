@@ -68,20 +68,40 @@
       a: n,
       h: "H=1/g for a treated observation; the ratio reverses the propensities.",
     }),
-    "clever-covariate": (n) => ({
-      q: `For the ATE, a CONTROL patient has treatment probability 0.${n}. What is H=A/g−(1−A)/(1−g)?`,
-      a: -1 / (1 - n / 10),
-      h: "For a control patient, A=0. Keep the minus sign.",
-    }),
-    "four-patients": (n) => ({
-      q: `A targeting fit has ΣHr=${n} and ΣH²=20. What is its least-squares fluctuation coefficient?`,
-      a: n / 20,
-      h: "This is regression through the origin: numerator divided by denominator.",
-    }),
+    "clever-covariate": (n) =>
+      [
+        {
+          q: `For the ATE, a CONTROL patient has treatment probability 0.${n}. What is H=A/g−(1−A)/(1−g)?`,
+          a: -1 / (1 - n / 10),
+          h: "For a control patient, A=0. Keep the minus sign.",
+        },
+        {
+          q: `Logistic fluctuation: a patient has Q̂(1,x) = 0.5 and H = ${n}. With ε̂ = 0.1, what is Q*(1,x) = expit(logit Q̂ + ε̂H)?`,
+          a: 1 / (1 + Math.exp(-0.1 * n)),
+          h: "logit 0.5 = 0, so Q* = expit(0.1·H), always strictly between 0 and 1.",
+        },
+      ][n % 2],
+    "four-patients": (n) =>
+      [
+        {
+          q: `A targeting fit has ΣHr=${n} and ΣH²=20. What is its least-squares fluctuation coefficient?`,
+          a: n / 20,
+          h: "This is regression through the origin: numerator divided by denominator.",
+        },
+        (() => {
+          const d = [n, 1, 0, -1],
+            m = d.reduce((a, b) => a + b) / 4;
+          return {
+            q: `Four patients have influence-function values D̂ = ${n}, 1, 0 and −1. Using sd with n − 1 in the denominator, what is the standard error sd(D̂)/√4?`,
+            a: Math.sqrt(d.reduce((a, x) => a + (x - m) ** 2, 0) / 3) / 2,
+            h: "Mean first, then squared deviations summed and divided by 3, square root, then divide by √4 = 2.",
+          };
+        })(),
+      ][n % 2],
     "inference-lab": (n) => ({
-      q: `Outcome error is n⁻⁰·³ and propensity error is n⁻⁰·${n}. What is the exponent of √n times their product? Enter 0.5 minus the two rates.`,
+      q: `Outcome error shrinks like n⁻⁰·³ and propensity error like n⁻⁰·${n}. √n times their product shrinks or grows like n raised to what power?`,
       a: 0.5 - 0.3 - n / 10,
-      h: "The scaled remainder is n^(0.5−α−β). A negative exponent vanishes.",
+      h: "The product shrinks like n^−(α+β); multiplying by √n adds ½ to the exponent. A negative result means the bound vanishes.",
     }),
     "efficiency-theory-story": (n) => ({
       q: `A gradient decomposes into orthogonal canonical and extra components with squared norms ${n} and 2. What is its total variance?`,
@@ -107,6 +127,50 @@
       q: `In the benchmark y = μ + δ·z_t + ρ·z_{t−1} + e with blocks of length L = ${n + 4} and no washout, the block-mean estimator of δ + ρ has expected bias −ρ/L. With ρ = 0.06, what is the bias?`,
       a: -0.06 / (n + 4),
       h: "Only the first period of each block sees the previous block's policy, so a fraction 1/L of the carryover is lost.",
+    }),
+    "intercurrent-events": (n) => ({
+      q: `A control arm has 6 patients. One crosses over to the device and scores 48 at 12 months; without crossover they would have scored ${48 - 3 * n}. By how many points does the treatment-policy control mean exceed the hypothetical control mean?`,
+      a: n / 2,
+      h: "Only the crossover patient's value differs between the two strategies: (48 minus the hypothetical score) divided by 6 patients.",
+    }),
+    "target-trial": (n) => ({
+      q: `A registry procedure has no effect on death. After their procedures, 120 treated patients contribute 100 person-years and 30 deaths; untreated patients contribute 100 person-years and 30 deaths. Each treated patient also waited ${n} months between eligibility and the procedure, alive by definition. An analysis that starts every clock at eligibility and groups patients by whether they were ever treated counts those waits as treated person-time. What death rate ratio (treated ÷ untreated) does it report?`,
+      a: 10 / (10 + n),
+      h: "Treated person-time becomes 100 + 120 × n/12 = 100 + 10n years with the same 30 deaths; divide 30/(100 + 10n) by 30/100.",
+    }),
+    "clone-censor-weight": (n) => ({
+      q: `A waiting patient's modelled chance of being operated is 0.${n} at each monthly decision. Their No procedure clone is still uncensored after two decisions. What is its inverse probability of censoring weight?`,
+      a: 1 / (1 - n / 10) ** 2,
+      h: "The clone passed two chances to be censored, so its probability of remaining uncensored is (1 − p)². The weight is its inverse.",
+    }),
+    "rct-adjustment": (n) => ({
+      q: `A 1:1 trial randomizes 300 patients. A prespecified baseline covariate explains R² = ${n / 10} of the outcome variance, and you adjust with a correctly specified linear model. About how many extra unadjusted patients would give the same precision?`,
+      a: Math.round((300 * (n / 10)) / (1 - n / 10)),
+      h: "Adjustment divides the variance by 1 − R², so n adjusted patients match n/(1 − R²) unadjusted ones: extra = n·R²/(1 − R²).",
+    }),
+    "standard-errors": (n) => ({
+      q: `A study of 400 patients has influence-function values with standard deviation ${n}. The bootstrap SE (refitting both models) is 0.08. How many times wider is the IF-based 95% interval than the bootstrap one?`,
+      a: n / 20 / 0.08,
+      h: "IF SE = sd(φ̂)/√n = sd/20. Both intervals are ±1.96 SE, so the width ratio is the SE ratio.",
+    }),
+    "positivity": (n) => ({
+      q: `A treated arm has 10 patients with weight 2 and one patient with weight ${4 * n}. What is its Kish effective sample size (Σw)²/Σw²? Give two decimals.`,
+      a: Math.round(((20 + 4 * n) ** 2 / (40 + 16 * n * n)) * 100) / 100,
+      h: "Σw = 20 + the outlier's weight; Σw² = 10·4 + its weight squared. One large weight pulls the ESS far below 11.",
+    }),
+    "sensitivity": (n) => {
+      const rr = 1 + n / 10,
+        lo = 1 + n / 20;
+      return {
+        q: `An observational study reports a risk ratio of ${rr.toFixed(2)} (95% CI ${lo.toFixed(2)} to ${((rr * rr) / lo).toFixed(2)}). What is the E-value for the point estimate? Give two decimals.`,
+        a: +(rr + Math.sqrt(rr * (rr - 1))).toFixed(2),
+        h: "E = RR + √(RR(RR − 1)) for RR ≥ 1. It is the common strength RR_EU = RR_UD at which the bias factor B equals the observed RR.",
+      };
+    },
+    "targeted-survival": (n) => ({
+      q: `A treated patient has g(1|X) = ${n / 10}, model prediction S(12|1,X) = 0.6, plug-in average ψ̂ = 0.55, and was followed event-free through month 12 with no censoring anywhere (G = 1). Using D = S(τ|1,X) − ψ̂ + (1{T > τ} − S(τ|1,X))/g(1|X), what is this patient's influence value for S₁(12)?`,
+      a: 0.05 + 0.4 / (n / 10),
+      h: "Outcome-model part 0.6 − 0.55 = 0.05; the residual 1 − 0.6 = 0.4 is divided by the treatment probability.",
     }),
   };
   window.CausalPractice = {

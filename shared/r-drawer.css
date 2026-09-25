@@ -1,0 +1,205 @@
+/* "Now in R" drawer (shared/r-drawer.js). Tokens only, so dark mode follows the course theme. */
+.r-drawer-host {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  margin: 20px 0;
+}
+.r-drawer {
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.r-drawer > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+.r-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+.r-drawer > summary::after {
+  content: "";
+  margin-left: auto;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+.r-drawer[open] > summary::after {
+  transform: rotate(45deg);
+}
+.r-drawer > summary:hover .r-drawer-title {
+  color: var(--purple);
+}
+.r-drawer > summary:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+.r-drawer[open] > summary {
+  border-bottom: 1px solid var(--grid);
+  border-radius: 10px 10px 0 0;
+}
+.r-drawer-badge {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--p);
+  color: var(--paper);
+  font: 600 13px/1 "IBM Plex Mono", ui-monospace, monospace;
+}
+.r-drawer-title {
+  font-weight: 600;
+}
+.r-drawer-file {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font: 13px/1.3 "IBM Plex Mono", ui-monospace, monospace;
+}
+.r-drawer-body {
+  padding: 4px 14px 14px;
+  min-width: 0;
+}
+.r-drawer-intro {
+  margin: 10px 0 12px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.r-drawer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+.r-drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.r-drawer-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.r-drawer-raw {
+  font-size: 13.5px;
+  color: var(--p);
+}
+.r-drawer-copy {
+  min-height: 36px;
+  min-width: 72px;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 13.5px/1 "IBM Plex Sans", system-ui, sans-serif;
+  cursor: pointer;
+}
+.r-drawer-copy:hover:not(:disabled) {
+  border-color: var(--purple);
+}
+.r-drawer-copy:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.r-drawer pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font: 13px/1.55 "IBM Plex Mono", ui-monospace, monospace;
+  white-space: pre;
+  tab-size: 2;
+}
+.r-drawer pre code {
+  font: inherit;
+  background: none;
+  padding: 0;
+}
+.r-drawer pre:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+.r-drawer .r-output {
+  background: var(--paper);
+  border-style: dashed;
+  border-color: var(--rule);
+}
+.r-drawer-out {
+  margin-top: 14px;
+}
+.r-drawer-out .r-drawer-label {
+  display: block;
+  margin-bottom: 6px;
+}
+.r-drawer-status {
+  margin: 6px 0 0;
+  min-height: 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.r-drawer-status:empty {
+  display: none;
+}
+/* Syntax colours: mixed toward ink so 13px text keeps its contrast in both themes. */
+.r-com {
+  color: var(--muted);
+  font-style: italic;
+}
+.r-str {
+  color: color-mix(in srgb, var(--green) 72%, var(--ink));
+}
+.r-num {
+  color: color-mix(in srgb, var(--p) 80%, var(--ink));
+}
+.r-kw {
+  color: color-mix(in srgb, var(--purple) 85%, var(--ink));
+  font-weight: 500;
+}
+@media (max-width: 480px) {
+  .r-drawer > summary {
+    padding: 8px 12px;
+  }
+  .r-drawer-body {
+    padding: 4px 10px 12px;
+  }
+  .r-drawer pre {
+    padding: 10px 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .r-drawer > summary::after {
+    transition: none;
+  }
+}
+.r-drawer [hidden] {
+  display: none !important;
+}

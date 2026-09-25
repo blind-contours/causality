@@ -72,12 +72,21 @@
 .strip-label{font:11.5px "IBM Plex Sans",system-ui,sans-serif;fill:var(--muted)}
 .strip-label.now{fill:var(--ink);font-weight:600}
 .strip-label.ahead{opacity:.6}
+.estimand-sweep{font:500 14px "IBM Plex Mono",monospace;color:var(--ink);margin:.5rem 0 .25rem}
+.estimand-sweep b{color:var(--purple)}.estimand-sweep span{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.kappa-box{border:1px solid var(--rule);border-radius:10px;padding:.75rem .9rem;margin:.75rem 0;background:var(--soft)}
+.kappa-box>label{margin:0}
+.kappa-row{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem;margin-top:.6rem}
+.kappa-row label{flex:1 1 240px;margin:0}
+.kappa-row input[type=range]:disabled{opacity:.45}
+.kappa-hint{font-size:14px;color:var(--muted);flex:1 1 220px}
+.kappa-hint button{margin-top:.35rem;min-height:40px}
 </style>
 ${CausalEstimandScenes.populationHTML}
 ${CausalEstimandScenes.outcomesHTML}
 <section class="lab-step" id="step-2" data-title="Identify"><h2 tabindex="-1">Why comparing the two observed groups can mislead</h2><p>Return to the one-year numerical outcome from the first scene. Severity affects both treatment and outcome; treatment probabilities and benefits are the ones you chose there. First compare the observed groups; then compare treatment and control within each severity group and average using your target population. Two pieces of notation appear below: g(x) is the chance of treatment given severity x (the propensity score), and m₁(x), m₀(x) are the mean outcomes of treated and untreated patients with severity x.</p><div class="figure" id="dag-fig-2"></div><div id="study-values"></div><div class="figure" id="line-fig"></div><details class="formula-details"><summary>Name the operation: identification by adjustment</summary><p class="math" id="adjustment-formula"></p><p>This observed-data expression equals the causal target under consistency, conditional exchangeability, and treatment positivity for the target population. For ATT, average over X among treated people and require controls wherever treated people occur. For ATC, average among untreated people and require treated observations wherever those controls occur.</p></details></section>
-<section class="lab-step" id="step-3" data-title="Break an assumption"><h2 tabindex="-1">Some gaps cannot be repaired by a better estimator</h2><label><span><input id="exchange" type="checkbox"> Severity captures the common causes of treatment and outcome</span></label><label><span><input id="consistent" type="checkbox"> Treatment is well defined and observed outcomes match the corresponding intervention</span></label><label>Treatment probability among high-severity patients <input id="g-high" type="range" min="0" max="1" step=".01"></label><p id="positivity-status"></p><label>Unobserved counterfactual shift κ (when exchangeability is removed) <input id="hidden-shift" type="range" min="-1" max="1" step=".1"></label><p id="identification-status" class="warning" role="status"></p><div class="figure" id="dag-fig-3"></div><p>Two possible worlds can have exactly the same observed patients. In the second world, add κ to Y(1) for the untreated and subtract κ from Y(0) for the treated. Their observed outcomes stay fixed, but their population ATE changes by κ. Observed data alone cannot select between those worlds.</p><p class="note">The eight-person illustration below has fixed membership and a 50/50 severity mix. It isolates the missing-counterfactual problem; its ATE is separate from the selected population average above.</p><div class="figure" id="worlds-fig"></div><p class="note">A zero population propensity is a structural absence. A positive propensity can still produce an empty cell in a small sample. Those are different problems.</p></section>
-<section class="lab-step" id="step-4" data-title="Roadmap"><h2 tabindex="-1">Keep the question while the tools change</h2><div class="figure" id="strip-fig"></div><ol class="road-list"><li><b>Question:</b> choose the population, interventions, outcome, horizon, and contrast.</li><li><b>Identification:</b> state why a causal target equals a function of observed data.</li><li><b>Model:</b> say which probability distributions are allowed. The nonparametric model leaves their shapes unrestricted; semiparametric models combine finite and infinite dimensional components.</li><li><b>Estimation:</b> choose how to learn that function from a sample.</li><li><b>Uncertainty:</b> justify the approximation behind an interval.</li><li><b>Interpretation:</b> answer the original question with its assumptions and limitations.</li></ol><p>Cox regression is already a semiparametric model: a finite coefficient vector and an unspecified baseline hazard. Kaplan–Meier is a nonparametric survival estimator under its censoring conditions. The journey is to make those choices explicit and connect them to the target.</p><a class="course-btn" href="02-scores-from-scratch.html">Next: turn a distribution into a point you can move →</a></section>`;
+<section class="lab-step" id="step-3" data-title="Break an assumption"><h2 tabindex="-1">Some gaps cannot be repaired by a better estimator</h2><div class="kappa-box"><label><span><input id="exchange" type="checkbox"> Exchangeability: severity captures the common causes of treatment and outcome</span></label><div class="kappa-row"><label>Unobserved counterfactual shift κ <output id="kappa-value"></output><input id="hidden-shift" type="range" min="-1" max="1" step=".1"></label><p class="kappa-hint" id="kappa-hint"></p></div></div><label><span><input id="consistent" type="checkbox"> Treatment is well defined and observed outcomes match the corresponding intervention</span></label><label>Treatment probability among high-severity patients <input id="g-high" type="range" min="0" max="1" step=".01"></label><p id="positivity-status"></p><p id="identification-status" class="warning" role="status"></p><div class="figure" id="dag-fig-3"></div><p>Two possible worlds can have exactly the same observed patients. In the second world, add κ to Y(1) for the untreated and subtract κ from Y(0) for the treated. Their observed outcomes stay fixed, but their population ATE changes by κ. Observed data alone cannot select between those worlds.</p><p class="note">The eight-person illustration below has fixed membership and a 50/50 severity mix. It isolates the missing-counterfactual problem; its ATE is separate from the selected population average above.</p><div class="figure" id="worlds-fig"></div><p class="note">A zero population propensity is a structural absence. A positive propensity can still produce an empty cell in a small sample. Those are different problems.</p></section>
+<section class="lab-step" id="step-4" data-title="Roadmap"><h2 tabindex="-1">Keep the question while the tools change</h2><div class="figure" id="strip-fig"></div><ol class="road-list"><li><b>Question:</b> choose the population, interventions, outcome, horizon, and contrast. ICH E9(R1) asks for one more attribute that this lesson left out: what to do about intercurrent events such as death, treatment crossover, or device removal, which the next lesson handles.</li><li><b>Identification:</b> state why a causal target equals a function of observed data.</li><li><b>Model:</b> say which probability distributions are allowed. The nonparametric model leaves their shapes unrestricted; semiparametric models combine finite and infinite dimensional components.</li><li><b>Estimation:</b> choose how to learn that function from a sample.</li><li><b>Uncertainty:</b> justify the approximation behind an interval.</li><li><b>Interpretation:</b> answer the original question with its assumptions and limitations.</li></ol><p>Cox regression is already a semiparametric model: a finite coefficient vector and an unspecified baseline hazard. Kaplan–Meier is a nonparametric survival estimator under its censoring conditions. The journey is to make those choices explicit and connect them to the target.</p><a class="course-btn" href="17-intercurrent-events.html">Next: When something happens after treatment starts →</a></section>`;
   [
     ["g-high", "gHigh"],
     ["hidden-shift", "hidden"],
@@ -599,7 +608,7 @@ ${CausalEstimandScenes.outcomesHTML}
       f.caption(
         "Same observed data, different world. " +
           (c.exchange
-            ? "Untick the exchangeability box to free κ: only the hollow cells will move."
+            ? "Unlock κ at the top of this step: only the hollow cells will move."
             : "κ = " +
               fmt(kappa) +
               ": the hollow cells moved by κ, the filled cells did not. The observed contrast is still " +
@@ -668,11 +677,11 @@ ${CausalEstimandScenes.outcomesHTML}
       );
     });
     f.caption(
-      "You wrote the question (stage 1) and tested identification (stage 2). The next laboratory enters stage 3, the statistical model, and the estimator only appears at stage 4.",
+      "You wrote most of the question (stage 1) and tested identification (stage 2). The next lesson returns to stage 1 to finish the question with intercurrent events; the statistical model (stage 3) and the estimator (stage 4) come after.",
     );
     f.readout([
       ["stages done here", "2 of 6"],
-      ["next", "Model"],
+      ["next", "Question: intercurrent events"],
     ]);
   })();
 
@@ -706,6 +715,15 @@ ${CausalEstimandScenes.outcomesHTML}
           ? "No high-severity controls in this population."
           : "Both arms are possible in this stratum.");
     document.getElementById("hidden-shift").disabled = c.exchange;
+    document.getElementById("kappa-value").textContent = c.exchange ? "locked at 0" : fmt(c.hidden);
+    const hint = document.getElementById("kappa-hint");
+    if (c.exchange) {
+      hint.innerHTML = 'κ is locked while exchangeability holds. <button type="button" id="kappa-unlock">Untick exchangeability to unlock κ</button>';
+      document.getElementById("kappa-unlock").onclick = () => { state.set({ exchange: false }); document.getElementById("hidden-shift").focus(); };
+    } else {
+      hint.innerHTML = 'Unlocked: slide κ and watch only the hollow counterfactual cells below move. <button type="button" id="kappa-lock">Restore exchangeability</button>';
+      document.getElementById("kappa-lock").onclick = () => { state.set({ exchange: true }); document.getElementById("exchange").focus(); };
+    }
     document.getElementById("identification-status").textContent = identified
       ? "Under the stated assumptions, adjustment identifies this target. The assumptions themselves are not established by the data."
       : !c.consistent
