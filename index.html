@@ -29,85 +29,44 @@
           <b>Causality</b>
         </a>
         <nav aria-label="Site">
-          <a href="#map">Map</a><a href="#itinerary">Lessons</a
+          <a href="#route">Lessons</a
           ><a href="glossary.html">Symbols</a
           ><a href="docs/learning/REFERENCES.md">References</a>
         </nav>
       </header>
 
       <section class="open">
-        <div>
+        <div class="open-text">
           <div class="eyebrow">
             Causal inference · semiparametric efficiency · survival
           </div>
           <h1>Every estimator has a shape. Learn to see it.</h1>
           <p class="lede">
-            A guided course from the causal question to the canonical gradient
-            and back to Kaplan–Meier and Cox, with every object something you
-            move, predict, and check by hand.
+            A guided, hands-on course from the causal question to the canonical
+            gradient and back to Kaplan–Meier and Cox. Every object is something
+            you move, predict, and check.
+          </p>
+          <p class="for-whom">
+            For statisticians who know regression, Cox and KM, and want to see
+            what AIPW and TMLE are actually doing.
           </p>
         </div>
-        <aside
-          class="continue"
-          id="continue"
-          aria-label="Where to go next"
-        ></aside>
-      </section>
-
-      <section class="map" id="map" aria-labelledby="map-title">
-        <div class="map-head">
-          <h2 id="map-title">The course as a river</h2>
-          <div class="legend" aria-hidden="true">
-            <span><i></i>Not started</span
-            ><span><i class="half"></i>In progress</span
-            ><span><i class="full"></i>Transfer shown</span
-            ><span><i class="now"></i>Up next</span>
+        <figure class="hero-toy" id="hero-toy" aria-labelledby="hero-toy-title">
+          <figcaption>
+            <span class="eyebrow">Try it · ten seconds</span>
+            <b id="hero-toy-title">Fix a biased estimate in one step</b>
+          </figcaption>
+          <svg id="hero-svg" viewBox="0 0 360 210" role="img"
+            aria-label="The target along a path from your fitted model to the truth. The plug-in estimate sits at the start of the curve; one step along the tangent lands close to the truth."></svg>
+          <div class="toy-controls">
+            <label for="hero-delta">How wrong is your fitted model?
+              <span class="v" id="hero-delta-v">0.50</span></label>
+            <input type="range" id="hero-delta" min="0.1" max="0.8" step="0.01" value="0.5" />
+            <button type="button" class="go" id="hero-step">Take one step</button>
           </div>
-        </div>
-        <svg
-          class="river"
-          id="river"
-          role="group"
-          aria-label="Course map: six roadmap stages on the main channel, lessons joining as tributaries"
-        ></svg>
-        <div class="pick" id="pick" aria-live="polite">
-          <div class="stripe"></div>
-          <div>
-            <h3></h3>
-            <p class="blurb"></p>
-            <div class="meta">
-              <b class="stage"></b><span class="min"></span
-              ><span class="status"></span>
-            </div>
-          </div>
-          <a class="go" href="#">Open lesson</a>
-        </div>
-        <p id="retrieval" class="retrieval" hidden></p>
-      </section>
-
-      <section class="itin" id="itinerary" aria-labelledby="itin-title">
-        <div class="itin-intro">
-          <h2 id="itin-title">Thirteen lessons, one study carried through</h2>
-          <p>
-            The same cohort appears in every lesson: a question about severity
-            and treatment, first as a mean, then as a regression, then as a
-            survival curve.
-          </p>
-          <p>
-            Guided mode shows one representation at a time. Every lesson opens
-            directly; prerequisites are advice, not gates.
-          </p>
-          <details class="skip-ahead" id="skip-ahead">
-            <summary>Know identification already? Three-question check</summary>
-            <p>
-              Answer all three and the roadmap lesson is marked explored, so the
-              map starts you at the geometry.
-            </p>
-            <form></form>
-            <p class="result" role="status"></p>
-          </details>
-        </div>
-        <div id="chapters"></div>
+          <p class="toy-read" id="hero-read" role="status"></p>
+        </figure>
+        <aside class="continue" id="continue" aria-label="Where to go next"></aside>
       </section>
 
       <section class="outcomes" aria-label="What you will be able to do">
@@ -134,6 +93,31 @@
         </div>
       </section>
 
+      <section class="route" id="route" aria-labelledby="route-title">
+        <div class="route-head">
+          <h2 id="route-title">The route</h2>
+          <p id="route-sub">
+            One cohort carried from question to survival curve. Every lesson
+            opens directly; prerequisites are advice, not gates.
+          </p>
+        </div>
+        <svg class="river" id="river" role="group"
+          aria-label="Course map: six roadmap stages on the main channel, lessons joining as tributaries"></svg>
+        <p id="retrieval" class="retrieval" hidden></p>
+        <details class="skip-ahead" id="skip-ahead">
+          <summary>Know identification already? Take the three-question check</summary>
+          <p>
+            Answer all three and the roadmap lesson is marked explored, so the
+            route starts you at the geometry.
+          </p>
+          <form></form>
+          <p class="result" role="status"></p>
+        </details>
+        <ol class="path" id="chapters"></ol>
+      </section>
+
+      <a class="resume-bar" id="resume-bar" href="#" hidden></a>
+
       <footer class="course-foot hub-foot">
         <div id="settings-slot"></div>
         <p>
@@ -156,5 +140,6 @@
     <script src="shared/course.js"></script>
     <script src="shared/river.js"></script>
     <script src="shared/hub.js"></script>
+    <script src="shared/hero.js"></script>
   </body>
 </html>

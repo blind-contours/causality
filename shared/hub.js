@@ -28,14 +28,6 @@
     done: "Transfer shown",
     now: "Up next",
   };
-  const detail = {
-    new: "Not started",
-    explored: "Explored",
-    attempted: "Attempted",
-    assisted: "Assisted practice",
-    demonstrated: "Transfer shown",
-  };
-
   function progress() {
     const s = state().units;
     // The frontier: first lesson not yet opened, or one with an unfinished transfer attempt.
@@ -71,7 +63,7 @@
       u ? `var(--s-${u.stage})` : "var(--s-interpretation)",
     );
     if (!u) {
-      el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">Course complete</span></div><h2>Every transfer check demonstrated</h2><p>Retrieval reminders will keep appearing here. Revisit any lesson from the map.</p>`;
+      el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">Course complete</span></div><h2>Every transfer check demonstrated</h2><p>Retrieval reminders will keep appearing here. Revisit any lesson from the route below.</p>`;
       return;
     }
     const startedAny = p.done > 0 || !!p.recent;
@@ -87,23 +79,6 @@
       }</div>`;
   }
 
-  function pickCard(u, p) {
-    const el = document.getElementById("pick");
-    const st = p.status(u);
-    el.style.setProperty("--stage", `var(--s-${u.stage})`);
-    el.querySelector("h3").textContent = u.title;
-    el.querySelector(".blurb").textContent = u.blurb;
-    el.querySelector(".stage").textContent = stageName(u.stage);
-    el.querySelector(".min").textContent = u.minutes + " min";
-    el.querySelector(".status").textContent =
-      detail[p.s[u.id]?.status || "new"];
-    const go = el.querySelector(".go");
-    go.href = "lessons/" + u.file;
-    const raw = p.s[u.id]?.status || "new";
-    go.textContent =
-      raw === "new" ? "Open lesson" : st === "done" ? "Revisit" : "Continue";
-  }
-
   function river(p) {
     const svg = document.getElementById("river");
     const draw = () =>
@@ -113,42 +88,82 @@
         status: p.status,
         label: (s) => label[s],
         href: (u) => "lessons/" + u.file,
-        onSelect: (u) => pickCard(u, p),
-        vertical: innerWidth < 720,
+        // On wide screens the river is a picture of progress; the path list below does the
+        // navigating. Hovering a node highlights its row. Phones hide the river (CSS).
+        onSelect: (u) => {
+          document
+            .querySelectorAll(".lesson.hl")
+            .forEach((e) => e.classList.remove("hl"));
+          document
+            .querySelector(`.lesson[data-unit="${u.id}"]`)
+            ?.classList.add("hl");
+        },
+        vertical: false,
       });
     draw();
-    let narrow = innerWidth < 720;
-    addEventListener("resize", () => {
-      if (innerWidth < 720 !== narrow) {
-        narrow = innerWidth < 720;
-        draw();
-      }
-    });
   }
 
+  // The route: one vertical path, grouped by roadmap stage. The stage carrying the next lesson is
+  // open; on phones the other stages collapse to one line each.
   function itinerary(p) {
     const root = document.getElementById("chapters");
+    const wide = matchMedia("(min-width: 880px)").matches;
+    const openIds = new Set(
+      [...root.querySelectorAll("details[open]")].map((d) => d.dataset.chapter),
+    );
+    const first = !root.childElementCount;
     root.replaceChildren();
     COURSE.chapters.forEach((c) => {
-      const sec = document.createElement("section");
-      sec.className = "chapter";
-      sec.style.setProperty("--stage", `var(--s-${c.stage})`);
+      const li = document.createElement("li");
+      li.className = "stage-group" + (c.elective ? " elective" : "");
+      li.style.setProperty("--stage", `var(--s-${c.stage})`);
       const mins = c.units.reduce((a, u) => a + u.minutes, 0),
-        done = c.units.filter((u) => p.status(u) === "done").length;
-      if (c.elective) sec.classList.add("elective");
-      sec.innerHTML = `<div class="chapter-h"><span class="stage">${c.elective ? "Elective" : esc(stageName(c.stage))}</span><h3>${esc(c.title)}</h3><span class="sum mono">${done}/${c.units.length} · ${mins} min</span></div>`;
+        done = c.units.filter((u) => p.status(u) === "done").length,
+        hasNext = c.units.some((u) => p.next && u.id === p.next.id);
+      if (hasNext) li.classList.add("current");
+      const det = document.createElement("details");
+      det.dataset.chapter = c.id;
+      det.open = first ? (c.elective ? false : wide || hasNext) : openIds.has(c.id);
+      det.innerHTML = `<summary class="stage-h"><span class="dot" aria-hidden="true"></span><span class="stage-text"><span class="stage-tag">${c.elective ? "Elective" : esc(stageName(c.stage))}</span><span class="stage-title">${esc(c.title.replace(/^Elective:\s*/, ""))}</span></span><span class="sum mono">${done}/${c.units.length} · ${hours(mins)}</span></summary>`;
+      const ol = document.createElement("ol");
+      ol.className = "lessons";
       c.units.forEach((cu) => {
         const u = numbered.find((x) => x.id === cu.id),
           st = p.status(u);
-        const a = document.createElement("a");
-        a.className = "row";
-        a.href = "lessons/" + u.file;
-        a.innerHTML = `<span class="n">${String(u.n).padStart(2, "0")}</span><span class="t"><span>${esc(u.title)}</span><small>${esc(u.blurb)}</small></span><span class="m">${u.minutes} min</span><span class="chip ${st}">${label[st]}</span>`;
-        a.addEventListener("mouseenter", () => pickCard(u, p));
-        sec.append(a);
+        const item = document.createElement("li");
+        item.innerHTML = `<a class="lesson ${st}" data-unit="${u.id}" href="lessons/${u.file}"><span class="node" aria-hidden="true"></span><span class="n mono">${String(u.n).padStart(2, "0")}</span><span class="t"><b>${esc(u.title)}</b><small>${esc(u.blurb)}</small><span class="meta"><span class="mono">${u.minutes} min</span>${st === "new" ? "" : `<span class="chip ${st}">${label[st]}</span>`}</span></span></a>`;
+        ol.append(item);
       });
-      root.append(sec);
+      det.append(ol);
+      li.append(det);
+      root.append(li);
     });
+  }
+
+  // Phones: once someone has started, keep a slim Continue bar at the bottom of the screen
+  // whenever the Continue card itself is out of view.
+  function resumeBar(p) {
+    const bar = document.getElementById("resume-bar"),
+      u = p.next,
+      started = p.done > 0 || !!p.recent;
+    if (!bar) return;
+    bar.dataset.on = u && started ? "1" : "";
+    if (!(u && started)) {
+      bar.hidden = true;
+      return;
+    }
+    bar.href = "lessons/" + u.file;
+    bar.style.setProperty("--stage", `var(--s-${u.stage})`);
+    bar.innerHTML = `<span class="rb-k mono">Continue · ${String(u.n).padStart(2, "0")}</span><span class="rb-t">${esc(u.short)}</span><span class="rb-m mono">${u.minutes} min →</span>`;
+  }
+  let resumeWatch = false;
+  function watchResume() {
+    if (resumeWatch || !("IntersectionObserver" in window)) return;
+    resumeWatch = true;
+    const bar = document.getElementById("resume-bar");
+    new IntersectionObserver((e) => {
+      bar.hidden = e[0].isIntersecting || !bar.dataset.on;
+    }).observe(document.getElementById("continue"));
   }
 
   function retrieval(p) {
@@ -227,10 +242,11 @@
     "nineteen",
     "twenty",
   ];
-  const titleEl = document.getElementById("itin-title");
+  const titleEl = document.getElementById("route-sub");
   if (titleEl) {
     const w = words[core.length] || String(core.length);
-    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, one study carried through, and an elective branch`;
+    const mins = core.reduce((a, u) => a + u.minutes, 0);
+    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 60)} hours, one cohort carried from the question to a survival curve. Every lesson opens directly; prerequisites are advice, not gates.`;
   }
   function refresh() {
     const p = progress();
@@ -238,10 +254,15 @@
     river(p);
     itinerary(p);
     retrieval(p);
-    pickCard(p.next || numbered[0], p);
+    resumeBar(p);
+    watchResume();
   }
   refresh();
   diagnostic();
+  document.addEventListener("click", (e) => {
+    if (e.target.closest('a[href="#skip-ahead"]'))
+      document.getElementById("skip-ahead").open = true;
+  });
   // The shared settings panel belongs with the footer on this page. course.js creates it on
   // DOMContentLoaded; its listener was registered first, so this one runs after it.
   document.addEventListener("DOMContentLoaded", () => {

@@ -51,21 +51,189 @@ body.hub {
   color: var(--ink);
 }
 
-/* Opening row */
+/* Opening: text and the continue card on the left, the toy on the right (desktop).
+   Phones stack text, toy, continue card. */
 .open {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 28px;
-  align-items: end;
-  padding: 36px 0 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  grid-template-areas:
+    "text toy"
+    "cont toy";
+  column-gap: 40px;
+  row-gap: 22px;
+  align-items: start;
+  padding: 40px 0 8px;
+}
+.open-text {
+  grid-area: text;
+}
+.hero-toy {
+  grid-area: toy;
+}
+.continue {
+  grid-area: cont;
 }
 .hub h1 {
-  max-width: 18ch;
+  max-width: 16ch;
+  font-size: clamp(34px, 5vw, 50px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 8px 0 14px;
 }
 .hub .lede {
-  max-width: 50ch;
+  max-width: 48ch;
   margin: 0;
 }
+.for-whom {
+  margin: 14px 0 0;
+  max-width: 48ch;
+  font-size: 15px;
+  color: var(--ink);
+  padding-left: 12px;
+  border-left: 3px solid var(--s-question);
+}
+
+/* The toy */
+.hero-toy {
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  box-shadow: var(--shadow);
+}
+.hero-toy figcaption {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.hero-toy figcaption .eyebrow {
+  color: var(--s-estimation);
+  margin: 0;
+}
+.hero-toy figcaption b {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+#hero-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.h-axis {
+  stroke: var(--rule);
+  stroke-width: 1.2;
+}
+.h-truth {
+  stroke: var(--green);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+.h-curve {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+}
+.h-tan {
+  stroke: var(--purple);
+  stroke-width: 2.4;
+  stroke-dasharray: 6 4;
+}
+.h-gap {
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.h-gap.plug {
+  stroke: var(--or);
+}
+.h-gap.one {
+  stroke: var(--purple);
+}
+.h-dot {
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+.h-dot.plug {
+  fill: var(--or);
+}
+.h-dot.one {
+  fill: var(--purple);
+}
+.h-dot.truth {
+  fill: var(--green);
+}
+.h-lab {
+  font: 12px "IBM Plex Sans", system-ui, sans-serif;
+  fill: var(--muted);
+}
+.h-lab.end {
+  text-anchor: end;
+}
+.h-lab.mid {
+  text-anchor: middle;
+}
+.h-lab.dim {
+  font-style: italic;
+}
+.h-lab.plug {
+  fill: var(--or);
+  font-weight: 600;
+}
+.h-lab.one {
+  fill: var(--purple);
+  font-weight: 600;
+}
+.toy-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "lab btn"
+    "rng btn";
+  column-gap: 14px;
+  align-items: center;
+  margin-top: 6px;
+}
+.toy-controls label {
+  grid-area: lab;
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.toy-controls input {
+  grid-area: rng;
+  width: 100%;
+  margin: 4px 0 0;
+}
+.toy-controls .go {
+  grid-area: btn;
+  font-size: 14.5px;
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.toy-read {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  min-height: 3em;
+}
+.toy-read b {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+}
+.toy-read b.plug {
+  color: var(--or);
+}
+.toy-read b.one {
+  color: var(--purple);
+}
+
 .continue {
   background: var(--paper);
   border: 1px solid var(--rule);
@@ -156,59 +324,28 @@ body.hub {
   outline-offset: 3px;
 }
 
-/* River map */
-.map {
-  margin-top: 26px;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-  padding: 18px 18px 12px;
+/* The route: heading, the river as a progress picture (wide screens), then the path list. */
+.route {
+  margin-top: 44px;
 }
-.map-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+.route-head h2 {
+  font-size: 28px;
+  margin: 0 0 6px;
 }
-.map-head h2 {
-  font-size: 22px;
+.route-head p {
   margin: 0;
-}
-.legend {
-  display: flex;
-  gap: 14px;
-  font-size: 13px;
   color: var(--muted);
-  flex-wrap: wrap;
-}
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.legend i {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--muted);
-  display: inline-block;
-}
-.legend i.half {
-  background: linear-gradient(90deg, var(--muted) 50%, transparent 50%);
-}
-.legend i.full {
-  background: var(--muted);
-}
-.legend i.now {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 22%, transparent);
+  max-width: 62ch;
+  font-size: 15.5px;
 }
 svg.river {
   width: 100%;
   height: auto;
   display: block;
-  margin-top: 6px;
+  margin: 14px 0 4px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
   font-family: "IBM Plex Sans", system-ui, sans-serif;
 }
 .river .channel-bed {
@@ -307,65 +444,9 @@ svg.river {
   }
 }
 
-/* Selected lesson */
-.pick {
-  display: grid;
-  grid-template-columns: 6px minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-  margin: 12px 0 4px;
-  padding: 14px 16px;
-  background: var(--soft);
-  border-radius: 10px;
-}
-.pick .stripe {
-  width: 6px;
-  align-self: stretch;
-  border-radius: 3px;
-  background: var(--stage, var(--purple));
-}
-.pick h3 {
-  font-size: 20px;
-  margin: 0 0 2px;
-}
-.pick p {
-  margin: 0;
-  font-size: 15px;
-  color: var(--muted);
-  max-width: 70ch;
-}
-.pick .meta {
-  font-size: 13px;
-  color: var(--muted);
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-}
-.pick .meta b {
-  color: var(--stage, var(--purple));
-  font-weight: 500;
-}
 .retrieval {
   margin: 10px 4px 0;
   font-size: 14.5px;
-}
-
-/* Itinerary */
-.itin {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  gap: 28px;
-}
-.itin-intro h2 {
-  font-size: 26px;
-  margin: 0 0 8px;
-  line-height: 1.15;
-}
-.itin-intro p {
-  font-size: 15px;
-  color: var(--muted);
-  margin: 0 0 10px;
 }
 .skip-ahead {
   margin-top: 14px;
@@ -414,77 +495,174 @@ svg.river {
 .skip-ahead .result.no {
   color: var(--red);
 }
-.chapter {
-  margin-bottom: 22px;
-}
-.chapter.elective {
-  margin-top: 36px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--rule);
-}
-.chapter.elective .chapter-h .stage {
-  color: var(--muted);
-}
-.chapter-h {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 0 0 4px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule);
-}
-.chapter-h h3 {
-  font-size: 19px;
+/* Path list: a coloured spine on the left, one group per roadmap stage. */
+.path,
+.path .lessons {
+  list-style: none;
   margin: 0;
+  padding: 0;
 }
-.chapter-h .stage {
+.path {
+  margin-top: 18px;
+  --spine-x: 15px;
+}
+.stage-group {
+  position: relative;
+}
+.stage-group::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--spine-x) - 2px);
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--stage);
+  opacity: 0.85;
+}
+.stage-group:first-child::before {
+  top: 22px;
+}
+.stage-group:last-of-type:not(.elective)::before,
+.stage-group.elective::before {
+  bottom: 18px;
+}
+.stage-group.elective {
+  margin-top: 26px;
+}
+.stage-group.elective::before {
+  background: none;
+  border-left: 3px dashed var(--muted);
+  opacity: 0.6;
+}
+.stage-h {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 6px 12px 0;
+  cursor: pointer;
+}
+.stage-h::-webkit-details-marker {
+  display: none;
+}
+.stage-h .dot {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 4px solid var(--stage);
+}
+.stage-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.stage-tag {
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage);
 }
-.chapter-h .sum {
-  margin-left: auto;
-  font-size: 13px;
-  color: var(--muted);
+.stage-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.2;
 }
-.row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 62px 120px;
-  gap: 12px;
+.stage-h .sum {
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  display: flex;
   align-items: center;
-  padding: 8px 6px;
-  border-radius: 7px;
+  gap: 8px;
+}
+.stage-h .sum::after {
+  content: "▾";
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  transition: transform 0.15s;
+}
+details:not([open]) > .stage-h .sum::after {
+  transform: rotate(-90deg);
+}
+.lessons {
+  padding-bottom: 8px !important;
+}
+.lesson {
+  display: grid;
+  grid-template-columns: 30px 26px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 8px 10px 0;
+  border-radius: 10px;
   text-decoration: none;
   color: inherit;
-  font-size: 16px;
 }
-.row:hover {
-  background: var(--soft);
+.lesson:hover,
+.lesson.hl {
+  background: var(--paper);
+  box-shadow: var(--shadow);
 }
-.row .n {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 13px;
+.lesson .node {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2.5px solid var(--stage);
+}
+.lesson.part .node {
+  background: linear-gradient(90deg, var(--stage) 50%, var(--bg) 50%);
+}
+.lesson.done .node {
+  background: var(--stage);
+}
+.lesson.now .node {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--stage) 25%, transparent);
+}
+.lesson .n {
+  font-size: 12.5px;
   color: var(--muted);
+  padding-top: 2px;
 }
-.row .t {
-  display: flex;
-  flex-direction: column;
+.lesson .t {
+  display: grid;
+  gap: 2px;
   min-width: 0;
 }
-.row .t small {
-  color: var(--muted);
-  font-size: 13.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.lesson .t b {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
 }
-.row .m {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 13px;
+.lesson.now .t b {
+  font-weight: 600;
+}
+.lesson .t small {
   color: var(--muted);
-  text-align: right;
+  font-size: 14px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.lesson .meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
 }
 .chip {
   justify-self: start;
@@ -549,32 +727,105 @@ svg.river {
   margin: 0 0 14px;
 }
 
-@media (max-width: 880px) {
-  .open {
-    grid-template-columns: 1fr;
-    align-items: start;
-    padding-top: 24px;
+/* Slim Continue bar for phones, shown by hub.js once a learner has started. */
+.resume-bar {
+  display: none;
+}
+@media (max-width: 879px) {
+  body.hub {
+    padding: 0 18px 88px;
   }
-  .itin {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .outcomes {
-    grid-template-columns: 1fr;
-  }
-  .row {
-    grid-template-columns: 24px minmax(0, 1fr) 52px;
-  }
-  .row .chip {
-    display: none;
+  .mast {
+    padding: 12px 0 10px;
   }
   .mast nav a:nth-child(n + 3) {
     display: none;
   }
-  .pick {
-    grid-template-columns: 6px minmax(0, 1fr);
+  .open {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "text"
+      "toy"
+      "cont";
+    padding-top: 22px;
+    row-gap: 18px;
   }
-  .pick .go {
-    grid-column: 2;
+  .hub h1 {
+    font-size: 36px;
   }
+  .hub .lede {
+    font-size: 16.5px;
+  }
+  .hero-toy {
+    padding: 14px 12px 12px;
+  }
+  .hero-toy figcaption b {
+    font-size: 18px;
+  }
+  .continue h2 {
+    font-size: 21px;
+  }
+  /* Outcomes become a strip you swipe sideways. */
+  .outcomes {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 28px -18px 0;
+    padding: 0 18px 6px;
+    gap: 10px;
+  }
+  .outcome {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+  .route {
+    margin-top: 32px;
+  }
+  .route-head h2 {
+    font-size: 24px;
+  }
+  svg.river {
+    display: none;
+  }
+  .stage-title {
+    font-size: 17.5px;
+  }
+  .lesson .t small {
+    -webkit-line-clamp: 1;
+  }
+  .resume-bar:not([hidden]) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 20;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: var(--bg);
+    text-decoration: none;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-left: 5px solid var(--stage);
+    font-size: 14.5px;
+  }
+  .resume-bar .rb-k,
+  .resume-bar .rb-m {
+    font-size: 12px;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  .resume-bar .rb-t {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.h-lab.truth {
+  fill: var(--green);
+  font-weight: 600;
 }
