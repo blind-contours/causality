@@ -6,45 +6,72 @@
 <meta name="description" content="Causality: One Move, Two Faces. Tilting the density of Y and shifting the regression are the same move; and the empirical distribution is a point too.">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-<title>One Move, Two Faces</title>
+<title>One move, two faces · Causality</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
-<style>.ratio-big{font-size:17px;margin:4px 0 8px;color:var(--ink)}.ratio-big b{color:var(--or);font-size:22px;font-family:"IBM Plex Mono",monospace}.ratio-big span{display:block;font-size:13px;color:var(--muted)}</style>
+<style>.bridge-pic{margin:8px 0 18px;max-width:560px}.bridge-pic svg{width:100%;height:auto;display:block}.ratio-big{font-size:17px;margin:4px 0 8px;color:var(--ink)}.ratio-big b{color:var(--or);font-size:22px;font-family:"IBM Plex Mono",monospace}.ratio-big span{display:block;font-size:13px;color:var(--muted)}</style>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="one-move-two-faces">
 <div class="wrap">
-<div class="eyebrow">From probability paths to regression fluctuations</div>
+<div class="eyebrow">A short bridge between two pictures</div>
 <h1>One Move, Two Faces</h1>
-<p class="lede">You have now seen two pictures of "moving the fit". In the scores lessons you tilted a density, p<sub>ε</sub> = p(1 + εh), and read off a score. In the two-strata and clever-covariate lessons you shifted a regression, μ<sub>ε</sub> = μ̂ + εH, and chose ε by least squares. This lesson ties them together: they are one move. Tilting the conditional density of Y by a factor that grows with the residual has score H·(y − μ̂), and its mean is μ̂ + εH, so the old stratum's curve moves 9× as far as the young one's for the same reason it did in the two-strata budget. Then it shows the other object that has been hiding: the empirical distribution Pₙ is a probability measure too (though not a smooth density), and the one-step correction is the gap between averaging D under Pₙ and under P̂.</p>
+<p class="lede">A short bridge lesson. You have seen two pictures of "moving the fit". In the scores lessons you tilted a density to read off a score. In Two Strata, One Step and Where the Clever Covariate Comes From you shifted a regression line. Here is why those are the same move.</p>
+<figure class="bridge-pic">
+<svg viewBox="0 0 640 230" role="img" aria-label="Left: a bell curve of Y, dashed, and the same curve tilted toward larger y, solid, with an arrow showing its centre moving right. Right: a flat fitted line, dashed, and the same line raised, solid, with an arrow showing it moving up. An equals sign sits between them.">
+  <g fill="none" stroke-width="3">
+    <path d="M20 190 C 70 190, 90 60, 130 60 S 190 190, 240 190" stroke="var(--muted)" stroke-dasharray="7 6"/>
+    <path d="M60 190 C 110 190, 130 60, 170 60 S 230 190, 280 190" stroke="var(--purple)"/>
+    <path d="M130 45 L 162 45" stroke="var(--purple)"/>
+    <path d="M384 150 L 620 150" stroke="var(--muted)" stroke-dasharray="7 6"/>
+    <path d="M384 100 L 620 100" stroke="var(--purple)"/>
+    <path d="M600 146 L 600 110" stroke="var(--purple)"/>
+  </g>
+  <path d="M170 45 l -12 -7 v 14 z M600 102 l -7 12 h 14 z" fill="var(--purple)"/>
+  <g fill="var(--p)"><circle cx="410" cy="88" r="7"/><circle cx="470" cy="118" r="7"/><circle cx="530" cy="92" r="7"/><circle cx="575" cy="112" r="7"/></g>
+  <text x="310" y="132" text-anchor="middle" font-size="44" fill="var(--ink)">=</text>
+  <text x="20" y="224" font-size="24" fill="var(--muted)">tilt the density of Y</text>
+  <text x="384" y="224" font-size="24" fill="var(--muted)">shift the fitted line</text>
+</svg>
+</figure>
+<div class="predict" data-options="Its mean moves toward larger y|Only its spread changes|Nothing: a tilt keeps the curve in place" data-answer="0" data-hint="A factor that grows with y puts more weight on large y, so after renormalizing the centre of mass moves up. For a bell curve it slides without changing shape.">Multiply a bell curve of Y by a factor that grows with y, then renormalize so it is a density again. What happens?</div>
+<p>It slides toward larger y, and for a bell curve it keeps its shape. That slide of the curve's centre is exactly a shift of the fitted outcome, the regression line on the right. Scene 1 works this out, and Scene 2 shows one more object that has been hiding: the sample itself.</p>
 
 <!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
 <h2>Tilt the density of Y at one x, and the regression line is what moves</h2>
-<p>Fix a patient's covariate x and look at the conditional density of Y given treatment, p̂(y | 1, x). The initial fit says it is Normal with mean μ̂(x) and variance 1. Now multiply it by exp(ε·H·(y − μ̂)) and renormalize. Two things happen at once. The score of this path at ε = 0 is d/dε log p̂<sub>ε</sub> = H·(y − μ̂), the outcome piece of the influence function. And because a Gaussian times an exponential in y is a Gaussian, the tilted density is Normal with mean μ̂ + εH (completing the square; with variance σ² instead of 1 the new mean is μ̂ + εHσ², and the variance itself does not change): the regression fluctuation in the clever-covariate lesson, derived rather than declared. Both strata use the same ε; H differs, so the ratio of shifts is 0.9/π(old), initially 9.</p>
-<div class="eq">p̂_ε(y | 1, x) ∝ p̂(y | 1, x) · exp(ε H(x) (y − μ̂(x)))        score at ε = 0:  H(x)(y − μ̂(x))<br>Gaussian case:  exp(−(y−μ̂)²/2) · exp(εH(y−μ̂)) ∝ exp(−(y − μ̂ − εH)²/2)   ⇒   mean = μ̂ + εH</div>
-<div class="predict" data-options="Same amount, H doesn't matter|9× as far, because H is 9× larger|9× less, because there are fewer old patients" data-answer="1" data-hint="The mean of the tilted density is μ̂ + εH, and H = 1/π is 10 for old vs 1.11 for young.">At the initial π(old)=0.1 and π(young)=0.9, how far does the old mean move compared with the young mean?</div>
+<aside class="world-card"><b>This step's world</b> two severity strata, drawn as Gaussian curves with variance 1 · outcome Y · the true treated means m₁(high) = 3, m₁(low) = 2, the same numbers as the sharper version of the course cohort in Two Strata, One Step</aside>
+<p>Fix a patient's severity x and look at the density of Y among treated patients, p̂(y | 1, x). The initial fit says it is Normal with variance 1 and mean m̂₁(x), the fitted treated-outcome regression. Now multiply it by exp(ε·H·(y − m̂₁)) and renormalize.</p>
+<p>Two things happen at once. The score of this path at ε = 0 is d/dε log p̂<sub>ε</sub> = H·(y − m̂₁), the outcome piece of the influence function. And a Gaussian times an exponential in y is a Gaussian: the tilted density is Normal with mean m̂₁ + εH (with variance σ² the new mean is m̂₁ + εHσ², and the variance does not change).</p>
+<p>That is the regression fluctuation you used in Where the Clever Covariate Comes From, derived rather than declared. H = 1/g(x), where g(x) is the propensity score, the chance of treatment at severity x. Both strata use the same ε.</p>
+<div class="eq">p̂_ε(y | 1, x) ∝ p̂(y | 1, x) · exp(ε H(x) (y − m̂₁(x)))        score at ε = 0:  H(x)(y − m̂₁(x))<br>Gaussian case:  exp(−(y−m̂₁)²/2) · exp(εH(y−m̂₁)) ∝ exp(−(y − m̂₁ − εH)²/2)   ⇒   mean = m̂₁ + εH</div>
+<div class="predict" data-options="Same amount, H doesn't matter|9× as far, because H is 9× larger|9× less, because there are fewer low-severity patients treated" data-answer="1" data-hint="The mean of the tilted density is m̂₁ + εH, and H = 1/g is 10 for low severity against 1.11 for high.">Treatment is common at high severity, g(high) = 0.9, and rare at low severity, g(low) = 0.1. With the same ε, how far does the low-severity mean move compared with the high-severity mean?</div>
 <div class="scene">
   <div class="paper"><canvas id="c1" width="800" height="500"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <label>ε <span class="v" id="v1e">0.18</span><input type="range" id="e1" min="0" max="0.4" step="0.005" value="0.18"></label>
-    <label>π(old) (sets H = 1/π) <span class="v" id="v1p">0.10</span><input type="range" id="pi1" min="0.05" max="0.5" step="0.01" value="0.1"></label>
+    <label>g(low), the chance of treatment at low severity (sets H = 1/g) <span class="v" id="v1p">0.10</span><input type="range" id="pi1" min="0.05" max="0.5" step="0.01" value="0.1"></label>
     <div class="ratio-big" id="ratio1" role="status" aria-live="polite"></div>
     <div class="readout" id="ro1"></div>
-    <div class="note">The mean of the tilted density is computed by numerical integration over a wide window (both means ± 12 SD), not from the formula, so the readout is a check that the algebra is right. The score panels share one vertical scale, so the steeper old line is really steeper.</div>
+    <div class="note">The mean of the tilted density is computed by numerical integration over a wide window (both means ± 12 SD), not from the formula, so the readout is a check that the algebra is right. The score panels share one vertical scale, so the steeper low-severity line is really steeper.</div>
   </div>
 </div>
+<p>The ratio of the two shifts is H(low)/H(high) = g(high)/g(low) = 0.9/0.1 = 9. It is the same 9 as the budget ray in Two Strata, One Step, for the same reason.</p>
 <div class="say"><b>In one sentence</b>The TMLE fluctuation of the outcome regression is a one-parameter exponential tilt of the conditional density of Y along the outcome component of the efficient influence function. For a Gaussian working model that tilt is a location shift by εH, which is why the update looks like a regression with H as the covariate.</div>
 
 <!-- SCENE 2 -->
 <div class="eyebrow">Scene 2</div>
 <h2>Pₙ is a point too, and the correction is a gap between two averages</h2>
-<p>Three probability measures can all average a function. The empirical measure need not lie in a model of smooth densities. P is the truth, a smooth density. P̂ is the fit, smooth but with the wrong mean. Pₙ is the sample, a spike of mass 1/n at each observation. Average the same function D̂(z) = z − μ̂ under each. Under P̂ the average is zero by construction: the fit is centered on itself. Under Pₙ it is z̄ − μ̂, the one-step correction. Under P it is μ − μ̂, the negative of the plug-in bias. So the correction is (Pₙ − P̂)D̂, and it estimates (P − P̂)D̂ with sampling error (Pₙ − P)D̂ that shrinks like 1/√n. That last term is the one the influence-function chapter is about.</p>
-<div class="eq">P̂ D̂ = 0        Pₙ D̂ = z̄ − μ̂  (correction)        P D̂ = μ − μ̂  (− plug-in bias)<br>one-step = ψ(P̂) + Pₙ D̂ = μ̂ + (z̄ − μ̂) = z̄        error = (Pₙ − P) D̂ = Oₚ(1/√n)</div>
-<div class="predict" data-options="Zero|z̄ − μ̂|μ − μ̂" data-answer="0" data-hint="The fit is centered on itself: ∫(z − μ̂)p̂(z)dz = μ̂ − μ̂.">What is the average of D̂(z) = z − μ̂ under the fitted distribution P̂?</div>
+<aside class="world-card"><b>This step's world</b> one measurement Z per person, drawn from a two-bump Gaussian mixture; n = 40 by default · target: the mean of Z · compared with its exact true mean μ</aside>
+<p>Three probability distributions can all average a function. P is the truth, a smooth density with mean μ. P̂ is the fit, smooth but with the wrong mean μ̂. Pₙ is the sample, a spike of mass 1/n at each observation; it is not a smooth density, but it averages functions just the same.</p>
+<p>For a mean, the influence function at the fit is ϕ̂(z) = z − μ̂. Average it under each of the three.</p>
+<div class="predict" data-options="Zero|z̄ − μ̂|μ − μ̂" data-answer="0" data-hint="The fit is centered on itself: ∫(z − μ̂)p̂(z)dz = μ̂ − μ̂.">What is the average of ϕ̂(z) = z − μ̂ under the fitted distribution P̂?</div>
+<p>Under P̂ the average is zero by construction: the fit is centered on itself. Under Pₙ it is z̄ − μ̂, the one-step correction. Under P it is μ − μ̂, the negative of the plug-in bias.</p>
+<p>So the correction is (Pₙ − P̂)ϕ̂, and it estimates (P − P̂)ϕ̂ with sampling error (Pₙ − P)ϕ̂ that shrinks like 1/√n. That last term is what a standard error measures.</p>
+<div class="eq">P̂ ϕ̂ = 0        Pₙ ϕ̂ = z̄ − μ̂  (correction)        P ϕ̂ = μ − μ̂  (− plug-in bias)<br>one-step = ψ(P̂) + Pₙ ϕ̂ = μ̂ + (z̄ − μ̂) = z̄        error = (Pₙ − P) ϕ̂ = Oₚ(1/√n)</div>
 <div class="scene">
   <div class="paper"><canvas id="c2" width="800" height="500"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
@@ -53,11 +80,11 @@
     <label>Sample size n <span class="v" id="v2n">40</span><input type="range" id="n2s" min="10" max="400" step="10" value="40"></label>
     <label>Fitted mean μ̂ (wrong on purpose) <span class="v" id="v2m">-0.60</span><input type="range" id="m2" min="-1.5" max="1.5" step="0.01" value="-0.6"></label>
     <div class="readout" id="ro2"></div>
-    <div class="note">Press New sample a few times and watch PₙD̂ jump around P D̂. That jitter is (Pₙ − P)D̂, and its size is what the standard error reports.</div>
+    <div class="note">Press New sample a few times and watch Pₙϕ̂ jump around P ϕ̂. That jitter is (Pₙ − P)ϕ̂, and its size is what the standard error reports.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The one-step correction PₙD(P̂) is the empirical average of the influence function at the fit. Because P̂D(P̂) = 0, it equals (Pₙ − P̂)D(P̂): the sample’s disagreement with the fit, measured in the direction that matters for ψ. It estimates the negative of the plug-in bias, with sampling noise of order 1/√n.</div>
-<p class="note">What is exact here: the tilted mean in Scene 1 is a numerical integral that matches μ̂ + εH to many decimals. What is simulated: the sample in Scene 2 (press New sample). What is schematic: the Gaussian working model with variance 1.</p>
+<div class="say"><b>In one sentence</b>The one-step correction Pₙϕ̂ is the empirical average of the influence function at the fit, ϕ̂ = ϕ(P̂). Because P̂ϕ̂ = 0, it equals (Pₙ − P̂)ϕ̂: the sample’s disagreement with the fit, measured in the direction that matters for ψ. It estimates the negative of the plug-in bias, with sampling noise of order 1/√n.</div>
+<p class="note">What is exact here: the tilted mean in Scene 1 is a numerical integral that matches m̂₁ + εH to many decimals. What is simulated: the sample in Scene 2 (press New sample). What is schematic: the Gaussian working model with variance 1, and the two strata of Scene 1.</p>
 <p class="sources">Further reading: <a href="https://doi.org/10.2202/1557-4679.1043">van der Laan and Rubin (2006), Targeted maximum likelihood learning</a>; <a href="https://doi.org/10.1080/00031305.2020.1717620">Fisher and Kennedy (2021), Visually communicating and teaching intuition for influence functions</a>; <a href="https://doi.org/10.1080/00031305.2021.2021984">Hines, Dukes, Diaz-Ordaz and Vansteelandt (2022), Demystifying statistical learning based on efficient influence functions</a>.</p>
 </div>
 <script>
@@ -102,10 +129,10 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);
     const pk=nrm(0,0,1),y=v=>B-(B-T)*v/(pk*1.15);const pts0=[],pts1=[];
     for(let v=ymin;v<=ymax;v+=0.02){pts0.push([x(v),y(nrm(v,m0,1))]);pts1.push([x(v),y(tilted(v,m0,E*Hv)/Z)]);}
     line(g,L,B,R,B,C.pen,1.2);const step=ymax-ymin>12?4:2;for(let v=Math.ceil(ymin/step)*step;v<=ymax;v+=step){line(g,x(v),B,x(v),B+4,C.pen,1);txt(g,v,x(v),B+13,C.muted,10,'center',FM);}
-    txt(g,title,L+6,T-22,C.pen,14,'left',FS,true);txt(g,`H = 1/π = ${Hv.toFixed(2)}`,R-4,T-22,C.muted,11.5,'right',FM);
+    txt(g,title,L+6,T-22,C.pen,14,'left',FS,true);txt(g,`H = 1/g = ${Hv.toFixed(2)}`,R-4,T-22,C.muted,11.5,'right',FM);
     poly(g,pts0,C.phat,1.5,[3,3]);poly(g,pts1,col,2.5);
-    // μ̂ label sits above the initial peak; the truth label sits at the top of its own line, to its right
-    line(g,x(m0),B,x(m0),y(pk),C.phat,1,[2,3]);txt(g,'μ̂',x(m0),y(pk)-10,C.phat,12,'center',FM);
+    // m̂₁ label sits above the initial peak; the truth label sits at the top of its own line, to its right
+    line(g,x(m0),B,x(m0),y(pk),C.phat,1,[2,3]);txt(g,'m̂₁',x(m0),y(pk)-10,C.phat,12,'center',FM);
     line(g,x(mu),B,x(mu),T-4,C.green,1.2,[5,4]);txt(g,'truth',x(mu)+4,T-6,C.green,10.5,'left',FM);
     line(g,x(m),B,x(m),y(pk),col,1.5);
     if(E>0)arrow(g,x(m0),B-14,x(m),B-14,col,1.5);
@@ -114,14 +141,14 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);
     line(g,L,mid,R,mid,C.grid,1);line(g,L,B2,L,T2,C.pen,1.2);
     for(const v of [-S,0,S]){line(g,L-4,ys(v),L,ys(v),C.pen,1);txt(g,v>0?'+'+S:v,L-6,ys(v),C.muted,10,'right',FM);}
     poly(g,[[x(ymin),ys(Hv*(ymin-m0))],[x(ymax),ys(Hv*(ymax-m0))]],C.teal,2);
-    txt(g,'score H·(y − μ̂)',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,`slope H = ${Hv.toFixed(2)}`,R-4,T2-12,C.teal,11.5,'right',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
+    txt(g,'score H·(y − m̂₁)',L+6,T2-12,C.teal,11.5,'left',FM);txt(g,`slope H = ${Hv.toFixed(2)}`,R-4,T2-12,C.teal,11.5,'right',FM);txt(g,'y →',R-4,B2+13,C.muted,10.5,'right',FM);
     return m;};
-  const mY=pan(50,380,'Young stratum',MUY,HY,C.p,wY),mO=pan(430,760,'Old stratum',MUO,HO,C.or,wO);
+  const mY=pan(50,380,'High severity',MUY,HY,C.or,wY),mO=pan(430,760,'Low severity',MUO,HO,C.p,wO);
   const ratio=HO/HY;
-  txt(g,`same ε = ${E.toFixed(3)} for both.  Old moved ${ratio.toFixed(1)}× young:  ${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}`,50,466,C.pen,13,'left',FM);
-  document.getElementById('ratio1').innerHTML=`Old moved <b>${ratio.toFixed(1)}×</b> young <span>(${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}; ratio = H<sub>old</sub>/H<sub>young</sub> = 0.9/${pio.toFixed(2)})</span>`;
-  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">young: μ̂+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">young: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">old: μ̂+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">old: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span><span class="k">old shift ÷ young shift</span><span>${ratio.toFixed(1)}×</span>`;
-  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth (green). The teal line is the score of the tilt at each y.':`Tilting slides each density by εH: old moved ${ratio.toFixed(1)}× young. Numerical mean matches μ̂ + εH to within ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
+  txt(g,`same ε = ${E.toFixed(3)} for both.  Low severity moved ${ratio.toFixed(1)}× high:  ${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}`,50,466,C.pen,13,'left',FM);
+  document.getElementById('ratio1').innerHTML=`Low severity moved <b>${ratio.toFixed(1)}×</b> high <span>(${(E*HO).toFixed(2)} vs ${(E*HY).toFixed(2)}; ratio = H<sub>low</sub>/H<sub>high</sub> = g(high)/g(low) = 0.9/${pio.toFixed(2)})</span>`;
+  document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${E.toFixed(3)}</span><span class="k">high: m̂₁+εH</span><span>${(MUY-1+E*HY).toFixed(3)}</span><span class="k">high: ∫ y p̂_ε</span><span>${mY.toFixed(3)}</span><span class="k">low: m̂₁+εH</span><span>${(MUO-1+E*HO).toFixed(3)}</span><span class="k">low: ∫ y p̂_ε</span><span>${mO.toFixed(3)}</span><span class="k">low shift ÷ high shift</span><span>${ratio.toFixed(1)}×</span>`;
+  document.getElementById('cap1').textContent=E<0.005?'Two initial conditional densities (dashed), both centered 1 below the truth (green). The teal line is the score of the tilt at each y.':`Tilting slides each density by εH: low severity moved ${ratio.toFixed(1)}× high. Numerical mean matches m̂₁ + εH to within ${Math.max(Math.abs(mY-(MUY-1+E*HY)),Math.abs(mO-(MUO-1+E*HO))).toExponential(1)}.`;
 },{noplay:true});
 bind('e1','v1e',v=>v.toFixed(3),()=>S1.draw());bind('pi1','v1p',v=>v.toFixed(2),()=>S1.draw());
 
@@ -141,13 +168,13 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);
   // marker labels below the axis: each takes the first row where it does not collide with an earlier one
   const lrows=[[],[],[]],place=(xx,s,col)=>{const k=lrows.findIndex(r=>r.every(q=>Math.abs(q-xx)>22));const r=k<0?2:k;lrows[r].push(xx);txt(g,s,xx,B+26+r*13,col,11,'center',FM);};
   line(g,x(MU),B,x(MU),B-8,C.green,3);place(x(MU),'μ',C.green);line(g,x(mh),B,x(mh),B-8,C.phat,3);place(x(mh),'μ̂',C.phat);if(b>0.99){line(g,x(zbar),B,x(zbar),B-8,C.teal,3);place(x(zbar),'z̄',C.teal);}
-  // bars of averages of D̂ = z - μ̂
-  const c=seg(t,0.6,1);const rows=[['P̂ D̂  (fit averages itself)',0,C.phat],['Pₙ D̂  = z̄ − μ̂  (correction)',zbar-mh,C.teal],['P D̂  = μ − μ̂  (− plug-in bias)',MU-mh,C.green]];
-  const bx=400,bw=300,sc=(bw/2-4)/Math.max(1.1,...rows.map(r=>Math.abs(r[1])));txt(g,'Average of D̂(z) = z − μ̂ under each distribution',50,296,C.pen,13,'left',FS,true);
+  // bars of averages of ϕ̂ = z - μ̂
+  const c=seg(t,0.6,1);const rows=[['P̂ ϕ̂  (fit averages itself)',0,C.phat],['Pₙ ϕ̂  = z̄ − μ̂  (correction)',zbar-mh,C.teal],['P ϕ̂  = μ − μ̂  (− plug-in bias)',MU-mh,C.green]];
+  const bx=400,bw=300,sc=(bw/2-4)/Math.max(1.1,...rows.map(r=>Math.abs(r[1])));txt(g,'Average of ϕ̂(z) = z − μ̂ under each distribution',50,296,C.pen,13,'left',FS,true);
   rows.forEach((r,i)=>{const yy=326+i*44;txt(g,r[0],50,yy+6,r[2],12,'left',FM);rect(g,bx,yy-1,bw,14,C.grid);const v=r[1]*c;rect(g,bx+bw/2+Math.min(0,v*sc),yy-1,Math.abs(v)*sc,14,r[2],0.85);line(g,bx+bw/2,yy-6,bx+bw/2,yy+18,C.pen,1);txt(g,(r[1]*c).toFixed(3),bx+bw+8,yy+6,r[2],11.5,'left',FM);});
-  if(c>0.99){txt(g,`one-step = μ̂ + PₙD̂ = ${mh.toFixed(2)} + ${(zbar-mh).toFixed(3)} = ${zbar.toFixed(3)} = z̄`,50,462,C.pen,12.5,'left',FM);txt(g,`sampling error (Pₙ − P)D̂ = ${(zbar-MU).toFixed(3)}`,50,484,C.muted,12,'left',FM);}
-  document.getElementById('ro2').innerHTML=`<span class="k">μ (truth)</span><span>${MU.toFixed(3)}</span><span class="k">μ̂</span><span>${mh.toFixed(3)}</span><span class="k">z̄</span><span>${zbar.toFixed(3)}</span><span class="k">PₙD̂</span><span>${(zbar-mh).toFixed(3)}</span><span class="k">PD̂</span><span>${(MU-mh).toFixed(3)}</span><span class="k">(Pₙ−P)D̂</span><span>${(zbar-MU).toFixed(3)}</span>`;
-  document.getElementById('cap2').textContent=t<0.3?'The truth P is a smooth density.':t<0.6?'The fit P̂ is smooth too, with the wrong mean. Its mean differs from the truth.':t<0.9?'The sample Pₙ is also a point in this space: n spikes of mass 1/n.':'Average D̂ under each. The fit is centered on itself, the sample gives the correction, and the truth gives the bias the correction is estimating.';
+  if(c>0.99){txt(g,`one-step = μ̂ + Pₙϕ̂ = ${mh.toFixed(2)} + ${(zbar-mh).toFixed(3)} = ${zbar.toFixed(3)} = z̄`,50,462,C.pen,12.5,'left',FM);txt(g,`sampling error (Pₙ − P)ϕ̂ = ${(zbar-MU).toFixed(3)}`,50,484,C.muted,12,'left',FM);}
+  document.getElementById('ro2').innerHTML=`<span class="k">μ (truth)</span><span>${MU.toFixed(3)}</span><span class="k">μ̂</span><span>${mh.toFixed(3)}</span><span class="k">z̄</span><span>${zbar.toFixed(3)}</span><span class="k">Pₙϕ̂</span><span>${(zbar-mh).toFixed(3)}</span><span class="k">Pϕ̂</span><span>${(MU-mh).toFixed(3)}</span><span class="k">(Pₙ−P)ϕ̂</span><span>${(zbar-MU).toFixed(3)}</span>`;
+  document.getElementById('cap2').textContent=t<0.3?'The truth P is a smooth density.':t<0.6?'The fit P̂ is smooth too, with the wrong mean. Its mean differs from the truth.':t<0.9?'The sample Pₙ is also a point in this space: n spikes of mass 1/n.':'Average ϕ̂ under each. The fit is centered on itself, the sample gives the correction, and the truth gives the bias the correction is estimating.';
 },{dur:5000});
 document.getElementById('n2').onclick=()=>{gen2();S2.draw();};bind('n2s','v2n',v=>v.toFixed(0),()=>{gen2();S2.draw();});bind('m2','v2m',v=>v.toFixed(2),()=>S2.draw());
 

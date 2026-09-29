@@ -167,6 +167,16 @@
         h: "E = RR + √(RR(RR − 1)) for RR ≥ 1. It is the common strength RR_EU = RR_UD at which the bias factor B equals the observed RR.",
       };
     },
+    "capstone": (n) => {
+      const r1 = 0.3 - 0.02 * n,
+        rr = r1 / 0.3,
+        rs = 1 / rr;
+      return {
+        q: `An emulated trial estimates a 1-year risk of 30% under standard care and ${(100 * r1).toFixed(0)}% under the device. What is the E-value for the risk ratio? Give two decimals.`,
+        a: +(rs + Math.sqrt(rs * (rs - 1))).toFixed(2),
+        h: "RR = device risk / standard-care risk is below 1, so invert it first: RR* = 1/RR. Then E = RR* + √(RR*(RR* − 1)).",
+      };
+    },
     "targeted-survival": (n) => ({
       q: `A treated patient has g(1|X) = ${n / 10}, model prediction S(12|1,X) = 0.6, plug-in average ψ̂ = 0.55, and was followed event-free through month 12 with no censoring anywhere (G = 1). Using D = S(τ|1,X) − ψ̂ + (1{T > τ} − S(τ|1,X))/g(1|X), what is this patient's influence value for S₁(12)?`,
       a: 0.05 + 0.4 / (n / 10),
@@ -177,14 +187,24 @@
     bank,
     mount(el, id, api) {
       let variant = 0;
-      const saved = api.state().units[id]?.exercises.transfer;
+      const unit = () => api.state().units[id],
+        saved = unit()?.exercises.transfer;
       if (saved) variant = Number(saved.variant) || 0;
       el.className = "practice";
       el.innerHTML =
-        '<h2>Try a new case</h2><p class="question"></p><label>Your answer <input class="answer" inputmode="decimal" type="text" autocomplete="off"></label><div class="btns"><button class="check">Check reasoning</button><button class="hint">Hint</button><button class="reveal">Worked solution</button><button class="new-case">New case</button></div><p class="feedback" role="status"></p><label>Explain it to a colleague <textarea class="explain" rows="2" placeholder="What moves, what stays fixed, and why?"></textarea></label><p class="note">The numerical check is automatic. Your explanation is saved for reflection; it is not automatically graded. After a hint or solution, try a new case independently.</p>';
+        '<h2>Try a new case</h2><p class="practice-status" role="status"></p><p class="question"></p><label>Your answer <input class="answer" inputmode="decimal" type="text" autocomplete="off"></label><div class="btns"><button class="check">Check reasoning</button><button class="hint">Hint</button><button class="reveal">Worked solution</button><button class="new-case">New case</button></div><p class="feedback" role="status"></p><label>Explain it to a colleague <textarea class="explain" rows="2" placeholder="What moves, what stays fixed, and why?"></textarea></label><p class="note">The numerical check is automatic. Your explanation is saved for reflection; it is not automatically graded. A hint or worked solution before a correct answer marks that case as assisted; try a new case on your own to pass the check. Once passed, it stays passed.</p>';
       const input = el.querySelector(".answer"),
         feedback = el.querySelector(".feedback"),
+        statusEl = el.querySelector(".practice-status"),
         explain = el.querySelector(".explain");
+      const passed = () => unit()?.status === "demonstrated";
+      const showStatus = () => {
+        statusEl.textContent = passed()
+          ? "Check passed. New cases here are practice and will not undo it."
+          : "";
+        statusEl.hidden = !passed();
+      };
+      showStatus();
       let problem;
       const create = () => {
         const n = 2 + (variant % 6);
@@ -204,7 +224,7 @@
           localStorage.setItem("causality." + key, explain.value);
         } catch {}
       };
-      const emit = (correct, assisted = false) =>
+      const emit = (correct, assisted = false, fresh = false) => {
         api.event({
           type: "exercise",
           unit: id,
@@ -213,18 +233,28 @@
           answer: input.value,
           correct,
           assisted,
+          fresh,
           transfer: true,
         });
+        showStatus();
+      };
       el.querySelector(".check").onclick = () => {
         const number = Number(input.value.trim().replace(",", ".")),
           correct =
             input.value.trim() !== "" &&
             Number.isFinite(number) &&
             Math.abs(number - problem.a) < 0.011;
+        const was = passed(),
+          prior = unit()?.exercises.transfer,
+          helped = !!(prior && Number(prior.variant) === variant && prior.assisted);
         emit(correct);
-        feedback.textContent = correct
-          ? "Correct. Explain why this works, then carry that reasoning into the next lesson."
-          : "Try again. Identify the quantity being averaged or changed; keep its sign and units.";
+        feedback.textContent = !correct
+          ? "Try again. Identify the quantity being averaged or changed; keep its sign and units."
+          : was || passed()
+            ? "Correct. Explain why this works, then carry that reasoning into the next lesson."
+            : helped
+              ? "Correct, with help on this case. Try New case to pass the check on your own."
+              : "Correct. Explain why this works, then carry that reasoning into the next lesson.";
       };
       el.querySelector(".hint").onclick = () => {
         emit(false, true);
@@ -236,13 +266,15 @@
           problem.h +
           " Answer: " +
           Number(problem.a.toFixed(4)) +
-          ". Try New case to demonstrate it without the solution.";
+          (passed()
+            ? "."
+            : ". Try New case to demonstrate it without the solution.");
       };
       el.querySelector(".new-case").onclick = () => {
         variant++;
         create();
         input.focus();
-        emit(false);
+        emit(false, false, true);
       };
     },
   };

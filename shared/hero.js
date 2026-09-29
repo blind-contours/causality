@@ -93,7 +93,7 @@
       e1 = one - PSI0;
     read.innerHTML =
       reach >= 1
-        ? `Plug-in error <b class="plug">${e0.toFixed(2)}</b> → after one step <b class="one">+${e1.toFixed(2)}</b>. The step follows the tangent (the influence function). What is left shrinks like δ²: halve δ and it quarters.`
+        ? `Plug-in error <b class="plug">${e0.toFixed(2)}</b> → after one step <b class="one">+${e1.toFixed(2)}</b>. The step follows the tangent (the influence function). Now make the model half as wrong: what happens to the leftover?`
         : `The plug-in misses the truth by <b class="plug">${e0.toFixed(2)}</b>. The tangent at your fit points toward the truth.`;
     btn.textContent = reach >= 1 ? "Replay the step" : "Take one step";
   }

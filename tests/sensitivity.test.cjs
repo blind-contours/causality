@@ -163,3 +163,16 @@ test("the numbers the lesson displays", () => {
     rows.filter((r) => r.a).reduce((t, r) => t + r.y, 0) / s.treated,
   );
 });
+
+test("bias factor equals a strength only when that strength is 1, and tends to the smaller strength", () => {
+  for (const a of [1.1, 2, 4])
+    for (const b of [1.1, 2, 4]) {
+      const B = E.biasFactor(a, b);
+      assert.ok(B < Math.min(a, b), `B(${a}, ${b}) = ${B} should be strictly below both`);
+    }
+  // Equality case: a strength of 1 makes B = 1, equal to that strength.
+  close(E.biasFactor(1, 3), 1);
+  // As the other strength grows, B approaches the smaller one from below.
+  assert.ok(Math.abs(E.biasFactor(2, 1e9) - 2) < 1e-8);
+  assert.ok(E.biasFactor(2, 1e3) < 2);
+});

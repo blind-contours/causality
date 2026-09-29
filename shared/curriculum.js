@@ -33,7 +33,7 @@
                   "The propensity score",
                 ],
                 answer: 0,
-                hint: "ψ(P̂) + PₙD(P̂). For the ATE the second term is the mean of the weighted residuals.",
+                hint: "ψ(P̂) + Pₙϕ̂. For the ATE the second term is the mean of the weighted residuals.",
               },
               {
                 q: "For the ATE, the one-step estimator is the same as:",
@@ -43,7 +43,7 @@
                   "AIPW (augmented IPW)",
                 ],
                 answer: 2,
-                hint: "Plug-in plus the mean of H·(Y − μ̂) is exactly AIPW.",
+                hint: "Plug-in plus the mean of H·(Y − m̂) is exactly AIPW.",
               },
             ],
           },
@@ -160,22 +160,22 @@
               "Tilting the density of Y and shifting the regression are the same move. And Pₙ is a point too.",
             recap: [
               {
-                q: "Tilt the conditional density of Y by exp(ε·H·(y − μ)). Its score at ε = 0 is:",
-                options: ["H", "H·(y − μ)", "y − μ"],
+                q: "Tilt the conditional density of Y by exp(ε·H·(y − m̂₁)). Its score at ε = 0 is:",
+                options: ["H", "H·(y − m̂₁)", "y − m̂₁"],
                 answer: 1,
                 hint: "The score is the derivative of the log of the tilt factor.",
               },
               {
                 q: "For a Gaussian Y with variance 1, the mean of the tilted density is:",
-                options: ["μ + ε·H", "μ·(1 + ε)", "μ + ε"],
+                options: ["m̂₁ + ε·H", "m̂₁·(1 + ε)", "m̂₁ + ε"],
                 answer: 0,
-                hint: "That is exactly the regression fluctuation μ_ε = μ̂ + εH.",
+                hint: "That is exactly the regression fluctuation m̂₁,ε = m̂₁ + εH.",
               },
               {
-                q: "The one-step correction PₙD(P̂) is the gap between averaging D under:",
+                q: "The one-step correction Pₙϕ̂ is the gap between averaging ϕ̂ under:",
                 options: ["P̂ and P", "Pₙ and P̂", "Pₙ and P"],
                 answer: 1,
-                hint: "P̂ D(P̂) = 0 by construction, so PₙD(P̂) = (Pₙ − P̂)D(P̂).",
+                hint: "P̂ϕ̂ = 0 by construction, so Pₙϕ̂ = (Pₙ − P̂)ϕ̂.",
               },
             ],
           },
@@ -185,27 +185,27 @@
             file: "06-two-strata.html",
             title: "Two Strata, One Step",
             blurb:
-              "With 100 patients, why the fit should move in proportion to 1/π. Budget, marginal cost, positivity, and the strip trade.",
+              "With 100 patients, why the fit should move in proportion to 1/g. Budget, marginal cost, positivity, and the strip trade.",
             recap: [
               {
-                q: "Raising the old curve by δ costs 5δ² and the young curve 45δ². Why the difference?",
+                q: "Raising the low-severity curve by δ costs 5δ² and the high-severity curve 45δ². Why the difference?",
                 options: [
-                  "Old patients have bigger outcomes",
+                  "Low-severity patients have bigger outcomes",
                   "Only treated people resist the move, and there are 5 vs 45 of them",
-                  "The old stratum is smaller",
+                  "The low-severity stratum is smaller",
                 ],
                 answer: 1,
                 hint: "Cost is one square of side δ per treated person.",
               },
               {
-                q: "At the optimal split, δ_old / δ_young equals:",
-                options: ["1", "9 = π(young)/π(old)", "45"],
+                q: "At the optimal split, δ_lo / δ_hi equals:",
+                options: ["1", "9 = g(high)/g(low)", "45"],
                 answer: 1,
-                hint: "Equal marginal cost: 90δ_Y = 10δ_O.",
+                hint: "Equal marginal cost: 90δ_hi = 10δ_lo.",
               },
               {
                 q: "Which of these depends on the residuals?",
-                options: ["The direction δ ∝ 1/π", "The step size ε̂", "Both"],
+                options: ["The direction δ ∝ 1/g", "The step size ε̂", "Both"],
                 answer: 1,
                 hint: "The direction is set by ψ and the design; only ε̂ is fit to data.",
               },
@@ -237,7 +237,7 @@
               },
               {
                 q: "For the ATE, the clever covariate H is:",
-                options: ["π(X)", "A/π(X) − (1−A)/(1−π(X))", "Y − μ(X)"],
+                options: ["g(X)", "A/g(X) − (1−A)/(1−g(X))", "Y − m_A(X)"],
                 answer: 1,
                 hint: "The coefficient of the residual in the efficient influence function.",
               },
@@ -252,7 +252,7 @@
               "Type the four values of D(Zᵢ) yourself and watch their mean equal the correction. Then ε̂, TMLE, a standard error and a 95% interval by hand.",
             recap: [
               {
-                q: "With four patients, the one-step correction PₙD(P̂) is:",
+                q: "With four patients, the one-step correction Pₙϕ̂ is:",
                 options: [
                   "The largest D(Zᵢ)",
                   "The mean of the four D(Zᵢ)",
@@ -263,7 +263,7 @@
               },
               {
                 q: "A treated patient's D(Zᵢ) for E[Y(1)] includes the residual times:",
-                options: ["π(Xᵢ)", "1/π(Xᵢ)", "1"],
+                options: ["g(Xᵢ)", "1/g(Xᵢ)", "1"],
                 answer: 1,
                 hint: "H = A/π for the treated arm.",
               },
@@ -285,7 +285,7 @@
             file: "09-efficiency-theory-story.html",
             title: "Efficiency Theory, Drawn",
             blurb:
-              "Eight pictures: parameter as map, asymptotic linearity, tangent space, projection, plug-in bias, double robustness, and the TMLE walk.",
+              "Five pictures, in order: parameter as map, asymptotic linearity, projection, plug-in bias and one step, TMLE.",
             recap: [],
           },
         ],
@@ -308,7 +308,7 @@
     hint: "This equality is exact for this mean model. General locally least-favorable fluctuations may require iteration.",
   };
   old["two-strata"].recap[0].q =
-    "The local Gaussian information metric is 5δ² for old and 45δ² for young. Why?";
+    "The local Gaussian information metric is 5δ² for low severity and 45δ² for high severity. Why?";
   old["two-strata"].recap[0].hint =
     "This is twice the KL divergence for independent unit-variance Gaussians, not the observed loss change from an arbitrary initial fit.";
   const add = (id, file, title, blurb, stage) => ({
@@ -475,6 +475,13 @@
           "Weight for censoring, augment, and target S(τ) and RMST with an influence-function interval.",
           "interpretation",
         ),
+        add(
+          "capstone",
+          "24-capstone-emulated-trial.html",
+          "An emulated trial, end to end",
+          "One simulated device registry, analysed start to finish: estimand, protocol, positivity, a cross-fitted Super Learner, AIPW and TMLE, an E-value, and the report paragraph.",
+          "interpretation",
+        ),
       ],
     },
   ];
@@ -501,6 +508,7 @@
     "positivity": "Positivity",
     "sensitivity": "Sensitivity",
     "targeted-survival": "Targeted survival",
+    "capstone": "Capstone",
     "interference-lab": "Spillovers",
     "experiment-design-lab": "What to randomize",
     "marketplace-decision-lab": "Decide from evidence",
@@ -537,6 +545,10 @@
     ],
   });
   const recaps = {
+    "efficiency-theory-story": [
+      { q: "Why does the efficient influence function have the smallest variance?", options: ["It is the shortest vector among all gradients", "It is the largest score", "It is unbiased"], answer: 0, hint: "Every other gradient is D* plus a piece orthogonal to the tangent space, and Pythagoras only adds length." },
+      { q: "What does the one-step add to the plug-in?", options: ["Pₙϕ̂, the sample version of the unknown slope", "The truth", "The second-order remainder"], answer: 0, hint: "The plug-in misses by about −Pϕ̂; the sample average Pₙϕ̂ estimates that slope." },
+    ],
     "intercurrent-events": [
       { q: "Under a treatment-policy strategy, control patients who cross over to the device keep their post-crossover scores. The estimated device benefit is usually:", options: ["Larger than without crossover", "Smaller, because the control arm gains some device benefit", "Unchanged, because crossover happens after randomization"], answer: 1, hint: "Pair C's control patient scored 48 after crossover instead of 24: the control mean rises and the difference shrinks." },
       { q: "Why does the principal-stratum strategy need extra assumptions?", options: ["Its sample size is smaller", "Membership depends on events under both arms, and each patient reveals only one", "Randomization is broken by death"], answer: 1, hint: "Being event-free on the device does not show you would have been event-free on medical therapy." },
@@ -572,6 +584,10 @@
     "targeted-survival": [
       { q: "Why does 1/G(t−|A,X) appear in the influence function of S₁(τ)?", options: ["It makes the curve monotone", "The risk set at month t is thinned by the probability of still being followed, so each patient still followed stands in for 1/G similar patients", "It converts hazards to odds"], answer: 1, hint: "P(T̃ ≥ t | a, x) = S(t−1 | a, x) · G(t− | a, x)." },
       { q: "The event-hazard model omits severity but the censoring and treatment models are right. The one-step estimate of S₁(τ) is:", options: ["Biased like the plug-in", "Still consistent: the augmentation repairs the hazard model", "Undefined"], answer: 1, hint: "Double robustness: the correction has mean zero whenever g and G are right." },
+    ],
+    "capstone": [
+      { q: "In the emulated trial, standard-care patients who later receive the device are, under the treatment-policy strategy:", options: ["Censored at the crossover", "Kept in standard care, with their later events counted there", "Moved to the device arm"], answer: 1, hint: "Treatment policy compares strategies as started at time zero; crossover is part of the standard-care strategy." },
+      { q: "A Super Learner's four learners have CV Brier scores 0.1589, 0.1601, 0.1631 and 0.1598. Its convex ensemble, with weights chosen on those same CV predictions, has CV risk:", options: ["Above 0.1589, because averaging dilutes the best learner", "At most 0.1589, because putting all weight on the best learner is one of the allowed combinations", "Exactly the mean of the four"], answer: 1, hint: "The simplex includes its corners. The ensemble can only match or beat the best single learner on the CV risk it minimises (which is why that risk is slightly optimistic)." },
     ],
     "causal-roadmap": [
       {
@@ -684,6 +700,7 @@
     "sensitivity": 30,
     "survival-lab": 20,
     "targeted-survival": 30,
+    "capstone": 30,
     "interference-lab": 25,
     "experiment-design-lab": 25,
     "marketplace-decision-lab": 30,

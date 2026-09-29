@@ -151,7 +151,9 @@
           // Inside a step, Continue first shows the next idea (see CausalBeats in shared/course.js).
           if (window.CausalBeats?.next(p)) return;
           state.set({ step: i + 1 });
-          panels[i + 1].scrollIntoView({ block: "start", behavior: "instant" });
+          // Land the new step just under the sticky course bar (CausalBeats.land), not behind it.
+          if (window.CausalBeats?.land) CausalBeats.land(panels[i + 1]);
+          else panels[i + 1].scrollIntoView({ block: "start", behavior: "instant" });
           panels[i + 1].querySelector("h2")?.focus({ preventScroll: true });
         };
         btns.append(next);
@@ -173,7 +175,11 @@
     window.addEventListener("causality:settings", update);
     document.addEventListener("DOMContentLoaded", update);
     const followHash = () => {
-      const target = document.getElementById(location.hash.slice(1));
+      // CausalBeats.find also resolves "#fig-<name>" to a [data-figure] mount (shared/course.js).
+      const target = window.CausalBeats?.find
+        ? CausalBeats.find(location.hash.slice(1))
+        : document.getElementById(location.hash.slice(1));
+      if (!target) return;
       const index = panels.findIndex(
         (panel) => panel === target || panel.contains(target),
       );

@@ -11,6 +11,13 @@
 <link rel="stylesheet" href="../shared/labs.css">
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
+<style>
+/* Collapsed asides for the formal detail; tokens only. */
+details.go-deeper{border:1px solid var(--rule);border-radius:10px;padding:0 14px;margin:14px 0;background:var(--paper)}
+details.go-deeper>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--muted)}
+details.go-deeper[open]>summary{border-bottom:1px solid var(--rule);margin-bottom:8px}
+details.go-deeper>p{font-size:15px;line-height:1.6}
+</style>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
@@ -18,19 +25,21 @@
 <div class="wrap">
 <div class="eyebrow">Two variables, two operations, one table</div>
 <h1>Differentiating Under the Integral</h1>
-<p class="optional-aside"><span class="pill" style="display:inline-block;font-weight:600;color:var(--ink);border:1px solid var(--rule)">Optional aside</span> <span style="color:var(--muted)">Skip ahead if "the derivative passes inside the integral" already feels safe; nothing later depends on this page.</span></p>
-<p class="lede">"The derivative passes inside the integral" is a statement about a table with two axes. Down the side is ε, the position along the path; across the top is z, the position on the line. Each cell holds one number, z·p(z)(1 + εh(z))·dz. Integrating over z means adding up a row. Differentiating in ε means comparing one row with the next. The whole point is that you can do those two things in either order.</p>
+<p class="optional-aside"><span class="pill" style="display:inline-block;font-weight:600;color:var(--ink);border:1px solid var(--rule)">Optional aside</span> <span style="color:var(--muted)">Nothing later depends on this page. Read it if "the derivative passes inside the integral" feels like a leap.</span></p>
+<p class="skip-aside"><a class="course-btn" href="10-canonical-gradient.html">Skip this aside → Build a canonical gradient</a></p>
+<p class="lede">"The derivative passes inside the integral" is a statement about a table with two axes. Down the side is ε, the position along the path; across the top is z, the position on the line. Each cell holds one number, z·p(z)(1 + εh(z))·dz. Integrating over z means adding up a row. Differentiating in ε means comparing one row with the next. The whole point is that you can do those two things in either order. Here h is the direction of the path (a mean-zero curve saying where mass is added) and p(z)dz is the probability of a bin.</p>
 
 <div class="eq">f(z, ε) = z · p(z) · (1 + ε h(z)) · dz        ← one cell<br>
-ψ(ε)   = Σ_z f(z, ε)                        ← add up a row<br>
-dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up the row of per-cell slopes</div>
+ψ(ε)   = Σ<sub>z</sub> f(z, ε)                        ← add up a row<br>
+dψ/dε  = Σ<sub>z</sub> ∂f/∂ε (z, ε)  = Σ<sub>z</sub> z · p(z) · h(z) · dz    ← add up the row of per-cell slopes</div>
 
-<p class="note">For a finite sum, exchanging derivative and sum is exact. For an integral, regularity such as an integrable dominating function is needed. The displayed midpoint bins approximate a normalized reference density; tail omission and quadrature error are not a failure of differentiation.</p><!-- SCENE 1 -->
+<aside class="world-card"><b>This lesson's world</b> no patients: one smooth two-humped density p(z) on a line, nudged along the bump direction h · target: its mean ψ(P) = 0.4978 · coarse bins for the pictures, a fine grid for the readouts</aside>
+<details class="go-deeper"><summary>Go deeper</summary><p>For a finite sum, exchanging derivative and sum is exact. For an integral, regularity such as an integrable dominating function is needed. The displayed midpoint bins approximate a normalized reference density; tail omission and quadrature error are not a failure of differentiation.</p></details><!-- SCENE 1 -->
 <div class="eyebrow">Scene 1</div>
 <h2>The table: z across, ε down, one number per cell</h2>
 <p>Every cell is the contribution of one z-bin to the mean, at one value of ε. Color shows sign and size. A row is one distribution on the path; its sum is ψ(P<sub>ε</sub>), printed at the right. Move the highlighted row with the slider and read the row sums: that column of numbers is the function ψ(ε) you're about to differentiate. The table uses 28 coarse bins on [−3.5, 3.5] so you can see the cells, so its row sums sit about 0.012 below the fine-grid values used elsewhere (ψ(P) = 0.4978): that gap is the part of the mean carried by the tails beyond ±3.5. The figure prints both numbers.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c1" width="800" height="460"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="paper"><canvas id="c1" width="800" height="460" data-panels="0 20 560 460"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <label>Highlighted row ε <span class="v" id="v1e">0.20</span><input type="range" id="e1" min="-0.5" max="0.5" step="0.1" value="0.2"></label>
     <div class="readout" id="ro1"></div>
@@ -41,11 +50,12 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
 <!-- SCENE 2 -->
 <div class="eyebrow">Scene 2</div>
 <h2>Two ways to get the slope of ψ: subtract row sums, or sum row differences</h2>
-<p>Take the row at ε and the row at ε + Δ. Way A: add up each row, then subtract the two totals and divide by Δ. Way B: subtract the rows cell by cell, divide each difference by Δ, then add up. They give the same number, because a sum of differences is the difference of the sums. "Passing the derivative inside the integral" is choosing Way B. Watch both computed side by side.</p>
+<p>Take the row at ε and the row at ε + Δ. Way A: add up each row, then subtract the two totals and divide by Δ. Way B: subtract the rows cell by cell, divide each difference by Δ, then add up.</p>
 <div class="predict" data-options="Way A is larger|Way B is larger|They are exactly equal" data-answer="2" data-hint="Adding up differences cell by cell and subtracting the two totals are the same arithmetic in a different order.">Before you press Play: which way gives the larger slope, A (total each row, then subtract) or B (subtract cell by cell, then total)?</div>
-<div class="eq">Way A:  [ Σ_z f(z, ε+Δ) − Σ_z f(z, ε) ] / Δ<br>Way B:   Σ_z [ f(z, ε+Δ) − f(z, ε) ] / Δ         ← same number, by linearity of Σ</div>
+<p>Watch both computed side by side. They give the same number, because a sum of differences is the difference of the sums. "Passing the derivative inside the integral" is choosing Way B.</p>
+<div class="eq">Way A:  [ Σ<sub>z</sub> f(z, ε+Δ) − Σ<sub>z</sub> f(z, ε) ] / Δ<br>Way B:   Σ<sub>z</sub> [ f(z, ε+Δ) − f(z, ε) ] / Δ         ← same number, by linearity of Σ</div>
 <div class="scene">
-  <div class="paper"><canvas id="c2" width="800" height="460"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="paper"><canvas id="c2" width="800" height="460" data-panels="0 30 560 420, 590 160 1150 380"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p2">Play</button></div>
     <label>Scrub <span class="v" id="v2">0.00</span><input type="range" id="t2" min="0" max="1" step="0.002" value="0"></label>
@@ -59,7 +69,7 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
 <h2>Inside one cell: f is a straight line in ε, with slope z·p(z)·h(z)</h2>
 <p>Look down a single column of the table, one fixed z. The cell values as ε varies are z·p(z)·(1 + εh(z))·dz: a constant plus ε times a constant. That's a straight line in ε, and its slope is z·p(z)·h(z)·dz. There is no limit to take and nothing to approximate; the "derivative inside" is just reading off the coefficient of ε. Pick a column and see its line.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c3" width="800" height="420"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="paper"><canvas id="c3" width="800" height="420" data-panels="0 20 460 330, 500 30 960 400"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
     <label>Column z <span class="v" id="v3z">1.13</span><input type="range" id="z3" min="-3.375" max="3.375" step="0.25" value="1.125"></label>
     <div class="readout" id="ro3"></div>
@@ -73,7 +83,7 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
 <p>Take the slope of every column and add them. The result is Σ<sub>z</sub> z·h(z)·p(z)·dz, which in the limit of thin bins is ∫ z h(z) p(z) dz. The p(z)dz in each term is the probability of that bin, so this is a probability-weighted average of the function z·h(z): an expectation. Then the free constant: subtracting ψ from z changes nothing because Σ ψ·h·p·dz = ψ·0. What remains is E<sub>P</sub>[(Z − ψ)h(Z)] = E<sub>P</sub>[ϕh]. The scene shows the three rows again, this time being read as "value × probability, summed."</p>
 <div class="predict" data-options="Rise steadily to its final value|Climb past the final value, then come back down|Stay near zero until the last bins" data-answer="1" data-hint="h is positive only near z = 1. For z &gt; 2, z is positive and h is negative, so those bins subtract, and they arrive last.">The scene adds the bins from left to right. What will the running sum do on its way to the final value?</div>
 <div class="scene">
-  <div class="paper"><canvas id="c4" width="800" height="520"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="paper"><canvas id="c4" width="800" height="440" data-panels="0 20 540 360, 565 30 1105 440"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p4">Play</button></div>
     <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
@@ -82,7 +92,9 @@ dψ/dε  = Σ_z ∂f/∂ε (z, ε)  = Σ_z z · p(z) · h(z) · dz    ← add up
     <div class="note">Shrink dz: more, thinner bins, and the bin sum settles onto the integral in the readout. That's the sense in which Σ becomes ∫. The expectation was there at every bin width; thinner bins only make its value more precise.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>ψ(P_ε) is a row sum over z; its derivative in ε is the same row sum applied to the per-cell derivatives, because sums and derivatives are both linear and act on different variables. Each cell's derivative is z·h·p·dz, so the slope is Σ z h p dz = E[Zh]. Centering with the mean-zero score gives E[(Z − ψ)h].</div>
+<p>An expectation is exactly this: each possible value, weighted by its probability, summed. Here the "value" is z·h(z), the per-cell slope divided by the bin probability.</p>
+<div class="say"><b>In one sentence</b>ψ(P<sub>ε</sub>) is a row sum over z; its derivative in ε is the same row sum applied to the per-cell derivatives, because sums and derivatives are both linear and act on different variables. Each cell's derivative is z·h·p·dz, so the slope is Σ z h p dz = E[Zh]. Centering with the mean-zero score gives E[(Z − ψ)h].</div>
+<p class="src sources">Further reading: the exchange of derivative and integral under domination is the Leibniz integral rule (see any measure-theory text, e.g. Folland, <em>Real Analysis</em>, Theorem 2.27); its use for pathwise derivatives follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a> (§3.2).</p>
 </div>
 
 <script>
@@ -98,7 +110,7 @@ function poly(g,pts,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDa
 function rect(g,x,y,w,h,col,a){g.fillStyle=col;g.globalAlpha=a==null?1:a;g.fillRect(x,y,w,h);g.globalAlpha=1;}
 function box(g,x,y,w,h,col,lw){g.strokeStyle=col;g.lineWidth=lw||1.5;g.strokeRect(x,y,w,h);}
 function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();if(ring){g.strokeStyle=C.paper;g.lineWidth=2;g.stroke();}}
-function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
+function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';CausalVisuals.rich(g,s,x,y);}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
 // density and direction
 const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
@@ -119,39 +131,39 @@ function table(g,L,T,cw,rh,B,dz,opts){ // returns geometry
   const cols=B.length,rows=EPS.length;
   for(let r=0;r<rows;r++){const e=EPS[r];let sum=0;for(let c=0;c<cols;c++){const v=f(B[c],e,dz);sum+=v;const [col,a]=heat(v,0.25*dz/0.25*1.0);rect(g,L+c*cw,T+r*rh,cw-1,rh-1,col,a);}
     txt(g,e.toFixed(1),L-8,T+r*rh+rh/2,C.muted,11,'right',FM);txt(g,sum.toFixed(3),L+cols*cw+10,T+r*rh+rh/2,(opts&&opts.hiRow===r)?C.p:C.muted,11.5,'left',FM);}
-  for(let c=0;c<cols;c+=Math.max(1,Math.round(cols/7)))txt(g,B[c].toFixed(1),L+c*cw+cw/2,T-10,C.muted,10.5,'center',FM);
-  txt(g,'z →',L+cols*cw/2,T-26,C.pen,13,'center',FS,true);txt(g,'ε ↓',L-30,T-14,C.pen,13,'center',FS,true);txt(g,'row sum ≈ ψ(P_ε)',L+cols*cw+10,T-14,C.pen,12,'left',FS,true);
+  for(let c=0;c<cols;c+=7)txt(g,B[c].toFixed(1),L+c*cw+cw/2,T-10,C.muted,10.5,'center',FM);
+  txt(g,'z →',L+cols*cw/2,T-30,C.pen,13,'center',FS,true);txt(g,'ε ↓',L-34,T-32,C.pen,13,'center',FS,true);txt(g,'row sum',L+cols*cw+10,T-12,C.pen,12,'left',FS,true);
   return {cols,rows};}
 
 // ================= SCENE 1 =================
 const fineRow=e=>{let s=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;s+=z*pAt(z)*(1+e*h(z))*dzf;}return s;};
-const S1=scene(1,(g,W,H)=>{clear(g,W,H);const e=+document.getElementById('e1').value;const dz=0.25,B=bins(dz);const L=70,T=60,cw=Math.floor(540/B.length),rh=28;const r=EPS.findIndex(v=>Math.abs(v-e)<1e-6);
+const S1=scene(1,(g,W,H)=>{clear(g,W,H);const e=+document.getElementById('e1').value;const dz=0.25,B=bins(dz);const L=70,T=60,cw=Math.floor(400/B.length),rh=28;const r=EPS.findIndex(v=>Math.abs(v-e)<1e-6);
   table(g,L,T,cw,rh,B,dz,{hiRow:r});box(g,L-1,T+r*rh-1,cw*B.length+1,rh+1,C.p,2.2);
   let sum=0;B.forEach(z=>sum+=f(z,e,dz));
-  txt(g,`row ε = ${e.toFixed(1)}:  Σ_z  z·p(z)(1+εh(z))·dz  =  ${sum.toFixed(4)}`,L,T+EPS.length*rh+26,C.p,13,'left',FM);
+  txt(g,`row ε = ${e.toFixed(1)}: Σ = ${sum.toFixed(4)}`,L,T+EPS.length*rh+26,C.p,13,'left',FM);
   const fine=fineRow(e);
-  txt(g,`same row on the fine grid over [−4, 4]:  ${fine.toFixed(4)}.  Gap ${(fine-sum).toFixed(4)} = the tails beyond ±3.5, which the coarse bins leave out.`,L,T+EPS.length*rh+48,C.muted,12,'left');
-  txt(g,'green: positive cell (z > 0), red: negative (z < 0); darker = larger',L,T+EPS.length*rh+70,C.muted,12,'left');
+  txt(g,`fine grid on [−4, 4]: ${fine.toFixed(4)}`,L,T+EPS.length*rh+50,C.muted,12,'left');
+  
   document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${e.toFixed(1)}</span><span class="k">row sum, ${B.length} coarse bins</span><span>${sum.toFixed(4)}</span><span class="k">ψ(P_ε), fine grid</span><span>${fine.toFixed(4)}</span><span class="k">tails beyond ±3.5</span><span>${(fine-sum).toFixed(4)}</span>`;
-  document.getElementById('cap1').textContent='One row = one distribution on the path. Its cells are the bin contributions to the mean; add them and you have ψ at that ε.';
+  document.getElementById('cap1').textContent='One row = one distribution on the path. Its cells are the bin contributions to the mean: green for z > 0, red for z < 0, darker for larger. Add a row and you have ψ at that ε. The coarse bins leave out the tails beyond ±3.5, which is the small gap to the fine-grid value.';
 });
 bind('e1','v1e',v=>v.toFixed(2),()=>S1.draw());
 
 // ================= SCENE 2 =================
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const D=+document.getElementById('d2').value;const dz=0.25,B=bins(dz);const e0=0,e1=D;
-  const L=60,cw=Math.floor(520/B.length);const rows=[['row at ε = 0',e0,60],[`row at ε = ${D.toFixed(2)}`,e1,110]];
-  let s0=0,s1=0;rows.forEach(([lab,e,y],k)=>{txt(g,lab,L,y-12,C.pen,12.5,'left',FS,true);B.forEach((z,c)=>{const v=f(z,e,dz);const [col,a]=heat(v,0.25);rect(g,L+c*cw,y,cw-1,26,col,a);if(k===0)s0+=v;else s1+=v;});txt(g,'Σ = '+(k===0?s0:s1).toFixed(4),L+B.length*cw+10,y+13,C.pen,12,'left',FM);});
+  const L=60,cw=Math.floor(400/B.length);const rows=[['row at ε = 0',e0,60],[`row at ε = ${D.toFixed(2)}`,e1,110]];
+  let s0=0,s1=0;rows.forEach(([lab,e,y],k)=>{txt(g,lab,L,y-12,C.pen,12.5,'left',FS,true);B.forEach((z,c)=>{const v=f(z,e,dz);const [col,a]=heat(v,0.25);rect(g,L+c*cw,y,cw-1,26,col,a);if(k===0)s0+=v;else s1+=v;});txt(g,'Σ = '+(k===0?s0:s1).toFixed(4),L+B.length*cw,y-12,C.pen,12,'right',FM);});
   // Way A
   const tA=seg(t,0,0.4);const AX=610;txt(g,'Way A',AX,175,C.or,13,'left',FS,true);if(tA>0){txt(g,`(${s1.toFixed(4)} − ${s0.toFixed(4)}) / ${D.toFixed(2)}`,AX,196,C.pen,11.5,'left',FM);txt(g,'= '+((s1-s0)/D).toFixed(4),AX,218,C.or,16,'left',FM);}
   // Way B: difference row
-  const tB=seg(t,0.35,0.85);const y=200;txt(g,'difference row, cell by cell: [f(z, ε+Δ) − f(z, ε)] / Δ',L,y-12,C.pen,12.5,'left',FS,true);let sB=0;const k=Math.floor(tB*B.length);
+  const tB=seg(t,0.35,0.85);const y=200;txt(g,'difference row: [f(z, ε+Δ) − f(z, ε)] / Δ',L,y-12,C.pen,12.5,'left',FS,true);let sB=0;const k=Math.floor(tB*B.length);
   B.forEach((z,c)=>{const v=(f(z,e1,dz)-f(z,e0,dz))/D;const on=c<k;const [col,a]=heat(v,0.12);rect(g,L+c*cw,y,cw-1,26,on?col:C.grid,on?a:0.6);if(on)sB+=v;});
-  if(k>0&&k<=B.length){const z=B[k-1];txt(g,`z = ${z.toFixed(2)}:  (${f(z,e1,dz).toFixed(4)} − ${f(z,e0,dz).toFixed(4)}) / ${D.toFixed(2)} = ${((f(z,e1,dz)-f(z,e0,dz))/D).toFixed(4)}`,L,y+44,C.muted,11.5,'left',FM);}
+  if(k>0&&k<=B.length){const z=B[k-1];txt(g,`z = ${z.toFixed(2)}: difference / Δ = ${((f(z,e1,dz)-f(z,e0,dz))/D).toFixed(4)}`,L,y+44,C.muted,11.5,'left',FM);}
   txt(g,'Way B',AX,260,C.purple,13,'left',FS,true);txt(g,'Σ of differences so far',AX,280,C.muted,11.5,'left');txt(g,'= '+sB.toFixed(4),AX,302,C.purple,16,'left',FM);
   // exact derivative
   let ex=0;B.forEach(z=>ex+=z*pAt(z)*h(z)*dz);
-  if(t>0.9){txt(g,'Σ z·h·p·dz over these bins',AX,345,C.muted,11.5,'left');txt(g,'= '+ex.toFixed(4),AX,367,C.teal,16,'left',FM);txt(g,'A = B for any Δ here, because',L,330,C.pen,12.5,'left');txt(g,'each cell is linear in ε. Sum of differences = difference of sums.',L,350,C.pen,12.5,'left');
-    txt(g,'ψ(ε) plotted:',L,395,C.muted,11.5,'left');const PL=150,PR=520,PY=395;line(g,PL,PY,PR,PY,C.grid,1);const px=e=>PL+(PR-PL)*(e+0.5);for(const e of EPS){let s=0;B.forEach(z=>s+=f(z,e,dz));dot(g,px(e),PY-(s-s0)*120,C.p,3);}dot(g,px(e0),PY,C.or,5,true);dot(g,px(e1),PY-(s1-s0)*120,C.or,5,true);line(g,px(e0),PY,px(e1),PY-(s1-s0)*120,C.or,1.5);}
+  if(t>0.9){txt(g,'Σ z·h·p·dz over these bins',AX,345,C.muted,11.5,'left');txt(g,'= '+ex.toFixed(4),AX,367,C.teal,16,'left',FM);txt(g,'A = B for any Δ here:',L,330,C.pen,12.5,'left');txt(g,'each cell is linear in ε.',L,350,C.pen,12.5,'left');
+    txt(g,'ψ(ε) plotted:',L,395,C.muted,11.5,'left');const PL=170,PR=460,PY=400;line(g,PL,PY,PR,PY,C.grid,1);const px=e=>PL+(PR-PL)*(e+0.5);for(const e of EPS){let s=0;B.forEach(z=>s+=f(z,e,dz));dot(g,px(e),PY-(s-s0)*120,C.p,3);}dot(g,px(e0),PY,C.or,5,true);dot(g,px(e1),PY-(s1-s0)*120,C.or,5,true);line(g,px(e0),PY,px(e1),PY-(s1-s0)*120,C.or,1.5);}
   document.getElementById('ro2').innerHTML=`<span class="k">Way A</span><span>${((s1-s0)/D).toFixed(5)}</span><span class="k">Way B (full)</span><span>${(()=>{let s=0;B.forEach(z=>s+=(f(z,e1,dz)-f(z,e0,dz))/D);return s.toFixed(5)})()}</span><span class="k">Σ z h p dz (these bins)</span><span>${ex.toFixed(5)}</span>`;
   document.getElementById('cap2').textContent=t<0.4?'Way A: total each row, then subtract the totals. The derivative of the integral.':t<0.9?'Way B: subtract cell by cell first, then total. The integral of the derivative.':'Same number. That equality is what "the derivative passes inside the integral" means.';
 });
@@ -159,7 +171,7 @@ bind('d2','v2d',v=>v.toFixed(2),()=>S2.draw());
 
 // ================= SCENE 3 =================
 const S3=scene(3,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z3').value;const dz=0.25,B=bins(dz);const c=B.findIndex(z=>Math.abs(z-z0)<0.13);
-  const L=60,T=60,cw=Math.floor(380/B.length),rh=22;
+  const L=60,T=60,cw=Math.floor(360/B.length),rh=22;
   for(let r=0;r<EPS.length;r++)for(let k=0;k<B.length;k++){const v=f(B[k],EPS[r],dz);const [col,a]=heat(v,0.25);rect(g,L+k*cw,T+r*rh,cw-1,rh-1,col,k===c?a:a*0.35);}
   if(c>=0)box(g,L+c*cw-1,T-1,cw+1,rh*EPS.length+1,C.purple,2.2);
   txt(g,'z →',L+B.length*cw/2,T-26,C.pen,13,'center',FS,true);txt(g,'ε ↓',L-30,T-14,C.pen,13,'center',FS,true);for(let r=0;r<EPS.length;r++)txt(g,EPS[r].toFixed(1),L-8,T+r*rh+rh/2,C.muted,10.5,'right',FM);
@@ -186,20 +198,20 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const dz=+document.getElementById('d4'
   let pos=0,neg=0;const run=[];B.forEach((z,i)=>{if(i>=k)return;const v=z*h(z)*pAt(z)*dz;if(v>=0)pos+=v;else neg+=v;run.push([z,pos+neg]);});
   let fin=0;B.forEach(z=>fin+=z*h(z)*pAt(z)*dz);let tp=0,tn=0;B.forEach(z=>{const v=z*h(z)*pAt(z)*dz;if(v>=0)tp+=v;else tn+=v;});
   const RL=580,RR=780,bw=RR-RL,bsc=bw/Math.max(tp,-tn);
-  txt(g,'positive terms so far',RL,44,C.green,12,'left');rect(g,RL,54,bw,12,C.grid,0.5);rect(g,RL,54,pos*bsc,12,C.green,0.7);txt(g,'+'+pos.toFixed(4),RR,44,C.green,12,'right',FM);
-  txt(g,'negative terms so far',RL,84,C.red,12,'left');rect(g,RL,94,bw,12,C.grid,0.5);rect(g,RL,94,-neg*bsc,12,C.red,0.7);txt(g,neg.toFixed(4),RR,84,C.red,12,'right',FM);
+  txt(g,'positive terms: +'+pos.toFixed(4),RL,44,C.green,12,'left');rect(g,RL,54,bw,12,C.grid,0.5);rect(g,RL,54,pos*bsc,12,C.green,0.7);
+  txt(g,'negative terms: '+neg.toFixed(4),RL,84,C.red,12,'left');rect(g,RL,94,bw,12,C.grid,0.5);rect(g,RL,94,-neg*bsc,12,C.red,0.7);
   txt(g,'net Σ so far',RL,126,C.muted,12,'left');txt(g,sum.toFixed(4),RL,150,C.or,20,'left',FM);
   // running net against z: it climbs while the green terms arrive and falls when the red tail arrives
   const PT=180,PB=262,px=z=>RL+bw*(z+3.5)/7,vmax=Math.max(tp,0.05),py=v=>PB-(PB-PT)*(v-Math.min(0,tn))/(vmax-Math.min(0,tn));
-  line(g,RL,PB,RR,PB,C.grid,1);line(g,RL,py(fin),RR,py(fin),C.purple,1.2,[4,3]);txt(g,'final, these bins: '+fin.toFixed(3),RL,PT-8,C.purple,11,'left',FM);
+  line(g,RL,PB,RR,PB,C.grid,1);line(g,RL,py(fin),RR,py(fin),C.purple,1.2,[4,3]);txt(g,'final: '+fin.toFixed(3),RR,PT-12,C.purple,11,'right',FM);
   if(run.length>1)poly(g,run.map(([z,v])=>[px(z),py(v)]),C.or,2);if(run.length)dot(g,px(run[run.length-1][0]),py(run[run.length-1][1]),C.or,4,true);
   txt(g,'running net as bins arrive (left to right)',RL,PB+14,C.muted,11,'left');
-  let ex=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;ex+=z*h(z)*pAt(z)*dzf;}txt(g,'∫ z h p dz  (fine grid)',RL,300,C.muted,12,'left');txt(g,ex.toFixed(4),RL,320,C.purple,15,'left',FM);txt(g,'= E_P[ Z·h(Z) ]',RL+70,320,C.pen,13,'left',FM);
-  if(t>0.85){txt(g,'centering is free:',RL,352,C.muted,12,'left');txt(g,'− ψ · Σ h p dz = − ψ · 0',RL,370,C.pen,12,'left',FM);let ex2=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;ex2+=(z-MU)*h(z)*pAt(z)*dzf;}txt(g,'E_P[ (Z − ψ) h ] = '+ex2.toFixed(4),RL,392,C.teal,13,'left',FM);txt(g,'= E_P[ ϕ h ]',RL,412,C.teal,14,'left',FM);}
+  let ex=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;ex+=z*h(z)*pAt(z)*dzf;}txt(g,'∫ z h p dz  (fine grid)',RL,300,C.muted,12,'left');txt(g,ex.toFixed(4),RL,320,C.purple,15,'left',FM);txt(g,'= E_P[ Z·h(Z) ]',RL,340,C.pen,13,'left',FM);
+  if(t>0.85){txt(g,'centering is free:',RL,368,C.muted,12,'left');txt(g,'− ψ · Σ h p dz = − ψ · 0',RL,386,C.pen,12,'left',FM);let ex2=0;for(let i=0;i<N;i++){const z=ZL+i*dzf;ex2+=(z-MU)*h(z)*pAt(z)*dzf;}txt(g,'E_P[ (Z − ψ) h ] = '+ex2.toFixed(4),RL,406,C.teal,13,'left',FM);txt(g,'= E_P[ ϕ h ]',RL,426,C.teal,14,'left',FM);}
   // bottom: "expectation" note
-  txt(g,'An expectation is exactly this: each possible value, weighted by its probability, summed.',L,462,C.pen,12.5,'left');txt(g,'Here the "value" is z·h(z), the per-cell slope divided by the bin probability.',L,484,C.muted,12,'left');
+  
   document.getElementById('ro4').innerHTML=`<span class="k">bins</span><span>${B.length}</span><span class="k">positive terms</span><span>+${pos.toFixed(4)}</span><span class="k">negative terms</span><span>${neg.toFixed(4)}</span><span class="k">Σ z·h·p·dz</span><span>${sum.toFixed(4)}</span><span class="k">∫ (fine grid)</span><span>${ex.toFixed(4)}</span>`;
-  document.getElementById('cap4').textContent=k<B.length?(neg<-1e-4&&k>B.length*0.6?'The red tail is arriving: for z > 2, z is positive but h is negative, so these bins subtract. The net comes down toward its final value; nothing is wrong.':'Column by column: the value z·h(z) times the bin probability p(z)dz. Positive and negative terms are tallied separately; the net is their sum.'):'The accumulated sum is ∫ z h p dz: all the positive terms plus all the negative ones. Because every term is value × probability, it is E_P[Z·h(Z)].';
+  document.getElementById('cap4').textContent=k<B.length?(neg<-1e-4&&k>B.length*0.6?'The red tail is arriving: for z > 2, z is positive but h is negative, so these bins subtract. The net comes down toward its final value; nothing is wrong.':'Column by column: the value z·h(z) times the bin probability p(z)dz. Positive and negative terms are tallied separately; the net is their sum.'):'The accumulated sum is ∫ z h p dz: all the positive terms plus all the negative ones. Because every term is value × probability, it is the expectation E[Z·h(Z)] under P.';
 });
 bind('d4','v4d',v=>v.toFixed(2),()=>S4.draw());
 

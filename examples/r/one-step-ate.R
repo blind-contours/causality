@@ -1,6 +1,12 @@
-# Lesson 01: plug-in, IPW and one-step (AIPW) for the ATE, by hand in base R.
+# The One-Step Estimator: plug-in, IPW and one-step (AIPW) for the ATE, by hand in base R.
 # Same generator as the course's ATE study (science/core.js): true ATE = 2.
-# In practice AIPW::AIPW, tmle::tmle() or lmtp would do this for you.
+#
+# In practice: AIPW::AIPW is an R6 class; AIPW$new(Y, A, W, Q.SL.library, g.SL.library)
+# then $fit()$summary() gives cross-fitted AIPW with SuperLearner nuisances and an
+# influence-function SE. tmle::tmle(Y, A, W) gives the TMLE of the same ATE. For
+# weighting alone, WeightIt::weightit(A ~ X, method = "glm", estimand = "ATE") builds
+# the weights; fit the weighted outcome model with a robust SE (WeightIt's
+# glm_weightit() in recent versions, or survey/sandwich).
 set.seed(20260925)
 n <- 2000
 X <- rbinom(n, 1, 0.35)                              # high severity

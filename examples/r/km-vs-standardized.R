@@ -1,5 +1,11 @@
-# Lessons 12 and 23: pooled KM in the treated vs severity-standardized KM at tau,
-# and RMST by integrating the KM step function. Generator as in the survival lab.
+# From KM and Cox back to the question (and Targeted survival curves): pooled KM in
+# the treated vs severity-standardized KM at tau, and RMST by integrating the KM step
+# function. Generator as in the survival lab.
+#
+# In practice: survival::survfit() for KM curves; survRM2::rmst2(time, status, arm,
+# tau) for the unadjusted RMST difference with its SE; adjustedCurves::adjustedsurv()
+# for standardized (method = "direct") or weighted (method = "iptw_km") curves, and
+# adjustedCurves::adjusted_rmst() for their RMST. Targeted versions: survival-onestep.R.
 library(survival)
 set.seed(20260925)
 n <- 5000; tau <- 5; p <- 0.35

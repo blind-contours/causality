@@ -1,4 +1,4 @@
-/* Lesson 23: targeted survival curves and ΔRMST. All numbers come from science/targeted-survival.js
+/* Lesson: targeted survival curves and ΔRMST. All numbers come from science/targeted-survival.js
  * (live, seeded) or science/targeted-survival-data.json (precomputed repeated samples). */
 (function () {
   const { store, control, tools, guided, table, fmt } = CausalLab,
@@ -11,13 +11,14 @@
     N = 1000,
     state = store(
       "targeted-survival",
-      { step: 0, seed: SEED, s3event: "right", drEvent: "right", drNuis: "right", drTarget: "s1", tau: 12 },
+      { step: 0, seed: SEED, s3event: "right", drEvent: "right", drCens: "right", drProp: "right", drTarget: "s1", tau: 12 },
       {
         step: [0, 4],
         seed: [1, 4294967295],
         s3event: ["right", "wrong"],
-        drEvent: ["right", "wrong"],
-        drNuis: ["right", "wrong"],
+        drEvent: ["right", "noint", "notime", "drop"],
+        drCens: ["right", "high", "drop"],
+        drProp: ["right", "merge", "drop"],
         drTarget: ["s1", "drmst"],
         tau: [2, 12],
       },
@@ -27,63 +28,108 @@
   const band = `<svg class="swatch" width="28" height="10" aria-hidden="true"><rect x="1" y="1" width="26" height="8" fill="var(--purple)" fill-opacity=".22"/></svg>`;
   const tick = `<svg class="swatch" width="28" height="10" aria-hidden="true"><line x1="14" y1="0" x2="14" y2="10" stroke="var(--or)" stroke-width="1.5"/></svg>`;
 
+  // Weighted KM: thin dashed blue with small square markers; one-step: solid purple over its band.
+  const wkmSwatch = `<svg class="swatch" width="28" height="10" aria-hidden="true"><line x1="1" y1="5" x2="27" y2="5" stroke="var(--p)" stroke-width="1.4" stroke-dasharray="4 3"/><rect x="11.5" y="2.5" width="5" height="5" fill="var(--p)"/></svg>`,
+    osSwatch = `<svg class="swatch" width="28" height="12" aria-hidden="true"><rect x="1" y="1" width="26" height="10" fill="var(--purple)" fill-opacity=".2"/><line x1="1" y1="6" x2="27" y2="6" stroke="var(--purple)" stroke-width="3"/></svg>`,
+    TRUTH_S1 = TS.truth(1, TS.weightsS(K)),
+    TRUTH_DR = TS.truth(1, TS.weightsRMST(K)) - TS.truth(0, TS.weightsRMST(K)),
+    PRESETS = [
+      { name: "Event model wrong (extreme)", event: "drop", cens: "right", prop: "right" },
+      { name: "Weights partly wrong", event: "right", cens: "high", prop: "merge" },
+      { name: "Both partly wrong", event: "noint", cens: "high", prop: "merge" },
+      { name: "All wrong (extreme)", event: "drop", cens: "drop", prop: "drop" },
+      { name: "All right", event: "right", cens: "right", prop: "right" },
+    ];
+
   root.innerHTML = `
 <section class="lab-step" data-title="Three curves and the truth"><h2 tabindex="-1">Three ways to draw “everyone treated”</h2>
-<p>Last lesson ended with standardization inside severity strata. Now make it an estimator you could use with many covariates, with a confidence interval you can defend. The world is a 12-month study. Severity X (low, mid, high) raises the monthly event hazard. Sicker patients are treated more often. Patients who feel well drop out of follow-up more often, and treated patients drop out a little more. Because we built the world, we know the true survival curve if everyone were treated, S₁(t), exactly.</p>
+<aside class="world-card"><b>This step's world</b> ${N} simulated patients followed for 12 months, severity low, mid or high · outcome: the month of the event, or of dropout · truth: S₁(t), the share still event-free at month t if everyone were treated, computed exactly</aside>
+<p>This world differs from the course's 100 patients on purpose: monthly steps turn the hazard and the censoring weight into products you can follow month by month, and a third severity level lets a model be partly wrong (with two levels, one severity term per arm already fits every group exactly).</p>
+<p>In “From KM and Cox back to the question” you standardized inside severity strata. Now turn that into an estimator you could use with many covariates, with a confidence interval you can defend.</p>
+<p>Severity X raises the monthly event hazard. Sicker patients are treated more often. Patients who feel well drop out of follow-up more often, and treated patients drop out a little more.</p>
 <div class="predict" data-options="Below the truth|Above the truth|Right on it, censoring is random" data-answer="0" data-hint="Treated patients are sicker than the whole cohort, and the healthier ones leave the risk set early by dropping out. Both pull the unadjusted curve down.">Predict: at 12 months, where will the plain Kaplan–Meier curve of the treated patients sit relative to the true S₁(12)?</div>
-<div class="figure"><div class="fig-row"><div><svg id="ts-curves" role="img" aria-label="Survival over 12 months under one treatment strategy: the truth as a green dashed line, the unadjusted Kaplan–Meier curve in orange with censoring ticks, the treatment- and censoring-weighted Kaplan–Meier curve in blue, and the one-step estimate in purple with a pointwise 95% influence-function band."></svg>
-<p class="legend legend-swatches"><span>${swatch("var(--green)", "6 4")}Truth</span><span>${swatch("var(--or)")}Unadjusted KM</span><span>${tick}Censored</span><span>${swatch("var(--p)", "5 4", 2)}IPTW + IPCW weighted KM</span><span>${swatch("var(--purple)", "", 3)}One-step</span><span>${band}95% IF band</span></p></div>
+<div class="figure"><div class="fig-row"><div><svg id="ts-curves" role="img" aria-label="Survival over 12 months under one treatment strategy: the truth as a green dashed line, the unadjusted Kaplan–Meier curve in orange with censoring ticks, the treatment- and censoring-weighted Kaplan–Meier curve as a thin blue dashed line with small square markers, and the one-step estimate as a solid purple line with a pointwise 95% influence-function band. Each curve is labelled at its right end."></svg>
+<p class="legend legend-swatches"><span>${swatch("var(--green)", "6 4")}Truth</span><span>${swatch("var(--or)")}Unadjusted KM</span><span>${tick}Censored</span><span>${wkmSwatch}IPTW + IPCW weighted KM</span><span>${osSwatch}One-step with 95% IF band</span></p></div>
 <div><div class="fig-controls"><label for="ts-arm">Curve to draw <select id="ts-arm"><option value="1">Everyone treated, S₁(t)</option><option value="0">Everyone untreated, S₀(t)</option></select></label><button id="ts-new">Draw a new study</button></div><div class="fig-readout" id="ts-curves-readout"></div></div></div><p class="fig-caption" id="ts-curves-caption"></p></div>
 <div id="ts-table"></div>
-<p>The weighted KM gives every treated patient still at risk a weight 1/(g · G): one over the chance of being treated, times one over the chance of still being followed. The one-step estimate starts from a model of the monthly hazard and then adds the mean of an influence function, the same move you used for the ATE. The band is estimate ± 1.96 × SE(t), with SE(t) the standard deviation of the estimated influence values divided by √n. It is pointwise, not a simultaneous band for the whole curve.</p>
+<p>The weighted KM gives every treated patient still at risk a weight 1/(g · G). Here g(1 | X) is the chance of being treated at that severity (the propensity score), and G(t− | A, X) is the chance of still being followed when month t starts.</p>
+<p>The one-step estimate starts from a model of the monthly hazard λ(t | a, x), the chance of the event in month t among those still event-free. Then it adds the mean of the influence function ϕ, the same move you used for the ATE.</p>
+<p>The band is estimate ± 1.96 × SE(t), where SE(t) is the standard deviation of the estimated influence values ϕ̂ divided by √n. It is pointwise, not a simultaneous band for the whole curve.</p>
+<p class="note" id="ts-equal-note"></p>
 </section>
 
 <section class="lab-step" data-title="Where 1/G comes from"><h2 tabindex="-1">A patient still followed stands in for the ones who left</h2>
-<p>Censoring removes people from the risk set, and here it removes the healthier ones faster. Watch the treated patients month by month. Filled dots are still followed; their area is the censoring weight 1/G(t− | X), where G(t− | X) is the estimated chance that a patient with this severity is still being followed when month t starts. Small grey ticks are patients who dropped out; red crosses had the event.</p>
+<p>Censoring removes people from the risk set, and here it removes the healthier ones faster. Watch the treated patients month by month.</p>
+<p>Filled dots are still followed. Their area is the censoring weight 1/G(t− | X), where G(t− | X) is the estimated chance that a treated patient with this severity is still followed when month t starts. Small grey ticks dropped out; red crosses had the event.</p>
 <div class="predict" data-options="Low severity|High severity|Everyone gets the same weight" data-answer="0" data-hint="Low-severity patients drop out most often, so the few who remain must represent many similar patients who left.">Predict: by month 12, which severity group's remaining patients carry the largest censoring weights?</div>
-<div class="figure"><svg id="ts-strip" role="img" aria-label="Risk-set strip for 48 treated patients in three severity lanes. As the month advances, events become red crosses, dropouts become grey ticks, and patients still followed grow in area in proportion to their censoring weight."></svg><div id="ts-strip-player"></div><p class="fig-caption" id="ts-strip-caption"></p></div>
+<div class="figure"><svg id="ts-strip" role="img" aria-label="Risk-set strip for treated patients in three severity lanes. As the month advances, events become red crosses, dropouts become grey ticks, and patients still followed grow in area in proportion to their censoring weight."></svg><div id="ts-strip-player"></div><p class="fig-caption" id="ts-strip-caption"></p></div>
 <div id="ts-strip-table"></div>
-<p>The weighted count rebuilds the risk set censoring took away. That is all inverse probability of censoring weighting does: among patients with the same severity and treatment, the ones still followed are, by assumption, like the ones who left, so each counts for 1/G of them. The assumption is that censoring is independent of the event time given A and X (coarsening at random), and it needs G(t− | A, X) &gt; 0 through the horizon.</p>
+<p>The weighted count rebuilds the risk set that censoring took away. Among patients with the same severity and treatment, the ones still followed are assumed to be like the ones who left, so each counts for 1/G of them. That is all inverse probability of censoring weighting does.</p>
+<p>The assumption has a name: censoring is independent of the event time given A and X (coarsening at random). It also needs G(t− | A, X) &gt; 0 through the horizon.</p>
 <h3>The same weights, as moving mass</h3>
-<p>Back to the course's 58 treated patients, in years now, with dropout that depends on severity: low-severity patients leave at 15% a year, high-severity patients at 1%, and follow-up ends at 8 years. Kaplan–Meier hands each dropout's mass to everyone still at risk to the right. That is only fair if those heirs are like the person who left. Switch the heirs to "same severity" and a dropout's mass goes only to patients like them: that is inverse probability of censoring weighting with a censoring model that uses severity, and each survivor ends up standing for 1/G(t− | X) patients.</p>
+<aside class="world-card"><b>This part's world</b> the course's 100 patients, its 58 treated ones, in years, with dropout that depends on severity · outcome: time to the event · truth: these same patients' own simulated event times, as if nobody dropped out</aside>
+<p>Back to the course cohort. Low-severity patients now leave at 15% a year, high-severity patients at 1%, and follow-up ends at 8 years.</p>
+<p>Kaplan–Meier hands each dropout's mass to everyone still at risk to the right. That is only fair if those heirs are like the person who left.</p>
 <div class="predict" data-options="Above the truth|Below the truth|On the truth" data-answer="1" data-hint="The healthier patients leave, and plain KM gives their mass to everyone, including sicker patients who have events sooner. Mass that belonged to likely survivors lands on likely events and falls, so the curve ends too low.">Predict: healthier patients drop out faster. Where does plain Kaplan–Meier (heirs = everyone) end at 8 years, compared with the truth for these same patients had nobody dropped out?</div>
 <div data-figure="redistribute" data-variant="informative"></div>
+<p>Switch the heirs to “same severity” and a dropout's mass goes only to patients like them. That is inverse probability of censoring weighting with a censoring model that uses severity: each survivor ends up standing for 1/G(t− | X) patients.</p>
 <details><summary>Derivation: where 1/G(t−) and S(τ)/S(t) come from, in four lines</summary>
 <p class="math">1. S(τ | a, x) = ∏<sub>t≤τ</sub> (1 − λ(t | a, x)).<br>2. Nudging one monthly hazard: ∂S(τ)/∂λ(t) = −S(τ)/(1 − λ(t)) = −S(τ) S(t−1)/S(t).<br>3. The influence function of the observed hazard λ(t | a, x) is 1{A=a, X=x} Y(t)[dN(t) − λ(t)] / P(A=a, X=x, T̃ ≥ t), and under independent censoring P(T̃ ≥ t | a, x) = S(t−1 | a, x) · G(t− | a, x).<br>4. Multiply, sum over t ≤ τ, and average over X: S(t−1) cancels, leaving 1/g(a | X) · S(τ)/S(t) · 1/G(t−) times the residual, plus S(τ | a, X) − ψ from averaging over X.</p>
 <p>Here Y(t) = 1{T̃ ≥ t} (still at risk when month t starts) and dN(t) = 1{T̃ = t, Δ = 1} (the event happened in month t). The censoring weight appears because the risk set at month t is thinned by exactly G(t−).</p></details>
 </section>
 
 <section class="lab-step" data-title="Each patient's influence value"><h2 tabindex="-1">Every patient's influence value, in three coloured parts</h2>
-<p>This is the efficient influence function of ψ = S₁(τ) at τ = 12 months, which this lesson implements:</p>
-<p class="math">D(O) = <span style="color:var(--or)">S(τ | 1, X) − ψ</span> − <span style="color:var(--p)">1{A = 1}/g(1 | X)</span> · Σ<sub>t≤τ</sub> S(τ | 1, X)/S(t | 1, X) · <span style="color:var(--teal)">1/G(t− | 1, X)</span> · [dN(t) − Y(t) λ(t | 1, X)]</p>
-<p>Split each patient's value into three pieces. <strong style="color:var(--or)">Orange</strong>: the outcome-model part, the patient's predicted S(τ | 1, X) minus the plug-in average. <strong style="color:var(--p)">Blue</strong>: the augmentation with only the treatment weight 1/g, as if nobody dropped out (every 1/G replaced by 1). <strong style="color:var(--teal)">Teal</strong>: what the censoring weight adds, 1/G − 1 on each month's residual. The purple dot is the total. For a patient who was never censored, the blue piece telescopes to (1{T &gt; τ} − S(τ | 1, X))/g(1 | X), the familiar treatment-weighted residual from the ATE lessons. Untreated patients have no augmentation. For a treated patient, an event pulls the augmentation negative (it came sooner than the model predicted), and each month survived nudges it positive. Press Play to turn the censoring weight on, from κ = 0 (ignore dropout) to κ = 1 (full 1/G).</p>
+<p>This is the efficient influence function ϕ of ψ = S₁(τ) at τ = 12 months, the one this lesson implements:</p>
+<p class="math">ϕ(O) = <span style="color:var(--or)">S(τ | 1, X) − ψ</span> − <span style="color:var(--p)">1{A = 1}/g(1 | X)</span> · Σ<sub>t≤τ</sub> S(τ | 1, X)/S(t | 1, X) · <span style="color:var(--teal)">1/G(t− | 1, X)</span> · [dN(t) − Y(t) λ(t | 1, X)]</p>
+<p>Split each patient's value into three pieces. <strong style="color:var(--or)">Orange</strong>: the outcome-model part, the patient's predicted S(τ | 1, X) minus the plug-in average. <strong style="color:var(--p)">Blue</strong>: the augmentation with only the treatment weight 1/g, as if nobody dropped out (every 1/G replaced by 1).</p>
+<p><strong style="color:var(--teal)">Teal</strong>: what the censoring weight adds, 1/G − 1 on each month's residual. The purple dot is the total ϕ̂.</p>
+<p>For a patient who was never censored, the blue piece telescopes to (1{T &gt; τ} − S(τ | 1, X))/g(1 | X), the familiar treatment-weighted residual from the ATE lessons. Untreated patients have no augmentation.</p>
+<p>For a treated patient, an event pulls the augmentation negative (it came sooner than the model predicted), and each month survived nudges it positive. Press Play to turn the censoring weight on, from 0% applied (ignore dropout) to 100% (the full 1/G).</p>
 <div class="figure"><div class="fig-row"><div><svg id="ts-if" role="img" aria-label="Horizontal influence-function sticks for 20 patients. Each patient has an orange outcome-model piece, a blue treatment-weighted residual piece, and a teal censoring-weight piece laid end to end, with a purple dot at the total."></svg><div id="ts-if-player"></div>
-<p class="legend legend-swatches"><span>${swatch("var(--or)", "", 4)}Outcome model S(τ|1,X) − ψ̂</span><span>${swatch("var(--p)", "", 4)}Residual × 1/g</span><span>${swatch("var(--teal)", "", 4)}Extra from 1/G</span><span><svg class="swatch" width="28" height="10" aria-hidden="true"><circle cx="14" cy="5" r="4" fill="var(--purple)"/></svg>Total D</span></p></div>
-<div><div class="fig-controls"><label for="ts-s3event">Event-hazard model <select id="ts-s3event"><option value="right">Uses severity (correct)</option><option value="wrong">Ignores severity (wrong)</option></select></label></div><div class="fig-readout" id="ts-if-readout"></div></div></div><p class="fig-caption" id="ts-if-caption"></p></div>
-<p>The one-step estimator is the plug-in plus the mean of the correction over all ${N} patients, exactly the AIPW update from the ATE lessons. Switch the event model to one that ignores severity. Every orange piece becomes zero, because the model now predicts the same curve for everyone. The plug-in is then badly biased, and the correction has to do all the work. It only finishes the job with the censoring weight switched fully on.</p>
+<p class="legend legend-swatches"><span>${swatch("var(--or)", "", 4)}Outcome model S(τ|1,X) − ψ̂</span><span>${swatch("var(--p)", "", 4)}Residual × 1/g</span><span>${swatch("var(--teal)", "", 4)}Extra from 1/G</span><span><svg class="swatch" width="28" height="10" aria-hidden="true"><circle cx="14" cy="5" r="4" fill="var(--purple)"/></svg>Total ϕ̂</span></p></div>
+<div><div class="fig-controls"><label for="ts-s3event">Event-hazard model <select id="ts-s3event"><option value="right">Uses severity (correct)</option><option value="wrong">Leaves severity out (the extreme case)</option></select></label></div><div class="fig-readout" id="ts-if-readout"></div></div></div><p class="fig-caption" id="ts-if-caption"></p></div>
+<p>The one-step estimator is the plug-in plus the mean of the correction over all ${N} patients, exactly the AIPW update from the ATE lessons.</p>
+<p>Switch the event model to one that leaves severity out. Every orange piece becomes zero, because the model now predicts the same curve for everyone. The plug-in is then badly biased, and the correction has to do all the work; it only finishes the job with the censoring weight fully applied.</p>
 </section>
 
 <section class="lab-step" data-title="Double robustness"><h2 tabindex="-1">Break a model, repeat the study 1000 times</h2>
-<p>Each configuration below reruns the same study 1000 times (n = 800 each, seeded) and records every estimator. “Wrong” event model: monthly hazard with treatment but no severity. “Wrong” censoring and treatment models: the dropout hazard and the propensity both ignore severity.</p>
-<div class="predict" data-options="Still centred on the truth|Biased like the plug-in|Biased, but less than the plug-in" data-answer="0" data-hint="The augmentation has mean zero whenever g and G are right, so the correction repairs a wrong hazard model. Try it with the controls.">Predict: the event-hazard model is wrong but the censoring and treatment models are right. Where is the one-step estimator centred?</div>
-<div class="figure"><div class="fig-row"><div><svg id="ts-dr" role="img" aria-label="Three histograms of estimates across 1000 simulated studies: g-formula plug-in, IPTW plus IPCW weighted KM, and one-step, with the truth as a green dashed vertical line."></svg></div>
-<div><div class="fig-controls"><label for="ts-dr-event">Event-hazard model <select id="ts-dr-event"><option value="right">Right (uses severity)</option><option value="wrong">Wrong (ignores severity)</option></select></label><label for="ts-dr-nuis">Censoring and treatment models <select id="ts-dr-nuis"><option value="right">Right (use severity)</option><option value="wrong">Wrong (ignore severity)</option></select></label><label for="ts-dr-target">Target <select id="ts-dr-target"><option value="s1">S₁(12)</option><option value="drmst">ΔRMST(12), months</option></select></label></div><div class="fig-readout" id="ts-dr-readout"></div></div></div><p class="fig-caption" id="ts-dr-caption"></p></div>
+<aside class="world-card"><b>This step's world</b> 1000 seeded studies of 800 patients each, from the same 12-month world · outcome: the estimate of S₁(12), or of ΔRMST(12) in months · truth: S₁(12) = ${fmt(TRUTH_S1)} and ΔRMST(12) = ${fmt(TRUTH_DR)} months, exact</aside>
+<p>Each estimator leans on different working models. The plug-in uses only the event-hazard model λ. The weighted KM uses only the weights, the censoring model G and the propensity score g; the one-step and TMLE use all three.</p>
+<p>A model can be wrong mildly or badly. The event model can keep severity as a linear score but miss the treatment-by-severity interaction, or miss the time trend in the hazard.</p>
+<p>The censoring model can code severity as high versus not, a step where the truth is a gradient. The propensity model can merge mid and high severity. The extreme case leaves severity out of a model altogether.</p>
+<div class="predict" data-options="Still centred on the truth|Biased like the plug-in|Biased, but less than the plug-in" data-answer="0" data-hint="The augmentation has mean zero whenever g and G are right, so the correction repairs a wrong hazard model. Try it with the first preset.">Predict: the event-hazard model leaves severity out, but the censoring and propensity models are right. Where is the one-step estimator centred?</div>
+<div class="figure"><div class="fig-controls ts-presets" role="group" aria-label="Preset model choices">${PRESETS.map((p, i) => `<button type="button" data-preset="${i}">${p.name}</button>`).join("")}</div>
+<div class="fig-row"><div><svg id="ts-dr" role="img" aria-label="Three histograms of estimates across 1000 simulated studies: g-formula plug-in, IPTW plus IPCW weighted KM, and one-step, with the truth as a green dashed vertical line and a triangle at each estimator's mean."></svg></div>
+<div><div class="fig-controls"><label for="ts-dr-event">Event-hazard model λ <select id="ts-dr-event"><option value="right">Right</option><option value="noint">Partly wrong: no A × X interaction</option><option value="notime">Partly wrong: no time trend</option><option value="drop">Extreme: severity left out</option></select></label>
+<label for="ts-dr-cens">Censoring model G <select id="ts-dr-cens"><option value="right">Right</option><option value="high">Partly wrong: high vs not</option><option value="drop">Extreme: severity left out</option></select></label>
+<label for="ts-dr-prop">Propensity model g <select id="ts-dr-prop"><option value="right">Right</option><option value="merge">Partly wrong: mid + high merged</option><option value="drop">Extreme: severity left out</option></select></label>
+<label for="ts-dr-target">Target <select id="ts-dr-target"><option value="s1">S₁(12)</option><option value="drmst">ΔRMST(12), months</option></select></label></div><div class="fig-readout" id="ts-dr-readout"></div></div></div><p class="fig-caption" id="ts-dr-caption"></p></div>
 <div id="ts-dr-table"></div>
-<p>With every model right, the repeated-sample SD of the one-step estimate of S₁(12) is <span id="ts-dr-sd"></span>, against √(E[D²]/n) = <span id="ts-dr-bound"></span> computed exactly from the true law: the influence function predicts its spread. Coverage is honest only when the models it relies on are right; when one nuisance model is wrong the estimator stays consistent but the simple IF standard error need not be exact. TMLE targets the fitted hazard by an iterated logistic fluctuation along the same clever covariate; its estimates track the one-step closely here.</p>
+<div class="predict" data-options="Smaller than both|Between the two|Larger than both" data-answer="0" data-hint="The one-step's error is, to first order, a product: (error in λ) × (error in the weights). Two small errors multiply into a much smaller one. Check it with the preset Both partly wrong.">Predict: make both sides partly wrong (event model without the interaction, censoring coded high vs not, propensity with mid and high merged). How does the one-step's bias for S₁(12) compare with the plug-in's and the weighted KM's?</div>
+<p id="ts-dr-product"></p>
+<p>With every model right, the repeated-sample SD of the one-step estimate of S₁(12) is <span id="ts-dr-sd"></span>, against √(E[ϕ²]/n) = <span id="ts-dr-bound"></span> computed exactly from the true law: the influence function predicts its spread.</p>
+<p>Coverage is honest only when the models it relies on are right. When one nuisance model is wrong the estimator stays consistent, but the simple influence-function standard error need not be exact. The last column shows what an interval of the right width would cover, so it isolates the damage done by bias alone.</p>
+<h3>One study, where the estimators separate</h3>
+<p>TMLE targets the fitted hazard by an iterated logistic fluctuation along the same clever covariate. With every model right it tracks the one-step to four decimals. Pick partly wrong models above and see the one-step, TMLE and weighted KM come apart in the page's own study.</p>
+<div id="ts-dr-study"></div>
 </section>
 
 <section class="lab-step" data-title="ΔRMST or a hazard ratio?"><h2 tabindex="-1">Months of life gained, or a hazard ratio?</h2>
-<p>The first lesson asked: if everyone in this population were treated rather than nobody, how would event-free time change over a fixed horizon? RMST(τ) is the area under S(t) up to τ, here the expected number of event-free months among the first τ. Its influence function is the sum of the S(t) influence functions for t = 0, …, τ − 1 (months are one unit wide), so the same machinery gives an interval.</p>
+<p>“What are we trying to learn?” asked: if everyone in this population were treated rather than nobody, how would event-free time change over a fixed horizon? RMST(τ) is the area under S(t) up to τ, here the expected number of event-free months among the first τ.</p>
+<p>Its influence function is the sum of the S(t) influence functions for t = 0, …, τ − 1 (months are one unit wide), so the same machinery gives an interval.</p>
 <div class="predict" data-options="ΔRMST(12)|The adjusted Cox hazard ratio|The unadjusted Cox hazard ratio" data-answer="0" data-hint="Only ΔRMST is a population-level contrast in months. The adjusted HR is a conditional ratio that assumes proportional hazards; the unadjusted HR also mixes in who got treated.">Predict: which number answers “how many more event-free months, on average over the first year, if everyone were treated”?</div>
 <div class="figure"><div class="fig-row"><div><svg id="ts-rmst-curves" role="img" aria-label="One-step survival curves under treatment and under no treatment, with the area between them shaded up to the horizon."></svg><svg id="ts-rmst" role="img" aria-label="ΔRMST as a function of the horizon τ: one-step estimate with a 95% band, the truth as a green dashed line, and the unadjusted KM difference in orange."></svg>
 <p class="legend legend-swatches"><span>${swatch("var(--p)", "", 3)}Everyone treated</span><span>${swatch("var(--teal)", "", 3)}Everyone untreated</span><span>${swatch("var(--green)", "6 4")}Truth</span><span>${swatch("var(--purple)", "", 3)}One-step ΔRMST</span><span>${swatch("var(--or)")}Unadjusted KM ΔRMST</span></p></div>
 <div><div class="fig-controls"><label for="ts-tau">Horizon τ, months <input id="ts-tau" type="range" min="2" max="12" step="1"></label></div><div class="fig-readout" id="ts-rmst-readout"></div></div></div><p class="fig-caption" id="ts-rmst-caption"></p></div>
 <div id="ts-hr-table"></div>
-<p>The unadjusted Cox model says treatment looks harmful, because treated patients are sicker. Adjusting for severity flips it, but the adjusted hazard ratio is a conditional, model-based summary. In this world the treatment effect on the monthly hazard is weaker for sicker patients (log-odds −0.60, −0.45 and −0.30 for low, mid and high severity), so no single conditional hazard ratio exists, and the marginal one drifts over time, as in the previous lesson. ΔRMST names a population, a horizon and a unit, and its interval comes from the influence function, not from proportional hazards. That is the kind of population-level summary an ICH E9(R1) estimand asks you to state.</p>
+<p>The unadjusted Cox model says treatment looks harmful, because treated patients are sicker. Adjusting for severity flips it, but the adjusted hazard ratio is a conditional, model-based summary.</p>
+<p>In this world the treatment effect on the monthly hazard is weaker for sicker patients (log-odds −0.60, −0.45 and −0.30 for low, mid and high severity). So no single conditional hazard ratio exists, and the marginal one drifts over time, as in “From KM and Cox back to the question”.</p>
+<p>ICH E9(R1) asks you to state a population-level summary as part of the estimand; it does not prescribe which one. ΔRMST at τ and the survival difference at τ both have a direct interpretation, in months and in probability, even when hazards are not proportional. A hazard ratio can be the stated summary too, but its causal interpretation is limited: it compares risk sets that were already selected differently by earlier events.</p>
 <details><summary>Base R: one-step S₁(τ) with an influence-function SE (31 lines, base R only)</summary>
 <pre class="code" tabindex="0"><code>${R_SNIPPET()}</code></pre>
 <p class="note">Output in R 4.3.3: plug-in 0.609, one-step 0.612, SE 0.027, 95% CI 0.559 to 0.665, truth 0.617. The R simulation uses R's own random numbers, so it is a different draw from the study on this page. On this page's own study, the same formulas in R reproduce the one-step 0.6224 (SE 0.0285) and survival::coxph(ties = "breslow") reproduces both hazard ratios.</p></details>
 </section>`;
+
 
   function R_SNIPPET() {
     return `# One-step (AIPW) estimate of S_1(tau) in discrete time, with an influence-function SE.
@@ -122,7 +168,8 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
   [
     ["ts-s3event", "s3event"],
     ["ts-dr-event", "drEvent"],
-    ["ts-dr-nuis", "drNuis"],
+    ["ts-dr-cens", "drCens"],
+    ["ts-dr-prop", "drProp"],
     ["ts-dr-target", "drTarget"],
     ["ts-tau", "tau"],
   ].forEach(([id, key]) => control(byId(id), state, key));
@@ -131,6 +178,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
   byId("ts-arm").addEventListener("input", (e) => {
     arm = +e.target.value;
     drawCurves();
+    drawCurveTable();
   });
   byId("ts-new").onclick = () => state.set({ seed: (state.get().seed % 4294967295) + 1 });
 
@@ -146,6 +194,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
     lim = (e, d = 3) => `${fmt(e.est - 1.96 * e.se, d)}, ${fmt(e.est + 1.96 * e.se, d)}`,
     ci = (e, se, d = 3) => `${fmt(e, d)} (${fmt(e - 1.96 * se, d)} to ${fmt(e + 1.96 * se, d)})`,
     SEV = ["low", "mid", "high"],
+    pct = (u) => `${Math.round(u * 100)}%`,
     // Keep right-margin labels apart: sort by y, push down by at least gap pixels.
     spread = (items, gap, lo, hi) => {
       items.sort((a, b) => a.y - b.y);
@@ -191,12 +240,13 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
       R = A.arms[arm],
       svg = byId("ts-curves"),
       W = widthOf(svg),
+      narrow = W < 560,
       plot = new Plot(svg, {
         x: [0, K],
         y: [0.3, 1],
         width: W,
         height: Math.round(Math.max(270, Math.min(360, W * 0.62))),
-        margin: { l: 46, r: 58, t: 32, b: 44 },
+        margin: { l: 46, r: narrow ? 96 : 150, t: 32, b: 44 },
         xticks: [0, 2, 4, 6, 8, 10, 12],
         yticks: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
         xlabel: "Month",
@@ -220,11 +270,16 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
       el("path", { d: plot.d(bandPts) + " Z", fill: "var(--purple)", "fill-opacity": 0.2, stroke: "none" }),
     );
     plot.line(stepsTo(R.truth), { stroke: "var(--green)", "stroke-dasharray": "7 5" });
-    plot.line(stepsTo(R.km), { stroke: "var(--or)", "stroke-width": 2.2 });
-    plot.line(stepsTo(os), { stroke: "var(--purple)", "stroke-width": 3 });
-    plot.scatter(os.map((v, t) => [t, v]).slice(1), 3.2, { fill: "var(--purple)" });
-    // Drawn on top, dashed, because with these models it nearly coincides with the one-step curve.
-    plot.line(stepsTo(R.wkm), { stroke: "var(--p)", "stroke-width": 1.8, style: "stroke-dasharray: 5 4" });
+    plot.line(stepsTo(R.km), { stroke: "var(--or)", style: "stroke-width: 2.2" });
+    plot.line(stepsTo(os), { stroke: "var(--purple)", style: "stroke-width: 3.4" });
+    // Weighted KM on top: thin, dashed, with small square markers at each month, so it stays
+    // readable where it runs on the one-step curve.
+    // (Widths go in style: the shared .mark-line rule would override a stroke-width attribute.)
+    plot.line(stepsTo(R.wkm), { stroke: "var(--p)", style: "stroke-width: 1.3; stroke-dasharray: 4 3; stroke-linecap: butt" });
+    const sq = plot.layer("wkm-markers");
+    R.wkm.forEach((v, t) => {
+      if (t) sq.append(el("rect", { x: plot.sx(t) - 2.5, y: plot.sy(v) - 2.5, width: 5, height: 5, fill: "var(--p)", stroke: "var(--paper)", "stroke-width": 0.8 }));
+    });
     // Censoring ticks on the unadjusted KM: one tick per month with dropouts in this arm.
     const ticks = plot.layer("ticks");
     for (let t = 1; t < K; t++) {
@@ -241,21 +296,27 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
           }),
         );
     }
-    // End labels in the right margin, kept apart.
-    const labs = spread(
-      [
-        { y: plot.sy(R.truth[K]), t: fmt(R.truth[K], 3), c: "var(--green)" },
-        { y: plot.sy(R.km[K]), t: fmt(R.km[K], 3), c: "var(--or)" },
-        { y: plot.sy(R.wkm[K]), t: fmt(R.wkm[K], 3), c: "var(--p)" },
-        { y: plot.sy(os[K]), t: fmt(os[K], 3), c: "var(--purple)" },
-      ],
-      15,
-      plot.m.t + 8,
-      plot.H - plot.m.b,
-    );
-    labs.forEach((l) =>
-      plot.fg.append(el("text", { class: "fig-text", x: plot.W - plot.m.r + 6, y: l.y + 4, style: `fill: ${l.c}` }, l.t)),
-    );
+    // Direct labels at the curve ends, in the right margin, kept apart. Narrow screens get names only
+    // (the readout has the values).
+    const lab = (name, v) => (narrow ? name : `${name} ${fmt(v, 3)}`),
+      labs = spread(
+        [
+          { y: plot.sy(R.truth[K]), t: lab("truth", R.truth[K]), c: "var(--green)", v: R.truth[K] },
+          { y: plot.sy(R.km[K]), t: lab("KM", R.km[K]), c: "var(--or)", v: R.km[K] },
+          { y: plot.sy(R.wkm[K]), t: narrow ? "wtd KM" : lab("weighted KM", R.wkm[K]), c: "var(--p)", v: R.wkm[K] },
+          { y: plot.sy(os[K]), t: lab("one-step", os[K]), c: "var(--purple)", v: os[K] },
+        ],
+        16,
+        plot.m.t + 8,
+        plot.H - plot.m.b,
+      );
+    labs.forEach((l) => {
+      const x0 = plot.W - plot.m.r;
+      // A short leader from the curve end to its label when the label had to move.
+      if (Math.abs(l.y - plot.sy(l.v)) > 3)
+        plot.fg.append(el("line", { x1: x0 + 1, y1: plot.sy(l.v), x2: x0 + 7, y2: l.y, stroke: l.c, "stroke-width": 1 }));
+      plot.fg.append(el("text", { class: "fig-text", x: x0 + 9, y: l.y + 4, style: `fill: ${l.c}` }, l.t));
+    });
     const e12 = R.curve[K],
       nArm = A.rows.filter((r) => r.a === arm).length,
       nCens = A.rows.filter((r) => r.a === arm && !r.event && r.time < K).length;
@@ -296,6 +357,16 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
       ],
       `Survival at 12 months, one study (n = ${N}, seed ${A.seed})`,
     );
+    // Why three estimators agree here: say it with this study's own numbers.
+    const R = A.arms[arm],
+      os = R.curve[K].est,
+      tm = R.tmle12.est,
+      strat = TS.stratifiedKM(A.c, arm)[K],
+      S = arm ? "S₁(12)" : "S₀(12)";
+    byId("ts-equal-note").textContent =
+      `Why do the one-step, TMLE and weighted KM agree for ${S} (${fmt(os, 4)}, ${fmt(tm, 4)} and ${fmt(R.wkm[K], 4)})? ` +
+      `The right models here give every treatment and severity cell its own parameter, so they are saturated in (A, X) and all three sit next to the nonparametric answer, Kaplan–Meier within each severity level averaged over the severity mix (${fmt(strat, 4)}); the one-step and TMLE also differ only by second-order terms. ` +
+      `In the step “Double robustness” the models have to smooth across cells, and the three come apart.`;
   }
 
   /* ---------- Step 2: risk-set strip ---------- */
@@ -377,7 +448,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
   });
 
   /* ---------- Step 3: influence values ---------- */
-  let kappa = 0;
+  let cw = 0; // share of the censoring weight applied, 0 to 1
   function pickPatients(rows) {
     const chosen = [],
       used = new Set(),
@@ -410,7 +481,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
       spec = state.get().s3event,
       nu = spec === "right" ? A.nu : nuFor("wrong"),
       w = TS.weightsS(K),
-      e = TS.eif(A.rows, 1, nu, w, kappa),
+      e = TS.eif(A.rows, 1, nu, w, cw),
       eFull = TS.eif(A.rows, 1, nu, w, 1),
       pts = pickPatients(A.rows),
       parts = pts.map((r) => e.parts[r.id]),
@@ -434,7 +505,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
         height: H,
         margin: { l: labelW, r: 14, t: top, b: bottom },
         yticks: [],
-        xlabel: "Influence value D for S₁(12)",
+        xlabel: "Influence value ϕ̂ for S₁(12)",
         tickFormat: (v) => fmt(v, 1),
       });
     plot.vline(0, { stroke: "var(--ink)", opacity: 0.5, style: "stroke-dasharray: none" });
@@ -461,11 +532,11 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
           el("text", { class: "fig-text", x: 8, y: yc + 13 }, outcomeText(r)),
         );
     });
-    plot.fg.append(el("text", { class: "fig-text ink", x: 8, y: 18 }, `20 of ${N} patients · κ = ${fmt(kappa, 2)}`));
+    plot.fg.append(el("text", { class: "fig-text ink", x: 8, y: 18 }, narrow ? `20 of ${N} · 1/G ${pct(cw)} applied` : `20 of ${N} patients · censoring weight ${pct(cw)} applied`));
     const mG = TS.eif(A.rows, 1, nu, w, 0).correction,
       truth = TS.truth(1, w);
     readout("ts-if-readout", [
-      ["κ", fmt(kappa, 2)],
+      ["censoring weight applied", pct(cw)],
       ["plug-in ψ̂", fmt(e.plugin)],
       ["mean orange", "0 (by construction)"],
       ["mean blue", fmt(mG)],
@@ -478,15 +549,15 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
     byId("ts-if-caption").textContent =
       `One-step = plug-in ${fmt(e.plugin)} + mean correction ${fmt(e.correction)} = ${fmt(e.est)}; the truth is ${fmt(truth)}. ` +
       (spec === "wrong"
-        ? `With the event model ignoring severity, κ = 0 reaches ${fmt(TS.eif(A.rows, 1, nu, w, 0).est)} and κ = 1 reaches ${fmt(eFull.est)}: the treatment weight fixes confounding, the censoring weight fixes selective dropout.`
-        : `The event model is right, so the correction is small; the teal pieces still matter for the standard error (${fmt(TS.eif(A.rows, 1, nu, w, 0).se)} at κ = 0, ${fmt(eFull.se)} at κ = 1).`);
+        ? `With the event model leaving severity out, the one-step reaches ${fmt(TS.eif(A.rows, 1, nu, w, 0).est)} with no censoring weight and ${fmt(eFull.est)} with the full weight: the treatment weight fixes confounding, the censoring weight fixes selective dropout.`
+        : `The event model is right, so the correction is small; the teal pieces still matter for the standard error (${fmt(TS.eif(A.rows, 1, nu, w, 0).se)} with no censoring weight, ${fmt(eFull.se)} with the full weight).`);
   }
   const ifPlayer = player(byId("ts-if-player"), {
     duration: 5000,
-    label: "Censoring weight κ",
-    formatValue: (u) => u.toFixed(2),
+    label: "Censoring weight applied",
+    formatValue: (u) => pct(u),
     onT(u) {
-      kappa = u;
+      cw = u;
       drawIF();
     },
   });
@@ -495,14 +566,33 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
   let DR = null,
     drShown = null;
   const DR_EST = [
-    ["plugin", "g-formula plug-in", "var(--or)"],
-    ["wkm", "IPTW + IPCW weighted KM", "var(--p)"],
-    ["onestep", "One-step (AIPW)", "var(--purple)"],
-  ];
+      ["plugin", "g-formula plug-in", "var(--or)"],
+      ["wkm", "IPTW + IPCW weighted KM", "var(--p)"],
+      ["onestep", "One-step (AIPW)", "var(--purple)"],
+    ],
+    MODEL_NAME = {
+      event: { right: "right", noint: "no interaction", notime: "no time trend", drop: "severity left out" },
+      cens: { right: "right", high: "high vs not", drop: "severity left out" },
+      prop: { right: "right", merge: "mid and high merged", drop: "severity left out" },
+    },
+    specOf = (s) => ({ event: s.drEvent, cens: s.drCens, prop: s.drProp }),
+    sameSpec = (p, q) => p.event === q.event && p.cens === q.cens && p.prop === q.prop,
+    cfgOf = (spec) => DR.configs.find((c) => sameSpec(c.spec, spec));
+  root.querySelectorAll("[data-preset]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const p = PRESETS[+b.dataset.preset];
+      state.set({ drEvent: p.event, drCens: p.cens, drProp: p.prop });
+    }),
+  );
   function drawDR(animate = false) {
+    const s = state.get();
+    root.querySelectorAll("[data-preset]").forEach((b) => {
+      const p = PRESETS[+b.dataset.preset];
+      b.setAttribute("aria-pressed", String(sameSpec(p, specOf(s))));
+    });
+    drawStudy();
     if (!DR) return;
-    const s = state.get(),
-      cfg = DR.configs.find((c) => c.spec.event === s.drEvent && c.spec.nuis === s.drNuis),
+    const cfg = cfgOf(specOf(s)),
       tg = s.drTarget,
       res = cfg[tg],
       [a, b] = DR.domain[tg],
@@ -544,9 +634,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
           el("text", { class: "fig-text", x: plot.W - plot.m.r - 4, y: plot.sy(base + 1) + 16, "text-anchor": "end" }, `bias ${fmt(res[k].bias, 3)}`),
         );
         const m = res[k].mean;
-        plot.marks.append(
-          el("path", { d: `M${plot.sx(m)},${plot.sy(base) + 1} l-5,9 h10 Z`, fill: color }),
-        );
+        plot.marks.append(el("path", { d: `M${plot.sx(m)},${plot.sy(base) + 1} l-5,9 h10 Z`, fill: color }));
       });
       plot.vline(truth, { stroke: "var(--green)", "stroke-dasharray": "7 5", "stroke-width": 2 });
       plot.fg.append(
@@ -555,41 +643,107 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
     };
     if (animate) tween({ duration: 500, onUpdate: draw });
     else draw(1);
-    const o = res.onestep;
+    const o = res.onestep,
+      dp = tg === "s1" ? 3 : 2;
     readout("ts-dr-readout", [
-      ["studies", `${DR.reps} × n = ${DR.n}`],
+      ["studies", `${DR.reps} × ${DR.n}`],
       ["truth", fmt(truth)],
-      ["one-step bias", `${fmt(o.bias)} (MC SE ${fmt(o.mcse)})`],
+      ["one-step bias", fmt(o.bias)],
+      ["MC SE of bias", fmt(o.mcse)],
       ["one-step SD", fmt(o.sd)],
       ["mean IF SE", fmt(o.meanSE)],
-      ["95% coverage", fmt(o.coverage * 100, 1) + "%"],
+      ["95% IF coverage", fmt(o.coverage * 100, 1) + "%"],
+      ["|TMLE − one-step|, mean", fmt(res.gap.tmle, 4)],
+      ["|wtd KM − one-step|, mean", fmt(res.gap.wkm, 4)],
     ]);
     const rowsT = [
       ["km", "Unadjusted KM"],
-      ["wkm", "IPTW + IPCW weighted KM"],
       ["plugin", "g-formula plug-in"],
+      ["wkm", "IPTW + IPCW weighted KM"],
       ["onestep", "One-step"],
       ["tmle", "TMLE"],
     ].map(([k, name]) => [
       name,
-      fmt(res[k].bias),
-      fmt(res[k].mcse),
-      fmt(res[k].sd),
-      res[k].coverage === undefined ? "not computed" : fmt(res[k].coverage * 100, 1) + "%",
+      fmt(res[k].bias, dp + 1),
+      fmt(res[k].mcse, dp + 1),
+      fmt(res[k].sd, dp + 1),
+      res[k].coverage === undefined ? "no IF interval" : fmt(res[k].coverage * 100, 1) + "%",
+      fmt(res[k].oracleCoverage * 100, 1) + "%",
     ]);
+    const spec = specOf(s);
     byId("ts-dr-table").innerHTML = table(
-      ["Estimator", "Bias", "MC SE of bias", "SD", "IF-interval coverage"],
+      ["Estimator", "Bias", "MC SE of bias", "SD", "Coverage, IF interval", "Coverage, ± 1.96 SD"],
       rowsT,
-      `${tg === "s1" ? "S₁(12)" : "ΔRMST(12)"}: event model ${s.drEvent}, censoring and treatment models ${s.drNuis}`,
+      `${tg === "s1" ? "S₁(12)" : "ΔRMST(12), months"}. Models: event ${MODEL_NAME.event[spec.event]}; censoring ${MODEL_NAME.cens[spec.cens]}; propensity ${MODEL_NAME.prop[spec.prop]}. ${DR.reps} studies of ${DR.n}.`,
     );
-    const ok = s.drEvent === "right" || s.drNuis === "right";
-    byId("ts-dr-caption").textContent = ok
-      ? `At least one side is right, so the one-step estimator is centred on the truth (bias ${fmt(o.bias)}, Monte Carlo SE ${fmt(o.mcse)}). ` +
-        (s.drEvent === "wrong" ? "The plug-in, which relies only on the event model, is off by " + fmt(res.plugin.bias) + ". " : "") +
-        (s.drNuis === "wrong" ? "The weighted KM, which relies only on the weights, is off by " + fmt(res.wkm.bias) + ". " : "")
-      : `Both sides wrong: every estimator lands near the unadjusted KM, bias ${fmt(o.bias)}. Double robustness gives two chances, not a guarantee.`;
-    byId("ts-dr-sd").textContent = fmt(DR.configs[0].s1.onestep.sd, 4);
+    const eventOK = spec.event === "right",
+      wOK = spec.cens === "right" && spec.prop === "right",
+      extreme = [spec.event, spec.cens, spec.prop].includes("drop"),
+      big = (e) => Math.abs(res[e].bias) > 3 * res[e].mcse;
+    let cap;
+    if (eventOK && wOK)
+      cap = `Every model is right, so all three are centred on the truth (one-step bias ${fmt(o.bias)}, Monte Carlo SE ${fmt(o.mcse)}).`;
+    else if (eventOK || wOK)
+      cap =
+        `One side is right, so the one-step estimator is centred on the truth (bias ${fmt(o.bias)}, Monte Carlo SE ${fmt(o.mcse)}). ` +
+        (!eventOK ? `The plug-in, which relies only on the event model, is off by ${fmt(res.plugin.bias)}${big("plugin") ? "" : ", within Monte Carlo error"}. ` : "") +
+        (!wOK ? `The weighted KM, which relies only on the weights, is off by ${fmt(res.wkm.bias)}${big("wkm") ? "" : ", within Monte Carlo error"}. ` : "");
+    else if (!extreme)
+      cap =
+        `Both sides are partly wrong. The one-step bias is ${fmt(o.bias)}, against ${fmt(res.plugin.bias)} for the plug-in and ${fmt(res.wkm.bias)} for the weighted KM` +
+        (Math.abs(o.bias) < Math.min(Math.abs(res.plugin.bias), Math.abs(res.wkm.bias))
+          ? ": smaller than either, because its error is a product of the two models' errors."
+          : ". Here one of the single-model estimators happens to be less biased: the product of two errors is small, not always the smallest.");
+    else
+      cap = `Both sides wrong, one of them badly: the one-step bias is ${fmt(o.bias)}. Double robustness gives two chances, not a guarantee.`;
+    byId("ts-dr-caption").textContent = cap;
+    const all = cfgOf({ event: "right", cens: "right", prop: "right" });
+    byId("ts-dr-sd").textContent = fmt(all.s1.onestep.sd, 4);
     byId("ts-dr-bound").textContent = fmt(Math.sqrt(DR.bound.s1 / DR.n), 4);
+    const both = cfgOf({ event: "noint", cens: "high", prop: "merge" }).s1;
+    byId("ts-dr-product").textContent =
+      `Across the ${DR.reps} studies, with both sides partly wrong, the bias for S₁(12) is ${fmt(both.onestep.bias)} for the one-step, ${fmt(both.plugin.bias)} for the plug-in and ${fmt(both.wkm.bias)} for the weighted KM (Monte Carlo SE about ${fmt(both.onestep.mcse)}). ` +
+      `The one-step's remaining error is, to first order, the product of the event model's error and the weights' error, so two small errors leave a smaller one.`;
+  }
+  // The page's own study under the chosen models: the estimators separate once the models smooth across cells.
+  let studyKey = "";
+  function drawStudy() {
+    const s = state.get(),
+      spec = specOf(s),
+      key = `${s.seed}|${spec.event}|${spec.cens}|${spec.prop}`;
+    if (key === studyKey) return;
+    studyKey = key;
+    const A = analysis(),
+      w = TS.weightsS(K),
+      col = (sp) => {
+        const nu = TS.fit(A.rows, sp, A.c),
+          e = TS.eif(A.rows, 1, nu, w),
+          t = TS.tmle(A.rows, 1, nu, w, A.c);
+        return { plug: e.plugin, wkm: TS.weightedKM(A.c, 1, nu)[K], os: e.est, tm: t.est };
+      },
+      r = col({ event: "right", cens: "right", prop: "right" }),
+      m = col(spec),
+      same = sameSpec(spec, { event: "right", cens: "right", prop: "right" }),
+      head = same ? ["S₁(12) estimate", "All models right"] : ["S₁(12) estimate", "All models right", "Your models"],
+      row = (name, k) => (same ? [name, fmt(r[k], 4)] : [name, fmt(r[k], 4), fmt(m[k], 4)]);
+    byId("ts-dr-study").innerHTML = table(
+      head,
+      [
+        row("g-formula plug-in", "plug"),
+        row("IPTW + IPCW weighted KM", "wkm"),
+        row("One-step", "os"),
+        row("TMLE", "tm"),
+        same ? ["Truth (exact)", fmt(TRUTH_S1, 4)] : ["Truth (exact)", fmt(TRUTH_S1, 4), fmt(TRUTH_S1, 4)],
+        same
+          ? ["|TMLE − one-step|, |weighted KM − one-step|", `${Math.abs(r.tm - r.os).toFixed(4)}, ${Math.abs(r.wkm - r.os).toFixed(4)}`]
+          : [
+              "|TMLE − one-step|, |weighted KM − one-step|",
+              `${Math.abs(r.tm - r.os).toFixed(4)}, ${Math.abs(r.wkm - r.os).toFixed(4)}`,
+              `${Math.abs(m.tm - m.os).toFixed(4)}, ${Math.abs(m.wkm - m.os).toFixed(4)}`,
+            ],
+      ],
+      `The page's study (n = ${N}, seed ${A.seed})${same ? ". Choose partly wrong models above to add a column." : `. Your models: event ${MODEL_NAME.event[spec.event]}; censoring ${MODEL_NAME.cens[spec.cens]}; propensity ${MODEL_NAME.prop[spec.prop]}.`}`,
+    );
   }
   fetch("../science/targeted-survival-data.json")
     .then((r) => r.json())
@@ -720,7 +874,7 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
   let lastSeed = state.get().seed,
     lastDR = "";
   state.subscribe((s) => {
-    const key = s.drEvent + s.drNuis + s.drTarget;
+    const key = s.drEvent + s.drCens + s.drProp + s.drTarget;
     if (key !== lastDR && DR) {
       lastDR = key;
       requestAnimationFrame(() => drawDR(true));
@@ -728,12 +882,13 @@ cat(sprintf("plug-in %.3f  one-step %.3f  SE %.3f  95%% CI %.3f to %.3f  truth %
     if (s.seed !== lastSeed) lastSeed = s.seed;
     render();
   });
-  lastDR = state.get().drEvent + state.get().drNuis + state.get().drTarget;
+  lastDR = state.get().drEvent + state.get().drCens + state.get().drProp + state.get().drTarget;
   // Draw synchronously once so every figure has content on arrival, then again after layout settles.
   drawCurves();
   drawCurveTable();
   drawStrip();
   drawIF();
+  drawDR();
   drawRMST();
   guided(root, state);
   tools(root, state);

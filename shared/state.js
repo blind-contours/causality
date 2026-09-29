@@ -61,10 +61,37 @@
     }
     const u = next.units[id] || { status: "new", exercises: {} };
     next.units[id] = u;
+    // A skim (the placement quiz or the quick check marking earlier lessons) is not a visit: it
+    // moves new to explored but leaves no timestamp, so it never becomes "Last opened".
+    if (event.type === "explore" && event.skim) {
+      if (u.status === "new") {
+        u.status = "explored";
+        u.skimmed = true;
+      }
+      return next;
+    }
     u.updated = event.now || new Date().toISOString();
-    if (event.type === "explore" && u.status === "new") u.status = "explored";
+    if (event.type === "explore") {
+      if (u.status === "new") u.status = "explored";
+      delete u.skimmed;
+    }
     if (event.type === "exercise") {
+      delete u.skimmed;
       const prior = u.exercises[event.id] || {};
+      // A fresh case (New case) starts an unassisted variant; it is not an attempt.
+      if (event.fresh) {
+        u.exercises[event.id] = {
+          ...prior,
+          variant: event.variant,
+          answer: "",
+          assisted: false,
+          correct: false,
+        };
+        if (event.transfer && (u.status === "attempted" || u.status === "assisted"))
+          u.status = "attempted";
+        else if (u.status === "new") u.status = "explored";
+        return next;
+      }
       const assisted =
         event.assisted ||
         (prior.variant === event.variant && prior.assisted) ||
@@ -77,6 +104,9 @@
         attempts: (prior.attempts || 0) + 1,
       };
       if (event.transfer) {
+        // Once a transfer check is demonstrated it stays demonstrated: a later hint, worked
+        // solution or new case is practice, not a retraction.
+        if (u.status === "demonstrated") return next;
         u.status =
           event.correct && !assisted
             ? "demonstrated"
@@ -112,5 +142,19 @@
       return migrate();
     }
   }
-  return { KEY, migrate, reduce, load, contract, describeContract };
+  // Counts for progress displays. walked: lessons opened (status beyond new, not merely skimmed);
+  // passed: lessons whose transfer check is demonstrated.
+  function counts(units, ids) {
+    let walked = 0,
+      passed = 0;
+    ids.forEach((id) => {
+      const u = units[id];
+      if (!u || u.status === "new") return;
+      if (u.status === "demonstrated") passed++;
+      if (!u.skimmed) walked++;
+    });
+    return { walked, passed, total: ids.length };
+  }
+  const opened = (u) => !!u && u.status !== "new" && !u.skimmed;
+  return { KEY, migrate, reduce, load, contract, describeContract, counts, opened };
 });

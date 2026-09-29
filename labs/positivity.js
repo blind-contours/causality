@@ -11,6 +11,7 @@
       {
         step: 0,
         beta: 0,
+        beta4: 3,
         cap: 0.99,
         trim: 0.1,
         method: "trim",
@@ -19,6 +20,7 @@
       {
         step: [0, 5],
         beta: [0, 4],
+        beta4: [0, 4],
         cap: [0.8, 1],
         trim: [0, 0.2],
         method: ["cap", "trim", "overlap"],
@@ -26,6 +28,19 @@
       },
     );
   const byId = (id) => document.getElementById(id),
+    /* course.js may dispatch "causality:finish" on a figure to ask its player to jump to the end. */
+    onFinish = (node, fn) => {
+      const seen = new WeakSet();
+      [node.closest(".figure"), node.closest("[data-figure]"), node.closest(".lab-step")]
+        .filter(Boolean)
+        .forEach((t) =>
+          t.addEventListener("causality:finish", (e) => {
+            if (seen.has(e)) return;
+            seen.add(e);
+            fn();
+          }),
+        );
+    },
     D = P.draws(P.N, P.SEED),
     memo = new Map(),
     analysis = (beta, cap = 0.99, trim = 0.1) => {
@@ -58,9 +73,10 @@
 
   root.innerHTML = `
 <section class="lab-step" data-title="See the overlap"><h2 tabindex="-1">Where do the two arms stop overlapping?</h2>
+<aside class="world-card"><b>This step's world</b> ${P.N} simulated patients with a continuous severity score (more spread than the course's 100, so the tails are visible) · continuous outcome Y · truth: average treatment effect = 2 exactly</aside>
 <p>An observational cohort of ${P.N} patients. Sicker patients (higher severity X) are more likely to be treated. The <strong>separation</strong> β sets how strongly severity decides treatment: at β = 0 treatment is a coin flip for everyone; at β = 4 a mild patient is almost never treated and a severe one almost always is.</p>
 <p class="math">logit g(X) = α + βX, with α = −β/2 so that severity 0.5 is always a 50/50 call</p>
-<p>You already know the weights: a treated patient counts 1/ĝ(X) times, a control patient 1/(1 − ĝ(X)) times. That is the clever covariate H = A/g − (1 − A)/(1 − g) wearing its IPW clothes, and the 1/π from the two-strata lesson.</p>
+<p>You already know the weights: a treated patient counts 1/ĝ(X) times, a control patient 1/(1 − ĝ(X)) times. That is the clever covariate H = A/g − (1 − A)/(1 − g) wearing its IPW clothes, and the same inverse-propensity weights as in the two-strata lesson.</p>
 <div class="predict" data-options="Treated patients with low severity|Patients with severity near 0.5|Control patients with low severity" data-answer="0" data-hint="A treated patient with ĝ = 0.03 stands in for about 33 people like them, because 97% of such people went untreated. Control patients with high severity are the mirror image.">As separation grows, which patients end up carrying the largest weights?</div>
 <div class="figure"><div class="fig-row"><div><svg id="pos-mirror" role="img" aria-label="Mirrored histogram of fitted propensity scores: treated patients above the axis, control patients below. Red bands mark fitted propensities below 0.05 or above 0.95. Beneath it, a strip of every patient at their fitted propensity, dot area proportional to weight. Numbers are listed beside the figure."></svg><div id="pos-mirror-player"></div>
 <p class="legend legend-swatches"><span>${swatch("var(--p)", "box")}Treated (above the axis, top lane)</span><span>${swatch("var(--teal)", "box")}Control (below the axis, bottom lane)</span><span>${swatch("var(--red)", "box")}ĝ below 0.05 or above 0.95: the other arm's patients there weigh over 20 (red ring)</span></p></div>
@@ -87,7 +103,7 @@
 <p class="legend legend-swatches"><span>${swatch("var(--or)")}IPW (normalized)</span><span>${swatch("var(--purple)")}AIPW</span><span>${swatch("var(--green)", "line", "6 4")}Zero bias</span></p></div>
 <div><div class="fig-readout" id="pos-rep-readout"></div></div></div><p class="fig-caption" id="pos-rep-caption" role="status"></p></div>
 <details><summary>All repeated-sample numbers</summary><div id="pos-rep-table"></div></details>
-<p>Two things go wrong for IPW. Its spread explodes, and it also drifts upward: a heavy-tailed average is usually computed without its rare giant terms, so a typical sample misses them in the same direction. AIPW stays centred because its outcome model is right, but its spread still grows about fivefold. Double robustness does not buy immunity from thin overlap; the efficiency bound itself grows with E[1/g(X)].</p>
+<div id="pos-rep-explain" role="status"></div>
 </section>
 
 <section class="lab-step" data-title="Three responses"><h2 tabindex="-1">Three responses, and what each one costs</h2>
@@ -99,7 +115,7 @@
 <div><div class="fig-controls"><label>Response <select id="pos-method"><option value="cap">(a) Cap weights at a percentile</option><option value="trim">(b) Trim patients with extreme ĝ</option><option value="overlap">(c) Overlap weights</option></select></label>
 <label>Cap at percentile <span id="pos-cap-v"></span><input id="pos-cap" type="range" min="0.8" max="1" step="0.005"></label>
 <label>Trim threshold a (keep a ≤ ĝ ≤ 1 − a) <span id="pos-trim-v"></span><input id="pos-trim" type="range" min="0" max="0.2" step="0.01"></label>
-<label>Separation β <input id="pos-beta-4" type="range" min="0" max="4" step="0.05"></label><button type="button" id="pos-go3">Set β = 3</button></div>
+<label>Separation β <span id="pos-beta-4-v"></span><input id="pos-beta-4" type="range" min="0" max="4" step="0.05"></label><button type="button" id="pos-go3">Set β = 3</button></div>
 <div class="fig-readout" id="pos-pop-readout"></div></div></div><p class="fig-caption" id="pos-pop-caption" role="status"></p></div>
 <div id="pos-resp-table"></div><p class="note" id="pos-resp-status" role="status"></p>
 <h3>(a) Capping (truncating) weights</h3><p>Replace every weight above a chosen percentile by that percentile. The target is still the ATE, so the estimand has not changed, but the estimator is now biased for it: the patients who were standing in for many others are made to stand in for fewer, so the thin region is under-represented. You buy variance with bias, and the bias does not shrink with more data.</p>
@@ -109,13 +125,13 @@
 </section>
 
 <section class="lab-step" data-title="Structural or practical"><h2 tabindex="-1">Structural or practical: can more data fix it?</h2>
-<p>A <strong>structural</strong> violation means some patients could never receive a treatment: g(x) = 0 by design, for example a contraindication. A <strong>practical</strong> violation means everyone could, but in your sample some kinds of patient rarely did. Both look like a thin tail in a histogram. Only one of them goes away with more patients.</p>
+<p>A <strong>structural</strong> violation means some patients could never receive a treatment: g(x) = 0 by design, for example a contraindication. A <strong>practical</strong> violation means everyone could, but in your sample some kinds of patient rarely did. Both look like a thin tail in a histogram.</p>
 <div class="predict" data-options="Both shrink|Only the practical one shrinks|Only the structural one shrinks" data-answer="1" data-hint="With n = 5000 the practical case's IPW bias is indistinguishable from zero, while the structural case's stays near 0.54. No sample contains a treated patient above severity 1.5, so nothing in the data speaks for them.">Both cohorts use β = 2. In the structural one, nobody with severity above 1.5 is ever treated. You collect ten times more patients (500 → 5000). Which IPW bias shrinks?</div>
 <div class="figure"><div class="fig-row"><div><svg id="pos-support" role="img" aria-label="Mirrored histogram of severity by arm: treated above the axis, control below. In the structural case the region above severity 1.5 has no treated patients and is shaded red; in the practical case the thin tails where the true propensity is below 0.05 or above 0.95 are shaded."></svg>
 <p class="legend legend-swatches"><span>${swatch("var(--p)", "box")}Treated</span><span>${swatch("var(--teal)", "box")}Control</span><span>${swatch("var(--red)", "box")}Region with no or almost no treated patients</span></p></div>
 <div><div class="fig-controls"><label>Violation <select id="pos-support-kind"><option value="structural">Structural (none treated above 1.5)</option><option value="practical">Practical (few, not none)</option></select></label></div><div class="fig-readout" id="pos-support-readout"></div></div></div><p class="fig-caption" id="pos-support-caption" role="status"></p></div>
 <div id="pos-support-table"></div>
-<p>Here AIPW survives the structural case, but only because its outcome model is exactly right and can be extended beyond the data. In a real study the effect in patients who are never treated is not learned from data at all: any number you report for them is an extrapolation of a model, and should be called one. The honest options are to change the question to the population where treatment is possible, or to state the extrapolation as an assumption and vary it in a sensitivity analysis.</p>
+<p>Only one of them goes away with more patients. Here AIPW survives the structural case, but only because its outcome model is exactly right and can be extended beyond the data. In a real study the effect in patients who are never treated is not learned from data at all: any number you report for them is an extrapolation of a model, and should be called one. The honest options are to change the question to the population where treatment is possible, or to state the extrapolation as an assumption and vary it in a sensitivity analysis.</p>
 </section>
 
 <section class="lab-step" data-title="Write it in the SAP"><h2 tabindex="-1">What to write before you see the outcomes</h2>
@@ -133,14 +149,14 @@
 
   [
     ["pos-beta-2", "beta"],
-    ["pos-beta-4", "beta"],
+    ["pos-beta-4", "beta4"],
     ["pos-cap", "cap"],
     ["pos-trim", "trim"],
     ["pos-method", "method"],
     ["pos-support-kind", "support"],
   ].forEach(([id, key]) => control(byId(id), state, key));
   byId("pos-go4").onclick = () => state.set({ beta: 4 });
-  byId("pos-go3").onclick = () => state.set({ beta: 3 });
+  byId("pos-go3").onclick = () => state.set({ beta4: 3 });
 
   /* ---------- Step 1: mirrored histogram and weight strip ---------- */
   const W1 = 640,
@@ -414,13 +430,20 @@
     byId("pos-rep-caption").textContent = cur
       ? `At β = ${fmt(cur.beta, 1)}: IPW's SD is ${fmt(cur.ipw.sd / G[0].ipw.sd, 1)} times its no-separation value; AIPW's is ${fmt(cur.aipw.sd / G[0].aipw.sd, 1)} times.`
       : "";
+    const end = G.at(-1),
+      done = cur && cur.beta >= end.beta - 1e-9;
+    byId("pos-rep-explain").innerHTML = !done
+      ? `<p>The sweep has reached β = ${cur ? fmt(cur.beta, 1) : "0"}. Let it run to β = ${fmt(end.beta, 0)} (or press Step) before reading the lesson from it.</p>`
+      : `<p>Two things go wrong for IPW. Its spread explodes, and its average drifts upward (bias ${fmt(end.ipw.bias, 2)} at β = ${fmt(end.beta, 0)}).</p>` +
+        "<p>Most samples contain none of the rare mild patients who were treated anyway. So the treated arm's weighted mean comes mostly from sicker patients with higher outcomes, and the control arm's from milder ones. When a sample does contain such a patient, normalizing the weights limits how far one patient can pull the mean back, so the rare samples do not cancel the common ones and the average over samples stays above 2.</p>" +
+        `<p>AIPW stays centred because its outcome model is right, but its spread still grows about ${fmt(end.aipw.sd / G[0].aipw.sd, 0)}-fold. Double robustness does not buy immunity from thin overlap; the efficiency bound itself grows with E[1/g(X)].</p>`;
   }
   byId("pos-rep-table").innerHTML = table(
     ["β", "IPW bias", "IPW SD", "AIPW bias", "AIPW SD", "Median smaller-arm ESS"],
     G.map((v) => [fmt(v.beta, 1), `${fmt(v.ipw.bias)} ± ${fmt(2 * v.ipw.mcse)}`, fmt(v.ipw.sd), `${fmt(v.aipw.bias)} ± ${fmt(2 * v.aipw.mcse)}`, fmt(v.aipw.sd), fmt(v.medianMinESS, 0)]),
     "400 repeated samples of 500 patients at each separation (± is 2 Monte Carlo SE)",
   );
-  player(byId("pos-rep-player"), {
+  const repPlayer = player(byId("pos-rep-player"), {
     duration: 6000,
     label: "Separation β",
     formatValue: (t) => (4 * t).toFixed(1),
@@ -429,6 +452,8 @@
       drawRep();
     },
   });
+  onFinish(byId("pos-rep-player"), () => repPlayer.set(1));
+  onFinish(byId("pos-mirror-player"), () => mirrorPlayer.set(1));
 
   /* ---------- Step 4: responses ---------- */
   const repMemo = new Map();
@@ -445,7 +470,7 @@
     return null;
   }
   function drawResponses() {
-    const { beta, cap, trim, method } = state.get(),
+    const { beta4: beta, cap, trim, method } = state.get(),
       { rows, r } = analysis(beta, cap, trim),
       trimT = P.trimmedTarget(beta, trim),
       ato = P.atoTarget(beta),
@@ -457,6 +482,7 @@
       T = targets[method];
     byId("pos-cap-v").textContent = ord(cap);
     byId("pos-trim-v").textContent = fmt(trim, 2);
+    byId("pos-beta-4-v").textContent = fmt(beta, 2);
     byId("pos-cap").closest("label").style.opacity = method === "cap" ? 1 : 0.55;
     byId("pos-trim").closest("label").style.opacity = method === "trim" ? 1 : 0.55;
     // Population figure.
@@ -565,7 +591,7 @@
     } catch {}
     const who = { ate: "everyone in the cohort (ATE)", att: "the people who were actually treated (ATT)", atc: "the people who actually received control (ATC)" }[target] || "everyone in the cohort (ATE)";
     byId("pos-contract").innerHTML =
-      `<strong>Your estimand contract</strong> from the first lesson asks about ${esc(who)}. ` +
+      `<strong>Your estimand contract</strong> from the lesson "What are we trying to learn?" asks about ${esc(who)}. ` +
       (target === "att"
         ? "For the ATT only one side of positivity is needed: every kind of treated patient must have some chance of control, g(x) < 1. The thin left tail (treated patients with tiny ĝ) is no longer a problem; the right tail still is. "
         : target === "atc"

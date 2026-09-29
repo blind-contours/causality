@@ -688,7 +688,7 @@ ${CausalEstimandScenes.outcomesHTML}
       );
     });
     f.caption(
-      "You wrote most of the question (stage 1) and tested identification (stage 2). The next lesson returns to stage 1 to finish the question with intercurrent events; the statistical model (stage 3) and the estimator (stage 4) come after.",
+      "You wrote most of the question (stage 1) and tested identification (stage 2). The next lesson, “When something happens after treatment starts”, returns to stage 1 to finish the question with intercurrent events; the statistical model (stage 3) and the estimator (stage 4) come after.",
     );
     f.readout([
       ["stages done here", "2 of 6"],

@@ -1,28 +1,40 @@
-/* Repeated-sample experiment for lesson 23 (targeted survival).
- * Four nuisance configurations × REPS seeded studies of size N. For each study:
+/* Repeated-sample experiment for the lesson "Targeted survival curves and ΔRMST".
+ * Every combination of an event-hazard model, a censoring model and a propensity model
+ * (4 × 3 × 3 = 36 configurations) × REPS seeded studies of size N. Study r uses seed SEED0 + r in every
+ * configuration, so configurations differ only in the working models. For each study:
  * treated-arm KM, IPTW+IPCW weighted KM, g-formula plug-in, one-step and TMLE for S_1(τ) and ΔRMST(τ).
- * Writes science/targeted-survival-data.json. Run: node scripts/targeted-survival-precompute.cjs */
+ *   event: right (month factor + a separate effect per (a, x) cell), noint (severity linear, no a × x
+ *          interaction), notime (no time trend), drop (severity left out: the extreme case)
+ *   cens:  right, high (severity coded high vs not: wrong functional form), drop
+ *   prop:  right, merge (mid and high severity merged), drop
+ * Writes science/targeted-survival-data.json. Run: node scripts/targeted-survival-precompute.cjs
+ * Deterministic: the same seeds give byte-identical output. */
 const fs = require("fs"),
   path = require("path"),
   T = require("../science/targeted-survival.js");
-const N = 800, REPS = 1000, TAU = 12, SEED0 = 7000;
+// TS_REPS and TS_OUT override the repeat count and output path (used only to check determinism quickly).
+const N = 800, REPS = +process.env.TS_REPS || 1000, TAU = 12, SEED0 = 7000, Z = 1.959964;
 const wS = T.weightsS(TAU), wR = T.weightsRMST(TAU),
   truth = { s1: T.truth(1, wS), drmst: T.truth(1, wR) - T.truth(0, wR) },
   bound = { s1: T.efficiencyBound(wS).variance, drmst: T.efficiencyBound(wR, { 1: 1, 0: -1 }).variance },
-  configs = [
-    { event: "right", nuis: "right" },
-    { event: "wrong", nuis: "right" },
-    { event: "right", nuis: "wrong" },
-    { event: "wrong", nuis: "wrong" },
-  ],
-  estimators = ["km", "wkm", "plugin", "onestep", "tmle"];
-const out = { n: N, reps: REPS, tau: TAU, seed0: SEED0, truth, bound, configs: [] };
+  LEVELS = { event: ["right", "noint", "notime", "drop"], cens: ["right", "high", "drop"], prop: ["right", "merge", "drop"] },
+  configs = [];
+for (const event of LEVELS.event) for (const cens of LEVELS.cens) for (const prop of LEVELS.prop) configs.push({ event, cens, prop });
+const estimators = ["km", "wkm", "plugin", "onestep", "tmle"];
+const out = { n: N, reps: REPS, tau: TAU, seed0: SEED0, truth, bound, levels: LEVELS, configs: [] };
+const r6 = (v) => +v.toFixed(6);
 const t0 = Date.now();
+// Simulate each study once and reuse it across configurations.
+const studies = Array.from({ length: REPS }, (_, r) => {
+  const rows = T.simulate(N, SEED0 + r);
+  return { rows, c: T.counts(rows) };
+});
 for (const spec of configs) {
-  const res = { s1: {}, drmst: {} }, cover = { s1: { onestep: 0, tmle: 0 }, drmst: { onestep: 0, tmle: 0 } }, ses = { s1: [], drmst: [] };
+  const res = { s1: {}, drmst: {} }, se = { s1: { onestep: [], tmle: [] }, drmst: { onestep: [], tmle: [] } },
+    gap = { s1: { tmle: [], wkm: [] }, drmst: { tmle: [], wkm: [] } };
   estimators.forEach((e) => { res.s1[e] = []; res.drmst[e] = []; });
-  for (let r = 0; r < REPS; r++) {
-    const rows = T.simulate(N, SEED0 + r), c = T.counts(rows), nu = T.fit(rows, spec, c);
+  for (const { rows, c } of studies) {
+    const nu = T.fit(rows, spec, c);
     const km = [0, 1].map((a) => T.kmArm(c, a)), wkm = [0, 1].map((a) => T.weightedKM(c, a, nu));
     res.s1.km.push(km[1][TAU]); res.s1.wkm.push(wkm[1][TAU]);
     res.drmst.km.push(T.rmstOf(km[1], TAU) - T.rmstOf(km[0], TAU));
@@ -34,47 +46,58 @@ for (const spec of configs) {
     const dO = T.contrast(rm[1], rm[0]), dT = T.contrast(rt[1], rt[0]);
     res.s1.onestep.push(os.est); res.s1.tmle.push(tm.est);
     res.drmst.onestep.push(dO.est); res.drmst.tmle.push(dT.est);
-    ses.s1.push(os.se); ses.drmst.push(dO.se);
-    const cov = (e, se, tr) => +(Math.abs(e - tr) <= 1.959964 * se);
-    cover.s1.onestep += cov(os.est, os.se, truth.s1); cover.s1.tmle += cov(tm.est, tm.se, truth.s1);
-    cover.drmst.onestep += cov(dO.est, dO.se, truth.drmst); cover.drmst.tmle += cov(dT.est, dT.se, truth.drmst);
+    se.s1.onestep.push(os.se); se.s1.tmle.push(tm.se); se.drmst.onestep.push(dO.se); se.drmst.tmle.push(dT.se);
+    for (const tg of ["s1", "drmst"]) {
+      const o = res[tg].onestep.at(-1);
+      gap[tg].tmle.push(Math.abs(res[tg].tmle.at(-1) - o));
+      gap[tg].wkm.push(Math.abs(res[tg].wkm.at(-1) - o));
+    }
   }
   const summary = {};
-  for (const target of ["s1", "drmst"]) {
-    summary[target] = {};
+  for (const tg of ["s1", "drmst"]) {
+    summary[tg] = {};
     for (const e of estimators) {
-      const v = res[target][e], m = v.reduce((s, x) => s + x, 0) / v.length,
+      const v = res[tg][e], m = v.reduce((s, x) => s + x, 0) / v.length,
         sd = Math.sqrt(v.reduce((s, x) => s + (x - m) ** 2, 0) / (v.length - 1));
-      summary[target][e] = {
-        mean: +m.toFixed(5), bias: +(m - truth[target]).toFixed(5), sd: +sd.toFixed(5),
-        mcse: +(sd / Math.sqrt(v.length)).toFixed(5),
+      summary[tg][e] = {
+        mean: r6(m), bias: r6(m - truth[tg]), sd: r6(sd), mcse: r6(sd / Math.sqrt(v.length)),
+        // Coverage of est ± 1.96 × (repeated-sample SD): what an interval of the right width would give,
+        // so it isolates the damage done by bias. Available for every estimator.
+        oracleCoverage: v.filter((x) => Math.abs(x - truth[tg]) <= Z * sd).length / REPS,
         values: v,
       };
     }
-    summary[target].onestep.coverage = cover[target].onestep / REPS;
-    summary[target].tmle.coverage = cover[target].tmle / REPS;
-    summary[target].onestep.meanSE = +(ses[target].reduce((s, x) => s + x, 0) / REPS).toFixed(5);
+    for (const e of ["onestep", "tmle"]) {
+      const s = se[tg][e];
+      summary[tg][e].coverage = res[tg][e].filter((x, i) => Math.abs(x - truth[tg]) <= Z * s[i]).length / REPS;
+      summary[tg][e].meanSE = r6(s.reduce((a, b) => a + b, 0) / REPS);
+    }
+    summary[tg].gap = {
+      tmle: r6(gap[tg].tmle.reduce((a, b) => a + b, 0) / REPS),
+      wkm: r6(gap[tg].wkm.reduce((a, b) => a + b, 0) / REPS),
+    };
   }
   out.configs.push({ spec, ...summary });
-  console.log(JSON.stringify(spec), "S1", Object.fromEntries(estimators.map((e) => [e, [summary.s1[e].bias, summary.s1[e].sd]])), "cov", summary.s1.onestep.coverage, summary.s1.tmle.coverage);
-  console.log("   dRMST", Object.fromEntries(estimators.map((e) => [e, [summary.drmst[e].bias, summary.drmst[e].sd]])), "cov", summary.drmst.onestep.coverage, summary.drmst.tmle.coverage);
+  const line = (tg) => estimators.map((e) => `${e} ${summary[tg][e].bias.toFixed(4)}/${summary[tg][e].sd.toFixed(4)}`).join("  ");
+  console.log(JSON.stringify(spec), "S1", line("s1"), "cov", summary.s1.onestep.coverage, summary.s1.tmle.coverage);
+  console.log("   dRMST", line("drmst"), "cov", summary.drmst.onestep.coverage, summary.drmst.tmle.coverage);
 }
 // Replace raw values by histograms on one shared grid per target (keeps the JSON small).
 const BINS = 48;
-for (const target of ["s1", "drmst"]) {
-  const all = out.configs.flatMap((c) => estimators.flatMap((e) => c[target][e].values)),
-    lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.02;
-  out.domain = out.domain || {};
-  out.domain[target] = [+(lo - pad).toFixed(4), +(hi + pad).toFixed(4)];
-  const [a, b] = out.domain[target];
+out.domain = {};
+for (const tg of ["s1", "drmst"]) {
+  const all = out.configs.flatMap((c) => estimators.flatMap((e) => c[tg][e].values)),
+    lo = all.reduce((m, v) => Math.min(m, v), Infinity), hi = all.reduce((m, v) => Math.max(m, v), -Infinity), pad = (hi - lo) * 0.02;
+  out.domain[tg] = [+(lo - pad).toFixed(4), +(hi + pad).toFixed(4)];
+  const [a, b] = out.domain[tg];
   for (const c of out.configs)
     for (const e of estimators) {
       const h = new Array(BINS).fill(0);
-      c[target][e].values.forEach((v) => h[Math.min(BINS - 1, Math.floor(((v - a) / (b - a)) * BINS))]++);
-      c[target][e].hist = h;
-      delete c[target][e].values;
+      c[tg][e].values.forEach((v) => h[Math.min(BINS - 1, Math.floor(((v - a) / (b - a)) * BINS))]++);
+      c[tg][e].hist = h;
+      delete c[tg][e].values;
     }
 }
 out.bins = BINS;
 console.log("bound SD s1", Math.sqrt(bound.s1 / N), "drmst", Math.sqrt(bound.drmst / N), "sec", (Date.now() - t0) / 1000);
-fs.writeFileSync(path.join(__dirname, "../science/targeted-survival-data.json"), JSON.stringify(out));
+fs.writeFileSync(process.env.TS_OUT || path.join(__dirname, "../science/targeted-survival-data.json"), JSON.stringify(out));

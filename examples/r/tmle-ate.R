@@ -1,6 +1,11 @@
-# Lesson 07: a hand-rolled TMLE for the ATE with a binary outcome.
+# Where the Clever Covariate Comes From: a hand-rolled TMLE for the ATE, binary outcome.
 # Same X and A as the ATE study; the outcome is now binary.
-# In practice tmle::tmle() (or lmtp) does this with Super Learner fits.
+#
+# In practice: tmle::tmle(Y, A, W, family = "binomial", Q.SL.library = ...,
+# g.SL.library = ...) runs this logistic fluctuation with SuperLearner fits and
+# reports the ATE with its influence-function SE (plus RR and OR for binary Y).
+# lmtp::lmtp_tmle() with shift = static_binary_on and static_binary_off, then
+# lmtp::lmtp_contrast(), gives the same contrast in the lmtp framework.
 set.seed(20260925)
 n <- 2000
 X <- rbinom(n, 1, 0.35)

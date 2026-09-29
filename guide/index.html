@@ -6,7 +6,7 @@
     <title>Teacher's guide · Causality</title>
     <meta
       name="description"
-      content="A companion for educators: who the Causality course is for, how to run it as a class, three-week and six-week schedules, and a printable page for each of the 21 core lessons."
+      content="A companion for educators: who the Causality course is for, how to use the placement quiz and the Tour, three-week and six-week schedules, an assessment with answers, and a printable page for every core lesson with discussion questions, an answer key, an activity and a slide-free lecture outline."
     />
     <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -48,25 +48,94 @@
         <h1 id="g-title">Teacher's guide</h1>
         <p class="lede">
           Everything you need to teach Causality to a room of people: who it is
-          for, how to pace it, and, for every lesson, what to ask while the
-          figure moves, where students usually go wrong, and a short activity
-          for class time.
+          for, where each student should start, how to pace it, and, for every
+          lesson, discussion questions with an answer key, one activity for
+          class time, the misconceptions students bring, and a lecture you can
+          give from the course's own figures, no slides needed.
         </p>
         <ul class="g-glance" id="g-glance" aria-label="The course at a glance"></ul>
-        <button type="button" class="g-print-btn" onclick="window.print()">
-          Print or save as PDF (one lesson per page)
-        </button>
+        <div class="g-print-bar">
+          <button type="button" class="g-print-btn" onclick="window.print()">
+            Print or save as PDF (one lesson per page)
+          </button>
+          <label class="g-answers-toggle">
+            <input type="checkbox" id="g-with-answers" />
+            Show every answer key, and include them when printing
+          </label>
+        </div>
       </section>
 
       <nav class="g-toc" aria-labelledby="toc-title">
         <h2 id="toc-title">Contents</h2>
         <ol id="g-toc-list">
+          <li><a href="#start">Start here: the placement quiz and the Tour</a></li>
           <li><a href="#educators">For educators</a></li>
           <li><a href="#schedules">Suggested schedules</a></li>
+          <li><a href="#assessment">Assessment: six exam questions</a></li>
           <li><a href="#lessons">Lesson by lesson</a><ol id="g-toc-lessons"></ol></li>
           <li><a href="#elective">The elective branch</a></li>
         </ol>
       </nav>
+
+      <section class="g-section" id="start" aria-labelledby="start-title">
+        <h2 id="start-title">Start here: the placement quiz, the Tour and this guide</h2>
+        <div class="g-intro">
+          <section>
+            <h3>The Tour, for a first session</h3>
+            <p>
+              <a href="../tour.html">The 45-minute tour</a> visits ten key
+              figures, from the course's 100 patients to a targeted survival
+              curve. Each stop links straight into its lesson, and each of those
+              figures appears on that lesson's page below under “Key figure”.
+            </p>
+            <p>
+              Project it in the first session as a map of the whole course, or
+              send it as pre-reading. For a single talk, a journal club or grand
+              rounds, the Tour is the talk.
+            </p>
+          </section>
+          <section>
+            <h3>The placement quiz, for who starts where</h3>
+            <p>
+              <a href="../index.html#placement">“Where should I start?”</a> on
+              the course map asks eight short questions, each with an “I'm not
+              sure” answer, and recommends one of six starting points (the
+              beginning, Design, the payoff, the geometry, estimation, or Trust
+              the answer) plus a few lessons to review.
+            </p>
+            <p>
+              It runs in the student's browser and sends you nothing, so ask
+              students to write down their result. Its rules were written by
+              hand from the course content and have not been validated as a
+              test: use it to start a conversation and to group students, not to
+              grade them.
+            </p>
+          </section>
+          <section>
+            <h3>A first session that uses both</h3>
+            <ul>
+              <li><b>10 minutes:</b> everyone takes the placement quiz and notes the starting point.</li>
+              <li><b>25 minutes:</b> project the first five Tour stops; stop at each figure and ask its question.</li>
+              <li><b>15 minutes:</b> pairs that placed differently explain one Tour figure to each other.</li>
+              <li><b>10 minutes:</b> agree the schedule. Students who placed later may skip earlier sessions, but should work through the review lessons the quiz lists.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>What each lesson page gives you</h3>
+            <p>
+              Goals, the key figure with questions to ask while it plays,
+              three discussion questions with a collapsible answer key, one
+              in-class activity with materials and what good work looks like,
+              the misconceptions students often bring, and a slide-free lecture
+              outline that walks through the lesson's own figures.
+            </p>
+            <p>
+              Answer keys are hidden when you print, unless you tick “Show every
+              answer key” at the top of this page.
+            </p>
+          </section>
+        </div>
+      </section>
 
       <section class="g-section" id="educators" aria-labelledby="edu-title">
         <h2 id="edu-title">For educators</h2>
@@ -99,8 +168,8 @@
             </ul>
             <p>
               No measure theory. Every derivation is built from sums students
-              can see. R is optional: six lessons carry a short base R script
-              with its verified output.
+              can see. R is optional: several lessons carry a short base R script
+              with its verified output, and each lesson page below says which.
             </p>
           </section>
           <section>
@@ -129,9 +198,9 @@
             <ul>
               <li><b>Before class</b>, students complete the lessons for that session (the times below are estimates of working time).</li>
               <li><b>10 minutes:</b> retrieval. Each lesson opens with two questions from the one before; ask them cold.</li>
-              <li><b>20 minutes:</b> project the key figure in Explore mode and ask the questions listed under “Ask while it plays”.</li>
-              <li><b>20 minutes:</b> the in-class activity, in pairs or small groups.</li>
-              <li><b>10 minutes:</b> discussion questions, then the lesson's “Try a new case” as an exit ticket.</li>
+              <li><b>20 minutes:</b> project the lesson in Explore mode and follow its slide-free lecture outline.</li>
+              <li><b>15 to 20 minutes:</b> the in-class activity, in pairs or small groups.</li>
+              <li><b>10 minutes:</b> one discussion question, then the lesson's “Try a new case” as an exit ticket. Use the transfer check as an exit ticket, not as the activity.</li>
             </ul>
           </section>
           <section>
@@ -187,19 +256,36 @@
         <h2 id="sched-title">Suggested schedules</h2>
         <p>
           Both follow the course order. The three-week plan is a promise about
-          pacing, not about outcomes: it fits the 21 core lessons into nine
-          sessions. The six-week plan leaves room for every activity and adds
+          pacing, not about outcomes: it fits the <span id="g-core-count">core</span>
+          lessons into nine sessions. The six-week plan leaves room for every activity and adds
           the elective as an optional seventh week.
         </p>
         <div id="g-schedules"></div>
+      </section>
+
+      <section class="g-section" id="assessment" aria-labelledby="assess-title">
+        <h2 id="assess-title">Assessment: six exam questions</h2>
+        <p>
+          Six written questions that span the course, each drawing on two to
+          four lessons. They suit a take-home or a closed-book final. Model
+          answers are in the collapsible keys; they are hidden when printing
+          unless you tick “Show every answer key” at the top of the page.
+        </p>
+        <ol class="g-assess" id="g-assess"></ol>
       </section>
 
       <section class="g-section" id="lessons" aria-labelledby="lessons-title">
         <h2 id="lessons-title">Lesson by lesson</h2>
         <p>
           One page per core lesson, in course order. Each links straight to the
-          lesson and to the step where its key figure lives. Printing gives
-          every lesson its own page.
+          lesson and to the step where its key figure lives. Printing starts
+          every lesson on a new page.
+        </p>
+        <p class="g-note">
+          The misconceptions listed for each lesson come from teaching
+          experience and from the literature, not from measured data on this
+          course's students. Where a published source describes the
+          misconception or its correction, it is cited.
         </p>
         <div id="g-lessons"></div>
       </section>
@@ -242,36 +328,47 @@
             if (!ch.elective) core.push(u.id);
           }),
         );
+        const coreChapters = C.chapters.filter((ch) => !ch.elective && ch.units.length).length;
+        const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
         const number = (id) => core.indexOf(id) + 1;
         const lessonHref = (id, anchor) =>
           "../lessons/" + units[id].file + (anchor ? "#" + encodeURIComponent(anchor) : "");
         const hm = (m) => (m >= 60 ? Math.floor(m / 60) + " h " + (m % 60 ? (m % 60) + " min" : "").trim() : m + " min");
+        const guideById = Object.fromEntries(G.lessons.map((l) => [l.id, l]));
+        const pending = G.pending || {};
+        const key = (html) => `<details class="g-key"><summary>Answer key</summary><div class="g-key-body">${html}</div></details>`;
+        const readingItem = (r) =>
+          `<li>${r.href ? `<a href='${esc(r.href)}'>${esc(r.t)}</a>` : esc(r.t)}</li>`;
 
         /* At a glance */
         const coreMinutes = core.reduce((s, id) => s + units[id].minutes, 0);
         document.getElementById("g-glance").innerHTML = [
-          [core.length, "core lessons in seven units"],
+          [core.length, `core lessons in ${words[coreChapters] || coreChapters} units`],
           [hm(coreMinutes), "of estimated lesson time"],
           [G.elective.units.length, "elective laboratories"],
           ["Free", "and openly licensed"],
         ]
           .map(([b, s]) => `<li><b>${esc(b)}</b><span>${esc(s)}</span></li>`)
           .join("");
+        document.getElementById("g-core-count").textContent = core.length + " core";
 
         /* Contents */
         document.getElementById("g-toc-lessons").innerHTML = core
           .map((id) => `<li><a href="#guide-${id}">${number(id)}. ${esc(units[id].title)}</a></li>`)
           .join("");
 
-        /* Schedules */
+        /* Schedules. Units the curriculum does not (yet) contain are skipped; core units a schedule
+           does not place yet are listed under it, so a newly added lesson is never silently lost. */
         document.getElementById("g-schedules").innerHTML = G.schedules
           .map((s) => {
-            const total = s.sessions.reduce(
-              (t, x) => t + x.units.reduce((a, id) => a + units[id].minutes, 0),
-              0,
-            );
+            const sessions = s.sessions
+              .map((x) => Object.assign({}, x, { units: x.units.filter((id) => units[id]) }))
+              .filter((x) => x.units.length);
+            const placed = new Set(sessions.flatMap((x) => x.units));
+            const unplaced = core.filter((id) => !placed.has(id));
+            const total = sessions.reduce((t, x) => t + x.units.reduce((a, id) => a + units[id].minutes, 0), 0);
             let k = 0;
-            const rows = s.sessions
+            const rows = sessions
               .map((x) => {
                 k += 1;
                 const mins = x.units.reduce((a, id) => a + units[id].minutes, 0);
@@ -284,24 +381,65 @@
                 return `<li><span class="when">Week ${x.week} · S${k}</span><span class="theme">${esc(x.theme)}</span><span class="mins">${mins} min</span><span class="units">${list}</span></li>`;
               })
               .join("");
-            return `<section aria-labelledby="sched-${s.id}"><div class="g-sched-head"><h3 id="sched-${s.id}">${esc(s.title)}</h3><span class="g-total">${s.sessions.length} sessions · ${hm(total)} of lessons</span></div><p class="g-note">${esc(s.pace)}</p><ol class="g-sched">${rows}</ol></section>`;
+            const extra = unplaced.length
+              ? `<p class="g-note">Not yet placed in this schedule: ${unplaced.map((id) => `<a href="#guide-${id}">${esc(units[id].title)}</a>`).join(", ")}. Add it as a final session.</p>`
+              : "";
+            return `<section aria-labelledby="sched-${s.id}"><div class="g-sched-head"><h3 id="sched-${s.id}">${esc(s.title)}</h3><span class="g-total">${sessions.length} sessions · ${hm(total)} of lessons</span></div><p class="g-note">${esc(s.pace)}</p><ol class="g-sched">${rows}</ol>${extra}</section>`;
+          })
+          .join("");
+
+        /* Assessment */
+        document.getElementById("g-assess").innerHTML = G.assessment
+          .map((x) => {
+            const covers = x.covers
+              .filter((id) => units[id])
+              .map((id) => `<a href="#guide-${id}">${esc(units[id].title)}</a>`)
+              .join(", ");
+            return `<li><p class="g-q">${esc(x.q)}</p><p class="g-covers">Draws on ${covers}.</p>${key(`<p>${esc(x.a)}</p>`)}</li>`;
           })
           .join("");
 
         /* Lessons */
-        const guideById = Object.fromEntries(G.lessons.map((l) => [l.id, l]));
-        const readingItem = (r) =>
-          `<li>${r.href ? `<a href='${esc(r.href)}'>${esc(r.t)}</a>` : esc(r.t)}</li>`;
+        const head = (id, u, g) => `<div class="g-kicker">Lesson ${number(id)} · ${esc(stageName[u.stage] || u.stage)}${g && g.optional ? " · optional aside" : ""}</div>
+  <h4 id="t-${id}">${esc(u.title)}</h4>
+  <p class="g-blurb">${esc(u.blurb)}</p>
+  <span class="g-print-url">lessons/${esc(u.file)}</span>`;
+        const activity = (a) => `<section class="wide g-activity"><h5>In-class activity</h5>
+  <p class="g-act-title"><b>${esc(a.title)}</b></p>
+  <ul class="g-chips" aria-label="Activity at a glance"><li>${esc(a.format)}</li><li>${a.minutes} minutes</li><li>${esc(a.groups)}</li></ul>
+  <div class="g-act-grid">
+    <div><h6>Materials</h6><ul>${a.materials.map((m) => `<li>${esc(m)}</li>`).join("")}</ul></div>
+    <div><h6>Steps</h6><ol>${a.steps.map((m) => `<li>${esc(m)}</li>`).join("")}</ol></div>
+  </div>
+  <p><b>Collect:</b> ${esc(a.collect)}</p>
+  <p><b>What good work looks like:</b> ${esc(a.good)}</p>
+</section>`;
+        const myth = (m) =>
+          `<div class="g-myth"><p class="m"><b>Students may think:</b> ${esc(m.myth)}</p><p class="f"><b>The lesson shows:</b> ${esc(m.fix)}</p><p class="g-where">Addressed in the step “${esc(m.where)}”. ${
+            m.source
+              ? `Source: ${m.source.href ? `<a href='${esc(m.source.href)}'>${esc(m.source.t)}</a>` : esc(m.source.t)}.`
+              : "From teaching experience."
+          }</p></div>`;
         let html = "",
           lastChapter = null,
           first = true;
         core.forEach((id) => {
           const u = units[id],
             g = guideById[id];
-          if (!g) return;
           if (u.chapter !== lastChapter) {
             html += `<h3 class="g-chapter">${esc(u.chapter.title)}</h3>`;
             lastChapter = u.chapter;
+          }
+          const cls = `g-lesson${first ? " g-first" : ""}`;
+          first = false;
+          if (!g) {
+            /* A lesson the curriculum lists before its guide notes exist (see `pending` in lessons.js). */
+            html += `<article class="${cls} g-pending" id="guide-${id}" style="--stage: var(--s-${u.stage})" aria-labelledby="t-${id}">
+  ${head(id, u, null)}
+  <div class="g-open-links"><a class="course-btn" href='${lessonHref(id)}'>Open the lesson</a></div>
+  <p class="g-note">${esc(pending[id] || "Guide notes for this lesson are still being written.")}</p>
+</article>`;
+            return;
           }
           const prev = (u.prerequisites || []).map((p) => units[p]).filter(Boolean);
           const builds = prev.length
@@ -315,11 +453,8 @@
             : "";
           const rInline = g.rInline ? `<p class="g-note">${esc(g.rInline)}</p>` : "";
           const rBlock = r || rInline ? r + rInline : `<p class="g-note">No R script for this lesson.</p>`;
-          html += `<article class="g-lesson${first ? " g-first" : ""}" id="guide-${id}" style="--stage: var(--s-${u.stage})" aria-labelledby="t-${id}">
-  <div class="g-kicker">Lesson ${number(id)} · ${esc(stageName[u.stage] || u.stage)}${g.optional ? " · optional aside" : ""}</div>
-  <h4 id="t-${id}">${esc(u.title)}</h4>
-  <p class="g-blurb">${esc(u.blurb)}</p>
-  <span class="g-print-url">lessons/${esc(u.file)}</span>
+          html += `<article class="${cls}" id="guide-${id}" style="--stage: var(--s-${u.stage})" aria-labelledby="t-${id}">
+  ${head(id, u, g)}
   <dl class="g-facts">
     <dt>Time</dt><dd>About ${u.minutes} minutes of lesson work (estimate)</dd>
     <dt>Builds on</dt><dd>${builds}</dd>
@@ -332,31 +467,44 @@
   <div class="g-body">
     <section><h5>Learning goals</h5><ol>${g.goals.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></section>
     <section><h5>Key figure</h5><div class="g-fig"><p class="g-fig-name">${figName}</p><p class="g-note">Ask while it plays:</p><ul>${g.figure.ask.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div></section>
-    <section><h5>Discussion questions</h5><ol>${g.discuss.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></section>
-    <section><h5>Common misconceptions</h5>${g.misconceptions
-      .map((m) => `<div class="g-myth"><p class="m"><b>Students may think:</b> ${esc(m.myth)}</p><p class="f"><b>The lesson shows:</b> ${esc(m.fix)}</p></div>`)
-      .join("")}</section>
-    <section class="wide g-activity"><h5>In-class activity</h5><p>${esc(g.activity)}</p></section>
+    <section class="wide g-discuss"><h5>Discussion questions</h5><ol>${g.discuss
+      .map((d) => `<li><p>${esc(d.q)}</p>${key(`<p>${esc(d.a)}</p>`)}</li>`)
+      .join("")}</ol></section>
+    ${activity(g.activity)}
+    <section class="g-myths"><h5>Misconceptions students often bring</h5>${g.misconceptions.map(myth).join("")}</section>
+    <section class="g-outline"><h5>Slide-free lecture outline</h5><p class="g-note">Project the lesson in Explore mode and walk through it:</p><ol>${g.outline
+      .map((o) => `<li><b>${esc(o.at)}.</b> Show ${esc(o.show)}. <span class="g-ask">Ask: ${esc(o.ask)}</span></li>`)
+      .join("")}</ol></section>
     <section class="g-r-wrap"><h5>In R</h5>${rBlock}</section>
     <section class="g-readings"><h5>Primary readings</h5>${g.readings.length ? `<ul>${g.readings.map(readingItem).join("")}</ul>` : ""}${g.readingsNote ? `<p class="g-note">${esc(g.readingsNote)}</p>` : ""}</section>
   </div>
 </article>`;
-          first = false;
         });
         document.getElementById("g-lessons").innerHTML = html;
 
         /* Elective */
         const E = G.elective;
-        const eMinutes = E.units.reduce((s, id) => s + units[id].minutes, 0);
+        const eUnits = E.units.filter((id) => units[id]);
+        const eMinutes = eUnits.reduce((s, id) => s + units[id].minutes, 0);
         document.getElementById("g-elective").innerHTML = `<p>${esc(E.intro)}</p>
 <ol class="g-sched">${E.units
-          .map(
-            (id, k) =>
-              `<li><span class="when">E${k + 1}</span><span class="theme"><a href='${lessonHref(id)}'>${esc(units[id].title)}</a></span><span class="mins">${units[id].minutes} min</span><span class="units">${esc(E.uses[k])}</span></li>`,
+          .map((id, k) =>
+            units[id]
+              ? `<li><span class="when">E${k + 1}</span><span class="theme"><a href='${lessonHref(id)}'>${esc(units[id].title)}</a></span><span class="mins">${units[id].minutes} min</span><span class="units">${esc(E.uses[k])}</span></li>`
+              : "",
           )
           .join("")}</ol>
-<p>About ${eMinutes} minutes in all. Prerequisites: ${(units[E.units[0]].prerequisites || []).map((p) => esc(units[p].title)).join(" and ")}. ${esc(E.suggestion)}</p>
+<p>About ${eMinutes} minutes in all. Prerequisites: ${((eUnits[0] && units[eUnits[0]].prerequisites) || []).map((p) => esc(units[p] ? units[p].title : p)).join(" and ")}. ${esc(E.suggestion)}</p>
 <h3 class="g-chapter">Readings</h3><ul class="g-readings">${E.readings.map(readingItem).join("")}</ul>`;
+
+        /* Answer keys: one switch opens every key on screen and keeps them in print. */
+        const toggle = document.getElementById("g-with-answers");
+        const setAnswers = (on) => {
+          document.body.classList.toggle("g-with-answers", on);
+          document.querySelectorAll("details.g-key").forEach((d) => (d.open = on));
+        };
+        toggle.addEventListener("change", () => setAnswers(toggle.checked));
+        if (toggle.checked) setAnswers(true);
 
         if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
       })();

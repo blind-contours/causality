@@ -376,6 +376,124 @@ body.guide {
 .g-print-btn {
   font-size: 14.5px;
 }
+.g-print-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+.g-answers-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.g-answers-toggle input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--purple);
+}
+
+/* Answer keys, collapsible on screen, hidden in print unless requested */
+.g-key {
+  margin: 6px 0 10px;
+  border-left: 3px solid var(--purple);
+  background: var(--soft);
+  border-radius: 0 8px 8px 0;
+  padding: 2px 12px;
+}
+.g-key summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--purple);
+  padding: 8px 0;
+  min-height: 24px;
+}
+.g-key summary:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+.g-key-body p {
+  margin: 0 0 8px;
+}
+
+/* Assessment */
+.g-assess {
+  padding-left: 22px;
+  margin: 12px 0 0;
+}
+.g-assess > li {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.g-q {
+  margin: 0 0 6px;
+  font-size: 15.5px;
+}
+.g-covers {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Discussion, activity, misconceptions and the lecture outline inside a lesson */
+.g-discuss > ol > li {
+  margin: 8px 0 4px;
+}
+.g-discuss > ol > li > p {
+  margin: 0 0 2px;
+}
+.g-act-title {
+  margin: 2px 0 6px !important;
+  font-size: 16px !important;
+}
+.g-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0 0 8px !important;
+}
+.g-chips li {
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-family: "IBM Plex Mono", monospace;
+  padding: 2px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+}
+.g-act-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 4px 24px;
+}
+.g-body h6 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
+.g-where {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.g-ask {
+  display: block;
+  color: var(--muted);
+  font-style: italic;
+}
+.g-pending .g-note {
+  margin: 10px 0 0;
+}
 
 @media (max-width: 720px) {
   body.guide {
@@ -412,6 +530,15 @@ body.guide {
   .g-facts dd {
     margin-bottom: 6px;
   }
+  .g-act-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .g-assess {
+    padding-left: 18px;
+  }
+  .g-assess > li {
+    padding: 10px 12px;
+  }
 }
 
 /* Print: black on white whatever the screen theme, no navigation, one lesson per page. */
@@ -442,8 +569,63 @@ body.guide {
   .g-toc,
   .skip,
   .g-print-btn,
-  .g-open-links {
+  .g-open-links,
+  .g-answers-toggle {
     display: none !important;
+  }
+  body:not(.g-with-answers) .g-key {
+    display: none !important;
+  }
+  .g-key {
+    break-inside: avoid;
+    padding: 0 8px;
+    margin: 2px 0 6px;
+  }
+  .g-key summary {
+    list-style: none;
+    padding: 2px 0;
+    font-size: 8.5pt;
+  }
+  .g-key summary::-webkit-details-marker {
+    display: none;
+  }
+  #assessment {
+    break-before: page;
+  }
+  .g-assess > li {
+    box-shadow: none;
+    break-inside: avoid;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+  }
+  .g-q,
+  .g-covers,
+  .g-assess .g-key-body p {
+    font-size: 9.5pt;
+  }
+  .g-body > section.wide {
+    column-span: all;
+  }
+  .g-body > section.g-discuss,
+  .g-body > section.g-myths,
+  .g-body > section.g-outline {
+    break-inside: auto;
+  }
+  .g-discuss > ol > li,
+  .g-outline li,
+  .g-act-grid {
+    break-inside: avoid;
+  }
+  .g-chips li {
+    font-size: 8pt !important;
+  }
+  .g-where,
+  .g-ask {
+    font-size: 8.5pt;
+  }
+  .g-body h6 {
+    font-size: 9pt;
+    margin: 4px 0 2px;
   }
   .g-open {
     padding-top: 12px;

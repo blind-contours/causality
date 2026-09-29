@@ -417,3 +417,21 @@
 .pl-a-why {
   margin-top: 4px !important;
 }
+.pl-tour {
+  margin: 12px 0 16px;
+  font-size: 14.5px;
+  color: var(--ink);
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.pl-tour a {
+  font-weight: 500;
+}
+
+.pl-why + .pl-why {
+  margin-top: 8px;
+}
+.pl-why:has(+ .pl-why) {
+  margin-bottom: 8px;
+}

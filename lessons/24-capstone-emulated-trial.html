@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="One complete analysis of a simulated device registry: estimand, target trial protocol, positivity, a cross-fitted Super Learner, AIPW and TMLE with an influence-function interval, an E-value, and the paragraph that goes in the report."
+    />
+    <title>An emulated trial, end to end · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <link rel="stylesheet" href="../shared/r-drawer.css" />
+    <script src="../shared/r-drawer.js" defer></script>
+    <style>
+      /* Figures are drawn at their container's real width, so these sizes are real pixels. */
+      [data-lab="capstone"] svg.fig .tick,
+      [data-lab="capstone"] svg.fig .fig-text,
+      [data-lab="capstone"] svg.fig .ref-label { font-size: 13px; }
+      [data-lab="capstone"] svg.fig .fig-text.ink { font-size: 13.5px; }
+      [data-lab="capstone"] svg.fig .axis-label { font-size: 14px; }
+      [data-lab="capstone"] .cap-table td,
+      [data-lab="capstone"] .cap-table th { white-space: normal; vertical-align: top; text-align: left; }
+      [data-lab="capstone"] svg.fig { margin-inline: auto; }
+      /* A halo in the paper colour keeps labels readable where a reference line passes behind them. */
+      [data-lab="capstone"] svg.fig .fig-text { paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+      [data-lab="capstone"] .fig-controls select { width: 100%; }
+      [data-lab="capstone"] .cap-decision {
+        border-left: 3px solid var(--purple);
+        background: var(--soft);
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        margin: 12px 0;
+        font-size: 15px;
+      }
+      [data-lab="capstone"] .cap-report {
+        border: 1px solid var(--rule);
+        border-left: 4px solid var(--purple);
+        border-radius: 8px;
+        background: var(--paper);
+        padding: 4px 16px;
+        margin: 12px 0;
+      }
+      [data-lab="capstone"] .cap-qa details {
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin: 8px 0;
+        background: var(--paper);
+      }
+      [data-lab="capstone"] .cap-qa summary { cursor: pointer; font-weight: 500; min-height: 28px; }
+      [data-lab="capstone"] fieldset.cap-keep { border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; margin: 0; }
+      [data-lab="capstone"] fieldset.cap-keep legend { font-size: 13.5px; color: var(--muted); padding: 0 4px; }
+      [data-lab="capstone"] fieldset.cap-keep label { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+      [data-lab="capstone"] fieldset.cap-keep input { width: 20px; height: 20px; margin: 0; }
+      [data-lab="capstone"] .fig-controls select,
+      [data-lab="capstone"] .fig-controls button { min-height: 40px; }
+      [data-lab="capstone"] .fig-readout { overflow-wrap: anywhere; }
+      [data-lab="capstone"] .table-wrap table { font-size: 14px; }
+      @media (max-width: 720px) {
+        [data-lab="capstone"] .table-wrap table { font-size: 13px; }
+      }
+    </style>
+    <script src="../science/core.js"></script>
+    <script src="../science/capstone.js"></script>
+    <script src="../shared/visuals.js"></script>
+    <script src="../shared/anim.js"></script>
+  </head>
+  <body data-lesson="capstone">
+    <main class="wrap">
+      <div class="eyebrow">Causality · capstone</div>
+      <h1>An emulated trial, end to end</h1>
+      <p class="lede">
+        One registry, one question, and every tool from the course, used once and in order:
+        the estimand, the protocol, positivity, a Super Learner with cross-fitting, an
+        influence-function interval, an E-value, and the paragraph you would send to the heart team.
+      </p>
+      <noscript
+        >This lesson requires JavaScript for its figures. The computations are in
+        science/capstone.js and examples/r/capstone.R.</noscript
+      >
+      <div data-lab="capstone"></div>
+      <p class="sources">
+        Further reading:
+        Hernán and Robins (2016),
+        <a href="https://doi.org/10.1093/aje/kwv254">Using big data to emulate a target trial when a randomized trial is not available</a>,
+        <i>American Journal of Epidemiology</i> 183(8):758–764;
+        Cashin et al. (2025), the TARGET guideline for reporting target trial emulations, <i>JAMA</i>;
+        <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf">ICH E9(R1)</a>;
+        van der Laan, Polley and Hubbard (2007),
+        <a href="https://doi.org/10.2202/1544-6115.1309">Super Learner</a>,
+        <i>Statistical Applications in Genetics and Molecular Biology</i> 6(1);
+        Chernozhukov et al. (2018),
+        <a href="https://doi.org/10.1111/ectj.12097">Double/debiased machine learning for treatment and structural parameters</a>,
+        <i>The Econometrics Journal</i> 21(1):C1–C68;
+        Petersen et al. (2012),
+        <a href="https://doi.org/10.1177/0962280210386207">Diagnosing and responding to violations in the positivity assumption</a>;
+        VanderWeele and Ding (2017),
+        <a href="https://doi.org/10.7326/M16-2607">Sensitivity analysis in observational research: introducing the E-value</a>,
+        <i>Annals of Internal Medicine</i> 167(4):268–274;
+        FDA (2025), <a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/use-real-world-evidence-support-regulatory-decision-making-medical-devices">Use of Real-World Evidence To Support Regulatory Decision-Making for Medical Devices</a> (final guidance).
+        The registry is simulated and seeded; its truth is exact up to a one-million-patient Monte Carlo average.
+      </p>
+    </main>
+    <script src="../shared/curriculum.js"></script>
+    <script src="../shared/state.js"></script>
+    <script src="../shared/practice.js"></script>
+    <script src="../shared/course.js"></script>
+    <script src="../labs/common.js"></script>
+    <script src="../labs/capstone.js"></script>
+  </body>
+</html>

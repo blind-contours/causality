@@ -11,6 +11,8 @@
   "use strict";
   const UNSURE = "unsure";
   const KEY = "causality.placement.v1";
+  // Dispatched on window whenever the saved placement changes, so the course map can refresh.
+  const EVENT = "causality:placement";
 
   // Seven questions, one idea each, in route order. `answer` is the index of the correct option.
   const QUESTIONS = [
@@ -80,17 +82,30 @@
       unit: "scores-from-scratch",
     },
     {
-      id: "onestep",
-      topic: "the one-step correction",
-      q: "A plug-in estimate of the ATE from machine-learned models is biased. The one-step estimator adds the average of the estimated influence function. What does that added term do?",
+      id: "dr",
+      topic: "the one-step correction and double robustness",
+      q: "The one-step (AIPW) estimator adds an influence-function correction to a plug-in. What is left of its error is roughly a product: (outcome-model error) × (propensity-model error). In a randomized trial, where the propensity is known exactly, what follows?",
       options: [
-        "It removes the first-order bias of the plug-in, leaving a second-order remainder",
-        "It adds noise so that the confidence interval covers the truth",
-        "It replaces the outcome model with propensity weights, so the outcome model no longer matters",
+        "The outcome model must be correctly specified, or the estimate stays biased",
+        "The correction averages to exactly zero, so the one-step equals the plug-in",
+        "The estimate is consistent even if the outcome model is wrong; a better outcome model buys precision, not validity",
       ],
-      answer: 0,
-      why: "The plug-in's error is, to first order, minus the average influence function; adding its estimate cancels that part. What remains is a product of the two nuisance errors.",
+      answer: 2,
+      why: "With the true propensity the product is zero whatever the outcome model does. That is double robustness at work, and it is why covariate adjustment in a trial is safe. The correction is a weighted average of residuals, which is not zero in general.",
       unit: "one-step-estimator",
+    },
+    {
+      id: "tmle",
+      topic: "TMLE",
+      q: "TMLE and the one-step estimator both use the influence function. What does TMLE do differently?",
+      options: [
+        "It drops the propensity model, so only the outcome model has to be right",
+        "It nudges the fitted outcome model (along the clever covariate) until the estimated influence function averages to zero, then plugs the nudged model in, so a risk stays between 0 and 1",
+        "It has a smaller large-sample variance than the one-step, because it is a different estimator",
+      ],
+      answer: 1,
+      why: "TMLE solves the same estimating equation by updating the model rather than adding a term, so the answer is still a plug-in and respects the parameter's range. In large samples the two are equivalent; neither beats the other on variance.",
+      unit: "clever-covariate",
     },
     {
       id: "se",
@@ -106,6 +121,22 @@
       unit: "standard-errors",
     },
   ];
+
+  // Short names used in the result's opening sentence.
+  const SHORT = {
+    estimand: "estimand",
+    identification: "identification",
+    design: "study design",
+    gcomp: "g-computation",
+    influence: "influence function",
+    dr: "double robustness",
+    tmle: "TMLE",
+    se: "standard error",
+  };
+  // The first four questions are foundations (question, identification, design, g-computation);
+  // the last four are the estimation track the course builds (influence function to interval).
+  const FOUNDATION = ["estimand", "identification", "design", "gcomp"];
+  const THEORY = ["influence", "dr", "tmle", "se"];
 
   // Starting points in route order. `probes` lists the questions that check the material a
   // learner would skip by starting later. `review` lists earlier lessons worth a quick look.
@@ -139,6 +170,8 @@
       probes: ["gcomp"],
       review: ["intercurrent-events", "clone-censor-weight"],
       why: "The question, identification and design look familiar. Next comes turning a regression into an answer to the question: predict everyone under each treatment, average, subtract. The payoff lesson does it in a randomized trial, where it is easiest to trust.",
+      // Used when the foundations all matched and the estimation questions did not.
+      whyAhead: "The payoff lesson is where estimation begins: the adjusted estimator you already know, in a randomized trial, with the question of why it stays valid when the model is wrong. The geometry and TMLE lessons that follow explain that answer from first principles.",
     },
     {
       id: "geometry",
@@ -148,7 +181,7 @@
       stage: "model",
       probes: ["influence"],
       review: ["rct-adjustment"],
-      why: "You can already get from a fitted model to a marginal effect. The geometry lessons ask why that answer can be biased and what a correction is made of, building the influence function by moving probability, one small picture at a time.",
+      why: "Some of the estimation ideas are familiar, but the influence function underneath them is not yet. The geometry lessons build it by moving probability, one small picture at a time, so the corrections that follow have something solid under them.",
     },
     {
       id: "estimation",
@@ -156,7 +189,7 @@
       title: "Start at estimation",
       unit: "one-step-estimator",
       stage: "estimation",
-      probes: ["onestep"],
+      probes: ["dr", "tmle"],
       review: ["canonical-gradient"],
       why: "You know what an influence function measures. The estimation chapter turns it into an estimator: the one-step correction, the clever covariate and TMLE, with every patient's contribution in view.",
     },
@@ -167,8 +200,8 @@
       unit: "efficiency-theory-story",
       stage: "uncertainty",
       probes: ["se"],
-      review: ["clever-covariate"],
-      why: "You know the estimator and what its correction removes. What is left is trust: when the interval is honest, which standard error to report, what positivity costs, and how wrong unmeasured confounding could make you.",
+      review: ["four-patients"],
+      why: "You know the estimator, what its correction removes and how TMLE differs. What is left is trust: when the interval is honest, which standard error to report, what positivity costs, and how wrong unmeasured confounding could make you.",
     },
   ];
   const REVIEW_WHY = {
@@ -180,39 +213,44 @@
     "scores-from-scratch": "Paths, scores and the influence function, built by hand.",
     "canonical-gradient": "Where the influence function you will correct with comes from.",
     "one-step-estimator": "What the correction adds, and why it is AIPW for the ATE.",
-    "clever-covariate": "TMLE's fluctuation, which the quiz did not ask about.",
+    "four-patients": "The correction and the TMLE update worked by hand for four patients.",
     "standard-errors": "Influence-function, sandwich and bootstrap standard errors side by side.",
   };
 
   const isCorrect = (q, a) => a !== UNSURE && a != null && Number(a) === q.answer;
+  const byProbe = (id) => PLACEMENTS.find((p) => p.probes.includes(id));
+  const byId = (id) => PLACEMENTS.find((p) => p.id === id);
 
   /* Pure scoring. `answers` is an array (or object keyed by question id) whose entries are an option
-     index or "unsure". Returns the recommended placement, review lessons and a summary of strengths. */
+     index or "unsure". Rules:
+     - Foundations (first four questions): two or more gaps, or a g-computation gap, start at the
+       first gap. A single gap among the first three is listed for review instead of a restart.
+     - Estimation track, once the foundations hold: no influence-function answer means starting at
+       the payoff (or the geometry, if some later estimation answer matched); the influence function
+       without both double robustness and TMLE means Estimation; only all three open Trust the
+       answer. So never answering the TMLE question can never place anyone past Estimation. */
   function score(answers) {
     const get = (q, i) =>
       Array.isArray(answers) ? answers[i] : answers ? answers[q.id] : undefined;
     const correct = {};
     QUESTIONS.forEach((q, i) => (correct[q.id] = isCorrect(q, get(q, i))));
-    const unsure = QUESTIONS.filter((q, i) => {
+    const unsureIds = QUESTIONS.filter((q, i) => {
       const a = get(q, i);
       return a === UNSURE || a == null;
-    }).length;
-    const ok = PLACEMENTS.map((p) => p.probes.every((id) => correct[id]));
-    const missed = ok.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
-    const last = PLACEMENTS.length - 1;
-    let index,
+    }).map((q) => q.id);
+    const fMiss = FOUNDATION.filter((id) => !correct[id]),
+      known = THEORY.filter((id) => correct[id]);
+    let place,
       isolated = null;
-    if (!missed.length) index = last;
-    else if (missed.length === 1 && missed[0] < last - 1) {
-      // One unfamiliar piece followed by at least two familiar ones: review it, do not restart.
-      isolated = PLACEMENTS[missed[0]];
-      index = last;
-    } else index = missed[0];
-    const place = PLACEMENTS[index];
+    if (fMiss.length > 1 || fMiss[0] === "gcomp") place = byProbe(fMiss[0]);
+    else {
+      if (fMiss.length === 1) isolated = fMiss[0];
+      if (!correct.influence) place = byId(known.length ? "geometry" : "payoff");
+      else if (!correct.dr || !correct.tmle) place = byId("estimation");
+      else place = byId("inference");
+    }
+    const gap = isolated ? QUESTIONS.find((q) => q.id === isolated) : null;
     const review = [];
-    const gap = isolated
-      ? QUESTIONS.find((q) => q.id === isolated.probes.find((id) => !correct[id]))
-      : null;
     if (gap) review.push(gap.unit);
     place.review.forEach((u) => {
       if (!review.includes(u)) review.push(u);
@@ -223,12 +261,19 @@
       unit: place.unit,
       title: place.title,
       name: place.name,
+      // Placed here because of later gaps, although this placement's own probes matched.
+      ahead: place.probes.every((id) => correct[id]),
       review: review.slice(0, 2),
-      isolated: isolated ? isolated.id : null,
+      isolated: isolated ? byProbe(isolated).id : null,
       gapTopic: gap ? gap.topic : null,
       strengths: [...new Set(strengths)],
+      matched: QUESTIONS.filter((q) => correct[q.id]).map((q) => q.id),
+      missed: QUESTIONS.filter((q) => !correct[q.id] && q.id !== isolated).map((q) => q.id),
+      theoryKnown: known.length,
+      // No estimation-track answer matched: the Tour is a gentle way in.
+      tour: known.length === 0,
       correct: QUESTIONS.filter((q) => correct[q.id]).length,
-      unsure,
+      unsure: unsureIds.length,
       total: QUESTIONS.length,
     };
   }
@@ -247,16 +292,27 @@
     if (items.length < 2) return items.join("");
     return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
   }
-  // The warm opening sentence of the result, chosen from the answers (never a score).
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const qs = (ids) =>
+    `${listJoin(ids.map((id) => SHORT[id]))} question${ids.length > 1 ? "s" : ""}`;
+  /* The opening of the result: what the learner actually showed, stated plainly. It names the
+     questions that matched and the ones still ahead; it never praises beyond the answers. */
   function opener(r) {
     if (r.correct === r.total)
-      return "Every answer matched. You clearly know this material, so the course can meet you near the end of the main route.";
+      return "Every answer matched, including TMLE and standard errors. The course can meet you near the end of the main route.";
     if (r.unsure === r.total)
       return "Thank you for being honest. You are exactly who this course was written for, and it starts from first principles.";
-    if (!r.strengths.length)
-      return "Good. Now you know where the course has the most to give you.";
-    if (r.strengths.length > 3) return "You already know a good deal of this.";
-    return `You were already solid on ${listJoin(r.strengths)}.`;
+    if (!r.correct)
+      return "None of these matched yet. That is useful: now you know where the course has the most to give you.";
+    const ahead = r.missed.length
+      ? ` The ${qs(r.missed)} ${r.missed.length > 1 ? "are" : "is"} still ahead of you.`
+      : "";
+    return `You answered the ${qs(r.matched)} correctly.${ahead}`;
+  }
+  // The reason for the placement, matched to how the learner got there.
+  function reason(r) {
+    const p = byId(r.placement);
+    return r.ahead && p.whyAhead ? p.whyAhead : p.why;
   }
 
   /* ---------- Browser card ---------- */
@@ -276,7 +332,14 @@
       get() {
         try {
           const v = JSON.parse(win.localStorage.getItem(KEY) || "null");
-          return v && v.version === 1 && PLACEMENTS.some((p) => p.id === v.placement) ? v : null;
+          // Results saved by an older quiz (a different number of questions) are dropped.
+          return v &&
+            v.version === 1 &&
+            PLACEMENTS.some((p) => p.id === v.placement) &&
+            Array.isArray(v.answers) &&
+            v.answers.length === QUESTIONS.length
+            ? v
+            : null;
         } catch {
           return null;
         }
@@ -285,13 +348,21 @@
         try {
           win.localStorage.setItem(KEY, JSON.stringify(v));
         } catch {}
+        // Tell the course map (hub.js) so the Continue card and the river follow the result.
+        try {
+          win.dispatchEvent(new win.CustomEvent(EVENT, { detail: v }));
+        } catch {}
       },
     };
     let answers = [],
       current = 0;
 
-    el.innerHTML = '<div class="pl-card" aria-live="off"></div>';
-    const card = el.firstChild;
+    // Keep any static content already in the section (the quick identification check lives
+    // there) below the card.
+    const card = doc.createElement("div");
+    card.className = "pl-card";
+    card.setAttribute("aria-live", "off");
+    el.insertBefore(card, el.firstChild);
     const show = (html, focusSel, cls) => {
       card.className = "pl-card " + (cls || "");
       card.innerHTML = html;
@@ -310,11 +381,11 @@
           <div class="pl-text">
             <span class="eyebrow pl-eyebrow">Where should I start?</span>
             <h2 class="pl-title" tabindex="-1">New here, or already know some of this?</h2>
-            <p>Find your starting point in ${QUESTIONS.length === 7 ? "seven" : QUESTIONS.length} questions. “I'm not sure” is always an answer, and a useful one.</p>
+            <p>Find your starting point in ${["", "", "", "", "", "five", "six", "seven", "eight", "nine"][QUESTIONS.length] || QUESTIONS.length} questions. “I'm not sure” is always an answer, and a useful one.</p>
           </div>
           <div class="pl-cta">
             <button type="button" class="go pl-begin">Find my starting point <span aria-hidden="true">→</span></button>
-            <span class="pl-note">About two minutes. Nothing is graded.</span>
+            <span class="pl-note">About three minutes. Nothing is graded.</span>
           </div>
         </div>`,
         focus ? ".pl-title" : null,
@@ -328,7 +399,7 @@
         u = byId(p.unit);
       show(
         `<div class="pl-summary" style="--stage: var(--s-${p.stage})">
-          <p class="pl-sum-text" tabindex="-1"><span class="pl-sum-dot" aria-hidden="true"></span>You started at <b>${esc(p.name.charAt(0).toUpperCase() + p.name.slice(1))}</b>.
+          <p class="pl-sum-text" tabindex="-1"><span class="pl-sum-dot" aria-hidden="true"></span>Your starting point: <b>${esc(cap(p.name))}</b>.
             <a href="lessons/${esc(u.file)}">${esc(u.title)}</a></p>
           <div class="pl-sum-btns"><button type="button" class="pl-link pl-why-btn">See why</button><button type="button" class="pl-link pl-change">Change</button></div>
           ${note ? `<p class="pl-status" role="status">${esc(note)}</p>` : ""}
@@ -403,7 +474,7 @@
 
     function finish() {
       const r = score(answers);
-      store.set({ version: 1, placement: r.placement, answers: answers.slice(), at: new Date().toISOString() });
+      store.set({ version: 1, placement: r.placement, unit: r.unit, answers: answers.slice(), at: new Date().toISOString() });
       result(answers, true);
     }
 
@@ -433,14 +504,16 @@
           <span class="eyebrow pl-eyebrow">Your starting point</span>
           <h2 class="pl-title" tabindex="-1">${esc(p.title)}</h2>
           <p class="pl-lesson"><span class="mono">Lesson ${num(u.id)}</span> · ${esc(u.title)} · <span class="mono">${u.minutes} min</span></p>
-          <p class="pl-why">${esc(opener(r))}${isoText} ${esc(p.why)}</p>
+          <p class="pl-why">${esc(opener(r))}${isoText}</p>
+          <p class="pl-why">${esc(reason(r))}</p>
+          ${r.tour ? `<p class="pl-tour">New to influence functions? <a href="tour.html">Take the Tour first</a>: one patient, two paths, and the whole idea in a few minutes, before any symbols.</p>` : ""}
           ${reviewHtml}
           <div class="pl-actions">
             <a class="go pl-start" href="lessons/${esc(u.file)}">Start here <span aria-hidden="true">→</span></a>
             ${earlier.length ? '<button type="button" class="pl-skim">Mark earlier lessons as skimmed</button>' : ""}
             <button type="button" class="pl-link pl-again">Take it again</button>
           </div>
-          ${earlier.length ? `<p class="pl-fine">Skimmed means opened, not mastered: the ${earlier.length} earlier lesson${earlier.length > 1 ? "s" : ""} stay open for their transfer checks.</p>` : ""}
+          ${earlier.length ? `<p class="pl-fine">Skimmed is not the same as walked through or passed: the ${earlier.length} earlier lesson${earlier.length > 1 ? "s" : ""} stay open for their transfer checks, and your progress counts only what you do.</p>` : ""}
           <p class="pl-status" role="status">${note ? esc(note) : ""}</p>
           ${answersHtml}
           <button type="button" class="pl-link pl-done">Close</button>
@@ -460,37 +533,22 @@
     function markSkimmed(r, earlier) {
       const s = state().units,
         todo = earlier.filter((id) => !s[id] || s[id].status === "new");
-      const cont = doc.getElementById("continue"),
-        before = cont ? cont.innerHTML : "";
       // Never "demonstrated": explore only moves a lesson from new to explored.
-      todo.forEach((unit) => event({ type: "explore", unit }));
-      const saved = store.get() || { version: 1, placement: r.placement, answers: answers.slice() };
+      // A skim is not a visit: these lessons become explored, never "Last opened" or "walked".
+      todo.forEach((unit) => event({ type: "explore", unit, skim: true }));
+      const saved = store.get() || { version: 1, placement: r.placement, unit: r.unit, answers: answers.slice() };
       saved.skimmed = true;
       store.set(saved);
       const note = todo.length
         ? `Marked ${todo.length} earlier lesson${todo.length > 1 ? "s" : ""} as skimmed. The route and Up next now point here.`
         : "Every earlier lesson was already opened, so nothing changed.";
-      // The course map re-renders on state changes if it subscribes; if it did not, reload so the
-      // route and the Up next card reflect the new state, and restore this card afterwards.
-      if (todo.length && cont && cont.innerHTML === before) {
-        try {
-          win.sessionStorage.setItem(KEY + ".note", note);
-        } catch {}
-        win.location.reload();
-        return;
-      }
       summary(saved, true, note);
     }
 
-    let note = null;
-    try {
-      note = win.sessionStorage.getItem(KEY + ".note");
-      win.sessionStorage.removeItem(KEY + ".note");
-    } catch {}
     const saved = store.get();
-    if (saved) summary(saved, !!note, note);
+    if (saved) summary(saved, false);
     else intro(false);
   }
 
-  return { QUESTIONS, PLACEMENTS, UNSURE, KEY, score, earlierUnits, coreUnits, isCorrect, mount };
+  return { QUESTIONS, PLACEMENTS, UNSURE, KEY, EVENT, score, opener, reason, earlierUnits, coreUnits, isCorrect, mount };
 });

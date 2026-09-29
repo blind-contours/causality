@@ -145,7 +145,7 @@ async function main() {
       );
       await delay(40);
       const info = await ev(
-        `({file:${JSON.stringify(file)},width:innerWidth,scrollWidth:document.documentElement.scrollWidth,unlabelled:[...document.querySelectorAll('input,select,textarea')].filter(e=>!e.labels?.length&&!e.getAttribute('aria-label')).map(e=>e.id||e.className),canvases:[...document.querySelectorAll('canvas')].map(c=>{const vp=c.closest('.figure-viewport');return {id:c.id,name:c.getAttribute('aria-label'),displayWidth:c.getBoundingClientRect().width,nativeWidth:+c.dataset.w||c.width,fits:!vp||vp.scrollWidth<=vp.clientWidth+1}}),lessonStatus:document.querySelector('.course-status')?.textContent})`,
+        `({file:${JSON.stringify(file)},width:innerWidth,scrollWidth:document.documentElement.scrollWidth,unlabelled:[...document.querySelectorAll('input,select,textarea')].filter(e=>!e.labels?.length&&!e.getAttribute('aria-label')).map(e=>e.id||e.className),canvases:[...document.querySelectorAll('canvas')].map(c=>{const vp=c.closest('.figure-viewport');return {id:c.id,name:c.getAttribute('aria-label'),displayWidth:c.getBoundingClientRect().width,nativeWidth:+c.dataset.w||c.width,fits:!vp||vp.scrollWidth<=vp.clientWidth+1,fontPx:+c.dataset.fontPx||0,layout:c.dataset.layout||''}}),lessonStatus:document.querySelector('.course-status')?.textContent})`,
       );
       info.theme = theme;
       info.errors = [...errors];
@@ -167,7 +167,11 @@ async function main() {
         info.canvases.every((c) =>
           width >= 1000
             ? c.fits && c.displayWidth >= c.nativeWidth * 0.9
-            : c.displayWidth >= c.nativeWidth * 0.8,
+            : // Phones: a canvas either fits its column with text >= 11 CSS px (scaled or with its
+              // panels stacked by shared/visuals.js), or keeps the sideways scroller at >= 80% size.
+              c.fits
+              ? c.fontPx >= 11
+              : c.displayWidth >= c.nativeWidth * 0.8,
         ),
         file +
           ` figures at ${width}: ` +
@@ -176,11 +180,13 @@ async function main() {
               (c) =>
                 !(width >= 1000
                   ? c.fits && c.displayWidth >= c.nativeWidth * 0.9
-                  : c.displayWidth >= c.nativeWidth * 0.8),
+                  : c.fits
+                    ? c.fontPx >= 11
+                    : c.displayWidth >= c.nativeWidth * 0.8),
             )
             .map(
               (c) =>
-                `${c.id} ${Math.round(c.displayWidth)}/${c.nativeWidth}${c.fits ? "" : " overflows"}`,
+                `${c.id} ${Math.round(c.displayWidth)}/${c.nativeWidth}${c.fits ? " text " + c.fontPx + "px" : " overflows"}`,
             )
             .join(", "),
       );

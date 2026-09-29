@@ -17,6 +17,8 @@
     />
     <link rel="stylesheet" href="../shared/labs.css" />
     <link rel="stylesheet" href="../shared/course.css" />
+<link rel="stylesheet" href="../shared/r-drawer.css" />
+<script src="../shared/r-drawer.js" defer></script>
     <link rel="stylesheet" href="../shared/motion.css" />
     <style>
       /* This lesson draws its SVGs at the container's pixel width, so text sizes are real pixels. */
@@ -61,6 +63,20 @@
       [data-lab="targeted-survival"] button {
         min-height: 40px;
       }
+      [data-lab="targeted-survival"] select {
+        max-width: 100%;
+      }
+      [data-lab="targeted-survival"] .figure .ts-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 0 12px;
+      }
+      [data-lab="targeted-survival"] .ts-presets button[aria-pressed="true"] {
+        background: var(--purple);
+        border-color: var(--purple);
+        color: var(--paper);
+      }
     </style>
     <script src="../science/core.js"></script>
     <script src="../science/targeted-survival.js"></script>
@@ -82,20 +98,23 @@
       <div data-lab="targeted-survival"></div>
       <p class="note">
         What is exact, simulated and schematic: the true curves, RMSTs and the
-        efficiency bound E[D²] are computed exactly from the data-generating
+        efficiency bound E[ϕ²] are computed exactly from the data-generating
         law (discrete months, three severity levels). The single study on each
         step is one seeded simulation of 1000 patients, analysed live with
         pooled logistic hazard models, so its numbers change when you draw a new
-        study. The double-robustness histograms are 1000 precomputed seeded
-        studies of 800 patients each (scripts/targeted-survival-precompute.cjs).
-        The derivation is exact for this discrete-time model; the risk-set
-        strip shows 16 patients per severity level as a picture of the whole
-        treated arm, whose counts are in the table. The moving-mass figure uses
-        the course cohort's 58 treated patients with a severity-dependent
-        dropout rate; its curves and weights are exact for those patients, and
-        its truth is their own simulated event times.
+        study. The double-robustness histograms and tables are precomputed: the
+        same 1000 seeded studies of 800 patients each, analysed under all 36
+        combinations of the event, censoring and propensity models
+        (scripts/targeted-survival-precompute.cjs). The derivation is exact for
+        this discrete-time model; the risk-set strip shows up to 16 patients per
+        severity level as a picture of the whole treated arm, whose counts are
+        in the table. The moving-mass figure uses the course cohort's 58
+        treated patients with a severity-dependent dropout rate; its curves and
+        weights are exact for those patients, and its truth is their own
+        simulated event times.
       </p>
-      <p class="sources">
+      <div data-r="survival-onestep"></div>
+<p class="sources">
         Further reading:
         <a href="https://doi.org/10.1080/10543400903243017"
           >Moore and van der Laan (2009), Increasing power in randomized trials
@@ -122,6 +141,12 @@
         <a href="https://doi.org/10.1186/1471-2288-13-152"
           >Royston and Parmar (2013), Restricted mean survival time: an
           alternative to the hazard ratio, BMC Med Res Methodol 13:152</a
+        >;
+        <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf"
+          >ICH E9(R1) addendum on estimands and sensitivity analysis (2019)</a
+        >;
+        <a href="https://doi.org/10.1097/EDE.0b013e3181c1ea43"
+          >Hernán (2010), The hazards of hazard ratios, Epidemiology 21(1)</a
         >.
       </p>
     </main>

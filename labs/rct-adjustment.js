@@ -44,8 +44,9 @@
 
   root.innerHTML = `
 <section class="lab-step" data-title="One trial is noisy"><h2 tabindex="-1">A fair trial can still be a noisy trial</h2>
+<aside class="world-card"><b>This lesson's world</b> a simulated randomized trial of 200 patients, 100 per arm (the course's 100-patient cohort is observational, so it cannot show what randomization buys) · outcome: change in 6-minute walk distance · truth: the device adds 15 metres on average</aside>
 <p>A heart-failure device is tested in a randomized trial of 200 patients, exactly 100 per arm. The primary outcome is the change in 6-minute walk distance at 12 weeks. Patients vary a lot: the outcome's standard deviation is ${M} metres. The device truly adds 15 metres on average.</p>
-<p>The simplest analysis compares the two arm means. Randomization makes that difference unbiased: over many repetitions of the same trial, it averages exactly the true effect. But you only get one trial.</p>
+<p>The simplest analysis compares the two arm means. But you only get one trial.</p>
 <div class="predict" data-options="Centered on the true 15 m|Pulled toward zero|Centered wherever the first trial landed" data-answer="0" data-hint="Randomization makes the difference in means unbiased: its histogram centers on the truth. The spread is the problem, not the center.">Imagine running this exact trial 400 times with new patients. Where will the pile of difference-in-means estimates be centered?</div>
 <div class="figure"><div class="fig-row"><div>
 <svg id="rep-hist" role="img" aria-label="Histogram of difference-in-means estimates from repeated trials, centered on the true effect of 15 metres."></svg>
@@ -54,7 +55,7 @@ ${legend([["var(--or)", "bar", "Difference in means (unadjusted)"], ["var(--gree
 <div id="rep-player"></div></div>
 <div><div class="fig-readout" id="rep-readout"></div></div></div>
 <p class="fig-caption" id="rep-caption"></p></div>
-<p>Each 95% interval reaches about ${fmt(1.96 * Math.sqrt(4 / R.DEFAULTS.n) * M, 0)} metres on either side of its estimate, more than the effect itself. More than half of these trials would fail to show a significant benefit. The rest of this lesson makes that interval narrower without changing what it estimates and without giving up randomization's guarantee.</p>
+<p>Randomization makes the difference in means unbiased: over many repetitions of the same trial, it averages exactly the true effect. The trouble is the spread. Each 95% interval reaches about ${fmt(1.96 * Math.sqrt(4 / R.DEFAULTS.n) * M, 0)} metres on either side of its estimate, more than the effect itself. More than half of these trials would fail to show a significant benefit. The rest of this lesson makes that interval narrower without changing what it estimates and without giving up randomization's guarantee.</p>
 </section>
 
 <section class="lab-step" data-title="Adjust for a prognostic covariate"><h2 tabindex="-1">Use what you knew at baseline</h2>
@@ -93,15 +94,16 @@ ${legend([["var(--green)", "line", "True mean of Y(0) given X", "6 4"], ["var(--
 ${legend([["var(--or)", "line", "Unadjusted"], ["var(--purple)", "bar", "Standardized with the working model"], ["var(--green)", "line", "True effect", "6 4"]])}
 </div><div><div class="fig-readout" id="curve-readout"></div></div></div>
 <p class="fig-caption" id="curve-caption"></p></div>
-<p><strong>Why it stays centered.</strong> In a randomized trial the chance of receiving the device is known by design (here exactly ½). Standardization is then exactly AIPW, augmented inverse probability weighting, with that known propensity:</p>
-<p class="math">ψ̂ = mean(m̂₁ − m̂₀) + mean(A(Y − m̂₁)/π) − mean((1 − A)(Y − m̂₀)/(1 − π))</p>
+<p><strong>Why it stays centered.</strong> In a randomized trial the chance of receiving the device, the propensity score g, is known by design (here exactly g = ½). Standardization is then exactly AIPW, augmented inverse probability weighting, with that known propensity. Here m̂ₐ(x) is the fitted outcome model in arm a:</p>
+<p class="math">ψ̂ = mean(m̂₁ − m̂₀) + mean(A(Y − m̂₁)/g) − mean((1 − A)(Y − m̂₀)/(1 − g))</p>
 <p>With an intercept in each arm's model, each arm's residuals average exactly zero, so both correction terms vanish and AIPW equals the standardized estimate you computed. AIPW stays consistent if <em>either</em> the outcome model or the propensity is right, and randomization makes the propensity right. The geometry lessons explain why a wrong outcome model then costs only precision; <a href="01-one-step-estimator.html">the one-step estimator</a> is where AIPW first appears.</p>
 <p class="note">In finite samples the standardized estimator has a bias of order 1/n from estimating the slopes. It is invisible here: the simulated bias is within about two Monte Carlo standard errors of zero for every setting.</p>
 </section>
 
 <section class="lab-step" data-title="Binary outcomes: which odds ratio?"><h2 tabindex="-1">Binary outcomes: an adjusted odds ratio answers a different question</h2>
+<aside class="world-card"><b>This step's world</b> a 400-patient randomized trial (doubled so a binary outcome has enough events) with a binary baseline covariate, repeated 1,000 times · outcome: responder, walk distance up at least 30 metres · truth: the marginal and conditional odds ratios, computed exactly</aside>
 <p>Now make the outcome binary: a responder is someone whose walk distance improves by at least 30 metres. X is also binary: milder disease at baseline (half the patients) or not. Randomization is perfect, so X is balanced between arms and there is no confounding at all.</p>
-<p>A logistic regression of response on arm and X reports exp(β̂), where β̂ is the arm coefficient: the odds ratio <em>within</em> a level of X. The odds ratio for the whole trial population is a different number whenever X predicts the outcome. This is non-collapsibility: odds ratios do not average like risks do.</p>
+<p>A logistic regression of response on arm and X reports exp(β̂), where β̂ is the arm coefficient.</p>
 <div class="predict" data-options="The marginal odds ratio for the whole population|A larger odds ratio, the one within each X stratum|The risk difference" data-answer="1" data-hint="The logistic coefficient estimates the conditional odds ratio, which is farther from 1 than the marginal one whenever X is prognostic. No confounding is needed for the gap.">In this perfectly randomized trial, with X strongly prognostic, what is the logistic model's device odds ratio, exp(β̂), centered on?</div>
 <label><span>How strongly does X shift the odds of response? Log-odds gap between X levels: <strong class="rct-v" id="gap-v"></strong></span> <input id="gap" type="range" min="0" max="3" step="0.5"></label>
 <label>Odds ratio for the device within each level of X <select id="or"><option value="1.5">1.5</option><option value="2">2</option><option value="3">3</option><option value="5">5</option></select></label>
@@ -111,14 +113,15 @@ ${legend([["var(--ink)", "line", "Conditional OR (within X)", "2 3"], ["var(--gr
 </div><div><div class="fig-readout" id="or-readout"></div></div></div>
 <p class="fig-caption" id="or-caption"></p></div>
 <div id="or-table"></div>
+<p>exp(β̂) is the odds ratio <em>within</em> a level of X. The odds ratio for the whole trial population is a different number whenever X predicts the outcome. This is non-collapsibility: odds ratios do not average like risks do.</p>
 <p>Standardization fixes this without abandoning the logistic model: predict every patient's response probability with A set to 1 and to 0, average each over the trial, and form the risk difference, risk ratio or odds ratio from those two averages. The result estimates the marginal effect, the same target as the unadjusted comparison, with a narrower interval. The FDA's 2023 final guidance on covariate adjustment makes exactly this distinction between conditional and unconditional treatment effects.</p>
 </section>
 
 <section class="lab-step" data-title="Standard errors that survive"><h2 tabindex="-1">A standard error that does not trust the model</h2>
 <p>The usual ANCOVA analysis fits one linear model, Y on arm and X with a common slope, and reports the arm coefficient with the model's standard error. That standard error assumes the model: one slope, one residual variance. When the device's benefit varies with baseline, both assumptions fail.</p>
 <p>The standardized estimator has its own standard error that makes no such assumption. Each patient contributes one number, their influence-function value</p>
-<p class="math">φ̂ᵢ = Aᵢ(Yᵢ − m̂₁(Xᵢ))/π − (1 − Aᵢ)(Yᵢ − m̂₀(Xᵢ))/(1 − π) + m̂₁(Xᵢ) − m̂₀(Xᵢ) − ψ̂<br>SE = √( Σ φ̂ᵢ² ) / n</p>
-<p>and the standard error is just their spread divided by √n. (Here each arm's residual part gets the usual n<sub>a</sub>/(n<sub>a</sub> − 2) degrees-of-freedom factor.) The later lessons show where φ comes from.</p>
+<p class="math">ϕ̂ᵢ = Aᵢ(Yᵢ − m̂₁(Xᵢ))/g − (1 − Aᵢ)(Yᵢ − m̂₀(Xᵢ))/(1 − g) + m̂₁(Xᵢ) − m̂₀(Xᵢ) − ψ̂<br>SE = √( Σ ϕ̂ᵢ² ) / n</p>
+<p>where g is the allocation probability to the device, known by design. The standard error is just their spread divided by √n. (Here each arm's residual part gets the usual n<sub>a</sub>/(n<sub>a</sub> − 2) degrees-of-freedom factor.) The later lessons show where ϕ comes from.</p>
 <div class="predict" data-options="About 95%, as advertised|Noticeably less, under 90%|More than 99%" data-answer="1" data-hint="With unequal allocation and a heterogeneous effect, the common-slope model misjudges the variance. The influence-function interval stays near 95%.">One device patient for every three controls, and the device helps more for patients with higher baseline X. How often does the ANCOVA model-based 95% interval cover the true effect?</div>
 <label>Allocation, device : control <select id="pi"><option value="0.25">1 : 3</option><option value="0.5">1 : 1</option><option value="0.75">3 : 1</option></select></label>
 <label><span>How much the device effect varies with baseline: extra metres per SD of X: <strong class="rct-v" id="het-v"></strong></span> <input id="het" type="range" min="0" max="2" step="0.5"></label>
@@ -133,6 +136,7 @@ ${legend([["var(--or)", "dot", "Unadjusted, Welch SE"], ["var(--red)", "dot", "A
 
 <section class="lab-step" data-title="One score from history"><h2 tabindex="-1">One covariate that summarizes many: a prognostic score</h2>
 <p>Real trials record many baseline variables. Adjusting for all of them costs degrees of freedom and still misses curves and interactions. Another route: learn a <em>prognostic score</em> from historical patients, the predicted outcome under control given all baseline variables, and adjust for that one number. This is the PROCOVA idea, which the EMA qualified in 2022 for phase 2 and 3 trials with continuous outcomes.</p>
+<aside class="world-card"><b>This step's world</b> 200-patient trials with 10 baseline variables, plus historical control patients used only to learn the score · outcome: change in walk distance · truth: the device adds 15 metres</aside>
 <p>Here the outcome depends on 10 baseline variables, with one curved effect and one interaction. The score is a regression fitted to control patients from past studies, frozen before the trial starts.</p>
 <label>Historical patients used to learn the score <select id="nhist">${G.nHist.map((v) => `<option value="${v}">${v}</option>`).join("")}</select></label>
 <div class="figure"><div class="fig-row"><div>

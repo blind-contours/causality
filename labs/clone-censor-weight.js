@@ -27,33 +27,27 @@
 
   root.innerHTML = `
 <section class="lab-step" data-title="One patient"><h2 tabindex="-1">One patient, two copies</h2>
-<p>Start with one person. Mr. Ortiz has severe valve disease. Today, month 0, he becomes eligible for a valve procedure and joins the waiting list.</p>
+<aside class="world-card"><b>This step's world</b> one illustrative patient, Mr. Ortiz, on a valve waiting list · outcome: death · his chances come from the registry used in the rest of the lesson</aside>
+<p>Start with one person. Mr. Ortiz has severe valve disease and joins the waiting list today, month 0. We want to compare two plans for him: <b class="ccw-grace">Plan A: operate within 3 months.</b> <b class="ccw-never">Plan B: never operate.</b></p>
 <div class="figure"><svg id="ortiz-split" role="img" aria-label="Mr. Ortiz's timeline from eligibility at month 0 to month 6, with the 3-month grace period shaded. The Copy him button splits it into two copies, one per plan."></svg><div class="btns ccw-choices"><button type="button" id="ortiz-copy" class="primary">Copy him</button></div><p class="fig-caption" id="caption-ortiz-split"></p></div>
-<p>We want to compare two plans for him. <b class="ccw-grace">Plan A: operate within 3 months.</b> <b class="ccw-never">Plan B: never operate.</b></p>
-<p>On day one we cannot tell which plan he is on. A man waiting for surgery looks the same under both.</p>
-<p>So we copy him at month 0. Same man, same frailty, same clock. <b class="ccw-grace">Copy A</b> follows Plan A. <b class="ccw-never">Copy B</b> follows Plan B.</p>
-<p>Now let his real life run, month by month.</p>
-<p>A copy stays as long as his real life still fits its plan. The moment it stops fitting, we cut that copy (✂).</p>
+<p>On day one a waiting man fits both plans, so we copy him: same man, same clock. <b class="ccw-grace">Copy A</b> follows Plan A, <b class="ccw-never">Copy B</b> follows Plan B. A copy stays while his real life fits its plan, and is cut (✂) the moment it stops fitting.</p>
 <div class="predict" data-options="Only in Copy B, since he was never operated|In both copies|In neither: both copies are cut" data-answer="1" data-hint="He died before the grace period ended, still waiting. Up to that moment his life fit Plan A and Plan B, so neither copy had broken its plan.">Predict: Mr. Ortiz dies in his first month on the waiting list. Where does his death count?</div>
 <div class="figure"><div class="btns ccw-choices" role="group" aria-label="Choose one of his possible lives"><button type="button" data-life="op">Operated at month 2</button><button type="button" data-life="wait">Still waiting at month 3</button><button type="button" data-life="die">Dies at month 1, waiting</button></div><svg id="ortiz-life" role="img" aria-label="Three timelines over six months: Mr. Ortiz's real life, Copy A and Copy B. Procedures are diamonds, deaths are crosses, cut copies end in scissors."></svg><div id="player-ortiz-life"></div><div class="fig-readout" id="readout-ortiz-life"></div><p class="fig-caption" id="caption-ortiz-life" aria-live="polite"></p></div>
-<p>The third life matters most. A death while waiting counts in both copies, because both plans were still possible when it happened.</p>
-<p>Cutting a copy leaves a hole. In his first life, Copy B was cut at month 2, and not at random: it was cut because he was operated.</p>
-<p>So someone like him, who stayed on Plan B, must now stand in for him.</p>
-<p>How much? Picture 100 patients just like Mr. Ortiz, same frailty (<span id="ortiz-x"></span>), all alive through month 2.</p>
-<p>The decision model we fit later in this lesson says about <b id="ortiz-remain"></b> of them are still unoperated after month 2.</p>
+<p>A death while waiting counts in both copies, because both plans were still possible. A cut is different. In his first life Copy B was cut at month 2 because he was operated, not at random, so someone like him who stayed on Plan B must stand in for him.</p>
+<p>How much? Picture 100 patients just like him (frailty <span id="ortiz-x"></span>), all alive through month 2. The decision model fitted later in this lesson says about <b id="ortiz-remain"></b> of them are still unoperated after month 2.</p>
 <div class="figure"><div class="btns ccw-choices" role="group" aria-label="Which copy was cut"><button type="button" data-cut="never">Copy B cut at month 2</button><button type="button" data-cut="grace">Copy A cut at month 3</button></div><svg id="ortiz-weight" role="img" aria-label="One hundred dots, patients like Mr. Ortiz. The ones whose copy is cut become hollow rings; the rest grow until their total area again equals one hundred patients."></svg><div id="player-ortiz-weight"></div><div class="fig-readout" id="readout-ortiz-weight"></div><p class="fig-caption" id="caption-ortiz-weight" aria-live="polite"></p></div>
-<p>Those <span class="ortiz-remain"></span> must count for all 100. So each of their copies counts as 100 / <span class="ortiz-remain"></span>, about <b id="ortiz-w"></b> people. Mr. Lee is one of them.</p>
-<p>That number is the <em>inverse probability of censoring weight</em>: 1 / P(still uncensored), here 1 / <span id="ortiz-stay"></span>.</p>
-<p>Clone, censor, weight: that is the whole method, for one man. Now do it for 3000.</p>
+<p>Those <span class="ortiz-remain"></span> must count for all 100, so each of their copies counts as 100 / <span class="ortiz-remain"></span>, about <b id="ortiz-w"></b> people. Mr. Lee is one of them. That number is the <em>inverse probability of censoring weight</em>: 1 / P(still uncensored), here 1 / <span id="ortiz-stay"></span>.</p>
+<p>Clone, censor, weight: that is the whole method, for one man. Next, a registry of 3,000.</p>
 </section>
 
 <section class="lab-step" data-title="Clone"><h2 tabindex="-1">Copy every patient into both strategies</h2>
-<p>Mr. Ortiz was one patient. The registry has 3000, and each one gets the same treatment: two copies at time zero, which we will now call <em>clones</em>.</p>
-<p>The target trial from the last lesson compares two strategies for patients with severe valve disease, both starting at eligibility:</p>
+<aside class="world-card"><b>This lesson's registry</b> 3,000 simulated patients followed month by month for 24 months (12 of them drawn in the lane figures) · outcome: death · truth: survival had everyone followed each strategy, computed exactly</aside>
+<p>Mr. Ortiz was one patient. The course's 100-patient cohort has no waiting list or procedure dates, so this lesson uses a simulated registry of 3,000, and each patient gets the same treatment: two copies at time zero, which we will now call <em>clones</em>.</p>
+<p>The target trial from the lesson "Design the target trial" compares two strategies for patients with severe valve disease, both starting at eligibility:</p>
 <ul class="ccw-arms"><li><b class="ccw-grace">Operate by month <span class="g-val">3</span></b>: receive the procedure within a grace period of <span class="g-val">3</span> months after eligibility.</li><li><b class="ccw-never">No procedure</b>: do not receive it during the 24 months of follow-up.</li></ul>
 <p>At time zero, a patient who is waiting for the procedure is compatible with both strategies. We cannot tell yet which one their data will follow, and we should not guess by peeking at the future. So we give the patient to both arms: one <em>clone</em> per strategy, each with the same frailty, the same history and the same time zero.</p>
 <div class="figure"><svg id="lanes-clone" role="img" aria-label="Twelve registry patients, each shown as one dot at eligibility that splits into two clones: one in the Operate lane and one in the No procedure lane."></svg><div id="player-clone"></div><div class="fig-readout" id="readout-clone"></div><p class="fig-caption" id="caption-clone"></p></div>
-<p>Every clone starts at eligibility, so no one's follow-up begins late and no survival time is credited before it could be observed. That removes the immortal time from the last lesson. The price comes next: the two clones of one patient cannot both keep following their strategies.</p>
+<p>Every clone starts at eligibility, so no one's follow-up begins late and no survival time is credited before it could be observed. That removes the immortal time met in "Design the target trial". The price comes next: the two clones of one patient cannot both keep following their strategies.</p>
 <p class="note">What is simulated: 3000 registry patients followed month by month for 24 months. Frailty X is measured at eligibility; frail patients die sooner and wait longer for the procedure. The figure shows 12 of them, robust at the top of each lane, frail at the bottom. The rule that picks these 12 is fixed in the code, so the same registry always shows the same patients.</p>
 </section>
 

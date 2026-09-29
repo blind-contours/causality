@@ -13,8 +13,8 @@
  * Target: ψ_a(w) = E_X[ Σ_s w_s S(s|a,X) ], S(s|a,x) = Π_{t≤s}(1 - λ(t|a,x)), S(0) = 1.
  *   S_a(τ): w = indicator of s = τ.  RMST_a(τ) in months: w_s = 1 for s = 0..τ-1,
  *   because E[min(T, τ)] = Σ_{s=0}^{τ-1} P(T > s) for integer-valued T.
- * Efficient influence function (nonparametric observed-data model, coarsening at random):
- *   D_a(O) = Σ_s w_s S(s|a,X) - ψ
+ * Efficient influence function ϕ (nonparametric observed-data model, coarsening at random):
+ *   ϕ_a(O) = Σ_s w_s S(s|a,X) - ψ
  *            - 1{A=a}/g(a|X) Σ_{t=1}^{K} [ Σ_{s≥t} w_s S(s|a,X) / S(t|a,X) ] / G(t-|a,X)
  *                                     × ( 1{T~=t, Δ=1} - 1{T~≥t} λ(t|a,X) ),
  *   with G(t-|a,x) = Π_{k<t}(1 - h(k|a,x)) = P(C ≥ t | a, x).
@@ -168,23 +168,46 @@
     }
     return beta;
   }
-  // Pooled discrete-time hazard. "right": month factor + a separate effect for each (a, x) cell
-  // (contains the true model). "wrong": month factor + treatment only (severity left out).
+  // Pooled discrete-time hazard models, logit link. Each spec is a list of design pieces:
+  //   month: a factor for every month (free baseline hazard); const: one intercept (no time trend);
+  //   cells: a separate effect for each (a, x) cell (saturated in A and X);
+  //   a: treatment; xlin: severity as a linear score 0, 1, 2; high: severity coded 1{x = 2}.
+  // With three severity levels a model can be partly wrong; with two, any model with a severity term
+  // for each arm is saturated.
+  // The true event model (logit linear in t, x, a, a·x) lies inside "right"; the true censoring
+  // model (logit linear in x and a, constant in t) lies inside "right" too. Every other spec excludes it.
+  const HAZARD_SPECS = {
+    right: ["month", "cells"], // correct, saturated in (A, X)
+    noint: ["month", "a", "xlin"], // event: severity linear, no treatment-by-severity interaction
+    notime: ["const", "cells"], // event: no time trend (constant monthly hazard within each cell)
+    high: ["month", "a", "high"], // censoring: severity coded high vs not (a step, where the truth is a gradient)
+    drop: ["month", "a"], // severity left out entirely (the extreme case)
+  };
+  const alias = (s) => (s === "wrong" ? "drop" : s);
+  function hazardDesign(spec, last) {
+    const parts = HAZARD_SPECS[alias(spec)];
+    if (!parts) throw new Error("unknown hazard spec " + spec);
+    const width = { month: last, const: 1, cells: 5, a: 1, xlin: 1, high: 1 },
+      p = parts.reduce((s, q) => s + width[q], 0),
+      design = (t, a, x) => {
+        const z = [];
+        for (const q of parts) {
+          if (q === "month") for (let k = 1; k <= last; k++) z.push(+(t === k));
+          else if (q === "const") z.push(1);
+          else if (q === "cells") for (let k = 1; k < 6; k++) z.push(+(a * 3 + x === k)); // cell (0, 0) is the reference
+          else if (q === "a") z.push(a);
+          else if (q === "xlin") z.push(x);
+          else if (q === "high") z.push(+(x === 2));
+        }
+        return z;
+      };
+    return { p, design };
+  }
   function fitHazard(c, kind, spec) {
     const Y = kind === "event" ? c.events : c.cens,
       R = kind === "event" ? c.atRisk : c.cRisk,
       last = kind === "event" ? K : K - 1,
-      cellIndex = (a, x) => a * 3 + x, // 0 is the reference cell (a=0, x=0)
-      p = spec === "right" ? last + 5 : last + 1,
-      design = (t, a, x) => {
-        const z = new Array(p).fill(0);
-        z[t - 1] = 1;
-        if (spec === "right") {
-          const k = cellIndex(a, x);
-          if (k) z[last + k - 1] = 1;
-        } else z[last] = a;
-        return z;
-      },
+      { p, design } = hazardDesign(spec, last),
       cells = [];
     for (const a of [0, 1])
       for (const x of XS)
@@ -192,20 +215,31 @@
     const beta = logistic(cells, p);
     return table((t, a, x) => (t > last ? 0 : expit(design(t, a, x).reduce((s, v, j) => s + v * beta[j], 0))));
   }
+  // Propensity g(1|x). "right": the treated share within each severity level (saturated);
+  // "merge": mid and high severity merged into one level; "drop": the overall treated share.
   function fitG(c, spec) {
+    spec = alias(spec);
     const n1 = XS.map((x) => c.nAX[1][x]),
       nx = XS.map((x) => c.nAX[0][x] + c.nAX[1][x]),
-      marg = sum(n1) / c.n,
-      g1 = XS.map((x) => (spec === "right" ? n1[x] / nx[x] : marg));
+      pooled = (xs) => sum(xs.map((x) => n1[x])) / sum(xs.map((x) => nx[x])),
+      g1 = XS.map((x) =>
+        spec === "right" ? n1[x] / nx[x] : spec === "merge" ? (x ? pooled([1, 2]) : n1[0] / nx[0]) : pooled(XS),
+      );
+    if (!["right", "merge", "drop"].includes(spec)) throw new Error("unknown propensity spec " + spec);
     return [0, 1].map((a) => XS.map((x) => (a ? g1[x] : 1 - g1[x])));
   }
-  // spec = {event: "right"|"wrong", nuis: "right"|"wrong"}; nuis covers both censoring and treatment.
-  function fit(rows, spec = { event: "right", nuis: "right" }, c = counts(rows)) {
+  // spec = {event, cens, prop}. Old form {event, nuis} sets cens and prop together; "wrong" means "drop".
+  function normSpec(spec = {}) {
+    const nuis = spec.nuis || "right";
+    return { event: alias(spec.event || "right"), cens: alias(spec.cens || nuis), prop: alias(spec.prop || nuis) };
+  }
+  function fit(rows, spec = { event: "right", cens: "right", prop: "right" }, c = counts(rows)) {
+    const s = normSpec(spec);
     return derive({
-      lam: fitHazard(c, "event", spec.event),
-      hc: fitHazard(c, "censor", spec.nuis),
-      g: fitG(c, spec.nuis),
-      spec,
+      lam: fitHazard(c, "event", s.event),
+      hc: fitHazard(c, "censor", s.cens),
+      g: fitG(c, s.prop),
+      spec: s,
     });
   }
 
@@ -235,19 +269,33 @@
     }
     return s;
   }
+  // Nonparametric standardization: Kaplan–Meier within each severity level of arm a, averaged over
+  // the sample severity mix. With saturated (A, X) models every estimator lands near this curve.
+  function stratifiedKM(c, a) {
+    const px = XS.map((x) => (c.nAX[0][x] + c.nAX[1][x]) / c.n),
+      s = [1];
+    const within = XS.map((x) => {
+      const q = [1];
+      for (let t = 1; t <= K; t++) q[t] = q[t - 1] * (c.atRisk[a][x][t] ? 1 - c.events[a][x][t] / c.atRisk[a][x][t] : 1);
+      return q;
+    });
+    for (let t = 1; t <= K; t++) s[t] = sum(XS.map((x) => px[x] * within[x][t]));
+    return s;
+  }
   const targetOf = (nu, a, x, w) => sum(w.map((ws, s) => ws * nu.S[a][x][s]));
   const lastW = (w) => w.reduce((m, v, s) => (v ? s : m), 0);
   // Clever covariate H(t|a,x) = Σ_{s≥t} w_s S(s|a,x)/S(t|a,x) / G(t-|a,x) (without the 1/g factor).
-  function clever(nu, a, x, t, w, kappa = 1) {
+  function clever(nu, a, x, t, w, cw = 1) {
     let num = 0;
     for (let s = t; s < w.length; s++) num += w[s] * nu.S[a][x][s];
     const St = nu.S[a][x][t];
     const ratio = St > 0 ? num / St : 0;
-    return ratio * (1 + kappa * (1 / nu.G[a][x][t] - 1));
+    return ratio * (1 + cw * (1 / nu.G[a][x][t] - 1));
   }
   // Per-person influence-function pieces at the fitted nuisances.
-  // plug = Σ w S(·|a,X) − ψ; augG uses no censoring weight; augC = extra from 1/G; kappa scales the 1/G − 1 part.
-  function eif(rows, a, nu, w, kappa = 1) {
+  // plug = Σ w S(·|a,X) − ψ; augG uses no censoring weight; augC = extra from 1/G.
+  // cw in [0, 1] is the share of the censoring weight applied: it scales the 1/G − 1 part (cw = 1 is the real ϕ).
+  function eif(rows, a, nu, w, cw = 1) {
     const tmax = lastW(w),
       m = rows.map((r) => targetOf(nu, a, r.x, w)),
       plugin = mean(m),
@@ -260,7 +308,7 @@
         const ig = 1 / nu.g[a][r.x];
         for (let t = 1; t <= Math.min(r.time, tmax); t++) {
           const res = (r.event && r.time === t ? 1 : 0) - nu.lam[a][r.x][t];
-          full -= ig * clever(nu, a, r.x, t, w, kappa) * res;
+          full -= ig * clever(nu, a, r.x, t, w, cw) * res;
           noC -= ig * clever(nu, a, r.x, t, w, 0) * res;
         }
       }
@@ -458,10 +506,13 @@
     counts,
     logistic,
     fitHazard,
+    HAZARD_SPECS,
+    normSpec,
     fitG,
     fit,
     kmArm,
     weightedKM,
+    stratifiedKM,
     clever,
     eif,
     tmle,

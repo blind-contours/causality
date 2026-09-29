@@ -27,14 +27,31 @@
     part: "In progress",
     done: "Transfer shown",
     now: "Up next",
+    skim: "Skimmed",
   };
+  // The placement quiz's saved result (shared/placement.js). Only results that name their
+  // start unit (the current quiz) are honoured.
+  const PLACEMENT_KEY = "causality.placement.v1";
+  function placement() {
+    try {
+      const v = JSON.parse(localStorage.getItem(PLACEMENT_KEY) || "null");
+      return v && v.version === 1 && core.some((u) => u.id === v.unit) ? v : null;
+    } catch {
+      return null;
+    }
+  }
   function progress() {
     const s = state().units;
     // The frontier: first lesson not yet opened, or one with an unfinished transfer attempt.
-    // An explored lesson (opened, or skipped via the diagnostic) does not hold the place.
+    // An explored lesson (opened, or skimmed) does not hold the place. After the placement quiz,
+    // the search starts at the recommended lesson, so the card and the river point there until
+    // it is opened, and then move on from there rather than back to lesson 1.
     const holds = (st) =>
       !st || st === "new" || st === "attempted" || st === "assisted";
+    const placed = placement(),
+      from = placed ? core.findIndex((u) => u.id === placed.unit) : -1;
     const next =
+      (from >= 0 && core.slice(from).find((u) => holds(s[u.id]?.status))) ||
       core.find((u) => holds(s[u.id]?.status)) ||
       core.find((u) => s[u.id]?.status !== "demonstrated") ||
       null;
@@ -42,17 +59,29 @@
       const st = s[u.id]?.status || "new";
       if (st === "demonstrated") return "done";
       if (next && u.id === next.id) return "now";
-      return st === "new" ? "new" : "part";
+      if (st === "new") return "new";
+      // Marked by the placement quiz or the quick check, never opened.
+      return s[u.id]?.skimmed ? "skim" : "part";
     };
-    const done = core.filter((u) => status(u) === "done").length;
+    const { walked, passed } = CausalState.counts(
+      s,
+      core.map((u) => u.id),
+    );
+    const done = passed;
     const left = core
       .filter((u) => status(u) !== "done")
       .reduce((a, u) => a + u.minutes, 0);
+    // Last opened: a real visit only. Skimmed lessons carry no timestamp.
     const recent = numbered
-      .filter((u) => s[u.id]?.updated)
+      .filter((u) => CausalState.opened(s[u.id]) && s[u.id].updated)
       .sort((a, b) => s[b.id].updated.localeCompare(s[a.id].updated))[0];
-    return { next, status, done, left, recent, s };
+    // The placement leads while its lesson has not been opened.
+    const fromPlacement =
+      !!placed && !!next && next.id === placed.unit && !CausalState.opened(s[next.id]);
+    return { next, status, done, walked, passed, left, recent, s, fromPlacement };
   }
+  const tally = (p) =>
+    `${p.walked} walked · ${p.passed} check${p.passed === 1 ? "" : "s"} passed of ${core.length}`;
   const hours = (m) => (m < 60 ? `${m} min` : `~${Math.round(m / 30) / 2} h`);
 
   function continueCard(p) {
@@ -66,21 +95,31 @@
       el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">Course complete</span></div><h2>Every transfer check demonstrated</h2><p>Retrieval reminders will keep appearing here. Revisit any lesson from the route below.</p>`;
       return;
     }
-    const startedAny = p.done > 0 || !!p.recent;
-    el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">${startedAny ? "Up next" : "Start here"} · ${esc(u.chapter.title)}</span><span class="mono dim">${u.minutes} min</span></div>
+    const startedAny = p.walked > 0 || p.passed > 0;
+    const eyebrow = p.fromPlacement
+      ? "Your starting point"
+      : startedAny
+        ? "Up next"
+        : "Start here";
+    const verb = p.fromPlacement ? "Start here" : startedAny ? "Continue" : "Begin";
+    const side = p.fromPlacement
+      ? '<a class="skip" href="#placement">From your placement answers · change</a>'
+      : u.id === COURSE.diagnostic.unit && !startedAny
+        ? '<a class="skip" href="#placement">Know some of this already? Find your starting point</a>'
+        : p.recent && p.recent.id !== u.id
+          ? `<a class="skip" href="lessons/${p.recent.file}">Last opened: ${esc(p.recent.short)}</a>`
+          : "";
+    // Two honest numbers: lessons walked through (opened) and transfer checks passed.
+    el.innerHTML = `<div class="k"><span class="eyebrow" style="color:var(--stage)">${eyebrow} · ${esc(u.chapter.title)}</span><span class="mono dim">${u.minutes} min</span></div>
       <h2>${esc(u.title)}</h2><p>${esc(u.blurb)}</p>
-      <div class="prog"><span class="mono">${p.done} of ${core.length}</span><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${core.length}" aria-valuenow="${p.done}" aria-label="Core lessons with a demonstrated transfer check"><i style="width:${(100 * p.done) / core.length}%"></i></div><span class="mono">${hours(p.left)} left</span></div>
-      <div class="actions"><a class="go" href="lessons/${u.file}">${startedAny ? "Continue" : "Begin"} <span aria-hidden="true">→</span></a>${
-        u.id === COURSE.diagnostic.unit
-          ? '<a class="skip" href="#placement">Know some of this already? Find your starting point</a>'
-          : p.recent && p.recent.id !== u.id
-            ? `<a class="skip" href="lessons/${p.recent.file}">Last opened: ${esc(p.recent.short)}</a>`
-            : ""
-      }</div>`;
+      <div class="prog"><span class="mono prog-n">${tally(p)}</span><span class="prog-row"><span class="bar" role="img" aria-label="${p.walked} of ${core.length} core lessons walked through; ${p.passed} transfer checks passed"><i class="walk" style="width:${(100 * p.walked) / core.length}%"></i><i class="pass" style="width:${(100 * p.passed) / core.length}%"></i></span><span class="mono">${hours(p.left)} left</span></span></div>
+      <div class="actions"><a class="go" href="lessons/${u.file}">${verb} <span aria-hidden="true">→</span></a>${side}</div>`;
   }
 
   function river(p) {
     const svg = document.getElementById("river");
+    // The river flows in once, on arrival; later in-place refreshes redraw without replaying it.
+    if (svg.childElementCount) svg.classList.add("settled");
     const draw = () =>
       CausalRiver.render(svg, {
         stages: COURSE.roadmap,
@@ -145,7 +184,7 @@
   function resumeBar(p) {
     const bar = document.getElementById("resume-bar"),
       u = p.next,
-      started = p.done > 0 || !!p.recent;
+      started = p.walked > 0 || p.passed > 0 || p.fromPlacement;
     if (!bar) return;
     bar.dataset.on = u && started ? "1" : "";
     if (!(u && started)) {
@@ -208,10 +247,10 @@
       const target = units.find((u) => u.id === d.next),
         lesson = units.find((u) => u.id === d.unit);
       if (!wrong.length) {
-        event({ type: "explore", unit: d.unit });
+        // A skim: explored, but not a visit and not a passed check.
+        event({ type: "explore", unit: d.unit, skim: true });
         out.className = "result ok";
-        out.innerHTML = `All three correct. The roadmap lesson is marked explored, not demonstrated. <a href="lessons/${target.file}">Start at ${esc(target.title)} →</a>`;
-        refresh();
+        out.innerHTML = `All three correct. The first lesson is marked skimmed, not passed. <a href="lessons/${target.file}">Start at ${esc(target.title)} →</a>`;
       } else {
         out.className = "result no";
         out.innerHTML = `Question${wrong.length > 1 ? "s" : ""} ${wrong.join(", ")} missed. <a href="lessons/${lesson.file}">${esc(lesson.title)}</a> covers exactly this, in about ${lesson.minutes} minutes.`;
@@ -248,9 +287,24 @@
     const mins = core.reduce((a, u) => a + u.minutes, 0);
     titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 30) / 2} hours, one cohort carried from the question to a survival curve. Every lesson opens directly; prerequisites are advice, not gates.`;
   }
+  // The route heading carries the same two numbers as the card, once there is something to count.
+  function routeProgress(p) {
+    const sub = document.getElementById("route-sub");
+    if (!sub) return;
+    let line = document.getElementById("route-prog");
+    if (!line) {
+      line = document.createElement("p");
+      line.id = "route-prog";
+      line.className = "route-prog mono";
+      sub.after(line);
+    }
+    line.hidden = !(p.walked || p.passed);
+    line.textContent = tally(p);
+  }
   function refresh() {
     const p = progress();
     continueCard(p);
+    routeProgress(p);
     river(p);
     itinerary(p);
     retrieval(p);
@@ -259,6 +313,22 @@
   }
   refresh();
   diagnostic();
+  // Refresh in place whenever progress or the placement changes (this tab or another one).
+  let queued = false;
+  const soon = () => {
+    if (queued) return;
+    queued = true;
+    // A microtask batches a burst of events (skimming marks many lessons at once).
+    queueMicrotask(() => {
+      queued = false;
+      refresh();
+    });
+  };
+  Causality.subscribe(soon);
+  window.addEventListener("causality:placement", soon);
+  window.addEventListener("storage", (e) => {
+    if (!e.key || e.key === PLACEMENT_KEY) soon();
+  });
   document.addEventListener("click", (e) => {
     if (e.target.closest('a[href="#skip-ahead"]'))
       document.getElementById("skip-ahead").open = true;

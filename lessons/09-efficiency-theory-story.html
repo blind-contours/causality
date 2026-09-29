@@ -12,122 +12,126 @@
 <link rel="stylesheet" href="../shared/lesson.css">
 <link rel="stylesheet" href="../shared/course.css">
 <link rel="stylesheet" href="../shared/motion.css">
+<style>
+/* Collapsed asides for the formal detail; tokens only. */
+details.go-deeper{border:1px solid var(--rule);border-radius:10px;padding:0 14px;margin:14px 0;background:var(--paper)}
+details.go-deeper>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--muted)}
+details.go-deeper[open]>summary{border-bottom:1px solid var(--rule);margin-bottom:8px}
+details.go-deeper>p{font-size:15px;line-height:1.6}
+</style>
 <script src="../science/core.js"></script>
 <script src="../shared/visuals.js"></script>
 </head>
 <body data-lesson="efficiency-theory-story">
 <div class="wrap">
-<div class="eyebrow">Semiparametric efficiency theory in eight moving pictures</div>
+<div class="eyebrow">A calm recap · nothing new, one picture per idea</div>
 <h1>Efficiency Theory, Drawn</h1>
-<p class="lede">The whole story on one page, now that you have built every piece. You have already met each object on its own: the parameter as a map, the influence function as each patient's contribution, the tangent space, the efficient influence function as a projection, the one-step correction, the remainder, and TMLE's targeting step. Here they are in order, drawn in one geometry, so you can see how each piece hands off to the next before the inference laboratory tests the promises they make. Each scene has a Play or Reveal button, a scrubber where the clock matters, and the one or two dials that change the picture; under each is the sentence to say out loud. The geometry follows Schuler and van der Laan, <em>Introduction to Modern Causal Inference</em>.</p>
+<p class="lede">You have built every piece of efficiency theory already. This page lays five of them side by side, in the order they hand off to each other. Replay what you like and skip what feels familiar.</p>
 <ul class="toc">
-<li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · Asymptotically linear</a></li><li><a href="#s3">3 · Pathwise derivative</a></li><li><a href="#s4">4 · Tangent space</a></li><li><a href="#s5">5 · The efficient influence function</a></li><li><a href="#s6">6 · Plug-in bias and the one-step</a></li><li><a href="#s7">7 · Double robustness is a rectangle</a></li><li><a href="#s8">8 · TMLE walks; the one-step jumps</a></li>
+<li><a href="#s1">1 · A parameter is a map</a></li><li><a href="#s2">2 · The error is an average</a></li><li><a href="#s5">3 · The shortest influence function</a></li><li><a href="#s6">4 · Plug-in bias and one step</a></li><li><a href="#s8">5 · TMLE walks; the one-step jumps</a></li>
 </ul>
 
 <!-- SCENE 1 -->
 <div class="eyebrow" id="s1">Scene 1</div>
 <h2>A parameter is a map from distributions to numbers</h2>
-<p>The model 𝓜 is the set of distributions allowed by your assumptions. The estimand <span class="m">ψ</span> takes each one to a number: <span class="m">ψ(P) = E<sub>P</sub>[μ<sub>1</sub>(X) − μ<sub>0</sub>(X)]</span>, say. Drawn on 𝓜, that's a landscape with level curves. Everything later in the story is about how that landscape behaves near the truth.</p>
+<p>Each point in the blob 𝓜 is a whole distribution your assumptions allow. The estimand ψ sends each one to a number, such as the ATE, ψ(P) = E[m₁(X) − m₀(X)], where m<sub>a</sub>(x) is the mean outcome in arm a.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c1" width="800" height="460"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="paper"><canvas id="c1" width="800" height="460" data-panels="0 30 580 460, 580 90 1160 260"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p1">Play</button></div>
     <label>Scrub <span class="v" id="v1">0.00</span><input type="range" id="t1" min="0" max="1" step="0.002" value="0"></label>
     <div class="readout" id="ro1"></div>
-    <div class="note">This is a finite-dimensional illustration. The polynomial landscape is made into a two-parameter Gaussian location model in scene 8; the visible blob is a viewing window. General nonparametric models may be infinite dimensional; parametric models may have any finite dimension.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The estimand is a functional, a smooth map from the model to the reals. Identification is what allows the claim that its value at the truth is the causal quantity; estimation is about how the map bends near the truth.</div>
+<p>Level curves join distributions with the same value of ψ. Everything later is about how this map bends near the truth.</p>
+<details class="go-deeper"><summary>Go deeper</summary><p>This is a finite-dimensional illustration: the landscape is the two-parameter Gaussian model of the last scene, and the blob is a viewing window. Nonparametric models may be infinite dimensional. Identification is what lets ψ at the truth be the causal quantity; estimation is about the shape of the map.</p></details>
 
 <!-- SCENE 2 -->
 <div class="eyebrow" id="s2">Scene 2</div>
-<h2>An estimator is asymptotically linear if its error is an average</h2>
-<p>An estimator <span class="m">ψ̂(P<sub>n</sub>)</span> is asymptotically linear when <span class="m">ψ̂ − ψ(P) = P<sub>n</sub>ϕ + o<sub>P</sub>(n<sup>−1/2</sup>)</span> for some mean-zero function <span class="m">ϕ</span> of one observation: the influence function. With independent observations and finite influence-function variance, the central limit theorem supplies the limiting distribution. Watch a real sample: each point contributes <span class="m">ϕ(Z<sub>i</sub>)</span>, the error is their average, and across repetitions the average is asymptotically normal with variance <span class="m">Var(ϕ)/n</span>.</p>
+<h2>Asymptotically linear: the error is an average of pulls</h2>
+<p>A good estimator's error is, to first order, the average of each patient's pull ϕ(O<sub>i</sub>) over the sample. That is what <em>asymptotically linear</em> means, and it is why the errors pile up in a bell curve of width √(Var ϕ / n).</p>
+<aside class="world-card"><b>This step's world</b> 200 simulated studies of n patients each, from the one-step lesson's trial (binary severity, confounded treatment) · continuous outcome · truth: ATE = 2</aside>
+<p>Each ball is one whole study. For the first three, the arrows show each patient pushing the ball by ϕ(O<sub>i</sub>)/n; a last small nudge, the remainder, lands it on the estimate. Red balls are 95% intervals that missed the truth.</p>
+<div class="predict" data-options="It halves|It shrinks to a quarter|It stays the same; there are just more patients per ball" data-answer="0" data-hint="The pile's SD is √(Var ϕ / n), so four times the patients gives half the width: 0.174 at n = 100, 0.087 at n = 400.">Switch from n = 100 to n = 400 patients per study. What happens to the width of the AIPW pile?</div>
+<div data-figure="galton" data-n="100" data-boards="both"></div>
+<div class="predict" data-options="It rises toward 95%|It stays near 95%|It falls toward 0%" data-answer="2" data-hint="The plug-in's intervals shrink like 1/√n around 2.64, so its fixed bias of 0.64 becomes more and more standard errors: 109 of 200 intervals cover at n = 50, 47 at n = 100, none at n = 400.">The plug-in (orange) is also asymptotically linear, but around 2.64, not 2. As n grows from 50 to 800, what happens to the share of its intervals that cover the truth?</div>
+<p class="note">Simulated: 200 seeded studies for each n (AIPW with both nuisance models fitted, no cross-fitting; the plug-in is the treated-minus-control difference). The arrows use the true influence function, which only a simulation can know. Exact: the centres 2 and 2.64 and the outline curves. Schematic: the pegs.</p>
+<details class="go-deeper"><summary>Go deeper: the same promise for a sample mean</summary><p>An estimator is asymptotically linear when ψ̂ − ψ(P) = P<sub>n</sub>ϕ + o<sub>P</sub>(n<sup>−1/2</sup>) for a mean-zero ϕ. With independent observations and finite Var(ϕ), the central limit theorem gives the normal limit. Here is the simplest case: each observation contributes ϕ(Z<sub>i</sub>) = Z<sub>i</sub> − μ, and the error is their average.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c2" width="800" height="460"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="paper"><canvas id="c2" width="800" height="460" data-panels="0 0 460 340, 480 0 940 340"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p2">Play</button><button id="n2b">New sample</button></div>
     <label>Scrub <span class="v" id="v2">0.00</span><input type="range" id="t2" min="0" max="1" step="0.002" value="0"></label>
     <label>Sample size n <span class="v" id="v2n">50</span><input type="range" id="n2" min="10" max="400" step="10" value="50"></label>
     <div class="readout" id="ro2"></div>
-    <div class="note">The influence function is literally each observation's contribution to the estimator's error. Its variance is the estimator's asymptotic variance; its empirical sd over √n is your standard error.</div>
   </div>
 </div>
-<p>Now the same promise for a real causal estimator. Each ball below is one whole study of n patients from the one-step lesson's trial (binary severity, confounded treatment, true ATE 2). For the first three studies the path is drawn as arrows placed tip to tail: patient i pushes the ball sideways by <span class="m">ϕ(O<sub>i</sub>)/n</span>, so it reaches <span class="m">ψ + P<sub>n</sub>ϕ</span>. A last small nudge, the remainder, moves it to the actual estimate. Then the balls rain down and pile up under <span class="m">N(ψ, Var(ϕ)/n)</span>. Each ball also carries its 95% interval; red means it missed the truth.</p>
-<div class="predict" data-options="It halves|It shrinks to a quarter|It stays the same; there are just more patients per ball" data-answer="0" data-hint="The pile's SD is √(Var ϕ / n), so four times the patients gives half the width: 0.174 at n = 100, 0.087 at n = 400.">Switch from n = 100 to n = 400 patients per study. What happens to the width of the AIPW pile?</div>
-<div data-figure="galton" data-n="100" data-boards="both"></div>
-<div class="predict" data-options="It rises toward 95%|It stays near 95%|It falls toward 0%" data-answer="2" data-hint="The plug-in's intervals shrink like 1/√n around 2.64, so its fixed bias of 0.64 becomes more and more standard errors: 109 of 200 intervals cover at n = 50, 47 at n = 100, none at n = 400.">The plug-in (orange) is also asymptotically linear, but around 2.64, not 2. As n grows from 50 to 800, what happens to the share of its intervals that cover the truth?</div>
-<p class="note">Simulated: 200 seeded studies for each n (the course's <code>generate()</code> study; AIPW with both nuisance models fitted, no cross-fitting; the plug-in uses the outcome model [1, A], which is the treated-minus-control difference). The arrows use the true influence function, which only a simulation can know. Exact: the centres 2 and 2.64 and the outline curves, computed from the known law. Schematic: the pegs.</p>
-<div class="say"><b>In one sentence</b>Asymptotic linearity means the estimator behaves like a sample mean of its influence function. That's what gives a normal limit, and Var(ϕ) is the number we'll try to make as small as possible.</div>
+</details>
+<div class="say"><b>In one sentence</b>Asymptotic linearity means the estimator behaves like a sample mean of its influence function, which gives a normal limit with variance Var(ϕ)/n.</div>
 
-<!-- SCENE 3 -->
-<div class="eyebrow" id="s3">Scene 3</div>
-<h2>The pathwise derivative, and the gradient that generates it</h2>
-<p>Move away from <span class="m">P</span> along a path <span class="m">P<sub>ε</sub></span> with score <span class="m">h</span>. The parameter changes at some rate, the pathwise derivative. For a smooth parameter that rate is an inner product, <span class="m">d/dε ψ(P<sub>ε</sub>) = E<sub>P</sub>[ϕ h]</span>, the same <span class="m">ϕ</span> for every direction. That <span class="m">ϕ</span> is the gradient. Rotate the direction and watch the derivative rise and fall as the cosine of the angle to the gradient.</p>
+<details class="go-deeper"><summary>Go deeper: the pathwise derivative and the tangent space, drawn</summary>
+<div class="eyebrow" id="s3">Aside</div>
+<h3>The pathwise derivative, and the gradient that generates it</h3>
+<p>Move away from P along a path with score h. The parameter changes at rate E<sub>P</sub>[ϕh], the same ϕ for every direction. Rotate the direction and watch the derivative rise and fall as the cosine of the angle to the gradient.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c3" width="800" height="460"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="paper"><canvas id="c3" width="800" height="460" data-panels="0 20 492 420, 495 10 987 330"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p3">Reveal</button></div>
     <label>Direction of the path, angle θ from ϕ <span class="v" id="v3">110°</span><input type="range" id="a3" min="0" max="360" step="1" value="110"></label>
     <div class="readout" id="ro3"></div>
-    <div class="note">Regularity of an estimator is the requirement that its limit not depend on which of these paths the truth drifts along. The Hájek–Le Cam convolution theorem then says the best regular estimator has the gradient as its influence function.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>A pathwise-differentiable parameter has a gradient: one function whose covariance with any score gives the derivative of ψ in that direction. The efficient influence function is that gradient, taken in the tangent space.</div>
-
-<!-- SCENE 4 -->
-<div class="eyebrow" id="s4">Scene 4</div>
-<h2>Scores are tangent to the model</h2>
-<p>Put each density at the point <span class="m">√p</span> so that every distribution lies on the unit sphere of L₂. A path through the model is a curve on the sphere; its velocity at <span class="m">p</span> is <span class="m">½h√p</span>, tangent to the sphere and so orthogonal to <span class="m">√p</span>. That orthogonality is exactly <span class="m">E<sub>P</sub>[h] = 0</span>. The closed linear span of the path scores is the tangent space 𝒯 at <span class="m">P</span>; it changes as <span class="m">P</span> moves, and it gets bigger as the model gets bigger.</p>
+<p>Regularity of an estimator requires that its limit not depend on which of these paths the truth drifts along. The Hájek–Le Cam convolution theorem then says the best regular estimator has the gradient in the tangent space as its influence function.</p>
+<div class="eyebrow" id="s4">Aside</div>
+<h3>Scores are tangent to the model</h3>
+<p>Put each density at the point √p, so every distribution lies on the unit sphere of L₂. A path is a curve on the sphere; its velocity ½h√p is orthogonal to √p, which is exactly E<sub>P</sub>[h] = 0. The closed linear span of the scores is the tangent space 𝒯.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c4" width="800" height="460"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="paper"><canvas id="c4" width="800" height="460" data-panels="0 50 530 460, 530 40 1090 125"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p4">Reveal</button></div>
     <label>Where p sits in the model <span class="v" id="v4">0.35</span><input type="range" id="t4" min="0" max="1" step="0.005" value="0.35"></label>
     <label>Illustrated width of the tangent plane <span class="v" id="v4m">1.00</span><input type="range" id="m4" min="0.25" max="1" step="0.01" value="1"></label>
-    <div class="note">In an RCT the treatment mechanism is known, so paths can't move it: the tangent space is missing those directions. Observational data adds them. At the same observed law, enlarging a model can increase the bound or leave it unchanged. For the population ATE, the EIF is already orthogonal to treatment-mechanism scores: knowing the propensity alone leaves its bound unchanged. Changing the actual assignment probabilities changes the law and can change the bound.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>Scores are the velocities of paths through P; they live in the tangent space, whose finite-dimensional illustration is a plane touching the sphere at √p. Knowing the propensity removes directions. Whether the bound changes depends on the target; for the population ATE at the same law it does not.</div>
+<p>In an RCT the treatment mechanism is known, so paths cannot move it and the tangent space loses those directions. For the population ATE the efficient influence function is already orthogonal to them, so knowing the propensity alone leaves the bound unchanged.</p>
+</details>
 
 <!-- SCENE 5 -->
-<div class="eyebrow" id="s5">Scene 5</div>
-<h2>Gradients form an affine set; projection finds its shortest member</h2>
-<p>Any two influence functions of a regular estimator have the same covariance with every score, so their difference is orthogonal to 𝒯. The set Φ of mean-zero gradients is therefore D* + 𝒯<sup>⊥</sup>. It is a line only when that orthogonal complement is one dimensional, as drawn here. It meets 𝒯 in exactly one point, <span class="m">ϕ<sup>†</sup></span>, and by Pythagoras that point has the smallest norm, which is the smallest variance. That's the efficiency bound.</p>
+<div class="eyebrow" id="s5">Scene 3</div>
+<h2>Projection finds the shortest influence function</h2>
+<p>Estimators that agree on every pathwise derivative can still have different influence functions. All of them lie on one line Φ, and exactly one lies inside the tangent space 𝒯.</p>
+<p>That one is the shortest, so it has the smallest variance: the efficient influence function, written D*. D* is the ϕ of the efficient estimator.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c5" width="800" height="460"></canvas><div class="cap" id="cap5"></div></div>
+  <div class="paper"><canvas id="c5" width="800" height="460" data-panels="0 30 570 455"></canvas><div class="cap" id="cap5"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p5">Reveal</button></div>
     <label>Position along Φ (0 is efficient) <span class="v" id="v5">0.75</span><input type="range" id="t5" min="-1" max="1" step="0.01" value="0.75"></label>
     <div class="readout" id="ro5"></div>
-    <div class="note">An inefficient RAL estimator, say IPW with a known propensity, has an influence function somewhere up or down this line. Augmenting it (AIPW) is projecting it onto 𝒯.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>Every influence function is the efficient one plus something orthogonal to the tangent space, and orthogonal pieces only add variance. So the efficient influence function is the projection of any gradient onto the tangent space, and its variance is the bound.</div>
+<p>Augmenting an inefficient estimator, as AIPW augments IPW, is projecting its influence function onto 𝒯.</p>
+<details class="go-deeper"><summary>Go deeper</summary><p>Any two gradients have the same covariance with every score, so their difference is orthogonal to 𝒯: the set of mean-zero gradients is D* + 𝒯<sup>⊥</sup>. It is a line only when that complement is one dimensional, as drawn. By Pythagoras, Var(ϕ) = ‖D*‖² + ‖ϕ − D*‖².</p></details>
+<div class="say"><b>In one sentence</b>Every influence function is D* plus something orthogonal to the tangent space, and orthogonal pieces only add variance, so D*'s variance is the bound.</div>
 
 <!-- SCENE 6 -->
-<div class="eyebrow" id="s6">Scene 6</div>
+<div class="eyebrow" id="s6">Scene 4</div>
 <h2>Plug-in bias, and one step to remove it</h2>
-<p>Fit nuisances, get <span class="m">P̂</span>, evaluate <span class="m">ψ(P̂)</span>: the plug-in. Walk the straight path from <span class="m">P̂</span> to the truth <span class="m">P</span> and lift it: the curve is <span class="m">ψ(P̂ + ε(P − P̂))</span>. Its tangent at <span class="m">P̂</span> has slope <span class="m">Pϕ̂</span>, which you cannot compute, and sample slope <span class="m">P<sub>n</sub>ϕ̂</span>, which you can. Add the sample slope back and the first-order bias is gone. Three gaps remain visible: plug-in bias (removed); the sampling term <span class="m">(P<sub>n</sub> − P)ϕ̂</span>, of order n<sup>−1/2</sup>, which is the noise a confidence interval accounts for (its piece <span class="m">(P<sub>n</sub> − P)(ϕ̂ − ϕ)</span> must be o<sub>P</sub>(n<sup>−1/2</sup>), which is where Donsker conditions or cross-fitting come in); and the second-order remainder (order of the squared nuisance error).</p>
+<p>Fit the nuisances, get P̂, and evaluate ψ(P̂): the plug-in. Walk the straight path from P̂ to the truth P and watch ψ along it.</p>
+<p>The slope at P̂ toward the truth cannot be computed, but its sample version, P<sub>n</sub>ϕ̂, can. Add it back and the first-order bias is gone: that is the one-step estimator, and for the ATE it is AIPW.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c6" width="800" height="560"></canvas><div class="cap" id="cap6"></div></div>
+  <div class="paper"><canvas id="c6" width="800" height="560" data-panels="0 10 590 550, 590 40 1180 150"></canvas><div class="cap" id="cap6"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p6">Play</button></div>
     <label>Scrub <span class="v" id="v6">0.00</span><input type="range" id="t6" min="0" max="1" step="0.002" value="0"></label>
     <label>Nuisance error, ‖P̂ − P‖ <span class="v" id="v6d">0.70</span><input type="range" id="d6" min="0.15" max="1" step="0.01" value="0.7"></label>
     <label>Sample size n <span class="v" id="v6n">200</span><input type="range" id="n6" min="30" max="3000" step="10" value="200"></label>
     <div class="readout" id="ro6"></div>
-    <div class="note">Halve the nuisance error: the first-order term halves, the remainder quarters. Efficient centered inference needs R₂=oₚ(n<sup>−1/2</sup>). Two errors exactly n<sup>−1/4</sup> do not by themselves meet that condition.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The plug-in sits on a curve; its first-order error is minus the mean of the influence function at the estimate. Estimate that mean with the sample and add it back: that is the one-step, and for the ATE it is AIPW. What's left is an empirical-process term at root-n and a remainder that is second order in the nuisance error.</div>
-
-<!-- SCENE 7 -->
-<div class="eyebrow" id="s7">Scene 7</div>
-<h2>Double robustness is a rectangle</h2>
-<p>For the ATE, using Ψ(P̂)−Ψ(P₀)=−P₀D*(P̂)+R₂, the remainder is E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ+(m̂₀−m₀₀)/(1−ĝ)}]. With inverse propensities bounded, its magnitude is bounded by a constant times the product of nuisance L² errors. The rectangle depicts that magnitude bound, not the signed exact remainder. Exactly n<sup>−1/4</sup> errors give a product at the same order as sampling error; efficient inference needs a negligible product or a sharper argument.</p>
+<p>Halve the nuisance error: the first-order term halves and the remainder quarters. What is left is sampling noise, which shrinks like 1/√n, and a remainder that is second order in the nuisance error.</p>
+<details class="go-deeper"><summary>Go deeper: the remainder is a rectangle</summary><h3>Double robustness is a rectangle</h3><p>For the ATE, Ψ(P̂) − Ψ(P₀) = −P₀D*(P̂) + R₂ with R₂ = E₀[(ĝ − g₀){(m̂₁ − m₁₀)/ĝ + (m̂₀ − m₀₀)/(1 − ĝ)}], where g is the propensity score and m<sub>a</sub> the outcome regressions. With inverse propensities bounded, |R₂| is at most a constant times the product of the two L² errors: the rectangle below. It depicts that magnitude bound, not the signed remainder. Efficient inference needs R₂ = o<sub>P</sub>(n<sup>−1/2</sup>); two errors of exactly n<sup>−1/4</sup> do not by themselves meet it. The sampling piece (P<sub>n</sub> − P)(ϕ̂ − ϕ) must also be o<sub>P</sub>(n<sup>−1/2</sup>), which is where Donsker conditions or cross-fitting come in. The inference laboratory tests all of this with coverage.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c7" width="800" height="460" role="img" aria-label="Left: the plane of propensity error against outcome error, with the rectangle whose area bounds the remainder and the shaded region under the hyperbola where the product is at most c over root n. Right: both errors, their product and c over root n against sample size on log scales. Values are in the readout."></canvas><div class="cap" id="cap7"></div></div>
+  <div class="paper"><canvas id="c7" width="800" height="460" data-panels="0 0 422 460, 425 0 847 460" role="img" aria-label="Left: the plane of propensity error against outcome error, with the rectangle whose area bounds the remainder and the shaded region under the hyperbola where the product is at most c over root n. Right: both errors, their product and c over root n against sample size on log scales. Values are in the readout."></canvas><div class="cap" id="cap7"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p7">Play</button></div>
     <label>Sample size n (log scale) <span class="v" id="v7n">100</span><input type="range" id="t7" min="0" max="1" step="0.002" value="0"></label>
@@ -136,29 +140,31 @@
     <label>Outcome rate α (error shrinks like 1/n^α) <span class="v" id="v7ra">0.25</span><input type="range" id="ra7" min="0.1" max="0.5" step="0.01" value="0.25"></label>
     <label>Propensity rate β (error shrinks like 1/n^β) <span class="v" id="v7rb">0.25</span><input type="range" id="rb7" min="0.1" max="0.5" step="0.01" value="0.25"></label>
     <div class="readout" id="ro7"></div>
-    <div class="note">The plug-in's error, by contrast, is a single side: the whole of ‖μ̂ − μ‖, at the outcome model's own rate. That's why a slow biased outcome fit alone need not justify √n inference. The correction helps under additional conditions.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>The remainder is a product of nuisance errors. If either is exactly right the product is zero, which is double robustness; if both converge faster than n to the minus one-quarter, the product is smaller than n to the minus one-half, which is what makes the estimator asymptotically linear and efficient.</div>
+<p>If either error is exactly zero the rectangle has no area: double robustness. If both shrink faster than n<sup>−1/4</sup>, the product is smaller than n<sup>−1/2</sup>.</p>
+</details>
 
 <!-- SCENE 8 -->
-<div class="eyebrow" id="s8">Scene 8</div>
+<div class="eyebrow" id="s8">Scene 5</div>
 <h2>TMLE walks through the model; the one-step jumps in ψ</h2>
-<p>Here is a fully specified finite model: Z follows N₂(θ,I), and Ψ(θ) = 2 + 0.9θ₁ + 0.5θ₂ + c(0.6θ₁² − 0.7θ₁θ₂ + 0.2θ₂²). Its EIF is ∇Ψ(θ)·(Z−θ). The information metric on θ is Euclidean. A line θ+ε∇Ψ(θ) is locally least favorable, and Gaussian likelihood gives ε̂=∇Ψ(θ)·(Z̄−θ)/‖∇Ψ(θ)‖². Fit that line once, or recompute the direction and iterate until the current EIF equation is small. The point labelled Pₙ represents its sufficient statistic Z̄ in this model, not an empirical density in the Gaussian family.</p>
+<p>The one-step corrects the number and never moves in 𝓜. TMLE instead nudges the fitted distribution P̂ along the direction of the efficient influence function until its average over the sample is zero, then plugs in.</p>
+<p>Play the walk and compare where each lands on the ψ line below the model.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c8" width="800" height="560"></canvas><div class="cap" id="cap8"></div></div>
+  <div class="paper"><canvas id="c8" width="800" height="560" data-panels="0 40 590 550"></canvas><div class="cap" id="cap8"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p8">Play</button><button id="st8">One step</button><button id="r8">Reset</button></div>
     <label>Curvature of ψ <span class="v" id="v8c">0.60</span><input type="range" id="c8s" min="0" max="1" step="0.01" value="0.6"></label>
     <label><span>Path: <select id="mode8" style="font:inherit"><option value="universal">iterated local submodels (re-aim each step)</option><option value="fixed">one local submodel (fit once at P̂)</option></select></span></label>
     <div class="readout" id="ro8"></div>
-    <div class="note">A single line fit zeros its own likelihood score. For nonlinear Ψ it need not zero the updated EIF. Iterating local Gaussian line fits targets that updated equation; this is not labelled a universal submodel. Equality with the one-step when c=0 is specific to this Gaussian linear-target example.</div>
   </div>
 </div>
-<div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable submodel until the empirical mean of the efficient influence function is zero, then plugs in. The one-step never moves in 𝓜 at all; it corrects the number. TMLE applies the same first-order correction to the distribution instead, so the estimate stays inside the parameter space.</div>
+<p>Both remove the same first-order bias. TMLE's answer is a plug-in, so it always stays inside the parameter space, for example between 0 and 1 for a risk.</p>
+<details class="go-deeper"><summary>Go deeper</summary><p>The model here is fully specified: Z follows N₂(θ, I) and Ψ(θ) = 2 + 0.9θ₁ + 0.5θ₂ + c(0.6θ₁² − 0.7θ₁θ₂ + 0.2θ₂²). Its efficient influence function is ∇Ψ(θ)·(Z − θ), and the line θ + ε∇Ψ(θ) is locally least favorable, with ε̂ = ∇Ψ(θ)·(Z̄ − θ)/‖∇Ψ(θ)‖². The point Pₙ stands for the sufficient statistic Z̄. A single line fit zeros its own score; for curved Ψ it need not zero the updated one, so the default re-aims and iterates (iterated local submodels, not a universal submodel). Equality with the one-step at c = 0 is specific to this example.</p></details>
+<div class="say"><b>In one sentence</b>TMLE fluctuates the initial fit along a least-favorable path until the sample mean of the efficient influence function is zero, then plugs in; the one-step adds the same correction to the number instead.</div>
 
-<p class="note">Next, the inference laboratory puts these promises to the test: the rate boundary from scene 7, cross-fitting, and what happens to interval coverage when a flexible learner is fitted and evaluated on the same patients.</p>
-<p class="src">Geometry follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a>, ch. 3–4; the influence-function projection picture is Tsiatis's; the rectangle in scene 7 is the Cauchy–Schwarz bound on the ATE remainder as in Kennedy's notes and Chernozhukov et al. (2018).</p>
+<p class="note">Next, the inference laboratory puts these promises to the test: the rate boundary from the remainder rectangle, cross-fitting, and what happens to interval coverage when a flexible learner is fitted and evaluated on the same patients.</p>
+<p class="src sources">Further reading: the geometry follows Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a>, ch. 3–4; the projection picture is Tsiatis's (<em>Semiparametric Theory and Missing Data</em>, ch. 3–4); the remainder rectangle is the Cauchy–Schwarz bound as in Kennedy, <a href="https://arxiv.org/abs/2203.06469">"Semiparametric doubly robust targeted double machine learning: a review"</a> (2022), and Chernozhukov et al. (2018), <a href="https://doi.org/10.1111/ectj.12097">"Double/debiased machine learning"</a>.</p>
 </div>
 
 <script>
@@ -176,7 +182,7 @@ function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();r
 function line(g,x1,y1,x2,y2,col,w,dash){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();g.setLineDash([]);}
 function poly(g,pts,col,w,dash,close){g.strokeStyle=col;g.lineWidth=w||1.5;g.setLineDash(dash||[]);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));if(close)g.closePath();g.stroke();g.setLineDash([]);}
 function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283);g.fill();if(ring){g.strokeStyle=C.paper;g.lineWidth=2;g.stroke();}}
-function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
+function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';CausalVisuals.rich(g,s,x,y);}
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function bracket(g,x,y1,y2,col){line(g,x,y1,x,y2,col,1.6);line(g,x-5,y1,x+5,y1,col,1.6);line(g,x-5,y2,x+5,y2,col,1.6);}
 function blob(cx,cy,rx,ry,seed){const r=mulberry(seed),pts=[],k=[];for(let i=0;i<4;i++)k.push([Math.round(r()*3+1),r()*6.28,r()*0.1]);/* whole-number frequencies close the outline without a notch */for(let i=0;i<=90;i++){const t=i/90*6.283;let s=1;for(const [f,ph,a] of k)s+=a*Math.sin(f*t+ph);pts.push([cx+rx*s*Math.cos(t),cy+ry*s*Math.sin(t)]);}return pts;}
@@ -209,25 +215,25 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   const lv=[];for(let l=1.0;l<=3.6;l+=0.25)lv.push(l);contours(g,X,Y,psi,lv,bp,C.muted);
   poly(g,bp,C.pen,2,null,true);txt(g,'𝓜',bx+rx*0.78,by-ry*0.9,C.pen,26,'left',FS,true);
   // number line
-  const NL=428,L=90,R=560,lo=1,hi=3.6,nx=v=>L+(R-L)*(v-lo)/(hi-lo);line(g,L,NL,R,NL,C.pen,1.5);for(let v=1;v<=3.5;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1.2);txt(g,v.toFixed(1),nx(v),NL+16,C.muted,11,'center',FM);}txt(g,'ψ(P) ∈ ℝ',R+14,NL,C.pen,16,'left',FS,true);
+  const NL=428,L=90,R=560,lo=1,hi=3.6,nx=v=>L+(R-L)*(v-lo)/(hi-lo);line(g,L,NL,R,NL,C.pen,1.5);for(let v=1;v<=3.5;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1.2);txt(g,v.toFixed(1),nx(v),NL+16,C.muted,11,'center',FM);}txt(g,'ψ(P) ∈ ℝ',R,NL-22,C.pen,16,'right',FS,true);
   // wandering point along a loop parametrized by t
   const [u,v]=loop1(t);const val=psi(u,v);
   const gr=LAND.grad(u,v,0.6);
   // tick history: every value of ψ the point has passed through
   g.globalAlpha=0.28;hist1.forEach(h=>line(g,nx(h),NL-10,nx(h),NL+10,C.purple,1));g.globalAlpha=1;
-  if(hist1.length>1)txt(g,'ticks: values of ψ visited',R+14,NL+22,C.purple,11,'left');
+  if(hist1.length>1)txt(g,'ticks: values of ψ visited',R,NL+36,C.purple,11,'right');
   line(g,X(u),Y(v),nx(val),NL-6,C.purple,1,[3,4]);
   dot(g,X(u),Y(v),C.purple,6,true);txt(g,'P',X(u)+12,Y(v)-12,C.purple,18,'left',FS,true);
   dot(g,nx(val),NL,C.purple,6,true);
   // right side: the arrow "psi"
   txt(g,'ψ',640,120,C.pen,34,'center',FS,true);arrow(g,600,150,690,150,C.pen,1.5);txt(g,'𝓜 → ℝ',645,180,C.muted,15,'center',FS,true);
-  txt(g,'level curves: sets of distributions',600,230,C.muted,12,'left');txt(g,'with the same value of ψ',600,246,C.muted,12,'left');
+  txt(g,'level curves: sets of distributions',600,230,C.muted,12,'left');txt(g,'with the same value of ψ',600,253,C.muted,12,'left');
   document.getElementById('ro1').innerHTML=`<span class="k">ψ(P)</span><span>${val.toFixed(3)}</span><span class="k">|∇ψ| here</span><span>${Math.hypot(...gr).toFixed(2)}</span>`;
   document.getElementById('cap1').textContent='Play or drag: the point wanders through the model, and every value of ψ it passes leaves a tick on the number line. Closer level curves mean ψ changes faster there.';
 },{dur:9000,onT:t=>{if(t===0)hist1.length=0;else hist1.push(psi1(...loop1(t)));}});
 
 // ============ SCENE 2 ============
-let Z2=null;function sample2(){const n=+document.getElementById('n2').value;Z2=Array.from({length:n},()=>-Math.log(Math.random())-1);}sample2();
+let Z2=null,draw2=0;function sample2(){const n=+document.getElementById('n2').value,r=mulberry(9001+draw2*131+n);Z2=Array.from({length:n},()=>-Math.log(r()+1e-12)-1);}sample2();
 const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const n=Z2.length;
   // left panel: observations and phi values
   const L=60,R=440,T=40,B=300;const ys=v=>T+(B-T)*(1-(v+1)/5);txt(g,'ϕ(Zᵢ) = Zᵢ − μ  for each observation',L,22,C.muted,12.5,'left');
@@ -248,7 +254,7 @@ const S2=scene(2,(g,W,H,t)=>{clear(g,W,H);const n=Z2.length;
   document.getElementById('ro2').innerHTML=`<span class="k">n</span><span>${n}</span><span class="k">Var(ϕ)</span><span>1.000</span><span class="k">√(Var ϕ / n)</span><span>${(1/Math.sqrt(n)).toFixed(3)}</span>`;
   document.getElementById('cap2').textContent=t<0.45?'Each observation contributes one value of the influence function, positive or negative.':t<0.6?'The estimator\'s error is their average. Nothing more.':'Across repeated samples that average is normal, with variance Var(ϕ)/n. Raise n and watch it tighten like 1/√n.';
 });
-document.getElementById('n2b').onclick=()=>{sample2();S2.draw();};
+document.getElementById('n2b').onclick=()=>{draw2++;sample2();S2.draw();};
 bind('n2','v2n',v=>v,()=>{sample2();S2.draw();});
 
 // ============ SCENE 3 ============
@@ -286,7 +292,7 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const tt=+document.getElementById('t4'
   const sp=[];for(let k=0;k<=90;k++){const a=Math.PI+k/90*Math.PI*1.12;sp.push([ox+R*Math.cos(a),oy+R*Math.sin(a)]);}poly(g,sp,C.pen,1.8);
   // equator ellipse suggestion
   g.strokeStyle=C.grid;g.lineWidth=1.2;g.beginPath();g.ellipse(ox,oy,R,R*0.18,0,0,6.283);g.stroke();
-  txt(g,'unit sphere in L₂',60,395,C.muted,13,'left');txt(g,'each density p sits at √p',60,414,C.muted,13,'left');
+  txt(g,'unit sphere in L₂',60,395,C.muted,13,'left');txt(g,'each density p sits at √p',60,419,C.muted,13,'left');
   const a0=-2.3,a1=-0.5;const mid=(a0+a1)/2,half=(a1-a0)/2*msize;const b0=mid-half,b1=mid+half;
   // model patch (two arcs joined)
   const outer=[],inner=[];for(let k=0;k<=40;k++){const a=b0+(b1-b0)*k/40;outer.push([ox+R*Math.cos(a),oy+R*Math.sin(a)]);const rr=R-26-8*Math.sin(k/5);inner.push([ox+rr*Math.cos(a),oy+rr*Math.sin(a)]);}
@@ -305,52 +311,53 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const tt=+document.getElementById('t4'
   const st=seg(t,0.45,1);const sc=[[0.9,0],[-0.6,0.5],[0.35,-0.7]];sc.forEach((s,i)=>{const k=clamp(st*3-i,0,1);if(k>0){const ex=px+(tx*L*s[0]+e2[0]*s[1])*k,ey=py+(ty*L*s[0]+e2[1]*s[1])*k;arrow(g,px,py,ex,ey,C.green,2);}});
   if(st>=1)txt(g,'½h·√p',px+tx*L*0.9+12,py+ty*L*0.9-12,C.green,14,'left',FS,true);
   dot(g,px,py,C.pen,5,true);txt(g,'√p',px+Math.cos(a)*22+8,py+Math.sin(a)*22-12,C.pen,16,'left',FS,true);
-  txt(g,'⟨h√p, √p⟩ = ∫ h p = E[h] = 0',540,60,C.pen,13.5,'left',FM);txt(g,'scores are mean zero ⇔',540,84,C.muted,12.5,'left');txt(g,'velocities are tangent to the sphere',540,100,C.muted,12.5,'left');
+  txt(g,'⟨h√p, √p⟩ = ∫ h p = E[h] = 0',540,60,C.pen,13.5,'left',FM);txt(g,'scores are mean zero ⇔',540,86,C.muted,12.5,'left');txt(g,'velocities are tangent to the sphere',540,109,C.muted,12.5,'left');
   document.getElementById('cap4').textContent=msize<0.6?'The displayed width is schematic. A vector space has directions and dimension, not a bounded width. Use the finite-probability lab to remove a direction exactly.':'Drag p along the model: the tangent plane turns with it. Scores at different distributions are different functions.';
 },{playLabel:'Reveal'});
 bind('t4','v4',v=>v.toFixed(2),()=>S4.draw());bind('m4','v4m',v=>v.toFixed(2),()=>S4.draw());
 
 // ============ SCENE 5 ============
 const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);const s=+document.getElementById('t5').value;
-  const quad=[[110,290],[430,170],[720,260],[400,390]];g.fillStyle=C.teal;g.globalAlpha=0.08;g.beginPath();quad.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();g.globalAlpha=1;poly(g,quad,C.teal,1.8,null,true);txt(g,'𝒯  tangent space',660,196,C.teal,15,'left',FS,true);
-  const ix=420,iy=280;const ux=0.07,uy=-1;const nn=Math.hypot(ux,uy);const vx=ux/nn,vy=uy/nn;
-  const lt=seg(t,0,0.4);line(g,ix-vx*230*lt,iy-vy*230*lt,ix+vx*230*lt,iy+vy*230*lt,C.phat,1.8);if(lt>=1)txt(g,'Φ  all influence functions',ix+vx*205+14,iy+vy*205,C.phat,15,'left',FS,true);
-  const o=[240,300];arrow(g,o[0],o[1],o[0]-8,o[1]-30,C.muted,1.2);arrow(g,o[0],o[1],o[0]+30,o[1]+6,C.muted,1.2);txt(g,'0',o[0]-14,o[1]+10,C.muted,12,'center',FM);
+  const quad=[[50,285],[290,170],[530,250],[290,385]];g.fillStyle=C.teal;g.globalAlpha=0.08;g.beginPath();quad.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();g.globalAlpha=1;poly(g,quad,C.teal,1.8,null,true);txt(g,'tangent space 𝒯',405,190,C.teal,15,'left',FS,true);
+  const ix=300,iy=275;const ux=0.07,uy=-1;const nn=Math.hypot(ux,uy);const vx=ux/nn,vy=uy/nn;
+  const lt=seg(t,0,0.4);line(g,ix-vx*195*lt,iy-vy*195*lt,ix+vx*235*lt,iy+vy*235*lt,C.phat,1.8);if(lt>=1)txt(g,'Φ  all influence functions',ix+vx*215+14,iy+vy*215,C.phat,15,'left',FS,true);
+  const o=[150,300];arrow(g,o[0],o[1],o[0]-8,o[1]-30,C.muted,1.2);arrow(g,o[0],o[1],o[0]+30,o[1]+6,C.muted,1.2);txt(g,'0',o[0]-14,o[1]+10,C.muted,12,'center',FM);
   const px=ix+vx*150*s,py=iy+vy*150*s;
   const pt=seg(t,0.35,0.7);if(pt>0){arrow(g,o[0],o[1],o[0]+(ix-o[0])*pt,o[1]+(iy-o[1])*pt,C.teal,2);}
   if(pt>=1){arrow(g,o[0],o[1],px,py,C.phat,1.6);if(Math.abs(s)>0.02)arrow(g,ix,iy,px,py,C.purple,2.2);
     poly(g,[[ix-12,iy-1],[ix-12,iy-13],[ix,iy-13]],C.pen,1.1);
-    dot(g,ix,iy,C.teal,7,true);txt(g,'ϕ†  efficient',ix+16,iy+16,C.teal,15,'left',FS,true);
+    dot(g,ix,iy,C.teal,7,true);txt(g,'D*  efficient',ix+16,iy+18,C.teal,15,'left',FS,true);
     dot(g,px,py,C.phat,5,true);txt(g,'ϕ',px+14,py-2,C.phat,16,'left',FS,true);if(Math.abs(s)>0.05)txt(g,'h⊥',ix+(px-ix)/2+16,iy+(py-iy)/2,C.purple,15,'left',FS,true);}
   // variance bar
-  const bt=seg(t,0.65,1);const eff=1,perp=s*s*1.6,tot=eff+perp;const bx=90,by=428,sc=500/2.6;
-  if(bt>0){g.fillStyle=C.teal;g.fillRect(bx,by,eff*sc*bt,14);g.fillStyle=C.purple;g.fillRect(bx+eff*sc*bt,by,perp*sc*bt,14);txt(g,'Var(ϕ) = ‖ϕ†‖²  +  ‖h⊥‖²',bx,by-14,C.pen,13,'left',FM);txt(g,'= '+tot.toFixed(2),bx+tot*sc*bt+10,by+7,C.pen,13,'left',FM);}
-  document.getElementById('ro5').innerHTML=`<span class="k">‖ϕ†‖² (bound)</span><span>1.00</span><span class="k">‖h⊥‖²</span><span>${perp.toFixed(2)}</span><span class="k">relative eff.</span><span>${(eff/tot*100).toFixed(0)}%</span>`;
-  document.getElementById('cap5').textContent=Math.abs(s)<0.03?'At the crossing the influence function lies inside the tangent space: this is the efficient one.':'Every other influence function is ϕ† plus a piece orthogonal to 𝒯. That piece adds variance and changes nothing else.';
+  const bt=seg(t,0.65,1);const eff=1,perp=s*s*1.6,tot=eff+perp;const bx=50,by=432,sc=440/2.6;
+  if(bt>0){g.fillStyle=C.teal;g.fillRect(bx,by,eff*sc*bt,14);g.fillStyle=C.purple;g.fillRect(bx+eff*sc*bt,by,perp*sc*bt,14);txt(g,'Var(ϕ) = ‖D*‖² + ‖h⊥‖²',bx,by-16,C.pen,13,'left',FM);txt(g,'= '+tot.toFixed(2),bx+tot*sc*bt+10,by+7,C.pen,13,'left',FM);}
+  document.getElementById('ro5').innerHTML=`<span class="k">‖D*‖² (bound)</span><span>1.00</span><span class="k">‖h⊥‖²</span><span>${perp.toFixed(2)}</span><span class="k">relative eff.</span><span>${(eff/tot*100).toFixed(0)}%</span>`;
+  document.getElementById('cap5').textContent=Math.abs(s)<0.03?'At the crossing the influence function lies inside the tangent space: this is the efficient one.':'Every other influence function is D* plus a piece orthogonal to 𝒯. That piece adds variance and changes nothing else.';
 },{playLabel:'Reveal'});
 bind('t5','v5',v=>v.toFixed(2),()=>S5.draw());
 
 // ============ SCENE 6 ============
 let noise6=0.7;
 const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);const dist=+document.getElementById('d6').value,n=+document.getElementById('n6').value;
-  const bx=400,by=470,rx=300,ry=70;const bp=blob(bx,by,rx,ry,7);g.fillStyle=C.soft;g.beginPath();bp.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();poly(g,bp,C.pen,1.8,null,true);txt(g,'𝓜',bx+rx*0.92,by-ry*0.9,C.pen,22,'left',FS,true);
-  const Ph=[bx-100-dist*90,by+18],P=[bx+70+dist*110,by-16];const tt=seg(t,0,0.3);
+  const bx=330,by=470,rx=235,ry=66;const bp=blob(bx,by,rx,ry,7);g.fillStyle=C.soft;g.beginPath();bp.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();poly(g,bp,C.pen,1.8,null,true);txt(g,'𝓜',bx+rx*0.9,by-ry*0.95,C.pen,22,'left',FS,true);
+  const Ph=[bx-90-dist*70,by+18],P=[bx+60+dist*80,by-14];const tt=seg(t,0,0.3);
   line(g,Ph[0],Ph[1],Ph[0]+(P[0]-Ph[0])*tt,Ph[1]+(P[1]-Ph[1])*tt,C.pen,1.8);
-  dot(g,Ph[0],Ph[1],C.phat,6,true);txt(g,'P̂',Ph[0]-4,Ph[1]+22,C.phat,18,'center',FS,true);
-  if(tt>=1){dot(g,P[0],P[1],C.p,6,true);txt(g,'P',P[0]+16,P[1]-4,C.p,18,'left',FS,true);const nz=80/Math.sqrt(n);const Pn=[P[0]+nz*0.8,P[1]-nz*0.9];dot(g,Pn[0],Pn[1],C.teal,4,true);txt(g,'Pₙ',Pn[0]+8,Pn[1]-10,C.teal,14,'left',FS,true);}
-  const L=190,R=610,T=40,B=350;line(g,L,B,R+30,B,C.pen,1.3);line(g,L,B,L,T-10,C.pen,1.3);txt(g,'ψ',L-16,T-2,C.pen,20,'center',FS,true);txt(g,'ε',R+40,B+4,C.pen,16,'left',FS,true);txt(g,'0',L,B+16,C.phat,13,'center',FM);txt(g,'1',R,B+16,C.p,13,'center',FM);
-  const xs=e=>L+(R-L)*e;const truthY=B-70,first=dist*150,rem=dist*dist*95,plugY=truthY+first+rem;const psiY=e=>plugY-first*e-rem*e*e;
-  line(g,xs(0),B,Ph[0],Ph[1]-6,C.phat,1,[3,4]);if(tt>=1)line(g,xs(1),B,P[0],P[1]+6,C.p,1,[3,4]);
+  dot(g,Ph[0],Ph[1],C.or,6,true);txt(g,'P̂',Ph[0]-4,Ph[1]+22,C.or,18,'center',FS,true);
+  if(tt>=1){dot(g,P[0],P[1],C.green,6,true);txt(g,'P',P[0]+16,P[1]-4,C.green,18,'left',FS,true);const nz=60/Math.sqrt(n);const Pn=[P[0]+nz*0.8,P[1]-nz*0.9];dot(g,Pn[0],Pn[1],C.teal,4,true);txt(g,'Pₙ',Pn[0]+8,Pn[1]-12,C.teal,14,'left',FS,true);}
+  const L=150,R=470,T=40,B=350;line(g,L,B,R+20,B,C.pen,1.3);line(g,L,B,L,T-10,C.pen,1.3);txt(g,'ψ',L-16,T-6,C.pen,20,'center',FS,true);txt(g,'ε',R+30,B,C.pen,16,'left',FS,true);txt(g,'0',L,B+16,C.or,13,'center',FM);txt(g,'1',R,B+16,C.green,13,'center',FM);
+  const xs=e=>L+(R-L)*e;const truthY=T+40,first=dist*150,rem=dist*dist*95,plugY=truthY+first+rem;const psiY=e=>plugY-first*e-rem*e*e;
+  line(g,xs(0),B,Ph[0],Ph[1]-6,C.or,1,[3,4]);if(tt>=1)line(g,xs(1),B,P[0],P[1]+6,C.green,1,[3,4]);
   const ct=seg(t,0.1,0.45);const cp=[];for(let k=0;k<=80;k++){const e=k/80*ct;cp.push([xs(e),psiY(e)]);}if(cp.length>1)poly(g,cp,C.pen,2.4);
-  line(g,L,plugY,R,plugY,C.phat,1,[3,4]);dot(g,xs(0),plugY,C.phat,6,true);txt(g,'ψ(P̂)',L-14,plugY,C.phat,17,'right',FS,true);
-  if(ct>=1){line(g,L,truthY,R,truthY,C.p,1,[3,4]);dot(g,xs(1),truthY,C.p,6,true);txt(g,'ψ(P)',L-14,truthY,C.p,17,'right',FS,true);}
-  const tan=seg(t,0.5,0.68);if(tan>0){line(g,xs(0),plugY,xs(tan),plugY-first*tan,C.or,2);txt(g,'slope Pϕ̂',xs(0.22),plugY-first*0.22-16,C.or,13,'center',FS,true);}
-  const sl2=first*(1+0.45*noise6*Math.sqrt(200/n));const tan2=seg(t,0.68,0.85);if(tan2>0){line(g,xs(0),plugY,xs(tan2),plugY-sl2*tan2,C.teal,2);txt(g,'slope Pₙϕ̂',xs(0.6),plugY-sl2*0.6-16,C.teal,13,'center',FS,true);}
+  line(g,L,plugY,R,plugY,C.or,1,[3,4]);dot(g,xs(0),plugY,C.or,6,true);txt(g,'ψ(P̂)',L-12,plugY,C.or,16,'right',FS,true);
+  if(ct>=1){line(g,L,truthY,R,truthY,C.green,1.2,[6,4]);dot(g,xs(1),truthY,C.green,6,true);txt(g,'ψ(P)',L-12,truthY,C.green,16,'right',FS,true);}
+  const tan=seg(t,0.5,0.68);if(tan>0){line(g,xs(0),plugY,xs(tan),plugY-first*tan,C.muted,2,[5,4]);txt(g,'slope Pϕ̂ (unknown)',xs(0.3),plugY-first*0.3+20,C.muted,12.5,'left',FS,true);}
+  const sl2=first*(1+0.45*noise6*Math.sqrt(200/n));const tan2=seg(t,0.68,0.85);if(tan2>0){line(g,xs(0),plugY,xs(tan2),plugY-sl2*tan2,C.purple,2);}
   const bcY=plugY-sl2,popY=plugY-first;
-  if(tan2>=1){dot(g,xs(1),bcY,C.teal,5,true);txt(g,'ψ̂⁽¹⁾ = ψ(P̂) + Pₙϕ̂',L-14,bcY+(Math.abs(bcY-plugY)<22?22:0),C.teal,15,'right',FS,true);line(g,L,bcY,R,bcY,C.teal,1,[3,4]);line(g,L,popY,R,popY,C.or,1,[3,4]);}
-  if(t>0.9){const bxx=R+48;bracket(g,bxx,plugY,truthY,C.phat);txt(g,'plug-in bias',bxx+10,(plugY+truthY)/2,C.pen,12.5,'left');
-    bracket(g,bxx+72,popY,bcY,C.teal);txt(g,'empirical process',bxx+80,Math.min(popY,bcY)-10,C.teal,12.5,'left');
-    bracket(g,bxx+120,popY,truthY,C.or);txt(g,'second-order remainder',bxx+128,Math.max(popY,truthY)+12,C.or,12.5,'left');}
+  if(tan2>=1){dot(g,xs(1),bcY,C.purple,5,true);const off=Math.abs(bcY-truthY)<20?(bcY<truthY?-12:12):0;txt(g,'one-step',L-12,bcY+off,C.purple,15,'right',FS,true);line(g,L,bcY,R,bcY,C.purple,1,[3,4]);line(g,L,popY,R,popY,C.muted,1,[3,4]);}
+  const legend=[['plug-in bias',C.or],['sampling (empirical process)',C.teal],['second-order remainder',C.pen]];
+  if(t>0.9){const bxx=R+44;bracket(g,bxx,plugY,truthY,C.or);bracket(g,bxx+22,popY,bcY,C.teal);bracket(g,bxx+44,popY,truthY,C.pen);
+    legend.forEach(([lab,col],k)=>{const y=60+k*28;line(g,600,y-8,600,y+8,col,3);txt(g,lab,612,y,col,12.5,'left');});}
+  else txt(g,'Play to walk the path',600,60,C.muted,12.5,'left');
   const U=150;document.getElementById('ro6').innerHTML=`<span class="k">plug-in bias magnitude</span><span>${((first+rem)/U).toFixed(3)}</span><span class="k">first order</span><span>${(first/U).toFixed(3)} ∝ δ</span><span class="k">remainder</span><span>${(rem/U).toFixed(3)} ∝ δ²</span><span class="k">emp. process</span><span>${(Math.abs(sl2-first)/U).toFixed(3)} ∝ 1/√n</span>`;
   document.getElementById('cap6').textContent=t<0.3?'Walk from the estimate P̂ toward the truth P inside the model.':t<0.5?'Lift the path: every point on it has a value of ψ.':t<0.68?'The tangent at P̂ has slope Pϕ̂, the pathwise derivative toward the truth. Unknown.':t<0.9?'Its sample version Pₙϕ̂ is computable. Extend it to ε = 1: the one-step estimator.':'Plug-in bias removed. Empirical process shrinks with n. The remainder is the curvature, second order in the nuisance error.';
 },{dur:8000});
@@ -378,8 +385,8 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);
   // axes
   line(g,L,B,R,B,C.pen,1.4);line(g,L,B,L,T,C.pen,1.4);
   for(const v of [0,0.5,1]){txt(g,v.toFixed(1),sx(v),B+16,C.muted,12,'center',FM);txt(g,v.toFixed(1),L-8,sy(v),C.muted,12,'right',FM);}
-  txt(g,'propensity error ‖π̂ − π‖',(L+R)/2,B+40,C.pen,14,'center',FS,true);
-  g.save();g.translate(L-46,(T+B)/2);g.rotate(-Math.PI/2);txt(g,'outcome error ‖μ̂ − μ‖',0,0,C.pen,14,'center',FS,true);g.restore();
+  txt(g,'propensity error ‖ĝ − g‖',(L+R)/2,B+40,C.pen,14,'center',FS,true);
+  g.save();g.translate(L-46,(T+B)/2);g.rotate(-Math.PI/2);txt(g,'outcome error ‖m̂ − m‖',0,0,C.pen,14,'center',FS,true);g.restore();
   txt(g,'n = '+Math.round(n).toLocaleString('en-US'),L,T-26,C.pen,14,'left',FM);
   txt(g,'shaded: product ≤ c/√n',R,T-26,C.or,13,'right',F);
   const big=(sx(eg)-sx(0))>120&&(sy(0)-sy(em))>44;
@@ -391,13 +398,13 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);
   line(g,RL,RB,RR,RB,C.pen,1.4);line(g,RL,RB,RL,RT,C.pen,1.4);
   txt(g,'n (log scale)',(RL+RR)/2,RB+40,C.pen,14,'center',FS,true);txt(g,'error (log scale)',RL-44,RT-26,C.pen,14,'left',FS,true);
   const series=[
-    ['π̂ error',u=>a*Math.pow(10,-be*(u-2)),C.teal,null,2],
-    ['μ̂ error',u=>b*Math.pow(10,-al*(u-2)),C.p,[6,4],2],
+    ['ĝ error',u=>a*Math.pow(10,-be*(u-2)),C.teal,null,2],
+    ['m̂ error',u=>b*Math.pow(10,-al*(u-2)),C.p,[6,4],2],
     ['product (area)',u=>a*b*Math.pow(10,-sum*(u-2)),C.purple,null,2.8],
     ['c/√n',u=>C7*Math.pow(10,-u/2),C.or,[3,3],2]];
   const ends=[];
   series.forEach(([lab,f,col,dash,w])=>{const pts=[];for(let k=0;k<=60;k++){const u=2+3*k/60,v=f(u);if(v>0)pts.push([lx(u),ly(Math.log10(v))]);}
-    // dashed μ̂ over solid π̂ keeps both visible when they coincide
+    // dashed m̂ over solid ĝ keeps both visible when they coincide
     poly(g,pts,col,w,dash);const v=f(5);ends.push({lab,col,y:ly(v>0?Math.log10(v):-3.2)});});
   // de-overlap the end labels (at least 17 px apart), keeping their order
   ends.sort((p,q)=>p.y-q.y);for(let i=1;i<ends.length;i++)ends[i].y=Math.max(ends[i].y,ends[i-1].y+17);
@@ -407,9 +414,9 @@ const S7=scene(7,(g,W,H,t)=>{clear(g,W,H);
   // current n
   line(g,lx(2+3*t),RT,lx(2+3*t),RB,C.muted,1,[2,3]);[series[2]].forEach(([,f,col])=>dot(g,lx(2+3*t),ly(Math.log10(f(2+3*t))),col,4.5,true));
   const verdict=sum>0.5001?'shrinks faster than c/√n: the bound becomes negligible':Math.abs(sum-0.5)<1e-4?'shrinks exactly like c/√n: the boundary case':'shrinks more slowly than c/√n: the bound dominates';
-  document.getElementById('ro7').innerHTML=`<span class="k">n</span><span>${Math.round(n).toLocaleString('en-US')}</span><span class="k">‖π̂−π‖ · ‖μ̂−μ‖</span><span>${eg.toFixed(3)} × ${em.toFixed(3)} = ${area.toFixed(4)}</span><span class="k">c/√n</span><span>${band.toFixed(4)}</span><span class="k">√n · area</span><span>${(Math.sqrt(n)*area).toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span><span class="k">α + β</span><span>${sum.toFixed(2)} ${sum>0.5001?'> ½':Math.abs(sum-0.5)<1e-4?'= ½':'< ½'}</span>`;
+  document.getElementById('ro7').innerHTML=`<span class="k">n</span><span>${Math.round(n).toLocaleString('en-US')}</span><span class="k">‖ĝ−g‖ · ‖m̂−m‖</span><span>${eg.toFixed(3)} × ${em.toFixed(3)} = ${area.toFixed(4)}</span><span class="k">c/√n</span><span>${band.toFixed(4)}</span><span class="k">√n · area</span><span>${(Math.sqrt(n)*area).toFixed(3)}</span><span class="k">either side 0?</span><span>${(a===0||b===0)?'yes → R₂ = 0':'no'}</span><span class="k">α + β</span><span>${sum.toFixed(2)} ${sum>0.5001?'> ½':Math.abs(sum-0.5)<1e-4?'= ½':'< ½'}</span>`;
   document.getElementById('cap7').textContent=(a===0||b===0)?'One side is zero, so the rectangle has no area at any n: the remainder bound vanishes however slowly the other error shrinks. That is double robustness of the point estimate.':
-    `The remainder is bounded by the rectangle's area, ‖π̂ − π‖ · ‖μ̂ − μ‖. Play grows n from 100 to 100,000: both sides shrink, and so does the shaded region under the hyperbola, whose edge is c/√n, the scale of sampling error. With α + β = ${sum.toFixed(2)} the product ${verdict}. A sum above ½ is sufficient under the other conditions; at ½ or below this bound cannot show the remainder is negligible, though signed contributions can still cancel.`;
+    `The remainder is bounded by the rectangle's area, ‖ĝ − g‖ · ‖m̂ − m‖. Play grows n from 100 to 100,000: both sides shrink, and so does the shaded region under the hyperbola, whose edge is c/√n, the scale of sampling error. With α + β = ${sum.toFixed(2)} the product ${verdict}. A sum above ½ is sufficient under the other conditions; at ½ or below this bound cannot show the remainder is negligible, though signed contributions can still cancel.`;
 },{dur:7000});
 bind('a7','v7a',v=>v.toFixed(2),()=>S7.draw());bind('b7','v7b',v=>v.toFixed(2),()=>S7.draw());bind('ra7','v7ra',v=>v.toFixed(2),()=>S7.draw());bind('rb7','v7rb',v=>v.toFixed(2),()=>S7.draw());
 
@@ -419,21 +426,21 @@ const Ph8=[-0.62,-0.28],P8=[0.45,0.35],Pn8=[0.52,0.22];
 function tmle8(){return CausalScience.landscapeTarget(Ph8,Pn8,+document.getElementById('c8s').value,document.getElementById('mode8').value==='fixed').path;}
 
 const S8=scene(8,(g,W,H,t)=>{clear(g,W,H);const c=+document.getElementById('c8s').value;
-  const bx=400,by=250,rx=330,ry=190,X=u=>bx+u*rx*0.85,Y=v=>by-v*ry*0.85;const bp=blob(bx,by,rx,ry,17);const psi=(u,v)=>LAND.psi(u,v,c);
+  const bx=310,by=245,rx=255,ry=190,X=u=>bx+u*rx*0.85,Y=v=>by-v*ry*0.85;const bp=blob(bx,by,rx,ry,17);const psi=(u,v)=>LAND.psi(u,v,c);
   const lv=[];for(let l=0.6;l<=3.8;l+=0.2)lv.push(l);contours(g,X,Y,psi,lv,bp,C.muted);poly(g,bp,C.pen,1.8,null,true);txt(g,'𝓜',bx+rx*0.86,by-ry*0.92,C.pen,22,'left',FS,true);
   // gradient field (faint)
   g.globalAlpha=0.35;for(let u=-0.9;u<=0.9;u+=0.3)for(let v=-0.8;v<=0.8;v+=0.32){const gr=LAND.grad(u,v,c);const nn=Math.hypot(...gr);const ex=X(u+0.07*gr[0]/nn),ey=Y(v+0.07*gr[1]/nn);if(g.isPointInPath||true){arrow(g,X(u),Y(v),ex,ey,C.green,1);}}g.globalAlpha=1;
-  dot(g,X(P8[0]),Y(P8[1]),C.p,6,true);txt(g,'P',X(P8[0])+14,Y(P8[1])-12,C.p,17,'left',FS,true);dot(g,X(Pn8[0]),Y(Pn8[1]),C.teal,4,true);txt(g,'Pₙ',X(Pn8[0])+12,Y(Pn8[1])+12,C.teal,14,'left',FS,true);
+  dot(g,X(P8[0]),Y(P8[1]),C.green,6,true);txt(g,'P',X(P8[0])+14,Y(P8[1])-12,C.green,17,'left',FS,true);dot(g,X(Pn8[0]),Y(Pn8[1]),C.teal,4,true);txt(g,'Pₙ',X(Pn8[0])+12,Y(Pn8[1])+12,C.teal,14,'left',FS,true);
   path8=tmle8();const show=Math.min(shown8,path8.length-1);
   if(show>0){const pts=[];for(let k=0;k<=show;k++)pts.push([X(path8[k][0]),Y(path8[k][1])]);poly(g,pts,C.purple,2.2,[6,5]);for(let k=1;k<=show;k++)dot(g,X(path8[k][0]),Y(path8[k][1]),C.purple,4,true);
     if(show>=path8.length-1){const e=path8[path8.length-1];dot(g,X(e[0]),Y(e[1]),C.purple,7,true);txt(g,'P̂*',X(e[0])+14,Y(e[1])+16,C.purple,18,'left',FS,true);}}
   const cur=path8[show];const gc=LAND.grad(cur[0],cur[1],c);const nn=Math.hypot(...gc);arrow(g,X(cur[0]),Y(cur[1]),X(cur[0]+0.2*gc[0]/nn),Y(cur[1]+0.2*gc[1]/nn),C.green,2.4);txt(g,'ϕ at current point',X(cur[0]+0.2*gc[0]/nn)+8,Y(cur[1]+0.2*gc[1]/nn)-10,C.green,13,'left',FS,true);
-  dot(g,X(Ph8[0]),Y(Ph8[1]),C.phat,7,true);txt(g,'P̂',X(Ph8[0])-6,Y(Ph8[1])+24,C.phat,20,'center',FS,true);
+  dot(g,X(Ph8[0]),Y(Ph8[1]),C.or,7,true);txt(g,'P̂',X(Ph8[0])-6,Y(Ph8[1])+24,C.or,20,'center',FS,true);
   // number line
-  const NL=500,L=90,R=690,lo=1.2,hi=3.2,nx=v=>L+(R-L)*(v-lo)/(hi-lo);line(g,L,NL,R,NL,C.pen,1.4);for(let v=1.5;v<=3;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,v.toFixed(1),nx(v),NL+16,C.muted,11,'center',FM);}txt(g,'ψ',L-24,NL,C.pen,18,'center',FS,true);
+  const NL=500,L=70,R=560,lo=1.2,hi=3.2,nx=v=>L+(R-L)*(v-lo)/(hi-lo);line(g,L,NL,R,NL,C.pen,1.4);for(let v=1.5;v<=3;v+=0.5){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,v.toFixed(1),nx(v),NL+16,C.muted,11,'center',FM);}txt(g,'ψ',L-24,NL,C.pen,18,'center',FS,true);
   const g0=LAND.grad(Ph8[0],Ph8[1],c);const psiP=psi(...P8),psiPh=psi(...Ph8),os=psiPh+g0[0]*(Pn8[0]-Ph8[0])+g0[1]*(Pn8[1]-Ph8[1]);const end=path8[path8.length-1];const psiT=psi(...end);
-  line(g,nx(psiP),NL-24,nx(psiP),NL+8,C.p,2);txt(g,'ψ(P)',nx(psiP),NL-34,C.p,13,'center',FS,true);
-  dot(g,nx(psiPh),NL,C.phat,6,true);txt(g,'plug-in',nx(psiPh),NL+34,C.phat,13,'center',FS,true);
+  line(g,nx(psiP),NL-24,nx(psiP),NL+8,C.green,2,[4,3]);txt(g,'ψ(P)',nx(psiP),NL-34,C.green,13,'center',FS,true);
+  dot(g,nx(psiPh),NL,C.or,6,true);txt(g,'plug-in',nx(psiPh),NL+34,C.or,13,'center',FS,true);
   arrow(g,nx(psiPh),NL-14,nx(os),NL-14,C.teal,1.6);dot(g,nx(os),NL,C.teal,5,true);txt(g,'one-step (jump)',nx(os)+(psiT<os?10:-10),NL+34,C.teal,13,psiT<os?'left':'right',FS,true);
   if(show>0){dot(g,nx(psi(...cur)),NL,C.purple,6,true);}if(show>=path8.length-1)txt(g,'updated plug-in ψ(P̂*)',nx(psiT)+(psiT<os?-10:10),NL-52,C.purple,13,psiT<os?'right':'left',FS,true);
   const score=gc[0]*(Pn8[0]-cur[0])+gc[1]*(Pn8[1]-cur[1]);const psiPn=psi(...Pn8),sg=v=>(v<0?'−':'+')+Math.abs(v).toFixed(2);

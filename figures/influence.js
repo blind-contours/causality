@@ -58,11 +58,11 @@
       width: 640,
       height: 230,
       x: [zmin, zmax],
-      y: [-3.5, 2.5],
+      y: [-3.5, 3],
       xlabel: "z₀, where the mass was added",
       ylabel: "shift of the balance point per unit mass",
       margin: { l: 46, r: 14, t: 26, b: 40 },
-      yticks: [-3, -2, -1, 0, 1, 2],
+      yticks: [-3, -2, -1, 0, 1, 2, 3],
     });
     P2.hline(0, { stroke: "var(--muted)", "stroke-dasharray": "2 3" });
     const traceLayer = P2.layer("trace");
@@ -229,7 +229,8 @@
             "text-anchor": leftOf ? "end" : "start",
             fill: "var(--purple)",
           },
-          "ψ_ε",
+          "ψ",
+          el("tspan", { "baseline-shift": "sub", "font-size": "0.75em" }, "ε"),
         ),
       );
       if (Math.abs(bx - ax) > 3)
@@ -291,7 +292,7 @@
         `<span class="k">z₀</span><span>${fmt(z0, 2)}</span>` +
         `<span class="k">ψ (balance point)</span><span>${fmt(psi, 3)}</span>` +
         `<span class="k">spring stretch z₀ − ψ</span><span>${fmt(phi, 3)}</span>` +
-        `<span class="k">ψ_ε with mass ε</span><span>${fmt(m, 3)}</span>` +
+        `<span class="k">ψ<sub>ε</sub> with mass ε</span><span>${fmt(m, 3)}</span>` +
         `<span class="k">shift / ε</span><span>${fmt(perUnit, 3)}</span>`;
       const span = visited.size;
       cap.textContent =

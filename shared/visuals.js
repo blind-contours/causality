@@ -3,20 +3,29 @@
   const NS = "http://www.w3.org/2000/svg",
     labels = new WeakMap(),
     oldFill = CanvasRenderingContext2D.prototype.fillText,
+    oldMeasure = CanvasRenderingContext2D.prototype.measureText,
     oldClear = CanvasRenderingContext2D.prototype.clearRect,
     oldGetContext = HTMLCanvasElement.prototype.getContext;
+  /* Smallest on-screen text size (CSS px) a canvas may show. */
+  const FLOOR = 11;
   const logical = (cv) => ({
     w: +cv.dataset.w || cv.width,
     h: +cv.dataset.h || cv.height,
   });
+  const dprOf = () => Math.min(2, window.devicePixelRatio || 1);
   /* Drawing code works in the canvas's declared width/height. The backing store is scaled to the
-   * device pixel ratio for crisp output, and the element fills its column, shrinking to no less
-   * than 80% of its declared size before the surrounding viewport scrolls. */
+   * device pixel ratio for crisp output. How the element meets its column is decided by layout():
+   *   native  the column is at least as wide as the drawing;
+   *   fit     the drawing scales down to the column and its smallest text stays >= 11 CSS px;
+   *   stack   (phones) a canvas that declares data-panels="x0 y0 x1 y1, ..." (drawing coordinates)
+   *           has those panels drawn one above the other at the column's width, with text raised to
+   *           at least 11 CSS px; only canvases drawn through scene() can stack;
+   *   scroll  otherwise, the drawing shrinks to no less than 80% of its size and scrolls sideways. */
   function fit(cv) {
     if (cv.dataset.fitted || !cv.isConnected) return;
     const w = +cv.getAttribute("width") || cv.width,
       h = +cv.getAttribute("height") || cv.height,
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = dprOf();
     cv.dataset.w = w;
     cv.dataset.h = h;
     cv.dataset.fitted = "1";
@@ -34,26 +43,203 @@
     if (type === "2d") fit(this);
     return oldGetContext.call(this, type, ...rest);
   };
+  const PX = /(\d+(?:\.\d+)?)px/;
+  const fontPx = (font) => {
+    const m = PX.exec(font || "");
+    return m ? +m[1] : 10;
+  };
+  /* Run fn with the context's font raised to the canvas's floor (stack mode only). */
+  function withFloor(ctx, fn) {
+    const cv = ctx.canvas,
+      want = fontPx(ctx.font);
+    if (!cv || !(want < cv._floor)) return fn();
+    const kept = ctx.font;
+    ctx.font = kept.replace(PX, cv._floor.toFixed(2) + "px");
+    try {
+      return fn();
+    } finally {
+      ctx.font = kept;
+    }
+  }
   CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...args) {
-    let rows = labels.get(this.canvas);
+    const cv = this.canvas;
+    let rows = labels.get(cv);
     if (!rows) {
       rows = [];
-      labels.set(this.canvas, rows);
+      labels.set(cv, rows);
     }
     rows.push({ text: String(text), x, y });
-    return oldFill.call(this, text, x, y, ...args);
+    if (cv && cv.isConnected && String(text).trim()) {
+      const size = fontPx(this.font);
+      if (!(cv._minFont <= size)) {
+        cv._minFont = size;
+        if (cv._laidOut) requestAnimationFrame(() => layout(cv));
+      }
+    }
+    return withFloor(this, () => oldFill.call(this, text, x, y, ...args));
+  };
+  CanvasRenderingContext2D.prototype.measureText = function (text) {
+    return withFloor(this, () => oldMeasure.call(this, text));
   };
   CanvasRenderingContext2D.prototype.clearRect = function (...args) {
-    labels.set(this.canvas, []);
+    if (!this.canvas?._painting) labels.set(this.canvas, []);
     return oldClear.apply(this, args);
   };
   const oldRect = CanvasRenderingContext2D.prototype.fillRect;
   CanvasRenderingContext2D.prototype.fillRect = function (x, y, w, h) {
     const size = logical(this.canvas);
-    if (x === 0 && y === 0 && w === size.w && h === size.h)
+    if (
+      x === 0 &&
+      y === 0 &&
+      w === size.w &&
+      h === size.h &&
+      !this.canvas._painting
+    )
       labels.set(this.canvas, []);
     return oldRect.call(this, x, y, w, h);
   };
+  /* Canvas text with subscripts: "ψ(P_ε)" or "m_{a₀}(x₀)" draws the subscript small and low,
+   * and records the flattened label ("ψ(Pε)") once for the figure transcript. */
+  const SUB = /_\{([^}]*)\}|_([^\s_(){}\[\],.;:=+−\-])/g;
+  function rich(g, text, x, y) {
+    const s = String(text);
+    if (!s.includes("_")) return g.fillText(s, x, y);
+    const parts = [];
+    let last = 0,
+      m;
+    SUB.lastIndex = 0;
+    while ((m = SUB.exec(s))) {
+      if (m.index > last) parts.push([s.slice(last, m.index), false]);
+      parts.push([m[1] ?? m[2], true]);
+      last = SUB.lastIndex;
+    }
+    if (last < s.length) parts.push([s.slice(last), false]);
+    const cv = g.canvas,
+      flat = parts.map((p) => p[0]).join("");
+    let rows = labels.get(cv);
+    if (!rows) labels.set(cv, (rows = []));
+    rows.push({ text: flat, x, y });
+    const base = g.font,
+      size = fontPx(base),
+      small = base.replace(PX, (size * 0.72).toFixed(2) + "px");
+    if (cv && cv.isConnected && !(cv._minFont <= size)) {
+      cv._minFont = size;
+      if (cv._laidOut) requestAnimationFrame(() => layout(cv));
+    }
+    const align = g.textAlign,
+      widths = parts.map(([t, sub]) => {
+        g.font = sub ? small : base;
+        return g.measureText(t).width;
+      }),
+      total = widths.reduce((a, b) => a + b, 0),
+      drop = Math.max(size, cv?._floor || 0) * 0.32;
+    let cx =
+      align === "center"
+        ? x - total / 2
+        : align === "right" || align === "end"
+          ? x - total
+          : x;
+    g.textAlign = "left";
+    parts.forEach(([t, sub], i) => {
+      g.font = sub ? small : base;
+      withFloor(g, () => oldFill.call(g, t, cx, sub ? y + drop : y));
+      cx += widths[i];
+    });
+    g.font = base;
+    g.textAlign = align;
+  }
+  function panelsOf(cv) {
+    const spec = cv.dataset.panels;
+    if (!spec) return null;
+    const gap = 10;
+    let oy = 0;
+    const list = spec
+      .split(",")
+      .map((s) => s.trim().split(/\s+/).map(Number))
+      .filter((a) => a.length === 4 && a.every(Number.isFinite))
+      .map(([x0, y0, x1, y1]) => {
+        const p = { x0, y0, w: x1 - x0, h: y1 - y0, oy };
+        oy += p.h + gap;
+        return p;
+      });
+    if (!list.length) return null;
+    return {
+      list,
+      w: Math.max(...list.map((p) => p.w)),
+      h: oy - gap,
+    };
+  }
+  /* Draw fn(W, H) in the canvas's current layout: once, or once per stacked panel. */
+  function paint(cv, g, fn) {
+    const { w, h } = logical(cv),
+      st = cv._stack;
+    if (!st) return fn(w, h);
+    labels.set(cv, []);
+    g.save();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    oldClear.call(g, 0, 0, cv.width, cv.height);
+    g.restore();
+    cv._painting = true;
+    try {
+      for (const p of st.list) {
+        g.save();
+        g.setTransform(st.k, 0, 0, st.k, -p.x0 * st.k, (p.oy - p.y0) * st.k);
+        g.beginPath();
+        g.rect(p.x0, p.y0, p.w, p.h);
+        g.clip();
+        fn(w, h);
+        g.restore();
+      }
+    } finally {
+      cv._painting = false;
+    }
+  }
+  function layout(cv) {
+    const vp = cv.parentElement;
+    if (!vp || !vp.classList.contains("figure-viewport")) return;
+    const cw = vp.clientWidth;
+    if (!cw) return;
+    cv._laidOut = true;
+    const { w, h } = logical(cv),
+      dpr = dprOf(),
+      minF = cv._minFont || 12,
+      panels = cv._redraw ? panelsOf(cv) : null;
+    let mode;
+    if (cw >= w) mode = "native";
+    else if ((cw / w) * minF >= FLOOR) mode = "fit";
+    else if (panels && cw < w * 0.8) mode = "stack";
+    else mode = "scroll";
+    const prev = cv.dataset.layout,
+      prevK = cv._stack?.k;
+    cv.dataset.layout = mode;
+    if (mode === "stack") {
+      const k = (cw * dpr) / panels.w;
+      cv._stack = { ...panels, k };
+      cv._floor = FLOOR / (cw / panels.w);
+      cv.style.minWidth = "0";
+      cv.style.aspectRatio = `${panels.w} / ${panels.h}`;
+      cv.dataset.fontPx = (Math.max(minF, cv._floor) * (cw / panels.w)).toFixed(1);
+      if (prev !== "stack" || Math.abs(prevK - k) > 1e-6) {
+        cv.width = Math.round(panels.w * k);
+        cv.height = Math.round(panels.h * k);
+        cv._redraw();
+      }
+      return;
+    }
+    const wasStack = prev === "stack";
+    cv._stack = null;
+    cv._floor = 0;
+    cv.style.aspectRatio = `${w} / ${h}`;
+    cv.style.minWidth = mode === "scroll" ? Math.round(w * 0.8) + "px" : "0";
+    const shown = mode === "scroll" ? Math.max(cw, w * 0.8) : Math.min(cw, w);
+    cv.dataset.fontPx = ((minF * Math.min(shown, w)) / w).toFixed(1);
+    if (wasStack) {
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      oldGetContext.call(cv, "2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+      cv._redraw?.();
+    }
+  }
   const svg = (tag, attrs = {}, text) => {
     const el = document.createElementNS(NS, tag);
     for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
@@ -149,7 +335,7 @@
       get playing() {
         return !!raf;
       },
-      draw: () => draw(g, logical(cv).w, logical(cv).h, S.t),
+      draw: () => paint(cv, g, (W, H) => draw(g, W, H, S.t)),
       pause() {
         if (raf) cancelAnimationFrame(raf);
         raf = null;
@@ -269,6 +455,7 @@
     tEl?.addEventListener("input", stopAuto);
     pb?.addEventListener("click", stopAuto, { capture: true });
     pb?.parentElement?.addEventListener("click", stopAuto);
+    cv._redraw = S.draw;
     return S;
   }
   function enhance() {
@@ -344,6 +531,7 @@
       note.hidden = true;
       viewport.before(note);
       const overflow = () => {
+        layout(cv);
         note.hidden = viewport.scrollWidth <= viewport.clientWidth + 1;
       };
       if ("ResizeObserver" in window)
@@ -353,6 +541,8 @@
   }
   window.CausalVisuals = {
     logical,
+    layout,
+    rich,
     svg,
     plot,
     scene,

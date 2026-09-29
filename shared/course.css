@@ -718,3 +718,77 @@ body[data-mode="guided"] .legacy-step > .beat > .eyebrow {
   width: auto;
   margin: 0;
 }
+
+/* World card: names the teaching world a figure uses when it is not the course's 100-patient cohort.
+   <aside class="world-card"><b>This lesson's world</b> 1,000 simulated registry patients · outcome: ... · truth: ...</aside> */
+.world-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  margin: 10px 0 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--stage, var(--teal));
+  border-radius: 8px;
+  background: var(--paper);
+  font-size: 14px;
+  color: var(--muted);
+}
+.world-card b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Beat controls (CausalBeats in course.js): show-rest and skip are quiet text buttons, the
+   keyboard hint only shows where there is a keyboard, and a gated Continue looks disabled
+   while staying focusable. */
+.step-btns .beat-rest,
+.step-btns .beat-skip {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 10px 6px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.step-btns .beat-rest:hover,
+.step-btns .beat-skip:hover {
+  color: var(--ink);
+}
+.beat-rest[hidden],
+.beat-skip[hidden],
+.beat-key[hidden] {
+  display: none;
+}
+.beat-key {
+  font-size: 12.5px;
+  color: var(--muted);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+@media (hover: none), (pointer: coarse), (max-width: 700px) {
+  .beat-key {
+    display: none;
+  }
+}
+.beat-dots:not([hidden]) ~ .step-next {
+  margin-left: 0;
+}
+.step-btns .step-next.beat-gated {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+@media (max-width: 520px) {
+  .step-btns .beat-rest {
+    order: 10;
+    flex-basis: 100%;
+    text-align: right;
+    padding-top: 0;
+    min-height: 36px;
+  }
+}

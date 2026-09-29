@@ -6,24 +6,23 @@
 <meta name="description" content="Causality: One-Step Estimator. An interactive lesson in semiparametric causal inference.">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-<title>One-Step Estimator</title>
+<title>The one-step estimator · Causality</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --bg:#EEF2F5; --panel:#FFFFFF; --paper:var(--panel); --purple:var(--step); --green:var(--truth); --red:#b23737; --ink:#17232B; --muted:#5E6E7B; --rule:#CBD5DD;
-  --truth:#2F7D5B; --plug:#5E6E7B; --step:#3E4EA8; --rem:#986b15; --treated:#3E4EA8; --control:#B5502B;
+  --bg:#EEF2F5; --panel:#FFFFFF; --paper:var(--panel); --red:#b23737; --ink:#17232B; --muted:#5E6E7B; --rule:#CBD5DD;
+  /* Course colour roles: plug-in orange, one-step/AIPW purple, truth green, arms blue/teal. */
+  --truth:var(--green); --plug:var(--or); --step:var(--purple); --rem:var(--red); --treated:var(--p); --control:var(--teal);
   --grid:#E1E7EC; --accent-soft:#E4E7F6;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#141A20; --panel:#1C242C; --ink:#E6E9EC; --muted:#9AA8B4; --rule:#34414C;
-    --truth:#5FC496; --plug:#9DB0BF; --step:#8C9BF0; --rem:#E0B25A; --treated:#8C9BF0; --control:#E28A66;
     --grid:#26303A; --accent-soft:#262E4A;
   }
 }
 :root[data-theme="dark"]{
   --bg:#141A20; --panel:#1C242C; --ink:#E6E9EC; --muted:#9AA8B4; --rule:#34414C;
-  --truth:#5FC496; --plug:#9DB0BF; --step:#8C9BF0; --rem:#E0B25A; --treated:#8C9BF0; --control:#E28A66;
   --grid:#26303A; --accent-soft:#262E4A;
 }
 *{box-sizing:border-box}
@@ -73,8 +72,10 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <!-- ============ ACT 1 ============ -->
 <div class="eyebrow">Act 1</div>
 <h2>The curve ψ(P<sub>ε</sub>) along the path from your estimate to the truth</h2>
-<p>Put the fitted distribution P̂ at ε = 0 and the true P at ε = 1, and walk the straight line between them, P<sub>ε</sub> = P̂ + ε(P − P̂). The parameter traced along that walk is a curve. Its value at the left end is the plug-in; at the right end, the truth. The tangent at the left end has slope P D(P̂) = ∫ D(P̂) d(P − P̂), the pathwise derivative in the direction of the truth; the plug-in's first-order bias is its negative. Extending the tangent to ε = 1 is the one-step estimator. What the tangent misses is the curvature: the second-order remainder R<sub>2</sub>.</p>
-<div class="eq">ψ(P̂) − ψ(P) = −P D(P̂) + R<sub>2</sub>(P̂, P)     ⇒     <b>ψ<sub>one-step</sub> = ψ(P̂) + P<sub>n</sub> D(P̂)</b>  ≈  ψ(P) + R<sub>2</sub> + (P<sub>n</sub> − P) D</div>
+<p>Put your fitted distribution P̂ at ε = 0 and the true P at ε = 1, and walk the straight line between them, P<sub>ε</sub> = P̂ + ε(P − P̂). The quantity you want, ψ, traced along that walk is a curve. At the left end it is the plug-in (orange); at the right end, the truth (green).</p>
+<p>The tangent at the left end is drawn by the influence function. Write it ϕ (ϕ̂ = ϕ(P̂) when it is computed at your fit). The tangent's rise over the walk is P ϕ̂ = ∫ ϕ̂ d(P − P̂), and the plug-in's first-order bias is its negative.</p>
+<p>Extending the tangent to ε = 1 gives the one-step estimator (purple). What the tangent misses is the curvature: the second-order remainder R<sub>2</sub>.</p>
+<div class="eq">ψ(P̂) − ψ(P) = −P ϕ̂ + R<sub>2</sub>(P̂, P)     ⇒     <b>ψ<sub>one-step</sub> = ψ(P̂) + P<sub>n</sub> ϕ̂</b>  ≈  ψ(P) + R<sub>2</sub> + (P<sub>n</sub> − P) ϕ̂</div>
 <div class="act">
   <div class="stage">
     <canvas id="c1" width="760" height="420"></canvas>
@@ -90,7 +91,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     <div class="btns"><button class="primary" id="p1">Reveal</button></div>
     <label>Nuisance error δ = ‖P̂ − P‖ <span class="v" id="dv">0.60</span>
       <input type="range" id="delta" min="0.05" max="1" step="0.01" value="0.6"></label>
-    <label>Sample size n (sets the size of the (Pₙ − P)D noise) <span class="v" id="nv">400</span>
+    <label>Sample size n (sets the size of the (Pₙ − P)ϕ̂ noise) <span class="v" id="nv">400</span>
       <input type="range" id="n1" min="50" max="5000" step="50" value="400"></label>
     <div class="readout" id="ro1"></div>
     <div class="note">Drag δ down and watch: the plug-in bias (first order) shrinks like δ, the remainder shrinks like δ². For efficient centered inference, the remainder must be oₚ(n<sup>−1/2</sup>). Two errors exactly of order n<sup>−1/4</sup> only give an Oₚ(n<sup>−1/2</sup>) product; faster combined rates or a sharper remainder argument are needed.</div>
@@ -100,9 +101,13 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <!-- ============ ACT 2 ============ -->
 <div class="eyebrow">Act 2</div>
 <h2>One step on data: g-computation, then the correction</h2>
-<p>Simulated cohort. Treatment is more likely for higher X, the outcome is nonlinear in X, and the true average treatment effect is exactly 2. The outcome model is an S-learner: one linear regression of Y on (X, A). The slider shrinks its treatment coefficient toward zero, the way a regularized learner would. The propensity model can be made anywhere from correct to useless. Step through and watch where the correction comes from: it is the inverse-propensity-weighted average of the outcome model's own residuals.</p>
-<div class="eq">ψ̂<sub>one-step</sub> = P<sub>n</sub>[ μ̂<sub>1</sub>(X) − μ̂<sub>0</sub>(X) ]  +  P<sub>n</sub>[ A/π̂(X) · (Y − μ̂<sub>1</sub>(X))  −  (1−A)/(1−π̂(X)) · (Y − μ̂<sub>0</sub>(X)) ]</div>
-<div class="predict" data-options="Closer to the truth|Farther from the truth|Nowhere: the correction always averages to zero" data-answer="0" data-hint="The correction PₙD(P̂) estimates minus the plug-in's first-order bias, so it moves the estimate most of the way back toward the truth, whichever side the plug-in started on.">Step through the figure below. When the correction PₙD(P̂) is added to the S-learner plug-in, where does the estimate end up?</div>
+<aside class="world-card"><b>This step's world</b> a simulated cohort (n = 400 by default) with a continuous covariate X · outcome Y, nonlinear in X · compared with the exact true average effect, 2</aside>
+<p>Treatment is more likely for higher X, and the outcome is nonlinear in X. Two fitted models do the work, and the course names them the same way everywhere:</p>
+<p>The <b>outcome regression</b> m<sub>a</sub>(x) = E[Y | A = a, X = x] is the average outcome in arm a at covariate x (m̂<sub>a</sub> when fitted). The <b>propensity score</b> g(x) = P(A = 1 | X = x) is the chance of treatment at x (ĝ when fitted). You may see these written π, μ or Q̄ elsewhere.</p>
+<p>Here m̂ is an S-learner: one linear regression of Y on (X, A). The slider shrinks its treatment coefficient toward zero, the way a regularized learner would. The propensity model can be made anywhere from correct to useless.</p>
+<div class="eq">ψ̂<sub>one-step</sub> = P<sub>n</sub>[ m̂<sub>1</sub>(X) − m̂<sub>0</sub>(X) ]  +  P<sub>n</sub>[ A/ĝ(X) · (Y − m̂<sub>1</sub>(X))  −  (1−A)/(1−ĝ(X)) · (Y − m̂<sub>0</sub>(X)) ]</div>
+<div class="predict" data-options="Closer to the truth|Farther from the truth|Nowhere: the correction always averages to zero" data-answer="0" data-hint="The correction Pₙϕ̂ estimates minus the plug-in's first-order bias, so it moves the estimate most of the way back toward the truth, whichever side the plug-in started on.">Step through the figure below. When the correction Pₙϕ̂ (the second bracket) is added to the S-learner plug-in, where does the estimate end up?</div>
+<p>Watch where the correction comes from: it is the inverse-propensity-weighted average of the outcome model's own residuals.</p>
 <div class="act">
   <div class="stage">
     <canvas id="c2" width="760" height="520"></canvas>
@@ -119,27 +124,28 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
     <div class="btns"><button class="primary" id="step2">Next step</button><button id="play2">Play all</button><button id="reset2">Reset</button><button id="new2">New sample</button></div>
     <label>Shrinkage on the treatment coefficient λ <span class="v" id="lv">0.50</span>
       <input type="range" id="lam" min="0" max="1" step="0.05" value="0.5"></label>
-    <label>Propensity fidelity κ (1 = correct, 0 = constant ½) <span class="v" id="kv">1.00</span>
+    <label>Propensity fidelity (1 = correct ĝ, 0 = constant ½) <span class="v" id="kv">1.00</span>
       <input type="range" id="kap" min="0" max="1" step="0.05" value="1"></label>
     <label>Sample size n <span class="v" id="n2v">400</span>
       <input type="range" id="n2" min="100" max="2000" step="100" value="400"></label>
     <div class="readout" id="ro2"></div>
-    <div class="note">This linear outcome model is misspecified even at λ=0: it omits X² and A×X. At λ=0, κ=0, its correction is zero by the OLS normal equations, not evidence that the outcome model is correct. Symmetry can also cancel ATE bias here. The experiment below uses explicit correctness cases and an asymmetric population.</div>
+    <div class="note">This linear outcome model is misspecified even at λ=0: it omits X² and A×X. At λ=0 with fidelity 0, its correction is zero by the OLS normal equations, not evidence that the outcome model is correct. Symmetry can also cancel ATE bias here. The experiment below uses explicit correctness cases and an asymmetric population.</div>
   </div>
 </div>
 
 <h2>The same formula, one patient at a time</h2>
-<p>Now the course's 100 patients, where severity confounds treatment and the true average effect is 2. Here the outcome model is written m̂ (μ̂ above) and the propensity ĝ (π̂ above): ĝ(X) is simply the fraction treated in each severity stratum. The equation is the legend. Hover or focus a coloured term to light its pieces in the figure, or hover the figure to find its term. Each patient carries two sticks, and Play adds 1/n of every stick, tip to tail, into the two sums of the formula.</p>
+<p>Now back to the course's 100 patients, where severity confounds treatment and the true average effect is 2. Same formula, same m̂ and ĝ: here ĝ(X) is simply the fraction treated in each severity stratum. The equation is the legend. Hover or focus a coloured term to light its pieces in the figure, or hover the figure to find its term. Each patient carries two sticks, and Play adds 1/n of every stick, tip to tail, into the two sums of the formula.</p>
 <div data-figure="aipw-anatomy" data-model="wrong"></div>
 <p class="note">Exact, not simulated: every number is computed from the cohort. With ĝ equal to the stratum fractions, AIPW equals the severity-stratified estimate for any outcome model that depends only on arm and severity, because within a stratum the weighted residuals of an arm add up to exactly n<sub>x</sub>·(Ȳ<sub>ax</sub> − m̂<sub>a</sub>(x)), which cancels m̂. A smoother propensity model would repair the wrong outcome model only to first order, which is the general double-robustness story of Act 3.</p>
 
 <!-- ============ ACT 3 ============ -->
 <div class="eyebrow">Act 3</div>
-<h2>Repeat samples and separate the promises</h2><p>One data set gives one estimate. To see bias, spread and interval coverage you need the whole sampling distribution, so repeat the study hundreds of times. This experiment uses an asymmetric binary-severity cohort, separate from the continuous-X illustration above, and crosses the two nuisance models: the outcome model is either right or wrong, and so is the propensity model.</p>
+<h2>Repeat samples and separate the promises</h2><p>One data set gives one estimate. To see bias, spread and interval coverage you need the whole sampling distribution, so repeat the study hundreds of times. This experiment crosses the two nuisance models: the outcome model is either right or wrong, and so is the propensity model.</p>
+<aside class="world-card"><b>This step's world</b> simulated populations like the course cohort (35% high severity), n = 400 per study, 300 studies per panel · continuous outcome Y · compared with the exact true average effect, 2</aside>
 <div class="predict" data-options="Only the panel where both models are wrong|Every panel with at least one wrong model|All four panels" data-answer="0" data-hint="AIPW is doubly robust: one correct nuisance model is enough to remove the first-order bias. Only when both are wrong does the purple histogram leave the truth.">In which panels will the AIPW (purple) histogram be centred away from the true ATE?</div>
 <div class="lab-card" data-simulation="one-step" data-layout="grid"></div>
 <p class="note">Centred is not the same as covered. In the default run (fitted, cross-fitted, n = 400, 300 samples) the outcome-only panel covers about 92%, a little short, because its influence-function SE (0.083) is smaller than the actual spread (0.089). The propensity-only panel is centred but over-covers: its IF-based SE averages 0.142 while the estimates actually spread with SD 0.096, because the formula treats the fitted propensity as if it were known, and with a wrong outcome model, estimating the propensity removes variance that the formula still counts. Getting a standard error you can report is its own problem: see <a href="20-standard-errors.html">Standard errors you can report</a>.</p>
-<h2>Explain the correction</h2><p>The tangent toward the truth has slope P₀D*(P̂); the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and convergence to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁₀)/ĝ + (m̂₀−m₀₀)/(1−ĝ)}]<br>Ψ(P̂)−Ψ(P₀) = −P₀D*(P̂) + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
+<h2>Explain the correction</h2><p>The tangent toward the truth has slope P₀ϕ̂; the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and ϕ̂ converging to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁)/ĝ + (m̂₀−m₀)/(1−ĝ)}]  (g, m<sub>a</sub>: the true functions)<br>ψ(P̂)−ψ₀ = −P₀ϕ̂ + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
 <div data-r="one-step-ate"></div>
 </div>
 
@@ -228,7 +234,7 @@ function draw1(){
   const osPop=P.plug+P.first; // population one-step (no noise)
   if(t1>0.62){
     dot(g1,xs(1),ys(osPop),css('--step'),6);
-    label(g1,'one-step = ψ(P̂) + Pₙ D(P̂)',xs(1)-12,ys(osPop)+18,css('--step'),'right');
+    label(g1,'one-step = ψ(P̂) + Pₙϕ̂',xs(1)-12,ys(osPop)+18,css('--step'),'right');
   }
   if(t1>0.8){ // remainder arrow
     arrow(g1,xs(1)+18,ys(osPop),xs(1)+18,ys(P.truth),css('--rem'));
@@ -236,19 +242,19 @@ function draw1(){
   }
   if(t1>0.95 && P.noise){ // sample noise
     const osN=osPop+P.noise; dot(g1,xs(1)-6,ys(osN),css('--step'),4);
-    label(g1,'+ (Pₙ−P)D  ~ 1/√n',xs(1)-24,ys(osN)-8,css('--muted'),'right');
+    label(g1,'+ (Pₙ−P)ϕ̂  ~ 1/√n',xs(1)-24,ys(osN)-8,css('--muted'),'right');
   }
   dot(g1,xs(1),ys(P.truth),css('--truth'),6);label(g1,'truth  ψ(P)',xs(1)-12,ys(P.truth)-12,css('--truth'),'right');
   // first-order bias brace
-  if(t1>0.3){arrow(g1,xs(0)-26,ys(P.plug),xs(0)-26,ys(osPop),css('--plug'));label(g1,'+P D(P̂)',xs(0)-20,(ys(P.plug)+ys(osPop))/2+4,css('--plug'),'left');}
+  if(t1>0.3){arrow(g1,xs(0)-26,ys(P.plug),xs(0)-26,ys(osPop),css('--plug'));label(g1,'+P ϕ̂',xs(0)-20,(ys(P.plug)+ys(osPop))/2+4,css('--plug'),'left');}
   document.getElementById('ro1').innerHTML=
     `<span class="k">plug-in bias</span><span>${fmt(P.plug-P.truth)}</span>
-     <span class="k">first order +PD(P̂)</span><span>${fmt(P.first)}   (∝ δ)</span>
+     <span class="k">first order +Pϕ̂</span><span>${fmt(P.first)}   (∝ δ)</span>
      <span class="k">remainder R₂</span><span>${fmt(-P.rem)}   (∝ δ²)</span>
      <span class="k">one-step bias</span><span>${fmt(-P.rem)}</span>
      <span class="k">noise sd ≈ 1/√n</span><span>${fmt(1.1/Math.sqrt(P.n))}</span>`;
   document.getElementById('cap1').textContent = t1<0.3? 'The plug-in ψ(P̂) is a point on the curve, below the truth.' :
-    t1<0.62? 'The influence function gives the tangent at P̂. Its rise over the interval is P D(P̂); the plug-in bias is −P D(P̂).' :
+    t1<0.62? 'The influence function gives the tangent at P̂. Its rise over the interval is P ϕ̂; the plug-in bias is −P ϕ̂.' :
     t1<0.8? 'Extend the tangent to ε = 1: that value is the one-step estimator.' :
     'What the tangent cannot see is the curvature, R₂. It is second order: shrink δ and it vanishes faster than the first-order term.';
 }
@@ -267,10 +273,10 @@ const c2=document.getElementById('c2'),g2=c2.getContext('2d');
 const lam=document.getElementById('lam'),kap=document.getElementById('kap'),n2=document.getElementById('n2');
 let D2=gen(+n2.value), E2=null, s2=0, raf2=null;
 const STEPS=['Here is the cohort. Treated patients are concentrated at high X, which is also where outcomes are high: confounding by indication.',
- 'Fit the outcome model μ̂(x, a) and take P n[μ̂₁ − μ̂₀]. That is g-computation, the plug-in. The shrunk treatment coefficient makes it too small.',
- 'The model leaves residuals, Y − μ̂(X, A). Those residuals are what the model got wrong, and they are not centered where the arms are imbalanced.',
- 'Weight each residual by 1/π̂ (treated) or −1/(1−π̂) (control). Thick sticks are patients whose arm was unlikely: they stand in for the people we did not see.',
- 'Average the weighted residuals. That single number is P n D(P̂), the correction. Add it to the plug-in: the one-step. Compare to the truth on the number line.'];
+ 'Fit the outcome model m̂ₐ(x) and take Pₙ[m̂₁ − m̂₀]. That is g-computation, the plug-in. The shrunk treatment coefficient makes it too small.',
+ 'The model leaves residuals, Y − m̂_A(X). Those residuals are what the model got wrong, and they are not centered where the arms are imbalanced.',
+ 'Weight each residual by 1/ĝ (treated) or −1/(1−ĝ) (control). Thick sticks are patients whose arm was unlikely: they stand in for the people we did not see.',
+ 'Average the weighted residuals. That single number is Pₙϕ̂, the correction. Add it to the plug-in: the one-step. Compare to the truth on the number line.'];
 function draw2(){
   E2=estimate(D2,+lam.value,+kap.value);
   const W=+c2.dataset.w||c2.width,H=+c2.dataset.h||c2.height; g2.clearRect(0,0,W,H);
@@ -295,7 +301,7 @@ function draw2(){
   if(s2>=1){
     for(const a of [1,0]){g2.strokeStyle=a?tr:co;g2.lineWidth=2.4;g2.beginPath();
       for(let k=0;k<=40;k++){const x=-2+4*k/40;const y=E2.mu(x,a);k?g2.lineTo(xs(x),ys(y)):g2.moveTo(xs(x),ys(y));}g2.stroke();}
-    label(g2,'μ̂₁(x)',xs(-1.9),ys(E2.mu(-1.9,1))-8,tr,'left');label(g2,'μ̂₀(x)',xs(-1.9),ys(E2.mu(-1.9,0))+16,co,'left');
+    label(g2,'m̂₁(x)',xs(-1.9),ys(E2.mu(-1.9,1))-8,tr,'left');label(g2,'m̂₀(x)',xs(-1.9),ys(E2.mu(-1.9,0))+16,co,'left');
   }
   // number line
   const NL=B+60, nx=v=>L+(R-L)*(v-0)/4; // range 0..4
@@ -313,9 +319,9 @@ function draw2(){
   document.getElementById('ro2').innerHTML=
     `<span class="k">Â coefficient</span><span>${fmt(E2.b[2],2)} → ${fmt(E2.bA,2)} shrunk</span>
      <span class="k">plug-in</span><span>${fmt(E2.plug)}</span>
-     <span class="k">correction PₙD</span><span>${s2>=4?fmt(E2.corr):'—'}</span>
-     <span class="k">one-step</span><span>${s2>=4?fmt(E2.os):'—'}</span>
-     <span class="k">SE (IF-based)</span><span>${s2>=4?fmt(E2.se):'—'}</span>
+     <span class="k">correction Pₙϕ̂</span><span>${s2>=4?fmt(E2.corr):'…'}</span>
+     <span class="k">one-step</span><span>${s2>=4?fmt(E2.os):'…'}</span>
+     <span class="k">SE (IF-based)</span><span>${s2>=4?fmt(E2.se):'…'}</span>
      <span class="k">truth</span><span> 2.000</span>`;
 }
 document.getElementById('step2').onclick=()=>{s2=Math.min(4,s2+1);draw2();};

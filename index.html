@@ -93,10 +93,10 @@
           <div class="eyebrow">See the payoff · ten seconds</div>
           <h2 id="hero-toy-title">Fix a biased estimate in one step</h2>
           <p>
-            A plug-in estimate misses the truth. One step along the tangent,
-            the influence function, removes the first-order part of the miss. Drag the slider,
-            take the step, and notice what is left over. By the middle of the
-            course you will know exactly why.
+            A plug-in estimate misses the truth. Take one step along the
+            tangent, the influence function, and see how close it lands. Drag
+            the slider, take the step again, and watch what is left over. By
+            the middle of the course you will know exactly why.
           </p>
         </div>
         <figure class="hero-toy" id="hero-toy" aria-labelledby="hero-toy-title">
@@ -113,7 +113,17 @@
       </section>
 
       <section class="route" id="route" aria-labelledby="route-title">
-        <section class="placement" id="placement" aria-label="Where should I start?"></section>
+        <section class="placement" id="placement" aria-label="Where should I start?">
+          <details class="skip-ahead" id="skip-ahead">
+            <summary>Or just a 3-question identification check</summary>
+            <p>
+              Answer all three and the first lesson is marked skimmed, so the
+              route starts you at the lesson after it.
+            </p>
+            <form></form>
+            <p class="result" role="status"></p>
+          </details>
+        </section>
         <div class="route-head">
           <h2 id="route-title">The route</h2>
           <p id="route-sub">
@@ -124,15 +134,6 @@
         <svg class="river" id="river" role="group"
           aria-label="Course map: six roadmap stages on the main channel, lessons joining as tributaries"></svg>
         <p id="retrieval" class="retrieval" hidden></p>
-        <details class="skip-ahead" id="skip-ahead">
-          <summary>Just want a quick check on identification? Three questions</summary>
-          <p>
-            Answer all three and the roadmap lesson is marked explored, so the
-            route starts you at the geometry.
-          </p>
-          <form></form>
-          <p class="result" role="status"></p>
-        </details>
         <ol class="path" id="chapters"></ol>
       </section>
 

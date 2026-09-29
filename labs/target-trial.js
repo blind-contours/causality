@@ -134,11 +134,12 @@ svg.fig .tt-halo{paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-
 <p class="tt-summary" id="tt-protocol-summary" role="status"></p>
 <div class="btns"><button id="tt-fix-all" type="button">Show a protocol that emulates cleanly</button></div>
 <p class="note">One rule carries most of the weight: at time zero, three things must happen together. The patient meets the eligibility criteria, is assigned to a strategy, and starts follow-up. In a randomized trial this is automatic. In a registry you have to make it true on purpose.</p>
-<p class="note">Reporting now expects this table. The TARGET guideline (JAMA, 2025) asks authors of target trial emulations to report the protocol of the target trial and how each component was emulated. FDA's final device guidance on real-world evidence (December 2025) asks whether registry data are fit for the specific regulatory question; a protocol written before the outcome analysis is how you show what that question is.</p>
+<p class="note">Reporting now expects this table. The TARGET guideline (JAMA, 2025) asks authors of target trial emulations to report the protocol of the target trial and how each component was emulated. FDA's final guidance <a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/use-real-world-evidence-support-regulatory-decision-making-medical-devices">Use of Real-World Evidence To Support Regulatory Decision-Making for Medical Devices</a> (announced in the Federal Register on 18 December 2025; it supersedes the 2017 guidance) asks sponsors to show that real-world data are relevant and reliable for the specific regulatory question. A protocol written before the outcome analysis is how you show what that question is.</p>
 </section>
 
 <section class="lab-step" data-title="Move time zero">
 <h2 tabindex="-1">Twenty patients, one clock, three places to start it</h2>
+<aside class="world-card"><b>This step's world</b> 20 patients from a simulated device registry (not the course's 100-patient cohort: a registry has waiting lists and dates) · outcome: death within one year · truth: the device does nothing, rate ratio 1</aside>
 <p>These are 20 patients from the simulated registry, drawn on the <em>eligibility</em> clock. In this world the device <strong>truly does nothing</strong> to mortality, and the waiting time is unrelated to how sick anyone is. Any difference between groups is self-inflicted.</p>
 <div class="predict" data-options="Treated patients will look better|The groups will look about the same|Treated patients will look worse" data-answer="0" data-hint="Treated patients had to survive the whole wait to be counted as treated, and every death on the waiting list is charged to the untreated group. Switch between (a) and (b) and compare the death rates.">Predict: under choice (b), each treated patient's clock starts on the procedure date and each untreated patient's clock starts at eligibility. With no true effect, what will the death rates show?</div>
 ${zeroRadios("tt-zero-2")}
@@ -162,6 +163,7 @@ ${zeroRadios("tt-zero-2")}
 
 <section class="lab-step" data-title="Compare with the truth">
 <h2 tabindex="-1">A benefit made from nothing, measured</h2>
+<aside class="world-card"><b>This step's world</b> 2,000 patients from the same simulated registry, enough to draw smooth Kaplan–Meier curves · outcome: death within one year · truth: the green dashed curves, known exactly</aside>
 <p>Now use the whole registry: 2,000 simulated patients from the same generator. Because we built the world, we know the truth exactly. The green dashed curve is survival if everyone had the procedure on the eligibility date, and if nobody ever had it; with no true effect those two curves are the same curve.</p>
 <div id="tt-guess"></div>
 ${zeroRadios("tt-zero-3")}
@@ -194,9 +196,10 @@ ${zeroRadios("tt-zero-3")}
 <div class="figure"><svg id="tt-prevalent" role="img" aria-label="Schematic. Calendar timelines for four patients around the registry start. New users start follow-up at their procedure. Prevalent users had the procedure years earlier and start follow-up at registry entry; a patient who died soon after an early procedure never enters the registry."></svg>
 <p class="fig-caption"><strong>Prevalent versus new users (schematic).</strong> Patients implanted before the registry opened enter only if they survived until it opened. Early procedural deaths are invisible, so the device looks safer. A target trial enrolls new users: time zero is the procedure decision, not registry entry.</p></div>
 <div class="figure"><svg id="tt-postbase" role="img" aria-label="Schematic. Four treated patients followed from the procedure. Inclusion requires a 30-day echocardiogram, so a patient who died on day 10 is excluded and the first 30 days are immortal for everyone included."></svg>
-<p class="fig-caption"><strong>Eligibility from the future (schematic).</strong> “Include treated patients with a 30-day echo on file” uses information recorded after time zero. Anyone who died before day 30 cannot qualify, so the first 30 days of follow-up are immortal.</p></div>
+<p class="fig-caption"><strong>Eligibility from the future (schematic).</strong> “Include treated patients with a 30-day echo on file” uses information recorded after time zero.</p></div>
 </div>
 <div class="predict" data-options="Lower than the true 29.5%|About 29.5%|Higher than 29.5%" data-answer="0" data-hint="Every early death is removed from the treated group by the inclusion rule, while follow-up still starts at the procedure. Move the slider to see how much.">Predict: the device still does nothing and the true one-year risk from the procedure is 29.5%. Among treated patients required to have a 30-day echo, with follow-up from the procedure date, the observed one-year risk will be</div>
+<p>Anyone who died before day 30 cannot qualify, so the first 30 days of follow-up are immortal for everyone included.</p>
 <label>Days of post-procedure survival required for inclusion <output id="tt-days-out"></output><input id="tt-days" type="range" min="0" max="90" step="1"></label>
 <p class="tt-big" id="tt-days-value" role="status"></p>
 <p id="tt-days-caption"></p>
@@ -205,6 +208,7 @@ ${zeroRadios("tt-zero-3")}
 
 <section class="lab-step" data-title="Fix it, find the gap">
 <h2 tabindex="-1">Align time zero, and meet the grace period</h2>
+<aside class="world-card"><b>This step's world</b> 4 of the 20 registry patients in the figure; counts from all 2,000 registry patients · outcome: death within one year · truth: the device does nothing</aside>
 <p>The fix is to start every clock at eligibility. But the protocol's strategies are “procedure <em>within 6 months</em>” and “no procedure”. On the eligibility date, which strategy is a waiting patient following? Both. The 6-month window is a <strong>grace period</strong>, and a patient's strategy only becomes visible as time passes.</p>
 <div class="figure" id="tt-grace-figure"><div class="fig-row"><div>
 <svg id="tt-grace" role="img" aria-label="Four patients on the eligibility clock with the 6-month grace period shaded. Under each patient, a blue track shows how long they remain compatible with the procedure-within-6-months strategy and a teal track how long they remain compatible with the no-procedure strategy. A sweep line moves through time."></svg>
@@ -271,11 +275,11 @@ ${zeroRadios("tt-zero-3")}
       outcome: ["ok", "Date of death from linkage; one-year risk from time zero."],
       contrast:
         c.contrast === "pp"
-          ? ["ok", "Estimable: follow each patient while their data are consistent with a strategy, and adjust for the deviations (next lesson)."]
+          ? ["ok", "Estimable: follow each patient while their data are consistent with a strategy, and adjust for the deviations (the lesson “Clone, censor, weight”)."]
           : ["warn", "Nobody is assigned a strategy in a registry. The observational analogue of intention-to-treat is the effect of starting treatment at time zero, and here nobody starts on the eligibility date. The per-protocol effect is the one to emulate."],
       plan:
         c.zero === "aligned"
-          ? ["ok", "Start every clock at eligibility. Handle the grace period by cloning, censoring and weighting (step 5 and the next lesson)."]
+          ? ["ok", "Start every clock at eligibility. Handle the grace period by cloning, censoring and weighting (step 5 and the lesson “Clone, censor, weight”)."]
           : ["bad", "The planned clock credits waiting time to one group. Fix the time zero row first."],
     };
     const desc = {
@@ -419,7 +423,13 @@ ${zeroRadios("tt-zero-3")}
     const tl = T.tally(lanes, kind, laneT * H),
       row = (name, s) => [
         html("span", { class: "k" }, name),
-        html("span", {}, `${s.deaths} deaths / ${fmt(s.years, 2)} person-years = ${Number.isFinite(s.rate) ? fmt(s.rate, 2) : "undefined"} per year`),
+        html(
+          "span",
+          {},
+          s.years > 0
+            ? `${s.deaths} deaths / ${fmt(s.years, 2)} person-years = ${fmt(s.rate, 2)} per year`
+            : "no follow-up counted yet",
+        ),
       ];
     byId("tt-lane-readout").replaceChildren(
       html("span", { class: "k" }, "Analysis time"),
@@ -427,10 +437,22 @@ ${zeroRadios("tt-zero-3")}
       ...row("Treated", tl.treated),
       ...row("Untreated", tl.untreated),
       html("span", { class: "k" }, "Rate ratio"),
-      html("span", {}, Number.isFinite(tl.ratio) ? fmt(tl.ratio, 2) + " (truth: 1)" : "undefined yet"),
+      html("span", {}, Number.isFinite(tl.ratio) && tl.ratio > 0 ? fmt(tl.ratio, 2) + " (truth: 1)" : "not yet: too few deaths counted (truth: 1)"),
     );
     return tl;
   }
+  const onFinish = (node, fn) => {
+    const seen = new WeakSet();
+    [node.closest(".figure"), node.closest("[data-figure]"), node.closest(".lab-step")]
+      .filter(Boolean)
+      .forEach((t) =>
+        t.addEventListener("causality:finish", (e) => {
+          if (seen.has(e)) return;
+          seen.add(e);
+          fn();
+        }),
+      );
+  };
   const lanePlayer = player(byId("tt-lane-player"), {
     duration: 7000,
     label: "Analysis clock",
@@ -440,6 +462,7 @@ ${zeroRadios("tt-zero-3")}
       if (laneState) {
         drawLanes(laneState, state.get().zero);
         laneReadout(state.get().zero);
+        laneCaption(state.get().zero);
       }
     },
   });
@@ -461,11 +484,26 @@ ${zeroRadios("tt-zero-3")}
       });
     }
     lastKind = kind;
-    const tl = laneReadout(kind),
-      full = T.tally(lanes, kind, H),
+    laneReadout(kind);
+    laneCaption(kind);
+  }
+  /* The caption quotes first-year numbers only once the clock has reached 12 months, so the
+   * words always match the live readout beside them. */
+  function laneCaption(kind) {
+    const full = T.tally(lanes, kind, H),
+      done = laneT >= 1 - 1e-9,
       waitDeaths = lanes.filter((r) => r.W < Infinity && !r.proc && r.died && r.T <= H).length,
       immortal = lanes.filter((r) => r.proc).reduce((a, r) => a + Math.min(r.W, H), 0);
-    void tl;
+    if (!done) {
+      byId("tt-lane-caption").textContent =
+        (kind === "aligned"
+          ? "(a) Every clock starts at eligibility. Waiting time counts as untreated until the procedure, then as treated."
+          : kind === "procedure"
+            ? "(b) Treated clocks start at the procedure. The hatched waiting time leaves the analysis, and deaths on the waiting list count only as untreated."
+            : "(c) Every clock starts at eligibility but groups are fixed by later treatment. The hatched waiting time, in which no treated patient can die, is credited to the treated group.") +
+        ` The analysis clock is at ${fmt(laneT * 12, 1)} months; the first-year rate ratio appears when it reaches 12.`;
+      return;
+    }
     byId("tt-lane-caption").textContent =
       kind === "aligned"
         ? `(a) Every clock starts at eligibility. Waiting time counts as untreated until the procedure, then as treated. Over the first year the death rates are ${fmt(full.treated.rate, 2)} and ${fmt(full.untreated.rate, 2)} per person-year: a rate ratio of ${fmt(full.ratio, 2)}, close to the truth of 1.`
@@ -821,6 +859,8 @@ ${zeroRadios("tt-zero-3")}
       drawGrace();
     },
   });
+  onFinish(byId("tt-lane-player"), () => lanePlayer.set(1));
+  onFinish(byId("tt-grace-player"), () => gracePlayer.set(1));
   function renderGrace(c) {
     const rows = rows2000(),
       tr = T.truth({ hr: 1 }),

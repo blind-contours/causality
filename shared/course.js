@@ -16,27 +16,80 @@
       b.setAttribute("aria-label", "Step " + n + ": " + title);
     },
   };
-  /* Beats: inside the current guided step, one small idea at a time. Each step's direct children
-   * are grouped into consecutive beats (heading with its first paragraph, controls with their
-   * figure, readouts and tables with the figure they describe, one paragraph / note / predict box
-   * each). Hidden beats use the hidden attribute. The step's single Continue button first reveals
-   * the next beat, then moves on to the next step. Explore mode, or the setting "Reveal one idea at
-   * a time" switched off, shows everything. */
+  /* Beats: inside the current guided step, one small idea at a time.
+   *
+   * Splitting. A step's children are grouped into consecutive beats: a heading travels with what
+   * follows it, controls and readouts travel with their figure, and a predict box is always a beat
+   * of its own. Then the groups are paced: consecutive short text groups are joined so a beat holds
+   * roughly 25 to 90 words or one visual, a short lead-in joins the figure it introduces, and a step
+   * keeps at most 7 beats. Nothing is ever joined across a predict box or a figure. When a step has
+   * one wrapper container holding most of its content, the splitter descends into it.
+   *
+   * Controls. The step's Continue button reveals the next beat, then moves to the next step. Next to
+   * it: "Show the rest of this step" (reveals everything, no animation), a subtle "Space to
+   * continue" hint (desktop only), and, while a prediction is unanswered, "Answer to continue"
+   * (aria-disabled, still focusable; pressing it focuses the options) with a small "Skip".
+   *
+   * Figures. Text that follows an animation must not arrive before the animation ends. If a shown
+   * beat holds a figure that is still playing and the next beat is text, the first Continue press
+   * fast-forwards the figure and only the second press reveals the text. Fast-forward dispatches
+   * a bubbling CustomEvent "causality:finish" on the figure element ([data-figure], .scene, .figure
+   * or .paper around the player); a figure may listen for it and jump to its end state, or ignore
+   * it. A figure counts as playing when it carries [data-playing] or holds a CausalAnim player
+   * (.fig-player) whose Play button currently reads "Pause"; such a player is then set to its end
+   * through its own scrub slider, so it finishes even when the figure ignores the event.
+   *
+   * Links. A #hash that targets a step, a step heading, or a figure reveals that whole step and
+   * scrolls the target into view after layout; any other target reveals up to its beat. The query
+   * ?reveal=all shows every beat of every step, and ?finish=1 fast-forwards the players of the
+   * linked step once they have started, so a link can land on a figure's end state.
+   *
+   * Explore mode, or the setting "Reveal one idea at a time" switched off, shows everything. */
   const beats = (function () {
-    const steps = new Map(); // panel -> {groups, shown, row, next, own, dots, gate}
+    const steps = new Map(); // panel -> {groups, shown, row, next, own, dots, rest, skip, hint}
     let lessonId = "",
       enabledFn = () => false,
       lastPointer = "mouse",
-      saved = {};
+      saved = {},
+      userScrolled = false;
+    const params = (() => {
+      try {
+        return new URLSearchParams(location.search);
+      } catch {
+        return new URLSearchParams();
+      }
+    })();
+    const REVEAL_ALL = params.get("reveal") === "all";
+    const MIN_WORDS = 25,
+      MAX_WORDS = 90,
+      MAX_BEATS = 7;
     const KEY = () => "causality.beats." + lessonId;
     const reduced = () =>
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const FIG =
       "svg,canvas,figure,table,.figure,.scene,.paper,.stage,[data-figure],.table-wrap,.lab-grid,.figure-viewport,[data-simulation]";
+    const PICTURE = "svg,canvas,figure,.figure,.scene,.paper,[data-figure],.figure-viewport,[data-simulation]";
     const INTERACTIVE =
       "a,button,input,select,textarea,label,summary,details,svg,canvas,table,[data-figure],.scene,.figure,.figure-viewport,.predict,[contenteditable],[role=slider],[role=button],[tabindex]:not([tabindex='-1'])";
+    // Words a reader meets: closed <details> count only their summary.
+    function words(root) {
+      let n = 0;
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      for (let t; (t = w.nextNode()); ) {
+        const p = t.parentElement;
+        if (!p || p.closest("script,style,template")) continue;
+        const d = p.closest("details");
+        if (d && !d.open && root.contains(d) && !p.closest("summary")) continue;
+        n += (t.data.match(/\S+/g) || []).length;
+      }
+      return n;
+    }
     function kind(el) {
-      if (/^H[1-6]$/.test(el.tagName) || el.classList.contains("eyebrow"))
+      if (
+        /^H[1-6]$/.test(el.tagName) ||
+        el.classList.contains("eyebrow") ||
+        el.classList.contains("world-card")
+      )
         return "lead";
       if (el.hidden) return "attach";
       if (el.classList.contains("predict")) return "predict";
@@ -70,8 +123,12 @@
         return "control";
       return "text";
     }
-    // Group a step's direct children into beats. Every group is a contiguous run of siblings.
-    function split(panel) {
+    const skipped = (el) =>
+      el.classList.contains("step-btns") ||
+      el.classList.contains("beat") ||
+      /^(SCRIPT|STYLE|TEMPLATE|LINK)$/.test(el.tagName);
+    // Group a container's direct children into raw groups. Every group is a contiguous run of siblings.
+    function split(host) {
       const groups = [];
       let cur = null,
         lead = [],
@@ -80,10 +137,8 @@
         cur = { type, els };
         groups.push(cur);
       };
-      for (const el of [...panel.children]) {
-        if (el.classList.contains("step-btns") || el.classList.contains("beat"))
-          continue;
-        if (/^(SCRIPT|STYLE|TEMPLATE|LINK)$/.test(el.tagName)) continue;
+      for (const el of [...host.children]) {
+        if (skipped(el)) continue;
         let k = kind(el);
         if (k === "lead") {
           if (held.length && cur) cur.els.push(...held.splice(0));
@@ -149,10 +204,91 @@
       }
       return groups;
     }
-    // Initial reveal: the first beat, plus the first figure when it follows directly.
-    function initial(groups) {
-      if (groups[0].type === "predict" || groups[0].type === "visual") return 1;
-      return groups[1]?.type === "visual" ? 2 : 1;
+    // Pace raw groups: join short text, fold a short lead-in into its figure, cap the count.
+    function pace(raw) {
+      raw.forEach((g) => (g.words = g.els.reduce((s, e) => s + words(e), 0)));
+      const join = (a, b) => {
+        a.els.push(...b.els);
+        a.words += b.words;
+        if (b.type === "visual") a.type = "visual";
+        return a;
+      };
+      const fits = (a, b) =>
+        a + b <= MAX_WORDS || ((a < MIN_WORDS || b < MIN_WORDS) && a + b <= MAX_WORDS + 40);
+      let out = [];
+      for (const g of raw) {
+        const prev = out[out.length - 1];
+        // An empty status line or mount point is not an idea: it rides with its neighbour.
+        if (prev && g.type === "text" && g.words === 0 && prev.type !== "predict") {
+          join(prev, g);
+          continue;
+        }
+        if (prev?.type === "text" && g.type === "text" && fits(prev.words, g.words)) {
+          join(prev, g);
+          continue;
+        }
+        out.push(g);
+      }
+      // A short lead-in ("Watch the bins...") arrives with the figure it introduces.
+      const folded = [];
+      for (let i = 0; i < out.length; i++) {
+        const g = out[i],
+          nx = out[i + 1];
+        if (g.type === "text" && g.words < MIN_WORDS && nx?.type === "visual") {
+          nx.els.unshift(...g.els);
+          nx.words += g.words;
+          continue;
+        }
+        folded.push(g);
+      }
+      out = folded;
+      // At most MAX_BEATS: join the smallest neighbouring pair of text beats.
+      while (out.length > MAX_BEATS) {
+        let best = -1,
+          size = Infinity;
+        for (let i = 0; i + 1 < out.length; i++) {
+          const a = out[i],
+            b = out[i + 1];
+          if (a.type !== "text" || b.type !== "text") continue;
+          if (a.words + b.words < size) {
+            size = a.words + b.words;
+            best = i;
+          }
+        }
+        if (best < 0 || size > 2.5 * MAX_WORDS) break;
+        join(out[best], out[best + 1]);
+        out.splice(best + 1, 1);
+      }
+      return out;
+    }
+    // If one plain wrapper holds most of a step, split its children instead.
+    function host(panel) {
+      let h = panel;
+      for (let depth = 0; depth < 3; depth++) {
+        const kids = [...h.children].filter(
+          (el) =>
+            !skipped(el) &&
+            !/^H[1-6]$/.test(el.tagName) &&
+            !el.classList.contains("eyebrow"),
+        );
+        const box = kids.filter(
+          (el) =>
+            /^(DIV|SECTION|ARTICLE|MAIN|FORM)$/.test(el.tagName) &&
+            !el.matches(FIG) &&
+            !el.matches(".predict,.btns,.controls,.ctl,.table-wrap") &&
+            el.children.length >= 3,
+        );
+        const total = words(h) || 1;
+        if (
+          kids.length <= 2 &&
+          box.length === 1 &&
+          words(box[0]) >= 0.7 * total &&
+          pace(split(box[0])).length >= 2
+        )
+          h = box[0];
+        else break;
+      }
+      return h;
     }
     function enabled() {
       return enabledFn();
@@ -162,13 +298,22 @@
         sessionStorage.setItem(KEY(), JSON.stringify(saved));
       } catch {}
     }
+    const answered = (g) =>
+      !!g.wrap.dataset.answered ||
+      !!g.wrap.querySelector(".predict-opt[aria-pressed='true']");
+    // The next beat waits for an answer when the last shown beat is an unanswered prediction.
+    function gated(s) {
+      const g = s.groups[s.shown - 1];
+      return !!g && g.type === "predict" && s.shown < s.groups.length && !answered(g);
+    }
     function render(panel) {
       const s = steps.get(panel);
       if (!s) return;
       const on = enabled(),
         n = s.groups.length;
       s.groups.forEach((g, k) => (g.wrap.hidden = on && k >= s.shown));
-      const more = on && s.shown < n;
+      const more = on && s.shown < n,
+        gate = more && gated(s);
       s.dots.hidden = !more;
       s.dots.replaceChildren(
         ...s.groups.map((_, k) => {
@@ -178,13 +323,21 @@
         }),
       );
       s.dots.title = s.shown + " of " + n + " ideas shown";
+      s.rest.hidden = !more;
+      s.skip.hidden = !gate;
+      s.hint.hidden = !more || gate;
       const btn = s.next || s.own;
       if (s.own) s.own.hidden = !more;
+      btn.classList.toggle("beat-gated", gate);
+      if (gate) btn.setAttribute("aria-disabled", "true");
+      else btn.removeAttribute("aria-disabled");
       if (more) {
-        btn.textContent = "Continue";
+        btn.textContent = gate ? "Answer to continue" : "Continue";
         btn.setAttribute(
           "aria-label",
-          "Show the next idea (" + (s.shown + 1) + " of " + n + ")",
+          gate
+            ? "Answer the prediction above to continue, or choose Skip"
+            : "Show the next idea (" + (s.shown + 1) + " of " + n + ")",
         );
         btn.classList.add("beat-more");
       } else if (s.next) {
@@ -193,50 +346,154 @@
         btn.classList.remove("beat-more");
       }
     }
-    function scrollTo(panel, wrap) {
+    // Height of the sticky course bar, so a scrolled-to target is not hidden under it.
+    function barHeight() {
+      const bar = document.querySelector(".course-bar");
+      if (!bar || getComputedStyle(bar).position !== "sticky") return 0;
+      return bar.getBoundingClientRect().height;
+    }
+    // Only ever scroll forward: bring the new beat (and the Continue row) into view.
+    function scrollForward(panel, wrap) {
       const s = steps.get(panel),
         r = wrap.getBoundingClientRect(),
         row = s.row.getBoundingClientRect(),
         bottom = Math.max(r.bottom, s.row.offsetParent ? row.bottom : r.bottom) + 16,
-        delta = Math.min(bottom - innerHeight, r.top - 72);
+        delta = Math.min(bottom - innerHeight, r.top - barHeight() - 16);
       if (delta > 0)
         window.scrollBy({ top: delta, behavior: reduced() ? "auto" : "smooth" });
     }
-    // Reveal the next beat of a step. Returns true when there was one to reveal.
+    // Place a step (or any target) just under the sticky bar. Used when a new step opens.
+    function land(el) {
+      // Instant, and repeated once layout settles, so a smooth scroll still running from the
+      // previous beat cannot carry the page past the new heading.
+      const go = () => {
+        const y = el.getBoundingClientRect().top + scrollY - barHeight() - 12;
+        window.scrollTo({ top: Math.max(0, y), behavior: "instant" });
+      };
+      go();
+      requestAnimationFrame(go);
+      setTimeout(go, 120);
+    }
+    function playing(root) {
+      const figs = [];
+      root.querySelectorAll("[data-playing]").forEach((f) => figs.push({ fig: f }));
+      root.querySelectorAll(".fig-player").forEach((p) => {
+        const b = p.querySelector("button");
+        if (b && /^pause$/i.test(b.textContent.trim()))
+          figs.push({
+            fig: p.closest("[data-figure],.scene,.figure,.paper") || p.parentElement,
+            player: p,
+          });
+      });
+      return figs;
+    }
+    // Fast-forward playing figures to their end state (see the header comment).
+    function finish(list) {
+      for (const { fig, player } of list) {
+        fig.dispatchEvent(new CustomEvent("causality:finish", { bubbles: true }));
+        const b = player?.querySelector("button"),
+          range = player?.querySelector("input[type=range]");
+        if (range && b && /^pause$/i.test(b.textContent.trim())) {
+          range.value = range.max || 1;
+          range.dispatchEvent(new Event("input"));
+        }
+      }
+      return list.length > 0;
+    }
+    function shownPlaying(s) {
+      return s.groups.slice(0, s.shown).flatMap((g) => playing(g.wrap));
+    }
+    // Reveal the next beat of a step. Returns true when the press was used inside the step.
     function next(panel, opts = {}) {
       const s = steps.get(panel);
       if (!s || !enabled() || s.shown >= s.groups.length) return false;
+      if (gated(s) && !opts.force) {
+        const opt = s.groups[s.shown - 1].wrap.querySelector(".predict-opt");
+        opt?.focus();
+        return true;
+      }
       const g = s.groups[s.shown];
+      if (!opts.force && g.type === "text" && finish(shownPlaying(s))) return true;
       s.shown++;
       saved[panel.id] = s.shown;
       persist();
       render(panel);
-      if (!reduced()) {
+      if (!reduced() && opts.animate !== false) {
         g.wrap.classList.remove("beat-enter");
         void g.wrap.offsetWidth;
         g.wrap.classList.add("beat-enter");
       }
       requestAnimationFrame(() => {
         window.dispatchEvent(new Event("resize"));
-        scrollTo(panel, g.wrap);
+        scrollForward(panel, g.wrap);
         if (opts.focus !== false) g.wrap.focus({ preventScroll: true });
       });
       return true;
     }
+    function skip(panel) {
+      const s = steps.get(panel);
+      if (!s || !gated(s)) return;
+      s.groups[s.shown - 1].wrap.dataset.answered = "skipped";
+      next(panel, { force: true });
+    }
+    // Show everything left in the step at once, without animation.
+    function showRest(panel) {
+      const s = steps.get(panel);
+      if (!s || s.shown >= s.groups.length) return;
+      finish(shownPlaying(s));
+      const first = s.groups[s.shown];
+      s.groups.forEach((g) => {
+        if (g.type === "predict" && !answered(g)) g.wrap.dataset.answered = "skipped";
+      });
+      s.shown = s.groups.length;
+      saved[panel.id] = s.shown;
+      persist();
+      render(panel);
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("resize"));
+        first.wrap.focus({ preventScroll: true });
+      });
+    }
+    // Reveal for a deep link: whole step for a step, heading or figure; otherwise up to the target.
     function revealTo(target) {
+      let hit = null;
       for (const [panel, s] of steps) {
-        if (!panel.contains(target) || panel === target) continue;
+        if (!panel.contains(target)) continue;
         const k = s.groups.findIndex((g) => g.wrap.contains(target));
-        if (k >= s.shown) {
-          s.shown = k + 1;
+        const whole =
+          target === panel ||
+          k < 0 ||
+          target.matches(PICTURE) ||
+          !!target.querySelector(PICTURE) ||
+          (k === 0 && (/^H[1-6]$/.test(target.tagName) || target.classList.contains("eyebrow")));
+        const want = whole ? s.groups.length : k + 1;
+        if (want > s.shown) {
+          s.shown = want;
           saved[panel.id] = s.shown;
           persist();
           render(panel);
-          requestAnimationFrame(() =>
-            window.dispatchEvent(new Event("resize")),
-          );
         }
+        hit = panel;
       }
+      return hit;
+    }
+    /* Resolve a #hash to an element: an id, or "fig-<name>" (optionally "fig-<name>-<k>") for the
+     * k-th <div data-figure="name">, so links can land on a figure that has no id of its own. */
+    function find(hash) {
+      let id = hash;
+      try {
+        id = decodeURIComponent(hash);
+      } catch {}
+      if (!id) return null;
+      const byId = document.getElementById(id);
+      if (byId) return byId;
+      const m = /^fig-(.+)$/.exec(id);
+      if (!m) return null;
+      const esc = (v) => (window.CSS?.escape ? CSS.escape(v) : v);
+      const all = document.querySelectorAll(`[data-figure="${esc(m[1])}"]`);
+      if (all.length) return all[0];
+      const k = /^(.+)-(\d+)$/.exec(m[1]);
+      return k ? document.querySelectorAll(`[data-figure="${esc(k[1])}"]`)[+k[2] - 1] || null : null;
     }
     function current() {
       for (const panel of steps.keys()) if (!panel.hidden) return panel;
@@ -245,7 +502,8 @@
     function attach(panel) {
       const row = panel.querySelector(":scope > .step-btns");
       if (!row || steps.has(panel)) return;
-      const groups = split(panel);
+      const h = host(panel),
+        groups = pace(split(h));
       if (groups.length < 2) return;
       groups.forEach((g, k) => {
         const w = document.createElement("div");
@@ -269,32 +527,55 @@
         own.onclick = () => next(panel);
         row.append(own);
       }
-      const dots = document.createElement("span");
-      dots.className = "beat-dots";
+      const mk = (tag, cls, text) => {
+        const e = document.createElement(tag);
+        e.className = cls;
+        e.textContent = text;
+        if (tag === "button") e.type = "button";
+        return e;
+      };
+      const rest = mk("button", "beat-rest", "Show the rest of this step"),
+        dots = mk("span", "beat-dots", ""),
+        hint = mk("span", "beat-key", "Space to continue"),
+        skipBtn = mk("button", "beat-skip", "Skip");
       dots.setAttribute("aria-hidden", "true");
-      (nextBtn || own).before(dots);
+      hint.setAttribute("aria-hidden", "true");
+      skipBtn.setAttribute("aria-label", "Skip this prediction and continue");
+      rest.onclick = () => showRest(panel);
+      skipBtn.onclick = () => skip(panel);
+      (nextBtn || own).before(rest, dots, hint, skipBtn);
+      const done = saved.answered?.[panel.id] || [];
+      groups.forEach((g, k) => {
+        if (done.includes(k)) g.wrap.dataset.answered = "1";
+      });
       const s = {
         groups,
         row,
         dots,
+        rest,
+        skip: skipBtn,
+        hint,
         next: nextBtn,
         own,
         nextLabel: nextBtn?.textContent,
-        shown: Math.min(
-          groups.length,
-          Math.max(initial(groups), +saved[panel.id] || 0),
-        ),
+        shown: REVEAL_ALL
+          ? groups.length
+          : Math.min(groups.length, Math.max(1, +saved[panel.id] || 0)),
       };
       steps.set(panel, s);
       // A predict box is a gate: answering it opens the next idea.
       panel.addEventListener("click", (e) => {
         const opt = e.target.closest(".predict-opt"),
           w = opt?.closest(".beat");
-        if (opt && w && w.parentElement === panel) {
-          const k = groups.findIndex((g) => g.wrap === w);
-          if (k === s.shown - 1 && !w.dataset.answered) {
+        const k = w ? groups.findIndex((g) => g.wrap === w) : -1;
+        if (opt && k >= 0) {
+          if (!w.dataset.answered) {
             w.dataset.answered = "1";
-            setTimeout(() => next(panel, { focus: false }), 450);
+            saved.answered = saved.answered || {};
+            (saved.answered[panel.id] ||= []).push(k);
+            persist();
+            render(panel);
+            if (k === s.shown - 1) setTimeout(() => next(panel, { focus: false }), 450);
           }
           return;
         }
@@ -302,11 +583,43 @@
         if (
           lastPointer === "touch" &&
           !e.target.closest(INTERACTIVE) &&
+          !e.target.closest(".step-btns") &&
           (getSelection?.().isCollapsed ?? true)
         )
           next(panel, { focus: false });
       });
       render(panel);
+    }
+    // After a deep link: scroll the target into view once layout has settled.
+    function settle(target, firstLoad) {
+      const go = () => {
+        if (!userScrolled && !target.closest("[hidden]")) {
+          // A target that guided mode hides by CSS (a legacy eyebrow) lands on its beat instead.
+          const box = target.getClientRects().length
+            ? target
+            : target.closest(".beat,.legacy-step,.lab-step") || target;
+          const y = box.getBoundingClientRect().top + scrollY - barHeight() - 12;
+          window.scrollTo({ top: Math.max(0, y), behavior: "instant" });
+        }
+      };
+      requestAnimationFrame(() => requestAnimationFrame(go));
+      // On first load, figures and fonts can still move the layout: land again once they settle.
+      // A later hash change lands once, so it never fights a scroll that follows it.
+      if (!firstLoad) return;
+      setTimeout(go, 250);
+      if (document.readyState !== "complete")
+        window.addEventListener("load", () => setTimeout(go, 50), { once: true });
+      else setTimeout(go, 700);
+    }
+    function finishLinked(panel) {
+      // ?finish=1: wait for the linked step's players to start, then fast-forward them.
+      let tries = 0;
+      const tick = () => {
+        const list = playing(panel);
+        if (list.length) return finish(list);
+        if (++tries < 40) setTimeout(tick, 100);
+      };
+      tick();
     }
     function init(id, isEnabled) {
       lessonId = id;
@@ -319,6 +632,8 @@
       document
         .querySelectorAll(".legacy-step,.lab-step")
         .forEach((p) => attach(p));
+      for (const ev of ["wheel", "touchmove", "keydown"])
+        window.addEventListener(ev, () => (userScrolled = true), { passive: true, once: true });
       if (!steps.size) return;
       document.body.classList.add("has-beats");
       const all = () => steps.forEach((_, p) => render(p));
@@ -341,17 +656,19 @@
           return;
         if (next(panel)) e.preventDefault();
       });
-      const hash = () => {
-        let target = null;
-        try {
-          target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-        } catch {}
-        if (target) revealTo(target);
+      const hash = (first) => {
+        const target = find(location.hash.slice(1));
+        if (!target) return;
+        const panel = revealTo(target);
+        if (!panel) return;
+        requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+        settle(target, first === true);
+        if (params.get("finish") === "1") finishLinked(panel);
       };
       window.addEventListener("hashchange", hash);
-      hash();
+      hash(true);
     }
-    return { init, next, revealTo, attach };
+    return { init, next, revealTo, attach, showRest, land, find };
   })();
   window.CausalBeats = beats;
   const COURSE = window.CausalCurriculum,
@@ -623,7 +940,8 @@
             next.onclick = () => {
               if (window.CausalBeats?.next(p)) return;
               select(k + 1);
-              panels[k + 1].scrollIntoView({ block: "start" });
+              // Land the new topic just under the sticky course bar.
+              beats.land(panels[k + 1]);
               const h = headings[k + 1];
               if (!h.hasAttribute("tabindex")) h.tabIndex = -1;
               h.focus({ preventScroll: true });
@@ -635,8 +953,8 @@
         panels[0].before(nav);
         window.addEventListener("causality:settings", update);
         const hash = () => {
-          const target = document.getElementById(location.hash.slice(1)),
-            k = panels.findIndex((p) => p.contains(target));
+          const target = beats.find(location.hash.slice(1)),
+            k = target ? panels.findIndex((p) => p.contains(target)) : -1;
           if (k >= 0) select(k);
         };
         window.addEventListener("hashchange", hash);

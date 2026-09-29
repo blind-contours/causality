@@ -1,6 +1,12 @@
-# Lesson 16: covariate adjustment in a 1:1 randomized trial (FDA guidance, May 2023).
-# Unadjusted difference in means vs standardization (g-computation) with a
+# Your trial, adjusted: covariate adjustment in a 1:1 randomized trial (FDA guidance,
+# May 2023). Unadjusted difference in means vs standardization (g-computation) with a
 # robust influence-function SE. Both target the same marginal ATE.
+#
+# In practice: RobinCar::robincar_linear() (continuous outcome, ANCOVA/ANHECOVA) and
+# RobinCar::robincar_glm() (binary or count outcomes, g-computation) return the
+# adjusted estimate with a robust SE that also accounts for stratified or
+# covariate-adaptive randomization. AIPW::AIPW or tmle::tmle() with a known 0.5
+# propensity give the same target with flexible outcome models.
 set.seed(20260925)
 n <- 400
 X <- rnorm(n)                                  # prognostic baseline covariate
