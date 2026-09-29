@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher's guide · Causality</title>
+    <meta
+      name="description"
+      content="A companion for educators: who the Causality course is for, how to run it as a class, three-week and six-week schedules, and a printable page for each of the 21 core lessons."
+    />
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <link rel="stylesheet" href="guide.css" />
+    <script>
+      /* Honour the theme chosen in any lesson's settings (stored on this device). */
+      try {
+        const t = JSON.parse(localStorage.getItem("causality.progress.v2") || "{}")
+          ?.settings?.theme;
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body class="guide">
+    <a class="skip" href="#educators">Skip to the guide</a>
+    <main class="wrap">
+      <header class="mast">
+        <a class="brand" href="../index.html" aria-label="Causality home">
+          <img src="../icons/icon.svg" alt="" width="28" height="28" />
+          <b>Causality</b>
+        </a>
+        <nav aria-label="Site">
+          <a href="../index.html#route">Lessons</a
+          ><a href="../tour.html">Tour</a
+          ><a href="index.html" aria-current="page">Teachers</a
+          ><a href="../glossary.html">Symbols</a>
+        </nav>
+      </header>
+
+      <section class="g-open" aria-labelledby="g-title">
+        <div class="eyebrow">A companion for educators</div>
+        <h1 id="g-title">Teacher's guide</h1>
+        <p class="lede">
+          Everything you need to teach Causality to a room of people: who it is
+          for, how to pace it, and, for every lesson, what to ask while the
+          figure moves, where students usually go wrong, and a short activity
+          for class time.
+        </p>
+        <ul class="g-glance" id="g-glance" aria-label="The course at a glance"></ul>
+        <button type="button" class="g-print-btn" onclick="window.print()">
+          Print or save as PDF (one lesson per page)
+        </button>
+      </section>
+
+      <nav class="g-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">Contents</h2>
+        <ol id="g-toc-list">
+          <li><a href="#educators">For educators</a></li>
+          <li><a href="#schedules">Suggested schedules</a></li>
+          <li><a href="#lessons">Lesson by lesson</a><ol id="g-toc-lessons"></ol></li>
+          <li><a href="#elective">The elective branch</a></li>
+        </ol>
+      </nav>
+
+      <section class="g-section" id="educators" aria-labelledby="edu-title">
+        <h2 id="edu-title">For educators</h2>
+        <div class="g-intro">
+          <section>
+            <h3>Who the course is for</h3>
+            <p>
+              Applied trial statisticians and epidemiologists who already use
+              regression, Kaplan–Meier, Cox and propensity scores, and want to
+              see what AIPW and TMLE are actually doing. It also suits graduate
+              students in biostatistics or epidemiology who have met those tools
+              but not the theory behind influence functions.
+            </p>
+            <p>
+              The route runs from the causal question, through design and the
+              geometry of estimation, to intervals you can defend and back to
+              survival curves. The regulatory thread (ICH E9(R1) estimands,
+              target trial emulation, FDA guidance on covariate adjustment and on
+              device real-world evidence) runs through it, so it works for
+              industry and academic groups alike.
+            </p>
+          </section>
+          <section>
+            <h3>What students need first</h3>
+            <ul>
+              <li>Linear and logistic regression, and a confidence interval.</li>
+              <li>Kaplan–Meier curves and the Cox model, as users.</li>
+              <li>Propensity scores and inverse probability weighting, at least by name.</li>
+              <li>Expectation and variance, and the derivative of a function of one variable.</li>
+            </ul>
+            <p>
+              No measure theory. Every derivation is built from sums students
+              can see. R is optional: six lessons carry a short base R script
+              with its verified output.
+            </p>
+          </section>
+          <section>
+            <h3>How to use it in a class</h3>
+            <p>
+              Each lesson is a sequence of steps, one idea per step, with a
+              figure that moves and a prediction to make before the answer
+              appears. Students can enter any lesson directly; each lesson says
+              what it builds on.
+            </p>
+            <p>
+              Every lesson opens with <b>Learning and display settings</b>.
+              <b>Guided</b> shows one step at a time and can reveal one idea at
+              a time; <b>Explore</b> shows every step at once, which is the
+              better mode for projecting in class. Laboratory lessons have a
+              <b>Share this configuration</b> button: set up the figure the way
+              you want to discuss it and send the link.
+            </p>
+          </section>
+          <section>
+            <h3>A flipped classroom</h3>
+            <p>
+              The lessons are built for self-study, so class time can go to
+              talk. A session that works:
+            </p>
+            <ul>
+              <li><b>Before class</b>, students complete the lessons for that session (the times below are estimates of working time).</li>
+              <li><b>10 minutes:</b> retrieval. Each lesson opens with two questions from the one before; ask them cold.</li>
+              <li><b>20 minutes:</b> project the key figure in Explore mode and ask the questions listed under “Ask while it plays”.</li>
+              <li><b>20 minutes:</b> the in-class activity, in pairs or small groups.</li>
+              <li><b>10 minutes:</b> discussion questions, then the lesson's “Try a new case” as an exit ticket.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>What progress means, and what it does not</h3>
+            <p>
+              Progress lives in each student's browser, on their own device.
+              There are no accounts and no server, so you cannot see your
+              students' progress; ask them to show you.
+            </p>
+            <p>
+              Each lesson ends with a transfer check: a new numerical case with a
+              hint and a worked solution. A lesson moves through
+              <b>explored</b>, <b>attempted</b>, <b>practiced with assistance</b>
+              (a correct answer after revealing that case's solution) and
+              <b>transfer check demonstrated</b> (a correct answer on a case
+              attempted independently). A new case can always be drawn.
+              Scrolling and revealing answers never demonstrate a lesson. A
+              successful check schedules a reminder on the course map three days
+              later.
+            </p>
+            <div class="g-callout">
+              <p>
+                <b>What a check does not establish.</b> A numerical check is
+                evidence about that check, not mastery of the topic. Written
+                explanations are saved for reflection and are not graded. The
+                course's automated tests check the mathematics, not whether
+                students learn; the
+                <a href="../docs/learning/EVALUATION.md">evaluation protocol</a>
+                describes studies still to be run. If you grade, grade
+                something you collect yourself.
+              </p>
+            </div>
+          </section>
+          <section>
+            <h3>Open licenses</h3>
+            <p>
+              The code is under the MIT license (<a href="../LICENSE">LICENSE</a>).
+              The lesson text, explanations, analogies and worked examples are
+              under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+              (<a href="../LICENSE-CONTENT.md">LICENSE-CONTENT.md</a>). You may
+              teach with them, share them and adapt them, with attribution, for
+              non-commercial purposes, under the same license.
+            </p>
+            <p>
+              Lesson times come from the course map and are estimates of working
+              time (reading plus interaction), not measured completion times.
+            </p>
+          </section>
+        </div>
+      </section>
+
+      <section class="g-section" id="schedules" aria-labelledby="sched-title">
+        <h2 id="sched-title">Suggested schedules</h2>
+        <p>
+          Both follow the course order. The three-week plan is a promise about
+          pacing, not about outcomes: it fits the 21 core lessons into nine
+          sessions. The six-week plan leaves room for every activity and adds
+          the elective as an optional seventh week.
+        </p>
+        <div id="g-schedules"></div>
+      </section>
+
+      <section class="g-section" id="lessons" aria-labelledby="lessons-title">
+        <h2 id="lessons-title">Lesson by lesson</h2>
+        <p>
+          One page per core lesson, in course order. Each links straight to the
+          lesson and to the step where its key figure lives. Printing gives
+          every lesson its own page.
+        </p>
+        <div id="g-lessons"></div>
+      </section>
+
+      <section class="g-section" id="elective" aria-labelledby="elective-title">
+        <h2 id="elective-title">The elective branch: experiments when treatments spill over</h2>
+        <div id="g-elective"></div>
+      </section>
+
+      <footer class="g-foot">
+        <p>
+          Causality · Teacher's guide. Content under CC BY-NC-SA 4.0, code under
+          MIT. <a href="../tour.html">Take the 45-minute tour</a> ·
+          <a href="../index.html">Return to the course map</a>
+        </p>
+      </footer>
+    </main>
+
+    <script src="../shared/curriculum.js"></script>
+    <script src="lessons.js"></script>
+    <script>
+      (function () {
+        const C = window.CausalCurriculum,
+          G = window.CausalGuide;
+        const esc = (s) =>
+          String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+        const stageName = {
+          question: "Question",
+          identification: "Identification",
+          model: "Model",
+          estimation: "Estimation",
+          uncertainty: "Uncertainty",
+          interpretation: "Interpretation",
+        };
+        const units = {},
+          core = [];
+        C.chapters.forEach((ch) =>
+          ch.units.forEach((u) => {
+            units[u.id] = Object.assign({ chapter: ch }, u);
+            if (!ch.elective) core.push(u.id);
+          }),
+        );
+        const number = (id) => core.indexOf(id) + 1;
+        const lessonHref = (id, anchor) =>
+          "../lessons/" + units[id].file + (anchor ? "#" + encodeURIComponent(anchor) : "");
+        const hm = (m) => (m >= 60 ? Math.floor(m / 60) + " h " + (m % 60 ? (m % 60) + " min" : "").trim() : m + " min");
+
+        /* At a glance */
+        const coreMinutes = core.reduce((s, id) => s + units[id].minutes, 0);
+        document.getElementById("g-glance").innerHTML = [
+          [core.length, "core lessons in seven units"],
+          [hm(coreMinutes), "of estimated lesson time"],
+          [G.elective.units.length, "elective laboratories"],
+          ["Free", "and openly licensed"],
+        ]
+          .map(([b, s]) => `<li><b>${esc(b)}</b><span>${esc(s)}</span></li>`)
+          .join("");
+
+        /* Contents */
+        document.getElementById("g-toc-lessons").innerHTML = core
+          .map((id) => `<li><a href="#guide-${id}">${number(id)}. ${esc(units[id].title)}</a></li>`)
+          .join("");
+
+        /* Schedules */
+        document.getElementById("g-schedules").innerHTML = G.schedules
+          .map((s) => {
+            const total = s.sessions.reduce(
+              (t, x) => t + x.units.reduce((a, id) => a + units[id].minutes, 0),
+              0,
+            );
+            let k = 0;
+            const rows = s.sessions
+              .map((x) => {
+                k += 1;
+                const mins = x.units.reduce((a, id) => a + units[id].minutes, 0);
+                const list = x.units
+                  .map(
+                    (id) =>
+                      `<a href="#guide-${id}">${esc(units[id].title)}</a>${id === "under-the-integral" ? " (optional)" : ""}`,
+                  )
+                  .join(" · ");
+                return `<li><span class="when">Week ${x.week} · S${k}</span><span class="theme">${esc(x.theme)}</span><span class="mins">${mins} min</span><span class="units">${list}</span></li>`;
+              })
+              .join("");
+            return `<section aria-labelledby="sched-${s.id}"><div class="g-sched-head"><h3 id="sched-${s.id}">${esc(s.title)}</h3><span class="g-total">${s.sessions.length} sessions · ${hm(total)} of lessons</span></div><p class="g-note">${esc(s.pace)}</p><ol class="g-sched">${rows}</ol></section>`;
+          })
+          .join("");
+
+        /* Lessons */
+        const guideById = Object.fromEntries(G.lessons.map((l) => [l.id, l]));
+        const readingItem = (r) =>
+          `<li>${r.href ? `<a href='${esc(r.href)}'>${esc(r.t)}</a>` : esc(r.t)}</li>`;
+        let html = "",
+          lastChapter = null,
+          first = true;
+        core.forEach((id) => {
+          const u = units[id],
+            g = guideById[id];
+          if (!g) return;
+          if (u.chapter !== lastChapter) {
+            html += `<h3 class="g-chapter">${esc(u.chapter.title)}</h3>`;
+            lastChapter = u.chapter;
+          }
+          const prev = (u.prerequisites || []).map((p) => units[p]).filter(Boolean);
+          const builds = prev.length
+            ? prev.map((p) => `<a href="#guide-${p.id}">${esc(p.title)}</a>`).join(", ")
+            : "Nothing: start here";
+          const figName = /^[a-z-]+$/.test(g.figure.name)
+            ? `${esc(g.figure.label)} <code>data-figure="${esc(g.figure.name)}"</code>`
+            : esc(g.figure.label);
+          const r = g.r
+            ? `<p class="g-r"><a href='../examples/r/${esc(g.r.file)}'><code>examples/r/${esc(g.r.file)}</code></a>: ${esc(g.r.note)}</p>`
+            : "";
+          const rInline = g.rInline ? `<p class="g-note">${esc(g.rInline)}</p>` : "";
+          const rBlock = r || rInline ? r + rInline : `<p class="g-note">No R script for this lesson.</p>`;
+          html += `<article class="g-lesson${first ? " g-first" : ""}" id="guide-${id}" style="--stage: var(--s-${u.stage})" aria-labelledby="t-${id}">
+  <div class="g-kicker">Lesson ${number(id)} · ${esc(stageName[u.stage] || u.stage)}${g.optional ? " · optional aside" : ""}</div>
+  <h4 id="t-${id}">${esc(u.title)}</h4>
+  <p class="g-blurb">${esc(u.blurb)}</p>
+  <span class="g-print-url">lessons/${esc(u.file)}</span>
+  <dl class="g-facts">
+    <dt>Time</dt><dd>About ${u.minutes} minutes of lesson work (estimate)</dd>
+    <dt>Builds on</dt><dd>${builds}</dd>
+    <dt>Students need</dt><dd>${esc(g.background)}</dd>
+  </dl>
+  <div class="g-open-links">
+    <a class="course-btn" href='${lessonHref(id)}'>Open the lesson</a>
+    <a class="course-btn" href='${lessonHref(id, g.figure.anchor)}' data-anchor="${esc(g.figure.anchor)}">Jump to the key figure →</a>
+  </div>
+  <div class="g-body">
+    <section><h5>Learning goals</h5><ol>${g.goals.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></section>
+    <section><h5>Key figure</h5><div class="g-fig"><p class="g-fig-name">${figName}</p><p class="g-note">Ask while it plays:</p><ul>${g.figure.ask.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div></section>
+    <section><h5>Discussion questions</h5><ol>${g.discuss.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></section>
+    <section><h5>Common misconceptions</h5>${g.misconceptions
+      .map((m) => `<div class="g-myth"><p class="m"><b>Students may think:</b> ${esc(m.myth)}</p><p class="f"><b>The lesson shows:</b> ${esc(m.fix)}</p></div>`)
+      .join("")}</section>
+    <section class="wide g-activity"><h5>In-class activity</h5><p>${esc(g.activity)}</p></section>
+    <section class="g-r-wrap"><h5>In R</h5>${rBlock}</section>
+    <section class="g-readings"><h5>Primary readings</h5>${g.readings.length ? `<ul>${g.readings.map(readingItem).join("")}</ul>` : ""}${g.readingsNote ? `<p class="g-note">${esc(g.readingsNote)}</p>` : ""}</section>
+  </div>
+</article>`;
+          first = false;
+        });
+        document.getElementById("g-lessons").innerHTML = html;
+
+        /* Elective */
+        const E = G.elective;
+        const eMinutes = E.units.reduce((s, id) => s + units[id].minutes, 0);
+        document.getElementById("g-elective").innerHTML = `<p>${esc(E.intro)}</p>
+<ol class="g-sched">${E.units
+          .map(
+            (id, k) =>
+              `<li><span class="when">E${k + 1}</span><span class="theme"><a href='${lessonHref(id)}'>${esc(units[id].title)}</a></span><span class="mins">${units[id].minutes} min</span><span class="units">${esc(E.uses[k])}</span></li>`,
+          )
+          .join("")}</ol>
+<p>About ${eMinutes} minutes in all. Prerequisites: ${(units[E.units[0]].prerequisites || []).map((p) => esc(units[p].title)).join(" and ")}. ${esc(E.suggestion)}</p>
+<h3 class="g-chapter">Readings</h3><ul class="g-readings">${E.readings.map(readingItem).join("")}</ul>`;
+
+        if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+      })();
+    </script>
+  </body>
+</html>

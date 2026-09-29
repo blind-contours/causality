@@ -92,8 +92,12 @@ ${CausalEstimandScenes.outcomesHTML}
     .querySelector("#step-1 > h2")
     ?.insertAdjacentHTML(
       "afterend",
-      '<p class="cohort-intro">These 100 patients stay with you for the whole course. Watch them sort themselves, then tap one to meet them.</p><div data-figure="cohort-morph" id="cohort-morph"></div>',
+      '<div data-figure="two-paths" id="two-paths"></div><p class="cohort-intro">Rosa is one of these 100 patients, and like her, each of them shows us only one path. They stay with you for the whole course. Watch them sort themselves, then tap one to meet them.</p><div data-figure="cohort-morph" id="cohort-morph"></div>',
     );
+  /* The opening beat, one person first (figures/two-paths.js). Loaded here so the lesson page
+   * itself needs no edit; it registers with CausalFigures and mounts on arrival. */
+  if (!document.querySelector('script[src$="figures/two-paths.js"]'))
+    document.body.append(Object.assign(document.createElement("script"), { src: "../figures/two-paths.js" }));
   [
     ["g-high", "gHigh"],
     ["hidden-shift", "hidden"],

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The 45-minute tour · Causality</title>
+    <meta
+      name="description"
+      content="Ten short stops through the Causality course, from a question about 100 patients to a survival curve you can defend. Each stop opens a lesson at its best moving picture."
+    />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="shared/labs.css" />
+    <link rel="stylesheet" href="shared/course.css" />
+    <script>
+      /* Honour the theme chosen in any lesson's settings (stored on this device). */
+      try {
+        const t = JSON.parse(localStorage.getItem("causality.progress.v2") || "{}")
+          ?.settings?.theme;
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <style>
+      body.tour {
+        padding-top: 0;
+      }
+      .tour .wrap {
+        max-width: 760px;
+      }
+      .mast {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        padding: 16px 0 10px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .brand img {
+        border-radius: 7px;
+        display: block;
+      }
+      .brand b {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 600;
+        font-size: 19px;
+      }
+      .mast nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 18px;
+        font-size: 14.5px;
+      }
+      .mast nav a {
+        color: var(--muted);
+        text-decoration: none;
+        padding: 4px 0;
+      }
+      .mast nav a:hover,
+      .mast nav a[aria-current="page"] {
+        color: var(--ink);
+      }
+      .tour .eyebrow {
+        font-size: 13px;
+      }
+      .tour-open {
+        padding: 40px 0 6px;
+      }
+      .tour-open h1 {
+        max-width: 20ch;
+      }
+      .tour-open .lede {
+        margin-bottom: 14px;
+      }
+      .tour-how {
+        font-size: 15px;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+
+      /* The path: a spine coloured by roadmap stage, one card per stop. */
+      .stops {
+        list-style: none;
+        margin: 30px 0 0;
+        padding: 0;
+        --spine-x: 15px;
+      }
+      .stop {
+        position: relative;
+        padding: 0 0 22px 46px;
+      }
+      .stop::before {
+        content: "";
+        position: absolute;
+        left: calc(var(--spine-x) - 2px);
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--stage);
+        opacity: 0.85;
+      }
+      .stop:first-child::before {
+        top: 22px;
+      }
+      .stop:last-child::before {
+        bottom: auto;
+        height: 22px;
+      }
+      .stop .dot {
+        position: absolute;
+        left: calc(var(--spine-x) - 11px);
+        top: 13px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 4px solid var(--stage);
+        box-sizing: border-box;
+      }
+      .card {
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        padding: 14px 18px 16px;
+      }
+      .card .meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 2px 12px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .card .meta .stage {
+        color: var(--stage);
+      }
+      .card h2 {
+        font-size: 23px;
+        margin: 6px 0 6px;
+      }
+      .card .hook {
+        margin: 0 0 8px;
+      }
+      .card .moves {
+        font-size: 15px;
+        color: var(--muted);
+        margin: 0 0 12px;
+      }
+      .card .moves b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .card .go {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 14px;
+      }
+      .card .go .course-btn {
+        text-decoration: none;
+        border-color: var(--stage);
+        font-weight: 500;
+      }
+      .card .go .from {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .tour-end {
+        margin: 26px 0 0;
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 18px 20px;
+        background: var(--soft);
+      }
+      .tour-end h2 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+      .tour-end p {
+        margin: 6px 0 12px;
+      }
+      .tour-end .btns a {
+        text-decoration: none;
+      }
+      .tour-end .course-btn.primary {
+        background: var(--purple);
+        border-color: var(--purple);
+        color: var(--paper);
+      }
+      @media (max-width: 560px) {
+        body.tour {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .stop {
+          padding-left: 38px;
+        }
+        .stops {
+          --spine-x: 12px;
+        }
+        .card {
+          padding: 12px 14px 14px;
+        }
+        .card h2 {
+          font-size: 21px;
+        }
+      }
+    </style>
+  </head>
+  <body class="tour">
+    <main class="wrap">
+      <header class="mast">
+        <a class="brand" href="index.html" aria-label="Causality home">
+          <img src="icons/icon.svg" alt="" width="28" height="28" />
+          <b>Causality</b>
+        </a>
+        <nav aria-label="Site">
+          <a href="index.html#route">Lessons</a
+          ><a href="tour.html" aria-current="page">Tour</a
+          ><a href="guide/index.html">Teachers</a
+          ><a href="glossary.html">Symbols</a>
+        </nav>
+      </header>
+
+      <section class="tour-open" aria-labelledby="tour-title">
+        <div class="eyebrow">Ten stops · about 45 minutes · no sign-up</div>
+        <h1 id="tour-title">The 45&#8209;minute tour</h1>
+        <p class="lede">
+          Just wandered in? Here is the course in ten short stops. Each one is a
+          picture that moves, and something you get to grab. Together they tell
+          one story: from a simple question about 100 patients to a survival
+          curve you can defend.
+        </p>
+        <p class="tour-how">
+          Each button opens a lesson at the right step. Play with it for a few
+          minutes, then come back here with your browser's Back button. The
+          colours follow the course route: question, identification, model,
+          estimation, uncertainty, interpretation.
+        </p>
+      </section>
+
+      <ol class="stops" aria-label="Tour stops">
+        <li class="stop" data-unit="causal-roadmap" data-minutes="4" style="--stage: var(--s-question)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-1">
+            <div class="meta"><span>Stop 1 · 4 min</span><span class="stage">Question</span></div>
+            <h2 id="stop-1">One hundred patients, one question</h2>
+            <p class="hook">Treated patients did 2.59 better. The true effect is 2. Where did the extra come from?</p>
+            <p class="moves"><b>What moves:</b> the cohort sorts itself, first by who got treated, then by outcome, then within severity, until the gap shrinks toward the truth. Tap anyone to meet them.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/00-causal-roadmap.html#cohort-morph">Meet your cohort →</a>
+              <span class="from">What are we trying to learn?</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="causal-roadmap" data-minutes="4" style="--stage: var(--s-identification)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-2">
+            <div class="meta"><span>Stop 2 · 4 min</span><span class="stage">Identification</span></div>
+            <h2 id="stop-2">Two worlds, one dataset</h2>
+            <p class="hook">Some gaps cannot be closed by a better estimator. This is the one to see with your own eyes.</p>
+            <p class="moves"><b>What moves:</b> untick exchangeability and slide κ. Only the hollow outcomes nobody observed move, and the true effect moves with them. The data stay exactly the same.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/00-causal-roadmap.html#step-3">Break an assumption →</a>
+              <span class="from">What are we trying to learn?</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="target-trial" data-minutes="5" style="--stage: var(--s-identification)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-3">
+            <div class="meta"><span>Stop 3 · 5 min</span><span class="stage">Identification</span></div>
+            <h2 id="stop-3">A benefit made from nothing</h2>
+            <p class="hook">A registry device that does nothing at all can look lifesaving. It depends on one innocent row of the protocol: when follow-up starts.</p>
+            <p class="moves"><b>What moves:</b> twenty patients on one clock. Move time zero and watch waiting time turn into immortal time, while the rate ratio drops far below 1.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/18-target-trial.html#step-2">Move time zero →</a>
+              <span class="from">Design the target trial</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="clone-censor-weight" data-minutes="4" style="--stage: var(--s-identification)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-4">
+            <div class="meta"><span>Stop 4 · 4 min</span><span class="stage">Identification</span></div>
+            <h2 id="stop-4">One patient, two copies</h2>
+            <p class="hook">On the day he joins the waiting list, which plan is Mr. Ortiz on? Both. So we copy him.</p>
+            <p class="moves"><b>What moves:</b> one timeline splits into two copies, one per plan. Let his real life run month by month and watch a copy get cut the moment it stops fitting its plan.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/19-clone-censor-weight.html#step-1">Copy him →</a>
+              <span class="from">Clone, censor, weight</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="scores-from-scratch" data-minutes="4" style="--stage: var(--s-model)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-5">
+            <div class="meta"><span>Stop 5 · 4 min</span><span class="stage">Model</span></div>
+            <h2 id="stop-5">The mean is a seesaw</h2>
+            <p class="hook">“Influence function” sounds abstract. It is how hard one extra patient tips a beam.</p>
+            <p class="moves"><b>What moves:</b> drag one patient along a beam holding 100 others. The balance point slides by exactly the patient's share of the mass times their distance from it.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/02-scores-from-scratch.html#scores-from-scratch-topic-6">Tip the seesaw →</a>
+              <span class="from">Scores and Influence, From Scratch</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="one-step-estimator" data-minutes="5" style="--stage: var(--s-estimation)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-6">
+            <div class="meta"><span>Stop 6 · 5 min</span><span class="stage">Estimation</span></div>
+            <h2 id="stop-6">AIPW, one patient at a time</h2>
+            <p class="hook">AIPW is not a black box. It is a prediction plus a weighted correction, and you can watch every patient add theirs.</p>
+            <p class="moves"><b>What moves:</b> each patient carries two sticks, a predicted effect and a residual drawn as thick as its weight. Play adds them tip to tail into the estimate.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/01-one-step-estimator.html#one-step-estimator-topic-2">See the anatomy →</a>
+              <span class="from">The One-Step Estimator</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="efficiency-theory-story" data-minutes="5" style="--stage: var(--s-uncertainty)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-7">
+            <div class="meta"><span>Stop 7 · 5 min</span><span class="stage">Uncertainty</span></div>
+            <h2 id="stop-7">Studies falling like balls</h2>
+            <p class="hook">An interval is a promise about studies you did not run. Here you can run two hundred of them.</p>
+            <p class="moves"><b>What moves:</b> each ball is one whole study, pushed sideways by its patients, carrying its own 95% interval. The AIPW pile centres on the truth; the plug-in's pile centres at 2.64.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/09-efficiency-theory-story.html#efficiency-theory-story-topic-1">Drop the balls →</a>
+              <span class="from">Efficiency Theory, Drawn</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="sensitivity" data-minutes="5" style="--stage: var(--s-uncertainty)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-8">
+            <div class="meta"><span>Stop 8 · 5 min</span><span class="stage">Uncertainty</span></div>
+            <h2 id="stop-8">How strong would a hidden confounder have to be?</h2>
+            <p class="hook">You can never rule one out. You can say how strong it would need to be to change your answer.</p>
+            <p class="moves"><b>What moves:</b> drag a hypothetical confounder across a map of its two strengths and watch whether a risk ratio of 1.50 survives. The next step turns the map into one number, the E-value.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/22-sensitivity.html#step-2">Drag a confounder →</a>
+              <span class="from">How wrong could unmeasured confounding make you?</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="survival-lab" data-minutes="4" style="--stage: var(--s-interpretation)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-9">
+            <div class="meta"><span>Stop 9 · 4 min</span><span class="stage">Interpretation</span></div>
+            <h2 id="stop-9">Kaplan–Meier as moving mass</h2>
+            <p class="hook">You have drawn a hundred Kaplan–Meier curves. Here is what the estimator does with the people who leave.</p>
+            <p class="moves"><b>What moves:</b> every patient holds an equal share of mass. At a death it falls out; at a censoring it is handed to everyone still at risk to the right, and their dots grow.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/12-survival-lab.html#step-2">Watch the mass move →</a>
+              <span class="from">From KM and Cox back to the question</span>
+            </div>
+          </article>
+        </li>
+        <li class="stop" data-unit="targeted-survival" data-minutes="5" style="--stage: var(--s-interpretation)">
+          <span class="dot" aria-hidden="true"></span>
+          <article class="card" aria-labelledby="stop-10">
+            <div class="meta"><span>Stop 10 · 5 min</span><span class="stage">Interpretation</span></div>
+            <h2 id="stop-10">The survival curve you can defend</h2>
+            <p class="hook">Back to the first question, now as a curve: what if everyone were treated?</p>
+            <p class="moves"><b>What moves:</b> three estimates of the treated survival curve against the known truth. Plain Kaplan–Meier misses; the weighted curve and the one-step estimate land close, inside a 95% band from the influence function.</p>
+            <div class="go">
+              <a class="course-btn" href="lessons/23-targeted-survival.html#step-1">Draw “everyone treated” →</a>
+              <span class="from">Targeted survival curves and ΔRMST</span>
+            </div>
+          </article>
+        </li>
+      </ol>
+
+      <section class="tour-end" aria-labelledby="end-title">
+        <h2 id="end-title">Want the full course? Start at the beginning</h2>
+        <p>
+          Twenty-one lessons walk the same road slowly, one idea at a time, with
+          predictions to make and checks to try. You can also dive into any
+          lesson from the course map.
+        </p>
+        <div class="btns">
+          <a class="course-btn primary" href="lessons/00-causal-roadmap.html">Start lesson 1 →</a>
+          <a class="course-btn" href="index.html">Back to the course map</a>
+          <a class="course-btn" href="guide/index.html">Teaching it? The teacher's guide</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

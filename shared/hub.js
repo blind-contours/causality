@@ -72,7 +72,7 @@
       <div class="prog"><span class="mono">${p.done} of ${core.length}</span><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${core.length}" aria-valuenow="${p.done}" aria-label="Core lessons with a demonstrated transfer check"><i style="width:${(100 * p.done) / core.length}%"></i></div><span class="mono">${hours(p.left)} left</span></div>
       <div class="actions"><a class="go" href="lessons/${u.file}">${startedAny ? "Continue" : "Begin"} <span aria-hidden="true">→</span></a>${
         u.id === COURSE.diagnostic.unit
-          ? '<a class="skip" href="#skip-ahead">Know identification already? Take the three-question check</a>'
+          ? '<a class="skip" href="#placement">Know some of this already? Find your starting point</a>'
           : p.recent && p.recent.id !== u.id
             ? `<a class="skip" href="lessons/${p.recent.file}">Last opened: ${esc(p.recent.short)}</a>`
             : ""
@@ -246,7 +246,7 @@
   if (titleEl) {
     const w = words[core.length] || String(core.length);
     const mins = core.reduce((a, u) => a + u.minutes, 0);
-    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 60)} hours, one cohort carried from the question to a survival curve. Every lesson opens directly; prerequisites are advice, not gates.`;
+    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 30) / 2} hours, one cohort carried from the question to a survival curve. Every lesson opens directly; prerequisites are advice, not gates.`;
   }
   function refresh() {
     const p = progress();

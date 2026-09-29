@@ -64,6 +64,20 @@
       [data-lab="clone-censor-weight"] input[type="range"] {
         min-height: 28px;
       }
+      [data-lab="clone-censor-weight"] svg.fig .ccw-t {
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        font-size: 14px;
+      }
+      .ccw-choices button {
+        min-height: 48px;
+        font-size: 15px;
+        padding: 10px 16px;
+      }
+      .ccw-choices button[aria-pressed="true"] {
+        border: 2px solid var(--ink);
+        background: var(--soft);
+        font-weight: 600;
+      }
       [data-lab="clone-censor-weight"] input[type="checkbox"] {
         width: 22px;
         height: 22px;
@@ -80,8 +94,9 @@
       <h1>Clone, censor, weight</h1>
       <p class="lede">
         Time zero must be at eligibility, but "operate within three months" and
-        "do not operate" look identical on day one. Copy each patient into
-        every strategy, cut the copies that deviate, and reweight the rest.
+        "never operate" look identical on day one. We start with one patient:
+        copy him into both plans, cut the copy his life breaks, and let
+        someone like him stand in. Then we do it for a whole registry.
       </p>
       <noscript
         >This laboratory requires JavaScript. Its scientific kernel is
@@ -106,7 +121,9 @@
           dynamic regimes using observational data. Int J Biostat 6(2):18</a
         >. The registry is simulated with known potential outcomes; the
         population truth is an exact calculation; the lane figures show 12
-        illustrative patients.
+        illustrative patients. Mr. Ortiz and his three possible lives are
+        illustrative; his probabilities and weights are computed from the
+        decision model fitted to the simulated registry.
       </p>
     </main>
     <script src="../shared/curriculum.js"></script>

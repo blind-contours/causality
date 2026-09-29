@@ -1,0 +1,549 @@
+/* Teacher's guide. Tokens and base type come from shared/labs.css; this file only lays out the guide
+   and gives it a print stylesheet in which every lesson starts on a clean page. */
+body.guide {
+  padding-top: 0;
+}
+.guide .wrap {
+  max-width: 980px;
+}
+.guide .eyebrow {
+  font-size: 13px;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 8px;
+  z-index: 5;
+  background: var(--paper);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Masthead, as on the course map */
+.mast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 16px 0 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.brand img {
+  border-radius: 7px;
+  display: block;
+}
+.brand b {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 19px;
+}
+.mast nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-size: 14.5px;
+}
+.mast nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 0;
+}
+.mast nav a:hover,
+.mast nav a[aria-current="page"] {
+  color: var(--ink);
+}
+
+/* Opening */
+.g-open {
+  padding: 36px 0 8px;
+}
+.g-open h1 {
+  max-width: 18ch;
+}
+.g-glance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 8px 0 18px;
+  padding: 0;
+  list-style: none;
+}
+.g-glance li {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.g-glance b {
+  display: block;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 26px;
+  line-height: 1.1;
+}
+.g-glance span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Contents */
+.g-toc {
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin: 18px 0 8px;
+  background: var(--paper);
+}
+.g-toc h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.g-toc ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+}
+.g-toc li {
+  margin: 3px 0;
+}
+.g-toc ol ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 6px 0 4px;
+  columns: 2 240px;
+  column-gap: 32px;
+  font-size: 14px;
+}
+.g-toc ol ol li {
+  break-inside: avoid;
+}
+
+/* Educator intro */
+.g-section > h2 {
+  font-size: 28px;
+}
+.g-intro {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px 28px;
+}
+.g-intro section h3 {
+  font-size: 19px;
+  margin: 18px 0 6px;
+}
+.g-intro p,
+.g-intro li {
+  font-size: 15.5px;
+}
+.g-intro ul {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+.g-callout {
+  border-left: 4px solid var(--purple);
+  background: var(--soft);
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  margin: 18px 0;
+}
+.g-callout p {
+  margin: 4px 0;
+}
+
+/* Schedules */
+.g-sched-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.g-sched-head h3 {
+  margin: 30px 0 4px;
+  font-size: 22px;
+}
+.g-sched-head .g-total {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+.g-sched {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.g-sched li {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  align-items: baseline;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.g-sched .when {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+.g-sched .theme {
+  font-weight: 600;
+}
+.g-sched .units {
+  grid-column: 2;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.g-sched .units a {
+  color: var(--ink);
+}
+.g-sched .mins {
+  grid-column: 3;
+  grid-row: 1;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Lessons */
+.g-chapter {
+  margin: 44px 0 4px;
+  font-size: 15px;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.g-lesson {
+  border: 1px solid var(--rule);
+  border-top: 5px solid var(--stage);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  padding: 18px 22px 20px;
+  margin: 14px 0 22px;
+  scroll-margin-top: 12px;
+}
+.g-kicker {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage);
+}
+.g-lesson h4 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 6px 0 6px;
+}
+.g-blurb {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.g-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 14px;
+  margin: 0 0 6px;
+  font-size: 14.5px;
+}
+.g-facts dt {
+  color: var(--muted);
+}
+.g-facts dd {
+  margin: 0;
+}
+.g-open-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+.g-open-links a {
+  text-decoration: none;
+  font-size: 14.5px;
+}
+.g-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 28px;
+}
+.g-body > section {
+  min-width: 0;
+}
+.g-body .wide {
+  grid-column: 1 / -1;
+}
+.g-body h5 {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin: 16px 0 6px;
+}
+.g-body ol,
+.g-body ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.g-body li {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.g-body p {
+  font-size: 15px;
+  margin: 4px 0;
+}
+.g-fig {
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--stage);
+  border-radius: 10px;
+  padding: 10px 14px 12px;
+  background: var(--bg);
+}
+.g-fig .g-fig-name {
+  font-weight: 600;
+  margin: 2px 0 6px;
+}
+.g-fig .g-fig-name code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.g-myth {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+.g-myth p {
+  margin: 3px 0;
+}
+.g-myth .m {
+  color: var(--ink);
+}
+.g-myth .m b {
+  color: var(--or);
+}
+.g-myth .f b {
+  color: var(--green);
+}
+.g-activity {
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 2px 14px 10px;
+  margin-top: 10px;
+}
+.g-readings li {
+  font-size: 14px;
+}
+.g-note {
+  font-size: 14px;
+  color: var(--muted);
+}
+.g-r code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13.5px;
+}
+.g-foot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 14px;
+  color: var(--muted);
+}
+.g-print-btn {
+  font-size: 14.5px;
+}
+
+@media (max-width: 720px) {
+  body.guide {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .g-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .g-lesson {
+    padding: 16px 16px 18px;
+  }
+  .g-lesson h4 {
+    font-size: 22px;
+  }
+  .g-sched li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .g-sched .when {
+    grid-column: 1;
+  }
+  .g-sched .mins {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .g-sched .theme,
+  .g-sched .units {
+    grid-column: 1 / -1;
+  }
+  .g-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .g-facts dd {
+    margin-bottom: 6px;
+  }
+}
+
+/* Print: black on white whatever the screen theme, no navigation, one lesson per page. */
+@media print {
+  :root,
+  :root:not([data-theme="light"]),
+  :root[data-theme="dark"] {
+    --bg: #ffffff;
+    --paper: #ffffff;
+    --ink: #111111;
+    --muted: #444444;
+    --rule: #bbbbbb;
+    --soft: #f1f1f1;
+    --shadow: none;
+    color-scheme: light;
+  }
+  @page {
+    margin: 11mm 12mm 12mm;
+  }
+  body.guide {
+    padding: 0;
+    font-size: 10.5pt;
+  }
+  .guide .wrap {
+    max-width: none;
+  }
+  .mast nav,
+  .g-toc,
+  .skip,
+  .g-print-btn,
+  .g-open-links {
+    display: none !important;
+  }
+  .g-open {
+    padding-top: 12px;
+  }
+  .g-glance li,
+  .g-lesson,
+  .g-sched li,
+  .g-fig,
+  .g-myth {
+    box-shadow: none;
+  }
+  #schedules,
+  #elective {
+    break-before: page;
+  }
+  #lessons > h2,
+  #lessons > p {
+    display: none;
+  }
+  .g-lesson {
+    break-before: page;
+    border: 0;
+    border-top: 5px solid var(--stage);
+    border-radius: 0;
+    padding: 10px 0 0;
+    margin: 0;
+  }
+  .g-chapter {
+    display: none;
+  }
+  .g-body {
+    display: block;
+    columns: 2;
+    column-gap: 22px;
+  }
+  .g-body > section {
+    break-inside: avoid;
+    margin-bottom: 4px;
+  }
+  .g-body > section.g-readings {
+    break-inside: auto;
+  }
+  .g-fig,
+  .g-myth,
+  .g-activity,
+  .g-sched li,
+  .g-readings li {
+    break-inside: avoid;
+  }
+  .g-lesson h4 {
+    font-size: 17pt;
+  }
+  .g-blurb,
+  .g-facts {
+    font-size: 9pt;
+    margin-bottom: 4px;
+  }
+  .g-body li,
+  .g-body p {
+    font-size: 9pt;
+    line-height: 1.36;
+    margin: 2px 0;
+  }
+  .g-body ol,
+  .g-body ul {
+    padding-left: 16px;
+  }
+  .g-fig,
+  .g-myth {
+    padding: 6px 10px;
+    margin: 5px 0;
+  }
+  .g-body h5 {
+    margin: 8px 0 4px;
+    font-size: 8.5pt;
+  }
+  .g-readings li {
+    font-size: 8pt;
+    line-height: 1.3;
+  }
+  .g-activity {
+    padding: 1px 10px 6px;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .g-readings a::after {
+    content: " " attr(href);
+    font-size: 7pt;
+    color: #444444;
+    word-break: break-all;
+  }
+  .g-print-url {
+    display: block !important;
+  }
+}
+.g-print-url {
+  display: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8.5pt;
+  color: var(--muted);
+}

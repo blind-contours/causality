@@ -51,46 +51,80 @@ body.hub {
   color: var(--ink);
 }
 
-/* Opening: text and the continue card on the left, the toy on the right (desktop).
-   Phones stack text, toy, continue card. */
+/* Opening: the promise, then Rosa's two paths, then the way in. One column at every width. */
 .open {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
-  grid-template-areas:
-    "text toy"
-    "cont toy";
-  column-gap: 40px;
+  grid-template-columns: minmax(0, 1fr);
   row-gap: 22px;
-  align-items: start;
-  padding: 40px 0 8px;
+  padding: 44px 0 8px;
 }
 .open-text {
-  grid-area: text;
+  max-width: 44rem;
 }
-.hero-toy {
-  grid-area: toy;
-}
-.continue {
-  grid-area: cont;
+.open-text .eyebrow {
+  color: var(--s-question);
 }
 .hub h1 {
-  max-width: 16ch;
-  font-size: clamp(34px, 5vw, 50px);
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-  margin: 8px 0 14px;
+  max-width: 20ch;
+  font-size: clamp(36px, 5.4vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 10px 0 16px;
 }
 .hub .lede {
-  max-width: 48ch;
+  max-width: 46ch;
   margin: 0;
+  font-size: 19px;
+  line-height: 1.5;
+}
+.paths-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 18px 20px 12px;
+  box-shadow: var(--shadow);
+}
+.start-row {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
 }
 .for-whom {
-  margin: 14px 0 0;
-  max-width: 48ch;
+  margin: 0;
+  max-width: 40ch;
   font-size: 15px;
-  color: var(--ink);
+  color: var(--muted);
   padding-left: 12px;
   border-left: 3px solid var(--s-question);
+}
+.small-h {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.outcomes-wrap {
+  margin-top: 44px;
+}
+
+/* See the payoff: the one-step toy, lower on the page. */
+.payoff {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: 36px;
+  align-items: center;
+}
+.payoff-text .eyebrow {
+  color: var(--s-estimation);
+}
+.payoff-text h2 {
+  font-size: 28px;
+  margin: 6px 0 10px;
+}
+.payoff-text p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--ink);
 }
 
 /* The toy */
@@ -692,7 +726,6 @@ details:not([open]) > .stage-h .sum::after {
 
 /* Outcomes */
 .outcomes {
-  margin-top: 36px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
@@ -742,25 +775,33 @@ details:not([open]) > .stage-h .sum::after {
     display: none;
   }
   .open {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "text"
-      "toy"
-      "cont";
-    padding-top: 22px;
+    padding-top: 26px;
     row-gap: 18px;
   }
   .hub h1 {
-    font-size: 36px;
+    font-size: 38px;
   }
   .hub .lede {
-    font-size: 16.5px;
+    font-size: 17px;
+  }
+  .paths-card {
+    padding: 12px 10px 8px;
+    margin: 0 -6px;
+  }
+  .start-row,
+  .payoff {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .outcomes-wrap,
+  .payoff {
+    margin-top: 32px;
+  }
+  .payoff-text h2 {
+    font-size: 23px;
   }
   .hero-toy {
     padding: 14px 12px 12px;
-  }
-  .hero-toy figcaption b {
-    font-size: 18px;
   }
   .continue h2 {
     font-size: 21px;
@@ -770,7 +811,7 @@ details:not([open]) > .stage-h .sum::after {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    margin: 28px -18px 0;
+    margin: 0 -18px;
     padding: 0 18px 6px;
     gap: 10px;
   }

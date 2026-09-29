@@ -6,7 +6,7 @@
     <title>Causality</title>
     <meta
       name="description"
-      content="Interactive causal inference: from the scientific question to scores, canonical gradients, targeting, inference and survival analysis."
+      content="Three weeks to causally competent: learn why modern causal estimators (AIPW, TMLE) work by watching them move."
     />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="shared/labs.css" />
     <link rel="stylesheet" href="shared/course.css" />
     <link rel="stylesheet" href="shared/hub.css" />
+    <link rel="stylesheet" href="shared/placement.css" />
     <script src="shared/visuals.js"></script>
   </head>
   <body class="hub">
@@ -30,6 +31,8 @@
         </a>
         <nav aria-label="Site">
           <a href="#route">Lessons</a
+          ><a href="tour.html">Tour</a
+          ><a href="guide/index.html">Teachers</a
           ><a href="glossary.html">Symbols</a
           ><a href="docs/learning/REFERENCES.md">References</a>
         </nav>
@@ -37,25 +40,66 @@
 
       <section class="open">
         <div class="open-text">
-          <div class="eyebrow">
-            Causal inference · semiparametric efficiency · survival
-          </div>
-          <h1>Every estimator has a shape. Learn to see it.</h1>
+          <div class="eyebrow" id="pace">A hands-on course in causal inference</div>
+          <h1>Three weeks to causally competent.</h1>
           <p class="lede">
-            A guided, hands-on course from the causal question to the canonical
-            gradient and back to Kaplan–Meier and Cox. Every object is something
-            you move, predict, and check.
+            Learn why modern causal estimators work by watching them move.
+            No proofs required to start; all of the proofs are here when you
+            want them.
           </p>
+        </div>
+        <div class="paths-card">
+          <div data-figure="two-paths" id="two-paths"></div>
+        </div>
+        <div class="start-row">
+          <aside class="continue" id="continue" aria-label="Where to go next"></aside>
           <p class="for-whom">
-            For statisticians who know regression, Cox and KM, and want to see
-            what AIPW and TMLE are actually doing.
+            Written for trial statisticians and epidemiologists who know
+            regression, Cox and Kaplan–Meier, and want to see what AIPW and
+            TMLE are actually doing.
+          </p>
+        </div>
+      </section>
+
+      <section class="outcomes-wrap" aria-labelledby="outcomes-title">
+        <h2 class="small-h" id="outcomes-title">What you will be able to do</h2>
+        <div class="outcomes">
+          <div class="outcome" style="--stage: var(--s-question)">
+            <div class="eyebrow">Ask the right question</div>
+            <p>
+              <b>Write the estimand first,</b> then say which assumptions turn
+              it into something the data can answer.
+            </p>
+          </div>
+          <div class="outcome" style="--stage: var(--s-estimation)">
+            <div class="eyebrow">Audit an estimator</div>
+            <p>
+              <b>Say what a one-step or TMLE correction removes,</b> what it
+              leaves, and when its interval is honest.
+            </p>
+          </div>
+          <div class="outcome" style="--stage: var(--s-interpretation)">
+            <div class="eyebrow">Return to practice</div>
+            <p>
+              <b>Choose between a hazard ratio, a survival difference and RMST</b>
+              as answers to different questions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="payoff" aria-labelledby="hero-toy-title">
+        <div class="payoff-text">
+          <div class="eyebrow">See the payoff · ten seconds</div>
+          <h2 id="hero-toy-title">Fix a biased estimate in one step</h2>
+          <p>
+            A plug-in estimate misses the truth. One step along the tangent,
+            the influence function, removes the first-order part of the miss. Drag the slider,
+            take the step, and notice what is left over. By the middle of the
+            course you will know exactly why.
           </p>
         </div>
         <figure class="hero-toy" id="hero-toy" aria-labelledby="hero-toy-title">
-          <figcaption>
-            <span class="eyebrow">Try it · ten seconds</span>
-            <b id="hero-toy-title">Fix a biased estimate in one step</b>
-          </figcaption>
           <svg id="hero-svg" viewBox="0 0 360 210" role="img"
             aria-label="The target along a path from your fitted model to the truth. The plug-in estimate sits at the start of the curve; one step along the tangent lands close to the truth."></svg>
           <div class="toy-controls">
@@ -66,34 +110,10 @@
           </div>
           <p class="toy-read" id="hero-read" role="status"></p>
         </figure>
-        <aside class="continue" id="continue" aria-label="Where to go next"></aside>
-      </section>
-
-      <section class="outcomes" aria-label="What you will be able to do">
-        <div class="outcome" style="--stage: var(--s-model)">
-          <div class="eyebrow">Read the geometry</div>
-          <p>
-            <b>Explain a tangent space and a canonical gradient</b> for a model
-            you have not seen, using a construction you did yourself.
-          </p>
-        </div>
-        <div class="outcome" style="--stage: var(--s-estimation)">
-          <div class="eyebrow">Audit an estimator</div>
-          <p>
-            <b>Say what a one-step or TMLE correction removes,</b> what it
-            leaves, and when its interval is honest.
-          </p>
-        </div>
-        <div class="outcome" style="--stage: var(--s-interpretation)">
-          <div class="eyebrow">Return to practice</div>
-          <p>
-            <b>Choose between a hazard ratio, a survival difference and RMST</b>
-            as answers to different questions.
-          </p>
-        </div>
       </section>
 
       <section class="route" id="route" aria-labelledby="route-title">
+        <section class="placement" id="placement" aria-label="Where should I start?"></section>
         <div class="route-head">
           <h2 id="route-title">The route</h2>
           <p id="route-sub">
@@ -105,7 +125,7 @@
           aria-label="Course map: six roadmap stages on the main channel, lessons joining as tributaries"></svg>
         <p id="retrieval" class="retrieval" hidden></p>
         <details class="skip-ahead" id="skip-ahead">
-          <summary>Know identification already? Take the three-question check</summary>
+          <summary>Just want a quick check on identification? Three questions</summary>
           <p>
             Answer all three and the roadmap lesson is marked explored, so the
             route starts you at the geometry.
@@ -141,5 +161,8 @@
     <script src="shared/river.js"></script>
     <script src="shared/hub.js"></script>
     <script src="shared/hero.js"></script>
+    <script src="science/cohort.js"></script>
+    <script src="figures/two-paths.js"></script>
+    <script src="shared/placement.js"></script>
   </body>
 </html>

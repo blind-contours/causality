@@ -1,0 +1,419 @@
+/* "Where should I start?" placement card on the course map. Tokens only (labs.css). */
+.placement {
+  margin: 0 0 26px;
+}
+.pl-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.pl-card.pl-slim {
+  padding: 12px 16px;
+  box-shadow: none;
+}
+.pl-card.pl-open {
+  padding: 20px 22px 18px;
+}
+.pl-quiz,
+.pl-result {
+  max-width: 720px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pl-card.pl-in > * {
+    animation: pl-rise 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+@keyframes pl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.pl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.pl-card .mono {
+  font-family: "IBM Plex Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+.pl-eyebrow {
+  color: var(--s-question);
+}
+.hub .pl-title {
+  font-size: 22px;
+  margin: 4px 0 6px;
+  max-width: none;
+}
+.pl-title:focus,
+.pl-q h3:focus,
+.pl-sum-text:focus {
+  outline: none;
+}
+.pl-title:focus-visible,
+.pl-q h3:focus-visible,
+.pl-sum-text:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Closed: text and call to action side by side on wide screens. */
+.pl-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 28px;
+  flex-wrap: wrap;
+}
+.pl-intro .pl-text {
+  flex: 1 1 360px;
+}
+.pl-intro p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15.5px;
+}
+.pl-cta {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.pl-note,
+.pl-fine {
+  font-size: 13px;
+  color: var(--muted);
+}
+.pl-link {
+  background: none;
+  border: 0;
+  padding: 8px 4px;
+  color: var(--p);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule);
+  font-size: 14.5px;
+  cursor: pointer;
+  min-height: 40px;
+}
+.pl-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Returning summary */
+.pl-summary {
+  display: flex;
+  align-items: center;
+  gap: 4px 14px;
+  flex-wrap: wrap;
+}
+.pl-sum-text {
+  margin: 0;
+  font-size: 15px;
+  flex: 1 1 280px;
+}
+.pl-sum-text a {
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.pl-sum-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--stage);
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.pl-sum-btns {
+  display: flex;
+  gap: 10px;
+}
+.pl-summary .pl-status {
+  flex-basis: 100%;
+}
+
+/* Quiz */
+.pl-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pl-count {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 3.2em;
+}
+.pl-dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+.pl-dots i {
+  height: 5px;
+  flex: 1;
+  max-width: 44px;
+  border-radius: 3px;
+  background: var(--grid);
+  transition: background 0.3s;
+}
+.pl-dots i.past {
+  background: var(--s-question);
+  opacity: 0.55;
+}
+.pl-dots i.now {
+  background: var(--s-question);
+}
+.pl-top .pl-link {
+  margin-left: auto;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.pl-q {
+  border: 0;
+  margin: 8px 0 0;
+  padding: 0;
+  min-width: 0;
+}
+.hub .pl-q h3 {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 6px 0 14px;
+  text-wrap: pretty;
+}
+.pl-opts {
+  display: grid;
+  gap: 8px;
+}
+.pl-opt {
+  position: relative;
+  margin: 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 13px 14px;
+  min-height: 52px;
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 15.5px;
+  line-height: 1.45;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.pl-opt:hover {
+  border-color: var(--p);
+}
+.pl-opt input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.pl-mark {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s;
+}
+.pl-mark::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--p);
+  transform: scale(0);
+  transition: transform 0.15s;
+}
+.pl-opt:has(input:checked) {
+  border-color: var(--p);
+  background: var(--soft);
+}
+.pl-opt input:checked + .pl-mark {
+  border-color: var(--p);
+}
+.pl-opt input:checked + .pl-mark::after {
+  transform: scale(1);
+}
+.pl-opt:has(input:focus-visible) {
+  outline: 3px solid var(--purple);
+  outline-offset: 2px;
+}
+.pl-opt.pl-unsure {
+  border-style: dashed;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.pl-opt.pl-unsure:has(input:checked) {
+  color: var(--ink);
+}
+.pl-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.pl-nav .go {
+  min-height: 46px;
+}
+.pl-nav .go:disabled {
+  opacity: 0.4;
+  cursor: default;
+  background: var(--ink);
+  color: var(--bg);
+}
+.pl-back {
+  min-height: 46px;
+}
+
+/* Result */
+.pl-res .pl-eyebrow {
+  color: var(--stage);
+}
+.pl-result {
+  border-left: 4px solid var(--stage);
+  padding-left: 16px;
+  margin-left: -6px;
+}
+.hub .pl-result .pl-title {
+  font-size: 26px;
+}
+.pl-lesson {
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.pl-why {
+  margin: 0 0 14px;
+  font-size: 16px;
+}
+.pl-review h3 {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.pl-review ul {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.pl-review li {
+  display: grid;
+  gap: 1px;
+  font-size: 14.5px;
+}
+.pl-review li a {
+  font-weight: 500;
+}
+.pl-review li a .mono {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-right: 6px;
+}
+.pl-review li > span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.pl-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+}
+.pl-skim {
+  min-height: 44px;
+  font-size: 14.5px;
+}
+.pl-fine {
+  margin: 8px 0 0;
+}
+.pl-status {
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  color: var(--green);
+}
+.pl-status:empty {
+  display: none;
+}
+.pl-answers {
+  margin-top: 14px;
+  font-size: 14.5px;
+  border-top: 1px solid var(--grid);
+  padding-top: 10px;
+}
+.pl-answers summary {
+  cursor: pointer;
+  color: var(--muted);
+  min-height: 32px;
+}
+.pl-answers ol {
+  margin: 8px 0 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 12px;
+}
+.pl-answers p {
+  margin: 2px 0;
+}
+.pl-a-q {
+  color: var(--muted);
+}
+.pl-a-meta {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.pl-done {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+@media (max-width: 600px) {
+  .pl-card,
+  .pl-card.pl-open {
+    padding: 16px 14px;
+  }
+  .pl-result {
+    padding-left: 12px;
+    margin-left: -2px;
+  }
+  .hub .pl-q h3 {
+    font-size: 17px;
+  }
+  .pl-opt {
+    font-size: 15px;
+    padding: 12px;
+  }
+  .pl-actions .go {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+.pl-a-why {
+  margin-top: 4px !important;
+}

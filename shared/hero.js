@@ -5,6 +5,16 @@
  * reaches ψ₀ + bδ² at ε = 1: the one-step removes the first-order error and leaves a remainder
  * that shrinks like δ². A schematic of the lesson-6 picture, not a fitted model. */
 (function () {
+  // The promise's pace line, computed from the curriculum: lessons, total time, one a day.
+  const pace = document.getElementById("pace");
+  const units = window.Causality && Causality.units;
+  if (pace && units) {
+    const core = units.filter((u) => !u.elective),
+      mins = core.reduce((a, u) => a + u.minutes, 0);
+    pace.textContent = `${core.length} lessons · about ${Math.round(mins / 30) / 2} hours · one a day, about ${Math.round(mins / core.length)} minutes each`;
+  }
+})();
+(function () {
   const svg = document.getElementById("hero-svg");
   if (!svg) return;
   const NS = "http://www.w3.org/2000/svg",

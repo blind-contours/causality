@@ -136,7 +136,7 @@
       };
       nav.append(b);
       const btns = document.createElement("div");
-      btns.className = "btns";
+      btns.className = "btns step-btns";
       if (i > 0) {
         const back = document.createElement("button");
         back.textContent = "← Previous step";
@@ -146,9 +146,13 @@
       if (i < panels.length - 1) {
         const next = document.createElement("button");
         next.textContent = "Continue →";
+        next.className = "step-next primary";
         next.onclick = () => {
+          // Inside a step, Continue first shows the next idea (see CausalBeats in shared/course.js).
+          if (window.CausalBeats?.next(p)) return;
           state.set({ step: i + 1 });
           panels[i + 1].scrollIntoView({ block: "start", behavior: "instant" });
+          panels[i + 1].querySelector("h2")?.focus({ preventScroll: true });
         };
         btns.append(next);
       }

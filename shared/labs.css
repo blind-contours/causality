@@ -1,6 +1,6 @@
 /* Causality design tokens: one palette for every page. Stage hues follow the causal roadmap. */
 :root {
-  --bg: #f3f5f7;
+  --bg: #ffffff;
   --paper: #ffffff;
   --panel: var(--paper);
   --ink: #1b2530;

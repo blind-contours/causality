@@ -10,7 +10,7 @@
     state = store(
       "clone-censor-weight",
       { step: 0, grace: 3, steer: 0.7, useX: true, seed: C.DEFAULTS.seed },
-      { step: [0, 4], grace: [1, 6], steer: [0, 1.4], seed: [1, 4294967295] },
+      { step: [0, 5], grace: [1, 6], steer: [0, 1.4], seed: [1, 4294967295] },
     );
   const byId = (id) => document.getElementById(id),
     snap = (v) =>
@@ -26,7 +26,29 @@
     laneLegend = `<p class="legend legend-swatches"><span><svg class="swatch" width="28" height="12" aria-hidden="true"><path d="M14 1 L19 6 L14 11 L9 6 Z" fill="var(--ink)"/></svg>Procedure</span><span><svg class="swatch" width="28" height="12" aria-hidden="true"><path d="M9 1 L19 11 M19 1 L9 11" stroke="var(--red)" stroke-width="2.4"/></svg>Death</span><span><svg class="swatch" width="28" height="12" aria-hidden="true"><text x="14" y="11" text-anchor="middle" font-size="13" fill="var(--ink)">✂</text></svg>Artificially censored</span><span><svg class="swatch" width="28" height="12" aria-hidden="true"><circle cx="14" cy="6" r="4" fill="none" stroke="var(--muted)" stroke-width="1.5"/></svg>Alive at 24 months</span></p>`;
 
   root.innerHTML = `
+<section class="lab-step" data-title="One patient"><h2 tabindex="-1">One patient, two copies</h2>
+<p>Start with one person. Mr. Ortiz has severe valve disease. Today, month 0, he becomes eligible for a valve procedure and joins the waiting list.</p>
+<div class="figure"><svg id="ortiz-split" role="img" aria-label="Mr. Ortiz's timeline from eligibility at month 0 to month 6, with the 3-month grace period shaded. The Copy him button splits it into two copies, one per plan."></svg><div class="btns ccw-choices"><button type="button" id="ortiz-copy" class="primary">Copy him</button></div><p class="fig-caption" id="caption-ortiz-split"></p></div>
+<p>We want to compare two plans for him. <b class="ccw-grace">Plan A: operate within 3 months.</b> <b class="ccw-never">Plan B: never operate.</b></p>
+<p>On day one we cannot tell which plan he is on. A man waiting for surgery looks the same under both.</p>
+<p>So we copy him at month 0. Same man, same frailty, same clock. <b class="ccw-grace">Copy A</b> follows Plan A. <b class="ccw-never">Copy B</b> follows Plan B.</p>
+<p>Now let his real life run, month by month.</p>
+<p>A copy stays as long as his real life still fits its plan. The moment it stops fitting, we cut that copy (✂).</p>
+<div class="predict" data-options="Only in Copy B, since he was never operated|In both copies|In neither: both copies are cut" data-answer="1" data-hint="He died before the grace period ended, still waiting. Up to that moment his life fit Plan A and Plan B, so neither copy had broken its plan.">Predict: Mr. Ortiz dies in his first month on the waiting list. Where does his death count?</div>
+<div class="figure"><div class="btns ccw-choices" role="group" aria-label="Choose one of his possible lives"><button type="button" data-life="op">Operated at month 2</button><button type="button" data-life="wait">Still waiting at month 3</button><button type="button" data-life="die">Dies at month 1, waiting</button></div><svg id="ortiz-life" role="img" aria-label="Three timelines over six months: Mr. Ortiz's real life, Copy A and Copy B. Procedures are diamonds, deaths are crosses, cut copies end in scissors."></svg><div id="player-ortiz-life"></div><div class="fig-readout" id="readout-ortiz-life"></div><p class="fig-caption" id="caption-ortiz-life" aria-live="polite"></p></div>
+<p>The third life matters most. A death while waiting counts in both copies, because both plans were still possible when it happened.</p>
+<p>Cutting a copy leaves a hole. In his first life, Copy B was cut at month 2, and not at random: it was cut because he was operated.</p>
+<p>So someone like him, who stayed on Plan B, must now stand in for him.</p>
+<p>How much? Picture 100 patients just like Mr. Ortiz, same frailty (<span id="ortiz-x"></span>), all alive through month 2.</p>
+<p>The decision model we fit later in this lesson says about <b id="ortiz-remain"></b> of them are still unoperated after month 2.</p>
+<div class="figure"><div class="btns ccw-choices" role="group" aria-label="Which copy was cut"><button type="button" data-cut="never">Copy B cut at month 2</button><button type="button" data-cut="grace">Copy A cut at month 3</button></div><svg id="ortiz-weight" role="img" aria-label="One hundred dots, patients like Mr. Ortiz. The ones whose copy is cut become hollow rings; the rest grow until their total area again equals one hundred patients."></svg><div id="player-ortiz-weight"></div><div class="fig-readout" id="readout-ortiz-weight"></div><p class="fig-caption" id="caption-ortiz-weight" aria-live="polite"></p></div>
+<p>Those <span class="ortiz-remain"></span> must count for all 100. So each of their copies counts as 100 / <span class="ortiz-remain"></span>, about <b id="ortiz-w"></b> people. Mr. Lee is one of them.</p>
+<p>That number is the <em>inverse probability of censoring weight</em>: 1 / P(still uncensored), here 1 / <span id="ortiz-stay"></span>.</p>
+<p>Clone, censor, weight: that is the whole method, for one man. Now do it for 3000.</p>
+</section>
+
 <section class="lab-step" data-title="Clone"><h2 tabindex="-1">Copy every patient into both strategies</h2>
+<p>Mr. Ortiz was one patient. The registry has 3000, and each one gets the same treatment: two copies at time zero, which we will now call <em>clones</em>.</p>
 <p>The target trial from the last lesson compares two strategies for patients with severe valve disease, both starting at eligibility:</p>
 <ul class="ccw-arms"><li><b class="ccw-grace">Operate by month <span class="g-val">3</span></b>: receive the procedure within a grace period of <span class="g-val">3</span> months after eligibility.</li><li><b class="ccw-never">No procedure</b>: do not receive it during the 24 months of follow-up.</li></ul>
 <p>At time zero, a patient who is waiting for the procedure is compatible with both strategies. We cannot tell yet which one their data will follow, and we should not guess by peeking at the future. So we give the patient to both arms: one <em>clone</em> per strategy, each with the same frailty, the same history and the same time zero.</p>
@@ -557,6 +579,320 @@
       `The unweighted estimator misses by ${fmt(uRD - tRD, 3)} in risk difference, far beyond its own spread. Note the price of weighting: its SD is larger. ${state.get().useX ? "" : "This check always uses the frailty model, whatever the checkbox says."}`;
   }
 
+  /* ---------- one patient first: Mr. Ortiz ---------- */
+  const ONE_G = 3,
+    ONE_M = 6,
+    LIVES = {
+      op: { death: null, surgery: C.ONE.opMonth },
+      wait: { death: null, surgery: null },
+      die: { death: C.ONE.deathTime, surgery: null },
+    };
+  let life = "op",
+    cutArm = "never",
+    split = 0,
+    splitTween = null,
+    tLife = 0,
+    tW = 0;
+  // Colour goes in style: a stylesheet fill for figure text would otherwise win over the attribute.
+  const oneText = (x, y, s, { fill, ...attrs } = {}) =>
+    el("text", { class: "ccw-t", x, y, style: fill ? `fill: ${fill}` : undefined, ...attrs }, s);
+  const person = (x, y, color, opacity = 1) =>
+    el("g", { opacity, fill: "none", stroke: color, "stroke-width": 1.8, "stroke-linecap": "round" },
+      el("circle", { cx: x, cy: y - 9, r: 5 }),
+      el("path", { d: `M${x - 9},${y + 9} Q${x - 9},${y - 1} ${x},${y - 1} Q${x + 9},${y - 1} ${x + 9},${y + 9}` }),
+    );
+  // Shared frame for the two timeline figures: months 0..6, grace window 0..3.
+  function oneFrame(svg, H, rowsTop) {
+    const W = widthOf(svg),
+      x0 = 48,
+      x1 = W - 22,
+      sx = (m) => x0 + (m / ONE_M) * (x1 - x0),
+      axisY = H - 30;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("class", "fig ccw-one");
+    svg.replaceChildren();
+    svg.append(
+      el("rect", { x: sx(0), y: rowsTop, width: sx(ONE_G) - sx(0), height: axisY - rowsTop, fill: "var(--soft)" }),
+      oneText((sx(0) + sx(ONE_G)) / 2, rowsTop + 17, "grace period", { "text-anchor": "middle", fill: "var(--muted)" }),
+      el("line", { class: "axis", x1: x0, x2: x1, y1: axisY, y2: axisY }),
+    );
+    for (let m = 0; m <= ONE_M; m++)
+      svg.append(
+        el("line", { class: "axis", x1: sx(m), x2: sx(m), y1: axisY, y2: axisY + 5 }),
+        el("text", { class: "tick", x: sx(m), y: axisY + 19, "text-anchor": "middle" }, m),
+      );
+    svg.append(el("text", { class: "tick", x: x0 - 14, y: axisY + 19, "text-anchor": "end" }, "month"));
+    return { W, sx, x0, x1, axisY };
+  }
+
+  function drawSplit() {
+    const svg = byId("ortiz-split"),
+      H = 196,
+      { sx, x1 } = oneFrame(svg, H, 8),
+      u = ease.inOut(split),
+      mid = 98,
+      yA = 70,
+      yB = 138,
+      ya = mid + (yA - mid) * u,
+      yb = mid + (yB - mid) * u,
+      label = (y, s, color, op) => oneText(sx(0) + 12, y - 12, s, { fill: color, opacity: op, "font-weight": 600 });
+    const lane = (y, color, op) =>
+      el("g", { opacity: op },
+        el("line", { x1: sx(0), x2: x1 - 8, y1: y, y2: y, stroke: color, "stroke-width": 2, "stroke-dasharray": "5 5" }),
+        el("path", { d: `M${x1 - 10},${y - 5} L${x1},${y} L${x1 - 10},${y + 5}`, fill: "none", stroke: color, "stroke-width": 2 }),
+        el("circle", { cx: sx(0), cy: y, r: 6, fill: color }),
+      );
+    svg.append(
+      lane(mid, "var(--ink)", 1 - u),
+      label(mid, "Mr. Ortiz: eligible, waiting", "var(--ink)", 1 - u),
+      person(24, mid, "var(--ink)", 1 - u),
+    );
+    if (u > 0)
+      svg.append(
+        el("path", { d: `M${sx(0)},${ya} L${sx(0)},${yb}`, stroke: "var(--muted)", "stroke-width": 1, opacity: 0.5 * u }),
+        lane(ya, ARM.grace.color, u),
+        lane(yb, ARM.never.color, u),
+        label(ya, "Copy A: operate within 3 months", ARM.grace.color, u),
+        label(yb, "Copy B: never operate", ARM.never.color, u),
+        person(24, ya, ARM.grace.color, u),
+        person(24, yb, ARM.never.color, u),
+      );
+    byId("ortiz-copy").textContent = split > 0.5 ? "Show him as one again" : "Copy him";
+    byId("caption-ortiz-split").textContent =
+      split < 1
+        ? "His one real life. The dashed part is his future: it has not happened yet."
+        : "Two copies, both starting at month 0. Neither has done anything its plan forbids.";
+  }
+  byId("ortiz-copy").onclick = () => {
+    splitTween?.cancel();
+    const from = split,
+      to = split > 0.5 ? 0 : 1;
+    splitTween = CausalAnim.tween({
+      duration: 1100,
+      ease: (v) => v,
+      onUpdate: (v) => {
+        split = from + (to - from) * v;
+        drawSplit();
+      },
+    });
+  };
+
+  function lifeCopies() {
+    const [a, b] = C.cloneOne({ id: 0, x: C.ONE.x, obs: LIVES[life] }, ONE_G, A_K());
+    return { grace: a, never: b };
+  }
+  const A_K = () => data().A.config.K;
+
+  function drawLife() {
+    const svg = byId("ortiz-life"),
+      H = 262,
+      { sx, x1, axisY } = oneFrame(svg, H, 6),
+      m = tLife * ONE_M,
+      obs = LIVES[life],
+      copies = lifeCopies(),
+      rows = [
+        { key: "real", y: 72, color: "var(--ink)", name: "His real life" },
+        { key: "grace", y: 140, color: ARM.grace.color, name: "Copy A: operate within 3 months" },
+        { key: "never", y: 208, color: ARM.never.color, name: "Copy B: never operate" },
+      ];
+    const cross = (x, y) =>
+      el("path", { d: `M${x - 6},${y - 6} L${x + 6},${y + 6} M${x + 6},${y - 6} L${x - 6},${y + 6}`, stroke: "var(--red)", "stroke-width": 2.6, "stroke-linecap": "round" });
+    const diamond = (x, y) =>
+      el("path", { d: `M${x},${y - 7} L${x + 7},${y} L${x},${y + 7} L${x - 7},${y} Z`, fill: "var(--ink)", stroke: "var(--paper)", "stroke-width": 1.2 });
+    for (const r of rows) {
+      const exit = r.key === "real" ? (obs.death ?? Infinity) : copies[r.key].exit,
+        status = r.key === "real" ? (obs.death ? "death" : "end") : copies[r.key].status,
+        surgery = r.key === "real" ? obs.surgery : copies[r.key].surgery,
+        end = Math.min(m, exit, ONE_M),
+        g = el("g");
+      svg.append(g);
+      g.append(person(24, r.y, r.color), oneText(sx(0) + 12, r.y - 16, r.name, { fill: r.color, "font-weight": 600 }));
+      g.append(el("line", { x1: sx(0), x2: sx(end), y1: r.y, y2: r.y, stroke: r.color, "stroke-width": 3, "stroke-linecap": "round" }));
+      if (m < exit && m < ONE_M) g.append(el("circle", { cx: sx(end), cy: r.y, r: 6, fill: r.color }));
+      if (surgery !== null && surgery <= end && !(status === "censored" && surgery === exit)) g.append(diamond(sx(surgery), r.y));
+      if (m >= exit) {
+        if (status === "death") g.append(cross(sx(exit), r.y), oneText(sx(exit) + 14, r.y + 5, r.key === "real" ? "dies" : "death counted", { fill: "var(--red)" }));
+        else if (status === "censored") {
+          if (surgery === exit) g.append(diamond(sx(surgery), r.y));
+          g.append(
+            el("line", { x1: sx(exit), x2: sx(exit), y1: r.y - 10, y2: r.y + 10, stroke: "var(--ink)", "stroke-width": 1.6 }),
+            oneText(sx(exit) + 10, r.y + 6, "✂ cut", { fill: "var(--ink)", "font-size": 16 }),
+          );
+        }
+      }
+      if (r.key === "real" && life === "wait" && m >= ONE_G)
+        g.append(
+          el("line", { x1: sx(ONE_G), x2: sx(ONE_G), y1: r.y - 6, y2: r.y + 6, stroke: "var(--ink)", "stroke-width": 1.6 }),
+          oneText(sx(ONE_G), r.y + 24, "still waiting", { "text-anchor": "middle", fill: "var(--muted)" }),
+        );
+      if (m >= ONE_M && exit > ONE_M)
+        g.append(el("path", { d: `M${x1 - 10},${r.y - 5} L${x1},${r.y} L${x1 - 10},${r.y + 5}`, fill: "none", stroke: r.color, "stroke-width": 2 }));
+    }
+    svg.append(el("line", { x1: sx(m), x2: sx(m), y1: 30, y2: axisY, stroke: "var(--phat)", "stroke-width": 1.2, "stroke-dasharray": "4 3" }));
+    document.querySelectorAll("[data-life]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.life === life)));
+    const say = (c) =>
+      m < c.exit
+        ? "following its plan"
+        : c.status === "death"
+          ? `death at month ${c.exit}, counted`
+          : c.status === "censored"
+            ? `cut at month ${c.exit}`
+            : "following its plan";
+    readout("readout-ortiz-life", [
+      ["Copy A", say(copies.grace)],
+      ["Copy B", say(copies.never)],
+    ]);
+    const waiting = `Month ${Math.floor(m)}: he is alive and waiting. Waiting fits both plans, so both copies go on.`;
+    let cap;
+    if (life === "op")
+      cap = m < obs.surgery ? waiting : `Month ${obs.surgery}: he is operated. That fits Plan A, so Copy A goes on. It breaks Plan B, so Copy B is cut at month ${obs.surgery}.`;
+    else if (life === "wait")
+      cap = m < ONE_G ? waiting : `Month ${ONE_G}: the grace period ends and he has not been operated. Copy A has broken Plan A and is cut. Copy B goes on: he is still never operated.`;
+    else
+      cap = m < obs.death ? waiting : `Month ${obs.death}: he dies while waiting. Up to then his life fit both plans, so the death counts in both copies. Nobody is cut.`;
+    byId("caption-ortiz-life").textContent = cap;
+  }
+  document.querySelectorAll("[data-life]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        life = b.dataset.life;
+        pLife.set(0);
+        pLife.play();
+      }),
+  );
+
+  /* 100 patients like him: which copies are cut, and how much the rest must count. */
+  function weightPlan() {
+    const P = C.onePerson(C.ONE.x, data().A.fit, ONE_G);
+    if (cutArm === "never") {
+      const [c1, c2, remain] = C.perHundred([P.p[1], P.stay[1] * P.p[2], P.stay[2]]);
+      return { P, cuts: [c1, c2], cutAt: [1, 2], remain, w: P.wNever[2], stay: P.stay[2] };
+    }
+    const [c3, remain] = C.perHundred([1 - P.p[ONE_G], P.p[ONE_G]]);
+    return { P, cuts: [c3], cutAt: [ONE_G], remain, w: P.wGrace, stay: P.p[ONE_G] };
+  }
+  function drawWeightGrid() {
+    const svg = byId("ortiz-weight"),
+      W = widthOf(svg),
+      plan = weightPlan(),
+      size = Math.min(W - 40, 320),
+      s = size / 10,
+      gx = (W - size) / 2,
+      gy = 44,
+      H = gy + size + 46,
+      color = ARM[cutArm].color,
+      r0 = s * Math.min(0.3, 0.46 / Math.sqrt(plan.w)),
+      // Deterministic assignment of the 100 dots to groups (cut at each decision, or kept).
+      r = C.rng(20260929),
+      order = Array.from({ length: 100 }, (_, i) => [r(), i]).sort((a, b) => a[0] - b[0]).map((v) => v[1]),
+      group = new Array(100).fill(-1);
+    let k = 0;
+    plan.cuts.forEach((n, j) => {
+      for (let i = 0; i < n; i++) group[order[k++]] = j;
+    });
+    // Phases of the clock: each decision cuts its group, then the survivors grow.
+    const nCut = plan.cuts.length,
+      cutPhase = (j) => Math.min(1, Math.max(0, (tW - (0.12 + 0.22 * j)) / 0.16)),
+      grow = ease.inOut(Math.min(1, Math.max(0, (tW - 0.62) / 0.34))),
+      wNow = 1 + grow * (plan.w - 1);
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("class", "fig ccw-one");
+    svg.replaceChildren();
+    const at = (i) => [gx + (i % 10) * s + s / 2, gy + Math.floor(i / 10) * s + s / 2];
+    const ortiz = [...Array(100).keys()].find((i) => group[i] === nCut - 1 && i < 10) ?? group.findIndex((g) => g === nCut - 1),
+      lee = [...Array(100).keys()].reverse().find((i) => group[i] === -1);
+    for (let i = 0; i < 100; i++) {
+      const [cx, cy] = at(i);
+      if (group[i] >= 0) {
+        const f = cutPhase(group[i]);
+        svg.append(
+          el("circle", { cx, cy, r: r0, fill: color, "fill-opacity": 1 - f, stroke: f > 0 ? "var(--muted)" : color, "stroke-width": 1.2 }),
+        );
+      } else svg.append(el("circle", { cx, cy, r: r0 * Math.sqrt(wNow), fill: color, "fill-opacity": grow > 0 ? 0.75 : 1 }));
+    }
+    const label = (i, above, s1) => {
+      const [cx, cy] = at(i),
+        ty = above ? 22 : H - 14,
+        anchor = cx < W * 0.3 ? "start" : cx > W * 0.7 ? "end" : "middle",
+        tx = anchor === "start" ? Math.max(8, cx - 12) : anchor === "end" ? Math.min(W - 8, cx + 12) : cx;
+      svg.append(
+        el("circle", { cx, cy, r: r0 * (i === lee ? Math.sqrt(wNow) : 1) + 4, fill: "none", stroke: "var(--ink)", "stroke-width": 1.6 }),
+        el("line", { x1: cx, x2: cx, y1: above ? ty + 6 : cy + r0 * Math.sqrt(i === lee ? wNow : 1) + 5, y2: above ? cy - r0 - 5 : ty - 15, stroke: "var(--ink)", "stroke-width": 1 }),
+        oneText(tx, ty, s1, { "text-anchor": anchor, fill: "var(--ink)" }),
+      );
+    };
+    const ortizCut = cutPhase(nCut - 1) >= 1;
+    label(ortiz, true, ortizCut ? `Mr. Ortiz: copy ${cutArm === "never" ? "B" : "A"} cut` : "Mr. Ortiz");
+    const who = cutArm === "never" ? "Mr. Lee" : `operated at month ${ONE_G}`;
+    label(lee, false, grow > 0 ? `${who}: counts as ${wNow.toFixed(2)}` : who);
+    const pRow = cutArm === "never"
+      ? [
+          [`operated at month 1 (copy B cut)`, plan.cuts[0]],
+          [`operated at month 2 (copy B cut)`, plan.cuts[1]],
+          ["still unoperated after month 2", plan.remain],
+          ["P(still unoperated)", `${(1 - plan.P.p[1]).toFixed(3)} × ${(1 - plan.P.p[2]).toFixed(3)} = ${plan.stay.toFixed(3)}`],
+        ]
+      : [
+          [`not operated at month ${ONE_G} (copy A cut)`, plan.cuts[0]],
+          [`operated at month ${ONE_G} (copy A kept)`, plan.remain],
+          [`P(operated at month ${ONE_G})`, plan.stay.toFixed(3)],
+        ];
+    readout("readout-ortiz-weight", [...pRow, ["weight of each kept copy", `1 / ${plan.stay.toFixed(3)} = ${plan.w.toFixed(2)}`]]);
+    document.querySelectorAll("[data-cut]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cut === cutArm)));
+    let cap;
+    if (cutArm === "never")
+      cap =
+        tW < 0.12
+          ? "100 patients like Mr. Ortiz, each with a Copy B (never operate)."
+          : grow === 0
+            ? `Each month some of them are operated, so their Copy B is cut (hollow rings). Mr. Ortiz is one of the ${plan.cuts[1]} operated at month 2.`
+            : `The ${plan.remain} still unoperated now stand for all 100. Each Copy B counts as 1 / ${plan.stay.toFixed(3)} = ${plan.w.toFixed(2)} people, so the filled area is back to 100 patients.`;
+    else
+      cap =
+        tW < 0.12
+          ? `100 patients like him, alive and still waiting at month ${ONE_G}, each with a Copy A (operate within ${ONE_G} months).`
+          : grow === 0
+            ? `At month ${ONE_G} only ${plan.remain} of them are operated. The other ${plan.cuts[0]} broke Plan A, Mr. Ortiz among them, so their Copy A is cut.`
+            : `The ${plan.remain} operated right at the deadline stand for all 100. Each counts as 1 / ${plan.stay.toFixed(3)} = ${plan.w.toFixed(2)} people. Few like him follow Plan A this late, so each one carries a lot.`;
+    byId("caption-ortiz-weight").textContent = cap;
+  }
+  document.querySelectorAll("[data-cut]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        cutArm = b.dataset.cut;
+        pW.set(0);
+        pW.play();
+      }),
+  );
+  function drawOrtizText() {
+    const { A } = data(),
+      P = C.onePerson(C.ONE.x, A.fit, ONE_G),
+      [, , remain] = C.perHundred([P.p[1], P.stay[1] * P.p[2], P.stay[2]]);
+    byId("ortiz-x").textContent = `X = ${C.ONE.x < 0 ? "−" : ""}${Math.abs(C.ONE.x)}, a little more robust than average`;
+    byId("ortiz-remain").textContent = remain;
+    document.querySelectorAll(".ortiz-remain").forEach((e) => (e.textContent = remain));
+    byId("ortiz-w").textContent = P.wNever[2].toFixed(2);
+    byId("ortiz-stay").textContent = P.stay[2].toFixed(3);
+  }
+  const pLife = player(byId("player-ortiz-life"), {
+    duration: 7000,
+    label: "Month",
+    formatValue: (t) => (t * ONE_M).toFixed(1),
+    onT(t) {
+      tLife = t;
+      drawLife();
+    },
+  });
+  const pW = player(byId("player-ortiz-weight"), {
+    duration: 6000,
+    label: "Weighting",
+    formatValue: (t) => Math.round(t * 100) + "%",
+    onT(t) {
+      tW = t;
+      drawWeightGrid();
+    },
+  });
+
   function render() {
     const s = state.get();
     byId("grace-out").textContent = s.grace;
@@ -564,6 +900,10 @@
     document.querySelectorAll(".g-val").forEach((e) => (e.textContent = s.grace));
     const { A } = data();
     const f = A.fit;
+    drawSplit();
+    drawLife();
+    drawWeightGrid();
+    drawOrtizText();
     byId("model-line").textContent = `logit p̂ₜ(X) = ${fmt(f.g0, 2)} ${f.gX < 0 ? "−" : "+"} ${fmt(Math.abs(f.gX), 2)}·X ${f.gT < 0 ? "−" : "+"} ${fmt(Math.abs(f.gT), 3)}·(t − 1)   fitted on ${f.rows} waiting patient-months with ${f.events} procedures${s.useX ? "" : " (frailty left out)"}`;
     drawClone();
     drawCensor();
@@ -589,6 +929,8 @@
   window.addEventListener("causality:lab-reset", (e) => {
     if (e.detail?.name !== "clone-censor-weight") return;
     pClone.set(0);
+    pLife.set(0);
+    pW.set(0);
     pCensor.set(0);
     pWeight.set(0);
   });
