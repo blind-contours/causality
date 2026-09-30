@@ -285,7 +285,7 @@
   if (titleEl) {
     const w = words[core.length] || String(core.length);
     const mins = core.reduce((a, u) => a + u.minutes, 0);
-    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 30) / 2} hours, one cohort carried from the question to a survival curve. Every lesson opens directly; prerequisites are advice, not gates.`;
+    titleEl.textContent = `${w.charAt(0).toUpperCase() + w.slice(1)} core lessons, about ${Math.round(mins / 30) / 2} hours. One recurring cohort of 100 patients ties it together, with clearly marked teaching worlds when a new idea needs a different setting. Every lesson opens directly; prerequisites are advice, not gates.`;
   }
   // The route heading carries the same two numbers as the card, once there is something to count.
   function routeProgress(p) {

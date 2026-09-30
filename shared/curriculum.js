@@ -475,6 +475,15 @@
           "Weight for censoring, augment, and target S(τ) and RMST with an influence-function interval.",
           "interpretation",
         ),
+      ],
+    },
+    {
+      id: "together",
+      title: "Put it all together",
+      description:
+        "One analysis, start to finish: the main causal workflow from the course, used in order on a simulated device registry.",
+      stage: "interpretation",
+      units: [
         add(
           "capstone",
           "24-capstone-emulated-trial.html",

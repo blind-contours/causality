@@ -40,7 +40,7 @@
 <p>But m₁ is only learned from treated people: 45 in the high-severity stratum and 5 in the low. Half the parameter rests on 5 observations. The propensity score g(x), the chance of treatment at severity x, is the fraction treated in each stratum.</p>
 <div class="eq">ψ = 0.5·m₁(high) + 0.5·m₁(low)        g(high) = 45/50 = 0.9        g(low) = 5/50 = 0.1</div>
 <div class="scene">
-  <div class="paper"><canvas id="c1" width="800" height="420"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="paper"><canvas id="c1" width="800" height="420" data-panels="30 10 283 252, 283 40 520 252, 30 258 380 284, 550 10 860 275, 30 420 380 530"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p1">Play</button></div>
     <label>Scrub <span class="v" id="v1">0.00</span><input type="range" id="t1" min="0" max="1" step="0.002" value="0"></label>
@@ -54,7 +54,7 @@
 <p>Raise the high-severity curve by δ<sub>hi</sub> and the low-severity curve by δ<sub>lo</sub>. The target rises by 0.5δ<sub>hi</sub>+0.5δ<sub>lo</sub>. For independent unit-variance Gaussian observations, twice the KL distance from the initial model is 45δ<sub>hi</sub>²+5δ<sub>lo</sub>². This is the information metric used to compare directions, not the observed loss change from a biased fit. The actual change in squared-error loss is Σₛ[nₛδₛ²−2δₛΣᵢrᵢ]. Residuals determine the step size.</p>
 <div class="eq">payoff(δ_hi, δ_lo) = 0.5·δ_hi + 0.5·δ_lo          information cost(δ_hi, δ_lo) = 45·δ_hi² + 5·δ_lo²</div>
 <div class="scene">
-  <div class="paper"><canvas id="c2" width="800" height="470"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="paper"><canvas id="c2" width="800" height="470" data-panels="0 0 388 305, 388 0 780 305, 40 320 390 410, 420 320 812 470"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
     <label><span>δ<sub>hi</sub>, shift of the high-severity curve</span> <span class="v" id="v2y">0.33</span><input type="range" id="dy2" min="0" max="3.2" step="0.01" value="0.333"></label>
     <label><span>δ<sub>lo</sub>, shift of the low-severity curve</span> <span class="v" id="v2o">3.00</span><input type="range" id="do2" min="0" max="3.2" step="0.01" value="3"></label>
@@ -89,7 +89,7 @@
 <p>Hold the cost at B and slide the share s of that budget that goes to the low-severity stratum from 0 to 1. The payoff peaks at s = 0.9, where δ<sub>lo</sub>/δ<sub>hi</sub> = 9. Change the budget and the peak does not move.</p>
 <div class="eq">45δ_hi² = (1−s)B,   5δ_lo² = sB   ⇒   payoff(s) = 0.5√((1−s)B/45) + 0.5√(sB/5),   maximum at s = 0.9</div>
 <div class="scene" data-title="Another way: the share curve">
-  <div class="paper"><canvas id="c3" width="800" height="440"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="paper"><canvas id="c3" width="800" height="440" data-panels="0 10 345 385, 530 10 880 266, 40 440 385 560"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p3">Play</button></div>
     <label>Scrub (share of budget to low-severity) <span class="v" id="v3">0.00</span><input type="range" id="t3" min="0" max="1" step="0.002" value="0"></label>
@@ -104,7 +104,7 @@
 <summary>See it another way: trade strips between the squares</summary>
 <p>Cost is one square per treated person, side δ. Growing a square from δ to δ + Δ adds an L-shaped strip of area about 2δ·Δ, so the price of the next bit of shift is the square's current side. Peel strips off the 45 high-severity squares and wrap the same area around the 5 low-severity squares. The strip you free keeps shrinking and the strip you need keeps growing; when they are equal (90δ<sub>hi</sub> = 10δ<sub>lo</sub>) the trade buys nothing more.</p>
 <div class="scene" data-title="Another way: the strip trade">
-  <div class="paper"><canvas id="c6" width="800" height="560"></canvas><div class="cap" id="cap6"></div></div>
+  <div class="paper"><canvas id="c6" width="800" height="560" data-panels="40 25 327 55, 40 215 327 350, 327 20 588 350, 580 20 880 285, 10 355 340 540"></canvas><div class="cap" id="cap6"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p6">Play</button></div>
     <label>Scrub (trades so far) <span class="v" id="v6">0.00</span><input type="range" id="t6" min="0" max="1" step="0.002" value="0"></label>
@@ -118,7 +118,7 @@
 <summary>See it another way: equal marginal costs along δ = ε/g</summary>
 <p>The cost curves 45δ² and 5δ² are parabolas; their slopes 90δ<sub>hi</sub> and 10δ<sub>lo</sub> are the marginal costs. Step along δ = ε/g and the two tangent lines stay parallel. Step with equal shifts and the high-severity tangent is nine times steeper.</p>
 <div class="scene" data-title="Another way: marginal cost">
-  <div class="paper"><canvas id="c4" width="800" height="440"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="paper"><canvas id="c4" width="800" height="440" data-panels="0 20 345 385, 550 20 890 340, 40 440 370 600"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p4">Play</button></div>
     <label>Scrub (step ε along the path) <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
@@ -135,7 +135,7 @@
 <p>Real residuals, r<sub>i</sub> = Y<sub>i</sub> − m̂<sub>1</sub>(X<sub>i</sub>), scattered around 1. Fluctuate m<sub>ε</sub> = m̂<sub>1</sub> + ε·H with H = 1/g and pick ε by least squares. The score equation Σ H<sub>i</sub>(r<sub>i</sub> − εH<sub>i</sub>) = 0 gives ε̂ = ΣH<sub>i</sub>r<sub>i</sub> / ΣH<sub>i</sub>². Look at the numerator: the high-severity stratum contributes 45 × 1.11 × r̄<sub>hi</sub> ≈ 50·r̄<sub>hi</sub> and the low-severity stratum contributes 5 × 10 × r̄<sub>lo</sub> = 50·r̄<sub>lo</sub>. The weighting makes the 5 low-severity residuals count exactly as much as the 45 high-severity ones, because each stratum is half of ψ. Then ψ moves by ε̂·(0.5/0.9 + 0.5/0.1) = ε̂ · 5.56, which is precisely the one-step correction Pₙ[H r].</p>
 <div class="eq">ε̂ = Σ Hᵢ rᵢ / Σ Hᵢ²        ψ_TMLE − ψ_plug = ε̂ · Pₙ[H(1,X)] = ε̂·(0.5/0.9 + 0.5/0.1)        one-step: ψ_plug + Pₙ[H r]</div>
 <div class="scene">
-  <div class="paper"><canvas id="c5" width="800" height="540"></canvas><div class="cap" id="cap5"></div></div>
+  <div class="paper"><canvas id="c5" width="800" height="540" data-panels="0 0 392 282, 388 0 780 282, 40 288 428 362, 425 312 780 362, 40 540 430 810"></canvas><div class="cap" id="cap5"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p5">Play</button><button id="n5">New sample</button></div>
     <label>Scrub <span class="v" id="v5">0.00</span><input type="range" id="t5" min="0" max="1" step="0.002" value="0"></label>
@@ -181,6 +181,25 @@ function circ(g,x,y,col,r){g.strokeStyle=col;g.lineWidth=1.4;g.beginPath();g.arc
 function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
+// Phones: shared/visuals.js may draw this canvas as the stacked panels listed in its data-panels.
+// Sentences too long for a phone column are then word-wrapped into a band below the drawing (the
+// last panel) instead of being drawn in place. items: argument lists for txt(); bx, bw: the band.
+function notes(g,H,items,bx,bw){
+  if(!g.canvas._stack){items.forEach(a=>txt(g,...a));return;}
+  const fl=g.canvas._floor||0;rect(g,-50,H,2000,600,C.paper);let y=H+6;
+  for(const [s,,,col,size,,font,italic] of items){
+    g.font=`${italic?'italic ':''}${size}px ${font||F}`;
+    const lh=Math.max(size,fl)*1.35,fits=u=>g.measureText(u).width<=bw,rows=[];let cur='';
+    for(const piece of String(s).split(/\s{2,}/)){
+      if(cur&&fits(cur+'  '+piece)){cur+='  '+piece;continue;}
+      if(cur)rows.push(cur);cur='';
+      for(const w of piece.split(' ')){const u=cur?cur+' '+w:w;if(cur&&!fits(u)){rows.push(cur);cur=w;}else cur=u;}
+    }
+    if(cur)rows.push(cur);
+    for(const r of rows){y+=lh;txt(g,r,bx,y-lh/2,col,size,'left',font,italic);}
+    y+=lh*0.3;
+  }
+}
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 function scene(id,draw,opts){return CausalVisuals.scene(id,draw,opts);}
 
@@ -212,9 +231,9 @@ const S1=scene(1,(g,W,H,t)=>{clear(g,W,H);
   bar(150,'Treated people (evidence about m₁)',45,5,50,v=>v);
   if(b>0.99){txt(g,'Half the parameter rests on 5 people.',bx,222,C.pen,13.5,'left',FS,true);txt(g,'Any shift of the low-severity curve changes half of ψ,',bx,246,C.muted,12.5,'left');txt(g,'but only 5 residuals resist it.',bx,264,C.muted,12.5,'left');}
   // bottom equation
-  txt(g,'ψ  =  0.5 · m₁(high)  +  0.5 · m₁(low)',40,330,C.pen,14,'left',FM);
-  txt(g,'initial fit: m̂₁ = m₁ − 1 in both strata  (too low by 1)',40,356,C.phat,12.5,'left',FM);
-  txt(g,'so the plug-in ψ̂ is too low by 0.5·1 + 0.5·1 = 1',40,378,C.muted,12.5,'left',FM);
+  notes(g,H,[['ψ  =  0.5 · m₁(high)  +  0.5 · m₁(low)',40,330,C.pen,14,'left',FM],
+    ['initial fit: m̂₁ = m₁ − 1 in both strata  (too low by 1)',40,356,C.phat,12.5,'left',FM],
+    ['so the plug-in ψ̂ is too low by 0.5·1 + 0.5·1 = 1',40,378,C.muted,12.5,'left',FM]],40,330);
   document.getElementById('cap1').textContent=t<0.28?'One hundred patients in two strata of fifty.':t<0.4?'Filled dots are treated: 45 of the high-severity patients, 5 of the low. g is 0.9 versus 0.1.':'Each stratum is half of ψ, but the treated data that pins down m₁ is 45 to 5.';
 },{dur:3500});
 
@@ -253,10 +272,10 @@ document.getElementById('b2a').onclick=()=>set2(Math.sqrt(50/45),0);document.get
 const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);
   const Bg=+document.getElementById('b3').value;const s=t;
   const pay=s=>0.5*Math.sqrt((1-s)*Bg/45)+0.5*Math.sqrt(s*Bg/5);
-  const L=60,R=470,T=40,Bt=330;const ymax=Math.ceil(pay(0.9)*1.15*2)/2;const X=v=>L+(R-L)*v,Yf=v=>Bt-(Bt-T)*v/ymax;
-  line(g,L,Bt,R,Bt,C.pen,1.2);line(g,L,Bt,L,T,C.pen,1.2);for(let v=0;v<=1.001;v+=0.1){line(g,X(v),Bt,X(v),Bt+4,C.pen,1);txt(g,v.toFixed(1),X(v),Bt+14,C.muted,10,'center',FM);}
+  const L=60,R=g.canvas._stack?330:470,T=40,Bt=330;const ymax=Math.ceil(pay(0.9)*1.15*2)/2;const X=v=>L+(R-L)*v,Yf=v=>Bt-(Bt-T)*v/ymax;
+  line(g,L,Bt,R,Bt,C.pen,1.2);line(g,L,Bt,L,T,C.pen,1.2);for(let v=0;v<=1.001;v+=0.1){line(g,X(v),Bt,X(v),Bt+4,C.pen,1);if(!g.canvas._stack||Math.round(v*10)%2===0)txt(g,v.toFixed(1),X(v),Bt+14,C.muted,10,'center',FM);}
   for(let v=0;v<=ymax+1e-9;v+=0.5){line(g,L-4,Yf(v),L,Yf(v),C.pen,1);txt(g,v.toFixed(1),L-8,Yf(v),C.muted,10,'right',FM);line(g,L,Yf(v),R,Yf(v),C.grid,1);}
-  txt(g,'share of budget s spent on the low-severity stratum',(L+R)/2,Bt+34,C.muted,12,'center');txt(g,'payoff to ψ',L+6,T-12,C.muted,12,'left');
+  txt(g,'share of budget s spent on the low-severity stratum',g.canvas._stack?172:(L+R)/2,Bt+34,C.muted,12,'center');txt(g,'payoff to ψ',L+6,T-12,C.muted,12,'left');
   const pts=[];for(let i=0;i<=200;i++){const u=i/200;pts.push([X(u),Yf(pay(u))]);}
   // draw traced part strongly, rest faint
   poly(g,pts,C.grid,2);const k=Math.round(s*200);poly(g,pts.slice(0,k+1),C.green,2.5);
@@ -270,8 +289,8 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);
   row(T+28,'high',dY,45,C.or,45*dY*dY);row(T+84,'low',dO,5,C.p,5*dO*dO);
   txt(g,`payoff = 0.5·${dY.toFixed(2)} + 0.5·${dO.toFixed(2)}`,RX,T+140,C.pen,12,'left',FM);txt(g,`= ${pay(s).toFixed(3)}`,RX,T+160,C.green,14,'left',FM);
   txt(g,`ratio δ_lo / δ_hi = ${dY>1e-9?(dO/dY).toFixed(2):'∞'}`,RX,T+196,C.purple,12.5,'left',FM);txt(g,'optimum: 9 = g(high)/g(low) = 0.9/0.1',RX,T+216,C.muted,11,'left',FM);
-  txt(g,'The peak is at the same s for every budget:',RX,T+256,C.muted,11.5,'left');txt(g,'the split is a direction, the budget is a step size.',RX,T+274,C.muted,11.5,'left');
-  txt(g,'A direction is what the clever covariate is. The step size is ε.',60,Bt+64,C.pen,13,'left',FS,true);txt(g,'Scene 4 lets the data pick ε.',60,Bt+86,C.muted,12,'left');
+  notes(g,H,[['The peak is at the same s for every budget:',RX,T+256,C.muted,11.5,'left'],['the split is a direction, the budget is a step size.',RX,T+274,C.muted,11.5,'left'],
+    ['A direction is what the clever covariate is. The step size is ε.',60,Bt+64,C.pen,13,'left',FS,true],['Scene 4 lets the data pick ε.',60,Bt+86,C.muted,12,'left']],50,325);
   document.getElementById('ro3').innerHTML=`<span class="k">s</span><span>${s.toFixed(2)}</span><span class="k">δ_hi</span><span>${dY.toFixed(3)}</span><span class="k">δ_lo</span><span>${dO.toFixed(3)}</span><span class="k">payoff</span><span>${pay(s).toFixed(3)}</span><span class="k">all-high</span><span>${pay(0).toFixed(3)}</span><span class="k">all-low</span><span>${pay(1).toFixed(3)}</span><span class="k">best (s=0.9)</span><span>${pay(0.9).toFixed(3)}</span>`;
   document.getElementById('cap3').textContent=s<0.3?'Spending the budget on the high-severity curve: 45 people resist, so the curve barely moves.':s<0.88?'Shifting spend to the low-severity curve: 5 people resist, the curve moves far, and each unit of shift is worth just as much to ψ.':'Past s = 0.9 the low-severity curve is so cheap that the last slivers of budget buy less than the high-severity shift you gave up.';
 },{dur:6000});
@@ -304,7 +323,7 @@ const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);
   txt(g,`ratio δ_lo/δ_hi = ${(dO/dY).toFixed(2)}`,RX,204,C.purple,12,'left',FM);txt(g,'stops at 9',RX,222,C.muted,11,'left',FM);
   txt(g,`total area  45δ_hi² + 5δ_lo²`,RX,254,C.muted,11,'left',FM);txt(g,`= ${(45*dY*dY+5*dO*dO).toFixed(1)}  (fixed)`,RX,272,C.muted,11.5,'left',FM);
   // payoff curve vs t
-  const L=60,R=560,T=380,B=520;const X=u=>L+(R-L)*u;const payAt=u=>{const d=dYof(u);return 0.5*d+0.5*Math.sqrt((BUD-45*d*d)/5);};
+  const L=60,R=g.canvas._stack?330:560,T=380,B=520;const X=u=>L+(R-L)*u;const payAt=u=>{const d=dYof(u);return 0.5*d+0.5*Math.sqrt((BUD-45*d*d)/5);};
   const pmin=Math.min(payAt(0),payAt(1))-0.02,pmax=payAt(0.8)+0.03;const Y=v=>B-(B-T)*(v-pmin)/(pmax-pmin);
   line(g,L,B,R,B,C.pen,1.2);line(g,L,B,L,T,C.pen,1.2);txt(g,'trades so far →',R,B+14,C.muted,11,'right');txt(g,'payoff to ψ',L+6,T-10,C.muted,11.5,'left');
   const pts=[];for(let i=0;i<=200;i++)pts.push([X(i/200),Y(payAt(i/200))]);poly(g,pts,C.grid,2);poly(g,pts.slice(0,Math.round(t*200)+1),C.green,2.5);
@@ -319,11 +338,11 @@ const S6=scene(6,(g,W,H,t)=>{clear(g,W,H);
 const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);
   const mode=document.getElementById('m4').value;const EPS=0.3*t;
   const dY=mode==='h'?EPS/PIY:EPS,dO=mode==='h'?EPS/PIO:EPS;
-  const L=60,R=520,T=40,B=330,dmax=3.6,cmax=70;const X=d=>L+(R-L)*d/dmax,Y=c=>B-(B-T)*c/cmax;
+  const L=60,R=g.canvas._stack?330:520,T=40,B=330,dmax=3.6,cmax=70;const X=d=>L+(R-L)*d/dmax,Y=c=>B-(B-T)*c/cmax;
   line(g,L,B,R,B,C.pen,1.2);line(g,L,B,L,T,C.pen,1.2);for(let d=0;d<=3.5;d+=0.5){line(g,X(d),B,X(d),B+4,C.pen,1);txt(g,d.toFixed(1),X(d),B+14,C.muted,10,'center',FM);}for(let c=0;c<=cmax;c+=10){line(g,L-4,Y(c),L,Y(c),C.pen,1);txt(g,c,L-8,Y(c),C.muted,10,'right',FM);line(g,L,Y(c),R,Y(c),C.grid,1);}
   txt(g,'shift δ of a curve',(L+R)/2,B+34,C.muted,12,'center');txt(g,'likelihood cost',L+6,T-12,C.muted,12,'left');
   const curve=(n,col,label,ld,lc)=>{const pts=[];for(let i=0;i<=120;i++){const d=dmax*i/120,c=n*d*d;if(c>cmax)break;pts.push([X(d),Y(c)]);}poly(g,pts,col,2);txt(g,label,X(ld),Y(lc),col,11.5,'left',FM);};
-  curve(45,C.or,'45·δ²  (high)',1.15,62);curve(5,C.p,'5·δ²  (low)',2.55,22);
+  curve(45,C.or,'45·δ²  (high)',g.canvas._stack?1.3:1.15,62);curve(5,C.p,'5·δ²  (low)',2.55,22);
   // tangents
   const tang=(n,d,col,name)=>{const c=n*d*d,sl=2*n*d;const dd=0.5;const pts=[[X(Math.max(0,d-dd)),Y(c-sl*Math.min(dd,d))],[X(d+dd),Y(c+sl*dd)]];if(c+sl*dd<=cmax+20)poly(g,pts,col,1.2,[4,3]);dot(g,X(d),Y(c),col,5,true);return sl;};
   const slY=tang(45,dY,C.or),slO=tang(5,dO,C.p);
@@ -339,8 +358,8 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);
   const eq=Math.abs(slY-slO)<1e-9;txt(g,eq?'equal at every ε: nothing to reallocate':`ratio ${(slY/Math.max(1e-9,slO)).toFixed(1)}: high costs ${(slY/Math.max(1e-9,slO)).toFixed(0)}× more per unit of ψ`,RX,T+284,eq?C.green:C.red,12,'left',FS,true);
   const l1=mode==='h'?'Along δ = ε/g the two tangent lines stay parallel: that is the least-favorable direction.':'With equal shifts the high-severity tangent is 9× steeper: you are overpaying on the left.';
   const l2=mode==='h'?'ψ per unit of likelihood is the same everywhere on the curve, so there is nothing left to reallocate.':'Move budget from high to low until the tangents are parallel, which happens at δ_lo = 9·δ_hi.';
-  txt(g,l1,60,B+58,C.pen,12.5,'left');txt(g,l2,60,B+76,C.muted,12,'left');
-  txt(g,'payoff so far: 0.5·δ_hi + 0.5·δ_lo = '+(0.5*dY+0.5*dO).toFixed(3)+'      cost so far: '+(45*dY*dY+5*dO*dO).toFixed(1),60,B+98,C.muted,12,'left',FM);
+  notes(g,H,[[l1,60,B+58,C.pen,12.5,'left'],[l2,60,B+76,C.muted,12,'left'],
+    ['payoff so far: 0.5·δ_hi + 0.5·δ_lo = '+(0.5*dY+0.5*dO).toFixed(3)+'      cost so far: '+(45*dY*dY+5*dO*dO).toFixed(1),60,B+98,C.muted,12,'left',FM]],50,310);
   document.getElementById('ro4').innerHTML=`<span class="k">ε</span><span>${EPS.toFixed(3)}</span><span class="k">δ_hi</span><span>${dY.toFixed(3)}</span><span class="k">δ_lo</span><span>${dO.toFixed(3)}</span><span class="k">90·δ_hi</span><span>${slY.toFixed(2)}</span><span class="k">10·δ_lo</span><span>${slO.toFixed(2)}</span>`;
   document.getElementById('cap4').textContent=mode==='h'?'Stepping along the clever-covariate ray. The dots climb their parabolas at different heights, but the tangents stay parallel.':'Stepping with equal shifts. The high-severity dot climbs a steep parabola, the low-severity dot a flat one; you are overpaying on the left.';
 },{dur:5000});
@@ -366,13 +385,13 @@ const S5=scene(5,(g,W,H,t)=>{clear(g,W,H);
   txt(g,'raw Σ r',50,326,C.muted,11,'left',FM);rect(g,120,318,bw,14,C.grid);rect(g,120,318,bw*Math.abs(NY*mY)/(Math.abs(NY*mY)+Math.abs(NO*mO)),14,C.or,0.85);rect(g,120+bw*Math.abs(NY*mY)/(Math.abs(NY*mY)+Math.abs(NO*mO)),318,bw*Math.abs(NO*mO)/(Math.abs(NY*mY)+Math.abs(NO*mO)),14,C.p,0.85);txt(g,`${(NY*mY).toFixed(1)} : ${(NO*mO).toFixed(1)}`,430,325,C.muted,11,'left',FM);
   txt(g,'Σ H·r',50,352,C.muted,11,'left',FM);const fy=(1-ev)*Math.abs(NY*mY)/(Math.abs(NY*mY)+Math.abs(NO*mO))+ev*Math.abs(eY)/tot;rect(g,120,344,bw,14,C.grid);rect(g,120,344,bw*fy,14,C.or,0.85);rect(g,120+bw*fy,344,bw*(1-fy),14,C.p,0.85);if(ev>0.99)txt(g,`${eY.toFixed(1)} : ${eO.toFixed(1)}   (45×1.11×r̄_Y : 5×10×r̄_O)`,430,351,C.muted,11,'left',FM);
   // ε solve
-  const RX=50;txt(g,'Least-squares step',RX,388,C.pen,13,'left',FS,true);
-  txt(g,`ε̂ = Σ H r / Σ H² = ${sumHr.toFixed(1)} / ${sumH2.toFixed(1)} = ${ehat.toFixed(4)}`,RX,410,C.purple,12,'left',FM);
-  txt(g,`high moves ε̂·1.11 = ${(ehat*HY).toFixed(2)}     low moves ε̂·10 = ${(ehat*HO).toFixed(2)}     ratio 9`,RX,432,C.muted,12,'left',FM);
-  const scoreNow=sumHr-eps*sumH2;txt(g,`score at current ε = ${eps.toFixed(4)}:  Σ H (r − εH) = ${scoreNow.toFixed(2)}`,RX,454,C.teal,12,'left',FM);
-  const dpsi=eps*(0.5*HY+0.5*HO),os=sumHr/100;
-  txt(g,`ψ moves by ε·(0.5/0.9 + 0.5/0.1) = ε·5.56 = ${dpsi.toFixed(3)}`,RX,484,C.green,12.5,'left',FM);txt(g,`one-step correction Pₙ[H r] = ${sumHr.toFixed(1)}/100 = ${os.toFixed(3)}`,RX,506,C.teal,12.5,'left',FM);
-  if(t>0.95)txt(g,'equal here because g uses empirical stratum counts',430,495,C.pen,12.5,'left',FS,true);
+  const RX=50,scoreNow=sumHr-eps*sumH2,dpsi=eps*(0.5*HY+0.5*HO),os=sumHr/100;
+  notes(g,H,[['Least-squares step',RX,388,C.pen,13,'left',FS,true],
+    [`ε̂ = Σ H r / Σ H² = ${sumHr.toFixed(1)} / ${sumH2.toFixed(1)} = ${ehat.toFixed(4)}`,RX,410,C.purple,12,'left',FM],
+    [`high moves ε̂·1.11 = ${(ehat*HY).toFixed(2)}     low moves ε̂·10 = ${(ehat*HO).toFixed(2)}     ratio 9`,RX,432,C.muted,12,'left',FM],
+    [`score at current ε = ${eps.toFixed(4)}:  Σ H (r − εH) = ${scoreNow.toFixed(2)}`,RX,454,C.teal,12,'left',FM],
+    [`ψ moves by ε·(0.5/0.9 + 0.5/0.1) = ε·5.56 = ${dpsi.toFixed(3)}`,RX,484,C.green,12.5,'left',FM],[`one-step correction Pₙ[H r] = ${sumHr.toFixed(1)}/100 = ${os.toFixed(3)}`,RX,506,C.teal,12.5,'left',FM],
+    ...(t>0.95?[['equal here because g uses empirical stratum counts',430,495,C.pen,12.5,'left',FS,true]]:[])],50,370);
   document.getElementById('ro5').innerHTML=`<span class="k">r̄ high</span><span>${mY.toFixed(3)}</span><span class="k">r̄ low</span><span>${mO.toFixed(3)}</span><span class="k">Σ H r</span><span>${sumHr.toFixed(2)}</span><span class="k">Σ H²</span><span>${sumH2.toFixed(1)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Δψ (TMLE)</span><span>${(ehat*(0.5*HY+0.5*HO)).toFixed(3)}</span><span class="k">Δψ (one-step)</span><span>${os.toFixed(3)}</span>`;
   document.getElementById('cap5').textContent=t<0.3?'Residuals of the treated around the initial fit. In both strata the data sit about 1 above the fit: the model is too low by 1.':t<0.6?'Weight each residual by H = 1/g. The five low-severity residuals become as loud as the forty-five high-severity ones.':t<0.95?'Grow ε until the weighted residuals balance: Σ H(r − εH) = 0. The low curve travels 9× as far.':'At ε̂ the score equation holds. Equality to the one-step here uses g equal to the empirical treated fractions; it is not general for Gaussian fluctuations.';
 },{dur:6000});

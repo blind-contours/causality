@@ -33,7 +33,7 @@ details.go-deeper>p{font-size:15px;line-height:1.6}
 <h1>Scores and Influence, From Scratch</h1>
 <p class="lede">How hard does one patient pull an estimate? This lesson starts from a seesaw you can push and ends with the formula every efficient estimator in the course is built on. Each idea gets a picture first and its proper name second.</p>
 <ul class="toc">
-<li><a href="#s1">1 · The mean is a balance point</a></li><li><a href="#s2">2 · Trace the pull everywhere</a></li><li><a href="#s3">3 · A distribution is a point</a></li><li><a href="#s4">4 · A path: nudge the distribution</a></li><li><a href="#s5">5 · The score is a slope</a></li><li><a href="#s6">6 · Every score averages to zero</a></li><li><a href="#s7">7 · The parameter along the path</a></li><li><a href="#s8">8 · One ϕ for every direction</a></li><li><a href="#s9">9 · The seesaw was a path</a></li><li><a href="#s10">10 · Influence for the ATE</a></li><li><a href="#s11">11 · The hardest direction</a></li>
+<li><a href="#s1">1 · The mean is a balance point</a></li><li><a href="#s2">2 · Trace the pull everywhere</a></li><li><a href="#s3">3 · A distribution is a point</a></li><li><a href="#s4">4 · A path: nudge the distribution</a></li><li><a href="#s5">5 · The score is a slope</a></li><li><a href="#s6">6 · Every score averages to zero</a></li><li><a href="#s7">7 · The parameter along the path</a></li><li><a href="#s8">8 · One ϕ for every direction</a></li><li><a href="#s9">9 · The seesaw was a path</a></li><li><a href="#s10">10 · Influence for the ATE</a></li>
 </ul>
 
 <!-- 1 -->
@@ -192,9 +192,10 @@ details.go-deeper>p{font-size:15px;line-height:1.6}
 <p class="note">P(A = a₀ | x₀) is g(x₀) for a treated observation and 1 − g(x₀) for a control. The second piece is the correction term in AIPW.</p>
 <div class="say"><b>In one sentence</b>One observation pulls the ATE through where its x sits (m₁ − m₀ − ψ) and through its own arm's regression (the residual over the chance of its arm). Their sum is the efficient influence function of the ATE, found by asking what one observation does.</div>
 
-<!-- 11 -->
-<div class="eyebrow" id="s11">Step 11</div>
-<h2>The hardest direction</h2>
+<!-- 11 (optional) -->
+<p>Where this leads: a parameter changes along any path at E[ϕ h], so ϕ is the one object that gives the first-order effect of every allowed change to the data. How ϕ also sets the best precision any estimator can reach comes later, in Build a canonical gradient and Efficiency Theory, Drawn.</p>
+<details class="go-deeper" id="s11"><summary>Go deeper: the hardest direction and the efficiency bound</summary>
+<h3>The hardest direction</h3>
 <p>Some directions tell you a lot about ψ and some tell you nothing. Along one path the problem has a single unknown, ε, so it has an ordinary variance floor.</p>
 <p>Rotate h away from ϕ and watch that floor. It is highest when h points along ϕ, and there it equals Var(ϕ).</p>
 <div class="scene">
@@ -208,6 +209,7 @@ details.go-deeper>p{font-size:15px;line-height:1.6}
 <p>No estimator can beat the floor on the hardest path, so none can beat Var(ϕ) overall. That is the <em>efficiency bound</em>, and the hardest path is called the <em>least favorable</em> one.</p>
 <details class="go-deeper"><summary>Go deeper</summary><p>Along a path with score h the problem is parametric in ε, so Cramér–Rao applies: no regular estimator can have asymptotic variance below (dψ/dε)²/I, with Fisher information I = E[h²]. Substituting dψ/dε = E[ϕh] gives E[ϕh]²/E[h²], which by Cauchy–Schwarz is at most E[ϕ²], with equality when h ∝ ϕ.</p><div class="eq">bound along h = (E[ϕh])² / E[h²]  ≤  E[ϕ²] = Var(ϕ),   equality iff h ∝ ϕ</div><p>TMLE fluctuates along a submodel whose score is the efficient influence function for this reason: it is the direction in which the data are least informative about ψ per unit of likelihood.</p></details>
 <div class="say"><b>In one sentence</b>Every path gives a variance floor of Var(ϕ)·cos²θ; the largest, Var(ϕ), is the efficiency bound, reached on the path whose score is ϕ itself.</div>
+</details>
 
 <p class="note">What is exact, simulated and schematic: every density number is an exact sum on a fine grid, the seesaw uses the course's 100 cohort outcomes exactly, the ATE step uses a known law, and the model sheet in step 3 is schematic.</p>
 <p class="src sources">Further reading: the construction follows Tsiatis, <em>Semiparametric Theory and Missing Data</em> (ch. 3–4), and Schuler &amp; van der Laan, <a href="https://alejandroschuler.github.io/mci/introduction-to-modern-causal-inference.html">Introduction to Modern Causal Inference</a> (§3.1–3.3). The point-mass derivation of the ATE influence function is the Gateaux-derivative route in Hines et al. (2022), "Demystifying statistical learning based on efficient influence functions."</p>

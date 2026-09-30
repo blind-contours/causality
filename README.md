@@ -18,7 +18,7 @@ For browser checks, start an isolated Chrome/Chromium profile with remote debugg
 
 ## The learning route
 
-Twenty-two core lessons in seven units, plus an elective branch. `shared/curriculum.js` is the source of truth for the order.
+Twenty-two core lessons in eight units, plus an elective branch. `shared/curriculum.js` is the source of truth for the order.
 
 1. **Ask** (1 to 2): population weights, absolute vs relative risks, survival gap vs RMST area, identification; then intercurrent events and the five ICH E9(R1) strategies, completing the estimand contract.
 2. **Design** (3 to 4): write the target trial protocol and emulate it; move time zero and watch immortal time manufacture a benefit; then clone, censor and weight for sustained strategies with a grace period.
@@ -26,7 +26,8 @@ Twenty-two core lessons in seven units, plus an elective branch. `shared/curricu
 4. **Geometry** (6 to 9): paths, scores and influence functions from one density; the mean's influence function one line at a time; an optional aside on differentiating under the integral; the canonical gradient by projection.
 5. **Estimation** (10 to 14): one-step, two strata and the 1/π budget, the clever covariate and logistic TMLE, the density tilt as a regression shift, and four patients by hand through TMLE, a standard error and a 95% interval.
 6. **Trust the answer** (15 to 19): the efficiency story on one page; when an interval is earned (rates and cross-fitting with an overfitting learner); standard errors you can report (influence function, sandwich, bootstrap); positivity and weights; sensitivity to unmeasured confounding (bias factor, E-value, benchmarking).
-7. **Survival and capstone** (20 to 22): KM, censoring and RMST vs hazard ratios; targeted survival curves and ΔRMST with IPCW, the survival influence function, TMLE and a double-robustness experiment with partly wrong models; then an emulated trial end to end (estimand, protocol, positivity, a small Super Learner with cross-fitting, AIPW and TMLE, E-value, SAP paragraph).
+7. **Return to survival** (20 to 21): KM, censoring and RMST vs hazard ratios; targeted survival curves and ΔRMST with IPCW, the survival influence function, TMLE and a double-robustness experiment with partly wrong models.
+8. **Put it all together** (22): an emulated trial end to end, the main causal workflow used in order (estimand, protocol, positivity, a small Super Learner with cross-fitting, AIPW and TMLE, E-value, SAP paragraph).
 
 Entry points: a placement quiz on the landing page, a 45-minute tour (`tour.html`) and a printable teacher's guide (`guide/`).
 

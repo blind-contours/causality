@@ -792,3 +792,27 @@ body[data-mode="guided"] .legacy-step > .beat > .eyebrow {
     min-height: 36px;
   }
 }
+
+/* "Go deeper" and "Preview" boxes: optional detail kept out of the main path. */
+details.go-deeper {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 0 14px;
+  margin: 14px 0;
+  background: var(--paper);
+}
+details.go-deeper > summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--muted);
+}
+details.go-deeper[open] > summary {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 8px;
+}
+details.go-deeper.preview > summary {
+  color: var(--stage, var(--purple));
+}

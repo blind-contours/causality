@@ -94,9 +94,13 @@ ${legend([["var(--green)", "line", "True mean of Y(0) given X", "6 4"], ["var(--
 ${legend([["var(--or)", "line", "Unadjusted"], ["var(--purple)", "bar", "Standardized with the working model"], ["var(--green)", "line", "True effect", "6 4"]])}
 </div><div><div class="fig-readout" id="curve-readout"></div></div></div>
 <p class="fig-caption" id="curve-caption"></p></div>
-<p><strong>Why it stays centered.</strong> In a randomized trial the chance of receiving the device, the propensity score g, is known by design (here exactly g = ½). Standardization is then exactly AIPW, augmented inverse probability weighting, with that known propensity. Here m̂ₐ(x) is the fitted outcome model in arm a:</p>
+<p><strong>Why it stays centered.</strong> In a randomized trial the chance of receiving the device, the propensity score g, is known by design (here exactly g = ½). Randomization guarantees that a correction term hiding inside standardization has the right average, whatever outcome model you fit. A wrong model can only cost precision, never validity.</p>
+<p>For now, take that as a result you can see in the histogram. The estimation lessons derive the correction rather than ask you to accept it.</p>
+<details class="go-deeper preview"><summary>Preview: why this works (come back after the one-step estimator)</summary>
+<p>Standardization with a known g is exactly AIPW, augmented inverse probability weighting. Here m̂ₐ(x) is the fitted outcome model in arm a:</p>
 <p class="math">ψ̂ = mean(m̂₁ − m̂₀) + mean(A(Y − m̂₁)/g) − mean((1 − A)(Y − m̂₀)/(1 − g))</p>
-<p>With an intercept in each arm's model, each arm's residuals average exactly zero, so both correction terms vanish and AIPW equals the standardized estimate you computed. AIPW stays consistent if <em>either</em> the outcome model or the propensity is right, and randomization makes the propensity right. The geometry lessons explain why a wrong outcome model then costs only precision; <a href="01-one-step-estimator.html">the one-step estimator</a> is where AIPW first appears.</p>
+<p>With an intercept in each arm's model, each arm's residuals average exactly zero, so both correction terms vanish and AIPW equals the standardized estimate you computed. AIPW stays consistent if <em>either</em> the outcome model or the propensity is right, and randomization makes the propensity right. <a href="01-one-step-estimator.html">The one-step estimator</a> derives it.</p>
+</details>
 <p class="note">In finite samples the standardized estimator has a bias of order 1/n from estimating the slopes. It is invisible here: the simulated bias is within about two Monte Carlo standard errors of zero for every setting.</p>
 </section>
 
@@ -119,9 +123,12 @@ ${legend([["var(--ink)", "line", "Conditional OR (within X)", "2 3"], ["var(--gr
 
 <section class="lab-step" data-title="Standard errors that survive"><h2 tabindex="-1">A standard error that does not trust the model</h2>
 <p>The usual ANCOVA analysis fits one linear model, Y on arm and X with a common slope, and reports the arm coefficient with the model's standard error. That standard error assumes the model: one slope, one residual variance. When the device's benefit varies with baseline, both assumptions fail.</p>
-<p>The standardized estimator has its own standard error that makes no such assumption. Each patient contributes one number, their influence-function value</p>
+<p>The standardized estimator has its own standard error that makes no such assumption. It is built from each patient's contribution to the estimate: how much the answer would move if that one patient were given a little more weight. The standard error is the spread of those contributions divided by √n. You will derive them in the geometry lessons; here, just watch what they do.</p>
+<details class="go-deeper preview"><summary>Preview: the formula (come back after Scores and Influence)</summary>
+<p>Each patient's contribution is their influence-function value</p>
 <p class="math">ϕ̂ᵢ = Aᵢ(Yᵢ − m̂₁(Xᵢ))/g − (1 − Aᵢ)(Yᵢ − m̂₀(Xᵢ))/(1 − g) + m̂₁(Xᵢ) − m̂₀(Xᵢ) − ψ̂<br>SE = √( Σ ϕ̂ᵢ² ) / n</p>
-<p>where g is the allocation probability to the device, known by design. The standard error is just their spread divided by √n. (Here each arm's residual part gets the usual n<sub>a</sub>/(n<sub>a</sub> − 2) degrees-of-freedom factor.) The later lessons show where ϕ comes from.</p>
+<p>where g is the allocation probability to the device, known by design. (Here each arm's residual part gets the usual n<sub>a</sub>/(n<sub>a</sub> − 2) degrees-of-freedom factor.)</p>
+</details>
 <div class="predict" data-options="About 95%, as advertised|Noticeably less, under 90%|More than 99%" data-answer="1" data-hint="With unequal allocation and a heterogeneous effect, the common-slope model misjudges the variance. The influence-function interval stays near 95%.">One device patient for every three controls, and the device helps more for patients with higher baseline X. How often does the ANCOVA model-based 95% interval cover the true effect?</div>
 <label>Allocation, device : control <select id="pi"><option value="0.25">1 : 3</option><option value="0.5">1 : 1</option><option value="0.75">3 : 1</option></select></label>
 <label><span>How much the device effect varies with baseline: extra metres per SD of X: <strong class="rct-v" id="het-v"></strong></span> <input id="het" type="range" min="0" max="2" step="0.5"></label>

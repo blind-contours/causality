@@ -46,7 +46,7 @@ table.fp td.star{color:var(--purple);font-weight:500}
 <h2>Why ϕ is centered: the uncentered version fails two jobs</h2>
 <p>Take ϕ(z) = z − ψ and the uncentered candidate ϕ̃(z) = z. Job one: predict how much the mean moves when you add ε of mass at z₀. The true move is ε(z₀ − ψ); ϕ̃ predicts εz₀ and is off by εψ. Job two: measure how far a sample is from a fit. Pₙϕ = (sample mean − fitted mean), which is zero exactly when the fit matches; Pₙϕ̃ = sample mean, which is never a measure of misfit. Both jobs are what the next scenes need. In practice ψ is unknown, so the figure evaluates the influence function at a fit with mean μ̂: ϕ̂(z) = z − μ̂.</p>
 <div class="scene">
-  <div class="paper"><canvas id="c1" width="800" height="400"></canvas><div class="cap" id="cap1"></div></div>
+  <div class="paper"><canvas id="c1" width="800" height="400" data-panels="0 10 360 275, 530 30 900 305, 40 400 400 520"></canvas><div class="cap" id="cap1"></div></div>
   <div class="ctl">
     <label>Point mass at z₀ <span class="v" id="v1z">2.20</span><input type="range" id="z1" min="-3" max="3" step="0.01" value="2.2"></label>
     <label>Fitted mean of P̂ (how wrong the initial fit is) <span class="v" id="v1m">-0.40</span><input type="range" id="m1" min="-1.5" max="1.5" step="0.01" value="-0.4"></label>
@@ -64,7 +64,7 @@ table.fp td.star{color:var(--purple);font-weight:500}
 <p>By Cauchy–Schwarz, E[ϕh] ≤ √E[ϕ²]·√E[h²], with equality when h is a multiple of ϕ. So ϕ is the steepest-ascent direction for ψ. Rotate h between ϕ and something orthogonal to it and watch the slope trace a cosine.</p>
 <div class="eq">max over h with E[h²]=1 of  dψ/dε = E[ϕh]   is attained at   h = ϕ / √E[ϕ²],   giving   √Var(ϕ)</div>
 <div class="scene">
-  <div class="paper"><canvas id="c2" width="800" height="400"></canvas><div class="cap" id="cap2"></div></div>
+  <div class="paper"><canvas id="c2" width="800" height="400" data-panels="20 20 460 372, 495 30 860 345"></canvas><div class="cap" id="cap2"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p2">Play</button></div>
     <label>Angle between h and ϕ <span class="v" id="v2">35°</span><input type="range" id="a2" min="0" max="180" step="1" value="35"></label>
@@ -81,7 +81,7 @@ table.fp td.star{color:var(--purple);font-weight:500}
 <p>Start from a wrong fit p̂ (its mean μ̂ is off). Fluctuate along its own influence function with an exponential tilt, p̂<sub>ε</sub>(z) ∝ p̂(z)·exp(ε·ϕ̂(z)) with ϕ̂(z) = z − μ̂; its score at ε = 0 is ϕ̂ (the linear tilt from earlier pages works the same way but can't take large steps). Choose ε by maximizing the log-likelihood of the sample, Σ log p̂<sub>ε</sub>(Z<sub>i</sub>). The derivative of that in ε at ε = 0 is Σ ϕ̂(Z<sub>i</sub>) = n·Pₙϕ̂. So the likelihood pushes ε in the direction that reduces Pₙϕ̂, and stops at the updated fit P̂*, where the influence function recomputed at P̂* has sample mean zero: Pₙϕ* = 0, with ϕ*(z) = z − μ*. That quantity Pₙϕ̂ is the one-step's correction term; TMLE spends it inside the model instead of adding it to the number.</p>
 <div class="eq">p̂_ε(z) = p̂(z) exp(ε ϕ̂(z)) / c(ε)        L(ε) = Σᵢ log p̂_ε(Zᵢ) = ε Σᵢ ϕ̂(Zᵢ) − n log c(ε)<br>L'(ε) = Σᵢ ϕ̂(Zᵢ) − n·E_{p̂_ε}[ϕ̂]        L'(0) = n · Pₙϕ̂        ε̂: Pₙϕ̂ = E_{p̂_ε̂}[ϕ̂]  ⇒  mean(p̂_ε̂) = z̄</div>
 <div class="scene">
-  <div class="paper"><canvas id="c3" width="800" height="520"></canvas><div class="cap" id="cap3"></div></div>
+  <div class="paper"><canvas id="c3" width="800" height="520" data-panels="0 15 365 385, 560 30 925 330, 40 520 400 670"></canvas><div class="cap" id="cap3"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p3">Play</button><button id="n3">New sample</button></div>
     <label>Scrub <span class="v" id="v3">0.00</span><input type="range" id="t3" min="0" max="1" step="0.002" value="0"></label>
@@ -104,7 +104,7 @@ table.fp td.star{color:var(--purple);font-weight:500}
 <p>The regression is pulled hardest where H is large: where the observed arm is rare. That is your pseudopopulation, arriving as a consequence.</p>
 <div class="eq">ϕ(X,A,Y) = [m₁(X) − m₀(X) − ψ]  +  H(A,X)·(Y − m_A(X)),     H(A,X) = A/g(X) − (1−A)/(1−g(X))<br>fluctuation:  m_ε,a(x) = m̂_a(x) + ε·H(a,x)       score equation:  Σᵢ Hᵢ (Yᵢ − m_ε,Aᵢ(Xᵢ)) = 0</div>
 <div class="scene">
-  <div class="paper"><canvas id="c4" width="800" height="560"></canvas><div class="cap" id="cap4"></div></div>
+  <div class="paper"><canvas id="c4" width="800" height="560" data-panels="0 10 380 350, 20 365 380 455, 10 455 380 548, 550 45 930 315, 40 560 400 665"></canvas><div class="cap" id="cap4"></div></div>
   <div class="ctl">
     <div class="btns"><button class="primary" id="p4">Play</button><button id="n4">New sample</button></div>
     <label>Scrub <span class="v" id="v4">0.00</span><input type="range" id="t4" min="0" max="1" step="0.002" value="0"></label>
@@ -162,6 +162,25 @@ function dot(g,x,y,col,r,ring){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,6.283
 function txt(g,s,x,y,col,size,al,font,italic){g.fillStyle=col;g.font=`${italic?'italic ':''}${size||14}px ${font||F}`;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y);}
 function arrow(g,x1,y1,x2,y2,col,w){line(g,x1,y1,x2,y2,col,w);const a=Math.atan2(y2-y1,x2-x1),s=7+(w||1.5)*1.2;g.fillStyle=col;g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-s*Math.cos(a-0.42),y2-s*Math.sin(a-0.42));g.lineTo(x2-s*Math.cos(a+0.42),y2-s*Math.sin(a+0.42));g.closePath();g.fill();}
 function clear(g,W,H){g.fillStyle=C.paper;g.fillRect(0,0,W,H);}
+// Phones: shared/visuals.js may draw this canvas as the stacked panels listed in its data-panels.
+// Sentences too long for a phone column are then word-wrapped into a band below the drawing (the
+// last panel) instead of being drawn in place. items: argument lists for txt(); bx, bw: the band.
+function notes(g,H,items,bx,bw){
+  if(!g.canvas._stack){items.forEach(a=>txt(g,...a));return;}
+  const fl=g.canvas._floor||0;rect(g,-50,H,2000,600,C.paper);let y=H+6;
+  for(const [s,,,col,size,,font,italic] of items){
+    g.font=`${italic?'italic ':''}${size}px ${font||F}`;
+    const lh=Math.max(size,fl)*1.35,fits=u=>g.measureText(u).width<=bw,rows=[];let cur='';
+    for(const piece of String(s).split(/\s{2,}/)){
+      if(cur&&fits(cur+'  '+piece)){cur+='  '+piece;continue;}
+      if(cur)rows.push(cur);cur='';
+      for(const w of piece.split(' ')){const u=cur?cur+' '+w:w;if(cur&&!fits(u)){rows.push(cur);cur=w;}else cur=u;}
+    }
+    if(cur)rows.push(cur);
+    for(const r of rows){y+=lh;txt(g,r,bx,y-lh/2,col,size,'left',font,italic);}
+    y+=lh*0.3;
+  }
+}
 function axes(g,L,R,T,B,col){line(g,L,B,R,B,col,1.2);line(g,L,B,L,T,col,1.2);}
 function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 const nrm=(z,m,s)=>Math.exp(-0.5*((z-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
@@ -177,9 +196,10 @@ function densityAxes(g,L,R,T,B,ymax){const xs=z=>L+(R-L)*(z-ZL)/(ZR-ZL),ys=v=>B-
 const S1=scene(1,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z1').value,mh=+document.getElementById('m1').value;const eps=0.15;
   // fitted density p-hat: shifted version of true (mean mh)
   const ph=z=>pTrue(z-(mh-MU));
-  const {xs,ys}=densityAxes(g,60,480,40,220,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(ph(Z[i])*(1-eps))]);poly(g,pts,C.phat,2);txt(g,'(1−ε) p̂(z) + ε δ_{z₀}',70,30,C.pen,13,'left',FS,true);
+  const CR=g.canvas._stack?330:480; // narrower plot when stacked on a phone
+  const {xs,ys}=densityAxes(g,60,CR,40,220,0.5);const pts=[];for(let i=0;i<N;i++)pts.push([xs(Z[i]),ys(ph(Z[i])*(1-eps))]);poly(g,pts,C.phat,2);txt(g,'(1−ε) p̂(z) + ε δ_{z₀}',70,30,C.pen,13,'left',FS,true);
   // the point mass is a needle: its height is a marker, not a density value
-  arrow(g,xs(z0),220,xs(z0),146,C.or,2.2);txt(g,'↑ orange needle: point mass ε = 0.15 at z₀',480,46,C.or,11.5,'right',FS,true);txt(g,'its height is a marker, not a density value',480,60,C.muted,10,'right');
+  arrow(g,xs(z0),220,xs(z0),146,C.or,2.2);txt(g,'↑ orange needle: point mass ε = 0.15 at z₀',CR,46,C.or,11.5,'right',FS,true);txt(g,'its height is a marker, not a density value',CR,60,C.muted,10,'right');
   const me=(1-eps)*mh+eps*z0;line(g,xs(mh),220,xs(mh),200,C.phat,2.4);txt(g,'μ̂',xs(mh)-6,236,C.phat,13,'right',FS,true);line(g,xs(me),220,xs(me),195,C.p,2.4);txt(g,'actual',xs(me)+6,236,C.p,12,'left',FS,true);
   // predictions
   const predC=mh+eps*(z0-mh),predU=mh+eps*z0;
@@ -190,8 +210,8 @@ const S1=scene(1,(g,W,H)=>{clear(g,W,H);const z0=+document.getElementById('z1').
   txt(g,`E_P[ϕ̂] = μ − μ̂ = ${(MU-mh).toFixed(3)}`,RL,204,C.teal,12,'left',FM);txt(g,mh>MU-0.02&&mh<MU+0.02?'zero: fit matches the truth ✓':'nonzero: p̂ is off by this much',RL,224,C.teal,11.5,'left');
   txt(g,`E_P[ϕ̃] = μ = ${MU.toFixed(3)}`,RL,254,C.red,12,'left',FM);txt(g,'never zero; says nothing about the fit',RL,274,C.red,11.5,'left');txt(g,'(with data, μ becomes z̄: Pₙϕ̂ = z̄ − μ̂)',RL,294,C.muted,10.5,'left');
   // bottom
-  const BL=60;txt(g,'Legitimacy: p̂(1 + εϕ) integrates to 1 + ε·E_p̂[ϕ].  With ϕ centered that is 1.  With ϕ̃ = z it is 1 + εμ̂: not a density.',BL,320,C.muted,12,'left');
-  txt(g,`E_p̂[ϕ̂] = 0.000     E_p̂[ϕ̃] = μ̂ = ${mh.toFixed(2)}`,BL,345,C.pen,12,'left',FM);
+  const BL=60;notes(g,H,[['Legitimacy: p̂(1 + εϕ) integrates to 1 + ε·E_p̂[ϕ].  With ϕ centered that is 1.  With ϕ̃ = z it is 1 + εμ̂: not a density.',BL,320,C.muted,12,'left'],
+    [`E_p̂[ϕ̂] = 0.000     E_p̂[ϕ̃] = μ̂ = ${mh.toFixed(2)}`,BL,345,C.pen,12,'left',FM]],50,320);
   document.getElementById('ro1').innerHTML=`<span class="k">ε</span><span>${eps}</span><span class="k">ϕ̂(z₀) = z₀ − μ̂</span><span>${(z0-mh).toFixed(3)}</span><span class="k">E_P[ϕ̂] = μ − μ̂</span><span>${(MU-mh).toFixed(3)}</span>`;
   document.getElementById('cap1').textContent='Teal (centered) predicts the pull of a point mass correctly and measures misfit; red (uncentered) does neither. Move μ̂ onto the population mean μ and E_P[ϕ̂] hits zero.';
 });
@@ -239,15 +259,16 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const mh=+document.getElementById('m3'
   const currentTilt=tilt(eps),pe=currentTilt.density,meanE=currentTilt.mean;
   const meanHat=tilt(ehat).mean;
   // top: densities and sample
-  const {xs,ys}=densityAxes(g,60,520,40,240,0.5);const p0=[],p1=[];for(let i=0;i<N;i++){p0.push([xs(Z[i]),ys(ph(Z[i]))]);p1.push([xs(Z[i]),ys(pe(Z[i]))]);}poly(g,p0,C.phat,1.6,[5,4]);poly(g,p1,C.purple,2.2);
+  const CR=g.canvas._stack?340:520; // narrower plots when stacked on a phone
+  const {xs,ys}=densityAxes(g,60,CR,40,240,0.5);const p0=[],p1=[];for(let i=0;i<N;i++){p0.push([xs(Z[i]),ys(ph(Z[i]))]);p1.push([xs(Z[i]),ys(pe(Z[i]))]);}poly(g,p0,C.phat,1.6,[5,4]);poly(g,p1,C.purple,2.2);
   txt(g,'p̂ (dashed)   →   p̂_ε ∝ p̂ · exp(ε ϕ̂)  (solid)',70,30,C.pen,13,'left',FS,true);
   const st=seg(t,0,0.3);Z3.forEach((z,i)=>{if(i<st*n){dot(g,xs(z),240-6,C.teal,2.5);}});
   line(g,xs(mh),240,xs(mh),222,C.phat,2.4);txt(g,'μ̂',xs(mh)-6,256,C.phat,12.5,'right',FS,true);line(g,xs(zbar),240,xs(zbar),216,C.teal,2.4);txt(g,'z̄',xs(zbar)+6,256,C.teal,12.5,'left',FS,true);
   if(eps!==0){line(g,xs(meanE),240,xs(meanE),210,C.purple,2.4);txt(g,'mean of p̂_ε',xs(meanE)+6,272,C.purple,12,'left',FS,true);}
   // bottom-left: the direction and the per-point scores of the fluctuated model
-  const T=290,B=380,mid=(T+B)/2;g.save();g.beginPath();g.rect(60,T,460,B-T);g.clip();line(g,60,mid,520,mid,C.grid,1);const pp=[];for(let i=0;i<N;i++)pp.push([xs(Z[i]),mid-phi(Z[i])*10]);poly(g,pp,C.purple,1.8);
+  const T=290,B=380,mid=(T+B)/2;g.save();g.beginPath();g.rect(60,T,CR-60,B-T);g.clip();line(g,60,mid,CR,mid,C.grid,1);const pp=[];for(let i=0;i<N;i++)pp.push([xs(Z[i]),mid-phi(Z[i])*10]);poly(g,pp,C.purple,1.8);
   const mPhi=tiltMeanPhi(eps);Z3.forEach((z,i)=>{if(i<st*n){const v=phi(z)-mPhi;line(g,xs(z),mid,xs(z),mid-v*10,C.teal,1);}});g.restore();
-  txt(g,'ϕ̂(z) = z − μ̂ (the direction); sticks: score of p̂_ε at each Zᵢ',60,T-8,C.purple,12.5,'left',FS,true);
+  txt(g,'ϕ̂(z) = z − μ̂ (the direction); sticks: score of p̂_ε at each Zᵢ',g.canvas._stack?20:60,T-8,C.purple,12.5,'left',FS,true);
   // right: log-likelihood in eps
   const RL=580,RR=770,RT=60,RB=240;axes(g,RL,RR,RT,RB,C.pen);txt(g,'L(ε) = Σ log p̂_ε(Zᵢ)',RL,RT-14,C.pen,13,'left',FS,true);txt(g,'ε',RR+8,RB,C.pen,13,'left',FS,true);
   const L=e=>e*sumPhi-n*Math.log(norm(e));const eL=Math.min(0,ehat)-0.6,eR=Math.max(0,ehat)+0.6;const ex=e=>RL+(RR-RL)*(e-eL)/(eR-eL);const Lmax=L(ehat),Lmin=Math.min(L(eL),L(eR));const ey=v=>RB-(RB-RT)*(v-Lmin)/(Lmax-Lmin+1e-9);
@@ -255,8 +276,8 @@ const S3=scene(3,(g,W,H,t)=>{clear(g,W,H);const mh=+document.getElementById('m3'
   const s0=scoreAt(0);const dEy=(ey(L(0.05))-ey(L(-0.05)))/(ex(0.05)-ex(-0.05));line(g,ex(0)-50,ey(L(0))-dEy*50,ex(0)+50,ey(L(0))+dEy*50,C.teal,1.6);txt(g,`L'(0) = n·Pₙϕ̂ = ${s0.toFixed(2)}`,RL,RB+30,C.teal,11.5,'left',FM);
   if(eps!==0){dot(g,ex(eps),ey(L(eps)),C.purple,6,true);}if(t>0.8){txt(g,`ε̂ = ${ehat.toFixed(3)}`,ex(ehat),RT-2,C.purple,11.5,'center',FM);}
   txt(g,'score at current ε:',RL,RB+52,C.muted,11.5,'left');txt(g,`Pₙϕ̂ − E_p̂ε[ϕ̂] = ${(scoreAt(eps)/n).toFixed(4)}`,RL,RB+70,C.purple,11.5,'left',FM);
-  const os=mh+(zbar-mh);txt(g,`plug-in μ̂ = ${mh.toFixed(3)}    Pₙϕ̂ = z̄ − μ̂ = ${(zbar-mh).toFixed(3)}`,60,410,C.pen,12,'left',FM);txt(g,`one-step μ̂ + Pₙϕ̂ = ${os.toFixed(3)}    TMLE mean(p̂_ε̂) = ${meanHat.toFixed(3)}    z̄ = ${zbar.toFixed(3)}`,60,432,C.pen,12,'left',FM);
-  txt(g,'The likelihood is climbed in the ϕ̂-direction until the empirical score is zero; the fitted mean lands on the sample mean.',60,462,C.muted,12,'left');
+  const os=mh+(zbar-mh);notes(g,H,[[`plug-in μ̂ = ${mh.toFixed(3)}    Pₙϕ̂ = z̄ − μ̂ = ${(zbar-mh).toFixed(3)}`,60,410,C.pen,12,'left',FM],[`one-step μ̂ + Pₙϕ̂ = ${os.toFixed(3)}    TMLE mean(p̂_ε̂) = ${meanHat.toFixed(3)}    z̄ = ${zbar.toFixed(3)}`,60,432,C.pen,12,'left',FM],
+    ['The likelihood is climbed in the ϕ̂-direction until the empirical score is zero; the fitted mean lands on the sample mean.',60,462,C.muted,12,'left']],50,320);
   document.getElementById('ro3').innerHTML=`<span class="k">n</span><span>${n}</span><span class="k">Pₙϕ̂ at start</span><span>${(zbar-mh).toFixed(4)}</span><span class="k">ε̂ (MLE)</span><span>${ehat.toFixed(4)}</span><span class="k">score at ε̂</span><span>${(scoreAt(ehat)/n).toExponential(1)}</span><span class="k">mean(p̂_ε̂) − z̄</span><span>${(meanHat-zbar).toExponential(1)}</span>`;
   document.getElementById('cap3').textContent=t<0.3?'Sample points arrive (teal). The initial fit p̂ has the wrong mean.':t<0.8?'Climb the likelihood along ϕ̂. Its slope at ε = 0 is n·Pₙϕ̂, so the climb is in the direction that reduces the empirical score.':'At ε̂ the empirical score is zero and the fluctuated density\'s mean equals the sample mean exactly: the one-step and TMLE agree here.';
 });
@@ -271,14 +292,14 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const lam=+document.getElementById('l4
   // eps-hat by least squares
   let num=0,den=0;for(let i=0;i<d.n;i++){const Hi=Hc(d.A[i],d.X[i]);num+=Hi*(d.Y[i]-mu(d.X[i],d.A[i]));den+=Hi*Hi;}const ehat=num/den;const eps=ehat*seg(t,0.4,0.85);
   const muE=(x,a)=>mu(x,a)+eps*Hc(a,x);
-  const L=60,R=520,T=40,B=330;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);
+  const L=60,R=g.canvas._stack?330:520,T=40,B=330;const xs=x=>L+(R-L)*(x+2)/4,ys=y=>B-(B-T)*(y+3)/15;axes(g,L,R,T,B,C.pen);for(const x of [-2,-1,0,1,2])txt(g,x,xs(x),B+14,C.muted,11,'center',FM);txt(g,'X',R+10,B,C.pen,13,'left',FS,true);
   // points with residual sticks weighted by |H|
   const st=seg(t,0,0.35);for(let i=0;i<d.n;i++){const x=d.X[i],a=d.A[i],y=d.Y[i];const col=a?C.p:C.teal;if(st>0.5){const Hi=Math.abs(Hc(a,x));g.globalAlpha=0.35;line(g,xs(x),ys(muE(x,a)),xs(x),ys(y),col,Math.min(7,0.7*Hi));g.globalAlpha=1;}dot(g,xs(x),ys(y),col,2.2);}
   // regression curves before/after
   for(const a of [1,0]){const c0=[],c1=[];for(let x=-2;x<=2.001;x+=0.05){c0.push([xs(x),ys(mu(x,a))]);c1.push([xs(x),ys(muE(x,a))]);}poly(g,c0,a?C.p:C.teal,1.4,[5,4]);poly(g,c1,a?C.p:C.teal,2.4);}
   txt(g,'dashed: initial m̂_a(x)   solid: m̂_a(x) + ε·H(a,x)',L+10,T-14,C.pen,12.5,'left',FS,true);txt(g,'stick width ∝ |H| = 1/P(observed arm | x)',L+10,T+8,C.muted,11,'left');
   // H strip
-  const HT=384,HB=436;txt(g,'clever covariate H(a,x) for each arm',L,HT-10,C.pen,12.5,'left',FS,true);line(g,L,(HT+HB)/2,R,(HT+HB)/2,C.grid,1);const h1=[],h0=[];for(let x=-2;x<=2.001;x+=0.05){h1.push([xs(x),(HT+HB)/2-Math.min(6,1/pi(x))*4]);h0.push([xs(x),(HT+HB)/2+Math.min(6,1/(1-pi(x)))*4]);}poly(g,h1,C.p,1.8);poly(g,h0,C.teal,1.8);txt(g,'A=1: 1/π(x)',R-8,HT+4,C.p,11,'right',FS,true);txt(g,'A=0: −1/(1−π(x))',R-8,HB+8,C.teal,11,'right',FS,true);
+  const HT=384,HB=436;txt(g,'clever covariate H(a,x) for each arm',L,HT-10,C.pen,12.5,'left',FS,true);line(g,L,(HT+HB)/2,R,(HT+HB)/2,C.grid,1);const h1=[],h0=[];for(let x=-2;x<=2.001;x+=0.05){h1.push([xs(x),(HT+HB)/2-Math.min(6,1/pi(x))*4]);h0.push([xs(x),(HT+HB)/2+Math.min(6,1/(1-pi(x)))*4]);}poly(g,h1,C.p,1.8);poly(g,h0,C.teal,1.8);txt(g,'A=1: 1/g(x)',R-8,HT+4,C.p,11,'right',FS,true);txt(g,'A=0: −1/(1−g(x))',R-8,HB+8,C.teal,11,'right',FS,true);
   // psi values
   let plug=0,tm=0,corr=0;for(let i=0;i<d.n;i++){const x=d.X[i];plug+=mu(x,1)-mu(x,0);tm+=muE(x,1)-muE(x,0);corr+=Hc(d.A[i],x)*(d.Y[i]-mu(x,d.A[i]));}plug/=d.n;tm/=d.n;corr/=d.n;
   let scoreE=0;for(let i=0;i<d.n;i++)scoreE+=Hc(d.A[i],d.X[i])*(d.Y[i]-muE(d.X[i],d.A[i]));scoreE/=d.n;
@@ -288,7 +309,7 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const lam=+document.getElementById('l4
   // number line: the range always contains every plotted value; labels take the first free slot above or below
   const vals=[['truth',2,C.green],['plug-in',plug,C.or],['one-step',plug+corr,C.purple],['TMLE',tm,C.purple]];
   const vmin=Math.min(...vals.map(v=>v[1])),vmax=Math.max(...vals.map(v=>v[1]));
-  const span=Math.max(0.4,vmax-vmin),lo=vmin-0.12*span,hi=vmax+0.12*span,NL=492,NX0=70,NX1=510,nx=v=>NX0+(NX1-NX0)*(v-lo)/(hi-lo);
+  const span=Math.max(0.4,vmax-vmin),lo=vmin-0.12*span,hi=vmax+0.12*span,NL=492,NX0=70,NX1=g.canvas._stack?320:510,nx=v=>NX0+(NX1-NX0)*(v-lo)/(hi-lo);
   const stp=[0.05,0.1,0.2,0.25,0.5,1].find(q=>(hi-lo)/q<=7);line(g,NX0-10,NL,NX1+10,NL,C.pen,1.2);
   for(let v=Math.ceil(lo/stp)*stp;v<=hi+1e-9;v+=stp){line(g,nx(v),NL-4,nx(v),NL+4,C.pen,1);txt(g,(+v.toFixed(2)).toString(),nx(v),NL+14,C.muted,10.5,'center',FM);}
   txt(g,'ATE',NX0-18,NL,C.muted,11,'right',FS,true);
@@ -296,7 +317,7 @@ const S4=scene(4,(g,W,H,t)=>{clear(g,W,H);const lam=+document.getElementById('l4
   g.strokeStyle=C.purple;g.lineWidth=2.2;g.beginPath();g.arc(nx(plug+corr),NL,7,0,6.283);g.stroke();dot(g,nx(tm),NL,C.purple,4.5,true);
   const slots=[NL-17,NL+29,NL-31,NL+43],used=slots.map(()=>[]);
   [...vals].sort((a,b)=>a[1]-b[1]).forEach(([name,v,col])=>{const x=clamp(nx(v),NX0+10,NX1-10);let k=slots.findIndex((_,i)=>used[i].every(u=>Math.abs(u-x)>62));if(k<0)k=3;used[k].push(x);txt(g,name,x,slots[k],col,11.5,'center',FS,true);});
-  txt(g,'The pull is largest where H is largest: controls at high x, treated at low x. The regression moves most where the arm is rare.',60,553,C.muted,12,'left');
+  notes(g,H,[['The pull is largest where H is largest: controls at high x, treated at low x. The regression moves most where the arm is rare.',60,553,C.muted,12,'left']],50,320);
   document.getElementById('ro4').innerHTML=`<span class="k">Pₙ H(Y−m̂)</span><span>${corr.toFixed(4)}</span><span class="k">ε̂</span><span>${ehat.toFixed(4)}</span><span class="k">Pₙ H(Y−m_ε̂)</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=Hc(d.A[i],d.X[i])*(d.Y[i]-mu(d.X[i],d.A[i])-ehat*Hc(d.A[i],d.X[i]));return (s/d.n).toExponential(1)})()}</span><span class="k">plug-in</span><span>${plug.toFixed(3)}</span><span class="k">TMLE</span><span>${(()=>{let s=0;for(let i=0;i<d.n;i++)s+=mu(d.X[i],1)+ehat*Hc(1,d.X[i])-mu(d.X[i],0)-ehat*Hc(0,d.X[i]);return (s/d.n).toFixed(3)})()}</span>`;
   document.getElementById('cap4').textContent=t<0.35?'Cohort and the initial (shrunk) outcome model. Residual sticks are as wide as the clever covariate is large.':t<0.85?'Fluctuate m̂ along H by ε. Where H is large the curve moves a lot; where the arm is common it barely moves.':'At ε̂ the score equation Pₙ H(Y − m_ε) = 0 holds. Plug the fluctuated regression into g-computation: that is the TMLE.';
 });

@@ -4,8 +4,8 @@
 #
 # In practice: AIPW::AIPW is an R6 class, AIPW$new(Y, A, W, Q.SL.library, g.SL.library,
 # k_split = 10)$fit()$summary(), which cross-fits SuperLearner nuisances for you.
-# tmle::tmle() cross-validates its Super Learner but by default fits the final
-# nuisances on all data; lmtp::lmtp_tmle() and lmtp::lmtp_sdr() cross-fit through
+# tmle::tmle() uses cross-validated initial outcome predictions by default
+# (cvQinit = TRUE); lmtp::lmtp_tmle() and lmtp::lmtp_sdr() cross-fit through
 # their `folds` argument. Learners come from SuperLearner::SuperLearner or sl3.
 library(splines)
 set.seed(20260925)

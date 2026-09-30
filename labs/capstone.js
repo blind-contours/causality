@@ -51,7 +51,7 @@
   root.innerHTML = `
 <section class="lab-step" data-title="The question"><h2 tabindex="-1">One question, asked precisely</h2>
 <p>A heart team asks: for patients like ours, does implanting the new transcatheter device when a patient becomes eligible lower the chance of death or heart-failure hospitalisation over the next year, compared with standard care?</p>
-<aside class="world-card"><b>This lesson's world</b> ${n.toLocaleString("en-US")} simulated registry patients with five baseline covariates (age, sex, LVEF, eGFR, STS-PROM) · outcome: death or heart-failure hospitalisation within 12 months, and event-free months · truth: known exactly, because the world is simulated</aside>
+<aside class="world-card"><b>This lesson's world</b> ${n.toLocaleString("en-US")} simulated registry patients with five baseline covariates (age, sex, LVEF, eGFR, STS-PROM) · outcome: death or heart-failure hospitalisation within 12 months, and event-free months · truth: known to very high Monte Carlo precision, because the data-generating mechanism is known</aside>
 <p>A registry does not randomise. Here sicker patients received the device more often, so a raw comparison mixes the device's effect with who received it.</p>
 <p>Start with one patient. Picture her twice, once under each strategy, from the day she becomes eligible.</p>
 <div class="figure"><svg id="cap-one" role="img" aria-label="One patient's two possible years. Top lane: device implanted at eligibility, event-free to 12 months. Bottom lane: standard care; she crosses over to the device at month 5 and has a heart-failure hospitalisation at month 8, which counts against standard care under the treatment-policy strategy."></svg>

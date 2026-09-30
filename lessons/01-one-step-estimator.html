@@ -78,7 +78,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <div class="eq">ψ(P̂) − ψ(P) = −P ϕ̂ + R<sub>2</sub>(P̂, P)     ⇒     <b>ψ<sub>one-step</sub> = ψ(P̂) + P<sub>n</sub> ϕ̂</b>  ≈  ψ(P) + R<sub>2</sub> + (P<sub>n</sub> − P) ϕ̂</div>
 <div class="act">
   <div class="stage">
-    <canvas id="c1" width="760" height="420"></canvas>
+    <canvas id="c1" width="760" height="420" data-panels="0 0 380 455"></canvas>
     <div class="caption" id="cap1"></div>
     <div class="legend">
       <span><i class="sw" style="background:var(--plug)"></i>plug-in ψ(P̂)</span>
@@ -110,7 +110,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <p>Watch where the correction comes from: it is the inverse-propensity-weighted average of the outcome model's own residuals.</p>
 <div class="act">
   <div class="stage">
-    <canvas id="c2" width="760" height="520"></canvas>
+    <canvas id="c2" width="760" height="520" data-panels="0 0 380 505"></canvas>
     <div class="caption" id="cap2"></div>
     <div class="legend">
       <span><i class="sw" style="background:var(--treated)"></i>treated (A=1)</span>
@@ -145,7 +145,7 @@ button:focus-visible{outline:2px solid var(--step);outline-offset:2px}
 <div class="predict" data-options="Only the panel where both models are wrong|Every panel with at least one wrong model|All four panels" data-answer="0" data-hint="AIPW is doubly robust: one correct nuisance model is enough to remove the first-order bias. Only when both are wrong does the purple histogram leave the truth.">In which panels will the AIPW (purple) histogram be centred away from the true ATE?</div>
 <div class="lab-card" data-simulation="one-step" data-layout="grid"></div>
 <p class="note">Centred is not the same as covered. In the default run (fitted, cross-fitted, n = 400, 300 samples) the outcome-only panel covers about 92%, a little short, because its influence-function SE (0.083) is smaller than the actual spread (0.089). The propensity-only panel is centred but over-covers: its IF-based SE averages 0.142 while the estimates actually spread with SD 0.096, because the formula treats the fitted propensity as if it were known, and with a wrong outcome model, estimating the propensity removes variance that the formula still counts. Getting a standard error you can report is its own problem: see <a href="20-standard-errors.html">Standard errors you can report</a>.</p>
-<h2>Explain the correction</h2><p>The tangent toward the truth has slope P₀ϕ̂; the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and ϕ̂ converging to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁)/ĝ + (m̂₀−m₀)/(1−ĝ)}]  (g, m<sub>a</sub>: the true functions)<br>ψ(P̂)−ψ₀ = −P₀ϕ̂ + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
+<h2>Explain the correction</h2><p class="callback"><strong>You have now derived the estimator you used in <a href="16-rct-adjustment.html">Your trial, adjusted</a>.</strong> There, randomization fixed g, so the correction term had the right average whatever outcome model you fit. Its "Preview" boxes should now read as a summary of this lesson.</p><p>The tangent toward the truth has slope P₀ϕ̂; the plug-in's first-order error has the opposite sign. The one-step adds an empirical estimate of that slope. A small nuisance-error product gives double robustness of the point estimator. Efficient inference additionally requires a negligible remainder, empirical-process control (often through cross-fitting), and ϕ̂ converging to the efficient influence function.</p><div class="eq">R₂ = E₀[(ĝ−g₀){(m̂₁−m₁)/ĝ + (m̂₀−m₀)/(1−ĝ)}]  (g, m<sub>a</sub>: the true functions)<br>ψ(P̂)−ψ₀ = −P₀ϕ̂ + R₂</div><p>TMLE changes the fitted distribution and plugs in; the one-step corrects the numerical estimate. Suitable versions share a first-order expansion under regularity conditions, without being exactly equal in every sample.</p>
 <div data-r="one-step-ate"></div>
 </div>
 
@@ -209,7 +209,8 @@ function curveParams(){
   return {dl,n,truth,first,rem,plug,noise:noise1*1.1/Math.sqrt(n)};
 }
 function draw1(){
-  const P=curveParams(); const W=+c1.dataset.w||c1.width,H=+c1.dataset.h||c1.height;
+  // Phones (panels stacked by shared/visuals.js): a narrower, slightly taller chart with the end labels on their own rows.
+  const P=curveParams(),st=!!c1._stack; const W=st?380:+c1.dataset.w||c1.width,H=(+c1.dataset.h||c1.height)+(st?20:0);
   const L=70,R=W-40,T=30,B=H-50;
   g1.clearRect(0,0,W,H);
   const ymin=0.9,ymax=2.35; const xs=e=>L+(R-L)*e, ys=v=>B-(B-T)*(v-ymin)/(ymax-ymin);
@@ -218,8 +219,8 @@ function draw1(){
   for(let v=1;v<=2.25;v+=0.25){g1.beginPath();g1.moveTo(L,ys(v));g1.lineTo(R,ys(v));g1.stroke();}
   g1.fillStyle=css('--muted');g1.font='12px "IBM Plex Mono",monospace';g1.textAlign='right';
   for(let v=1;v<=2.25;v+=0.25)g1.fillText(v.toFixed(2),L-8,ys(v)+4);
-  g1.textAlign='left';g1.fillText('ε = 0  (P̂, your fit)',xs(0),B+20);g1.textAlign='right';g1.fillText('ε = 1  (P, the truth)',xs(1),B+20);
-  g1.textAlign='center';g1.fillText('ψ(P̂ + ε(P − P̂))',(L+R)/2,B+38);
+  g1.textAlign='left';g1.fillText('ε = 0  (P̂, your fit)',xs(0),B+20);g1.textAlign='right';g1.fillText('ε = 1  (P, the truth)',xs(1),B+(st?38:20));
+  g1.textAlign='center';g1.fillText('ψ(P̂ + ε(P − P̂))',(L+R)/2,B+(st?56:38));
   // truth line
   g1.setLineDash([4,4]);g1.strokeStyle=css('--truth');g1.beginPath();g1.moveTo(L,ys(P.truth));g1.lineTo(R,ys(P.truth));g1.stroke();g1.setLineDash([]);
   // curve: psi(e) = plug + first*e + rem*e^2
@@ -279,7 +280,8 @@ const STEPS=['Here is the cohort. Treated patients are concentrated at high X, w
  'Average the weighted residuals. That single number is Pₙϕ̂, the correction. Add it to the plug-in: the one-step. Compare to the truth on the number line.'];
 function draw2(){
   E2=estimate(D2,+lam.value,+kap.value);
-  const W=+c2.dataset.w||c2.width,H=+c2.dataset.h||c2.height; g2.clearRect(0,0,W,H);
+  // Phones (panels stacked by shared/visuals.js): the same figure drawn narrower.
+  const st=!!c2._stack,W=st?380:+c2.dataset.w||c2.width,H=+c2.dataset.h||c2.height; g2.clearRect(0,0,W,H);
   const L=60,R=W-30,T=20,B=H-150; // scatter area
   const ymin=-4,ymax=12; const xs=x=>L+(R-L)*(x+2)/4, ys=y=>B-(B-T)*(y-ymin)/(ymax-ymin);
   g2.strokeStyle=css('--grid');g2.lineWidth=1;for(let v=-4;v<=12;v+=2){g2.beginPath();g2.moveTo(L,ys(v));g2.lineTo(R,ys(v));g2.stroke();}
@@ -310,7 +312,7 @@ function draw2(){
   g2.fillText('average treatment effect',(L+R)/2,NL+40);
   // truth marker
   g2.strokeStyle=css('--truth');g2.lineWidth=2;g2.beginPath();g2.moveTo(nx(2),NL-22);g2.lineTo(nx(2),NL+8);g2.stroke();label(g2,'truth 2.00',nx(2),NL-28,css('--truth'),'center');
-  if(s2>=1){dot(g2,nx(E2.plug),NL,css('--plug'),7);label(g2,'plug-in '+E2.plug.toFixed(2),nx(E2.plug),NL-40+(Math.abs(E2.plug-2)<0.25?-14:0),css('--plug'),'center');}
+  if(s2>=1){dot(g2,nx(E2.plug),NL,css('--plug'),7);label(g2,'plug-in '+E2.plug.toFixed(2),nx(E2.plug),NL-40+(Math.abs(E2.plug-2)<(st?0.9:0.25)?-14:0),css('--plug'),'center');}
   if(s2>=4){arrow(g2,nx(E2.plug),NL-12,nx(E2.os),NL-12,css('--step'));dot(g2,nx(E2.os),NL,css('--step'),7);
     label(g2,'one-step '+E2.os.toFixed(2)+'  (± '+(1.96*E2.se).toFixed(2)+')',nx(E2.os),NL+58,css('--step'),'center');
     // CI bar
