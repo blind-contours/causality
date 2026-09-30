@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Describe your randomized trial and get back the estimand, draft SAP text for a covariate-adjusted primary analysis, sample size, simulated operating characteristics, reviewer questions, and runnable R code."
+    />
+    <title>For your trial · Causality</title>
+    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="../shared/labs.css" />
+    <link rel="stylesheet" href="../shared/course.css" />
+    <link rel="stylesheet" href="trial.css" />
+    <script src="../science/core.js"></script>
+    <script src="../science/trial.js"></script>
+    <script src="../science/trial-sap.js"></script>
+  </head>
+  <body class="trial-page">
+    <main class="wrap">
+      <nav class="trial-top" aria-label="Site">
+        <a href="../index.html">← Course map</a>
+        <span class="trial-top-links"
+          ><a href="../lessons/16-rct-adjustment.html">Why adjustment works</a
+          ><a href="../lessons/17-intercurrent-events.html">Intercurrent events</a></span
+        >
+      </nav>
+      <div class="eyebrow">For your trial · regulatory-facing</div>
+      <h1>Take it to your SAP</h1>
+      <p class="lede">
+        Describe a randomized trial. Get back the estimand, draft SAP text for a
+        covariate-adjusted primary analysis, the sample size it buys you, simulated
+        operating characteristics, the questions a reviewer will ask, and R code
+        that runs.
+      </p>
+
+      <aside class="trial-scope">
+        <b>What this covers today</b>
+        Two-arm randomized trials with a continuous or binary endpoint, analyzed by
+        covariate-adjusted standardization, the approach described in FDA's 2023
+        covariate adjustment guidance. Time-to-event endpoints and externally
+        controlled designs are next. Everything here is a starting draft for the
+        trial statistician, not regulatory advice.
+      </aside>
+
+      <div class="trial-presets" role="group" aria-label="Start from an example">
+        <span>Start from an example:</span>
+        <button type="button" data-preset="device">Device trial, quality-of-life score</button>
+        <button type="button" data-preset="drug">Drug trial, binary response</button>
+        <button type="button" data-preset="blank">Blank</button>
+      </div>
+
+      <form id="trial-form" autocomplete="off" novalidate>
+        <!-- 1. The question -->
+        <section class="trial-step" aria-labelledby="h-question">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h2 id="h-question">The question</h2>
+            <p class="step-why">
+              ICH E9(R1) defines an estimand by its population, treatment, endpoint, intercurrent
+              events and summary measure. Fill them in plainly; the SAP text uses your words.
+            </p>
+            <div class="grid-2">
+              <label>Trial name <input name="trialName" placeholder="e.g. TRIAL-X" /></label>
+              <label
+                >Product
+                <select name="product">
+                  <option value="drug">Drug or biologic</option>
+                  <option value="device">Medical device</option>
+                </select></label
+              >
+              <label class="span-2"
+                >Population <input name="population" placeholder="Who is eligible" /></label
+              >
+              <label>Treatment <input name="treatment" placeholder="Investigational arm" /></label>
+              <label>Control <input name="control" placeholder="Comparator arm" /></label>
+              <label>Endpoint <input name="endpointName" placeholder="What is measured" /></label>
+              <label>Timepoint <input name="timepoint" placeholder="e.g. 12 months" /></label>
+              <label
+                >Endpoint type
+                <select name="endpoint">
+                  <option value="continuous">Continuous</option>
+                  <option value="binary">Binary (responder, event)</option>
+                </select></label
+              >
+              <label data-when="binary"
+                >Summary measure
+                <select name="measure">
+                  <option value="rd">Risk difference</option>
+                  <option value="rr">Risk ratio</option>
+                  <option value="or">Odds ratio</option>
+                </select></label
+              >
+            </div>
+            <fieldset class="ie">
+              <legend>Intercurrent events</legend>
+              <p class="hint">
+                Events after randomization that change how the endpoint is read, such as
+                discontinuation, rescue therapy, crossover, or death.
+              </p>
+              <div id="ie-rows"></div>
+              <button type="button" id="ie-add">Add an intercurrent event</button>
+            </fieldset>
+            <div class="estimand-card" id="estimand-card" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <!-- 2. The numbers -->
+        <section class="trial-step" aria-labelledby="h-numbers">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h2 id="h-numbers">The numbers</h2>
+            <p class="step-why">
+              The one number that decides the gain is R²: how much of the endpoint's variance your
+              baseline covariates explain. If the endpoint is the follow-up value and its correlation
+              with baseline is r, R² is about r². If the endpoint is change from baseline (with similar
+              variances at both times), R² is only about (1 − r)/2, because the change score has
+              already used part of the baseline.
+            </p>
+            <div class="grid-3">
+              <label data-when="continuous">Effect to detect <input name="delta" type="number" step="any" /></label>
+              <label data-when="continuous">Outcome SD <input name="sd" type="number" step="any" min="0" /></label>
+              <label data-when="binary">Control rate <input name="p0" type="number" step="0.01" min="0.01" max="0.99" /></label>
+              <label data-when="binary">Treatment rate <input name="p1" type="number" step="0.01" min="0.01" max="0.99" /></label>
+              <label class="alpha"
+                >Two-sided α
+                <select name="alpha">
+                  <option value="0.05">0.05 (one-sided 0.025)</option>
+                  <option value="0.1">0.10 (one-sided 0.05)</option>
+                  <option value="0.01">0.01</option>
+                </select></label
+              >
+              <label
+                >Power
+                <select name="power">
+                  <option value="0.8">80%</option>
+                  <option value="0.85">85%</option>
+                  <option value="0.9">90%</option>
+                </select></label
+              >
+              <label
+                >Allocation (treatment:control)
+                <select name="ratio">
+                  <option value="1">1:1</option>
+                  <option value="2">2:1</option>
+                  <option value="3">3:1</option>
+                </select></label
+              >
+              <label>Not evaluable (%) <input name="dropoutPct" type="number" step="1" min="0" max="60" /></label>
+            </div>
+            <label class="r2" for="r2"
+              ><span>R² explained by baseline covariates: <output id="r2-out" for="r2"></output></span>
+              <input id="r2" name="r2" type="range" min="0" max="0.7" step="0.01"
+            /></label>
+            <div class="grid-2">
+              <label class="span-2"
+                >Where the R² comes from
+                <input name="r2Source" placeholder="e.g. the Phase 2 trial, pooled over arms"
+              /></label>
+              <label
+                >Baseline covariates
+                <input name="covariates" placeholder="Comma separated, e.g. baseline score, age"
+              /></label>
+              <label
+                >Stratification factors
+                <input name="strata" placeholder="Comma separated, or leave blank"
+              /></label>
+            </div>
+
+            <div class="size-out" id="size-out" aria-live="polite"></div>
+
+            <fieldset class="sizing">
+              <legend>How to size the trial</legend>
+              <label class="choice"
+                ><input type="radio" name="sizing" value="conservative" />
+                <span
+                  ><b>Conservative.</b> Size for the unadjusted analysis and let adjustment buy extra
+                  power. FDA (2023) notes this is often the more conservative choice.</span
+                ></label
+              >
+              <label class="choice"
+                ><input type="radio" name="sizing" value="adjusted" />
+                <span
+                  ><b>Bank the gain.</b> Size for the adjusted analysis and enrol fewer patients.
+                  Needs a documented, credible R².</span
+                ></label
+              >
+            </fieldset>
+            <figure class="sens" id="sens"></figure>
+          </div>
+        </section>
+
+        <!-- 3. Does it hold up? -->
+        <section class="trial-step" aria-labelledby="h-oc">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h2 id="h-oc">Does it hold up?</h2>
+            <p class="step-why">
+              Simulate the trial you planned, under no effect, under the planned effect, and when the
+              working model misses the true shape. Reviewers ask for exactly this table.
+            </p>
+            <div class="btns">
+              <button type="button" class="primary" id="oc-run">Simulate 1,000 trials per scenario</button>
+              <span class="oc-status" id="oc-status" aria-live="polite"></span>
+            </div>
+            <div class="oc-bar" hidden><i id="oc-bar"></i></div>
+            <div id="oc-out"></div>
+          </div>
+        </section>
+
+        <!-- 4. SAP text -->
+        <section class="trial-step" aria-labelledby="h-sap">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h2 id="h-sap">The SAP text</h2>
+            <p class="step-why">
+              Paste it into your SAP and edit. It updates as you change anything above, and includes
+              the simulation table once you have run it.
+            </p>
+            <div class="btns">
+              <button type="button" class="primary" id="sap-copy">Copy as Markdown</button>
+              <button type="button" id="sap-download">Download .md</button>
+              <button type="button" id="share">Copy a link to this trial</button>
+              <span class="copied" id="sap-msg" aria-live="polite"></span>
+            </div>
+            <article class="sap-doc" id="sap-doc"></article>
+          </div>
+        </section>
+
+        <!-- 5. Reviewer questions -->
+        <section class="trial-step" aria-labelledby="h-rev">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h2 id="h-rev">What a reviewer will ask</h2>
+            <p class="step-why">The questions change with your choices. Each answer names its source.</p>
+            <div id="rev"></div>
+          </div>
+        </section>
+
+        <!-- 6. R -->
+        <section class="trial-step" aria-labelledby="h-r">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <h2 id="h-r">The R script</h2>
+            <p class="step-why">
+              Base R, no packages. It runs as is on example data with your covariate names; swap in the
+              locked analysis dataset.
+            </p>
+            <div class="btns">
+              <button type="button" class="primary" id="r-copy">Copy R</button>
+              <button type="button" id="r-download">Download .R</button>
+              <span class="copied" id="r-msg" aria-live="polite"></span>
+            </div>
+            <pre class="r-code" id="r-code" tabindex="0"></pre>
+          </div>
+        </section>
+      </form>
+
+      <p class="sources">
+        Sources:
+        <a href="https://www.fda.gov/media/148910/download"
+          >FDA (2023), Adjusting for Covariates in Randomized Clinical Trials for Drugs and Biological
+          Products</a
+        >;
+        <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf"
+          >ICH (2019), E9(R1) Addendum on Estimands and Sensitivity Analysis</a
+        >;
+        <a href="https://www.ema.europa.eu/en/adjustment-baseline-covariates-clinical-trials-scientific-guideline"
+          >EMA (2015), Guideline on adjustment for baseline covariates</a
+        >;
+        <a href="https://doi.org/10.1002/sim.3113">Tsiatis, Davidian, Zhang and Lu (2008)</a>;
+        <a href="https://doi.org/10.1080/01621459.2022.2049278">Ye, Shao, Yi and Zhao (2023)</a>.
+        Sample sizes use large-sample normal approximations; the simulation summarizes the covariates as
+        one prognostic score. Check both against your own trial before relying on them.
+      </p>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

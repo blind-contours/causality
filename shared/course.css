@@ -816,3 +816,10 @@ details.go-deeper[open] > summary {
 details.go-deeper.preview > summary {
   color: var(--stage, var(--purple));
 }
+
+/* Callback: a short pointer from a lesson to a related lesson or tool. */
+p.callback {
+  border-left: 3px solid var(--stage, var(--purple));
+  padding: 6px 0 6px 12px;
+  margin: 22px 0;
+}

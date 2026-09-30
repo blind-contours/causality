@@ -29,6 +29,8 @@ Twenty-two core lessons in eight units, plus an elective branch. `shared/curricu
 7. **Return to survival** (20 to 21): KM, censoring and RMST vs hazard ratios; targeted survival curves and ΔRMST with IPCW, the survival influence function, TMLE and a double-robustness experiment with partly wrong models.
 8. **Put it all together** (22): an emulated trial end to end, the main causal workflow used in order (estimand, protocol, positivity, a small Super Learner with cross-fitting, AIPW and TMLE, E-value, SAP paragraph).
 
+**For your trial** (`trial/`): a regulatory-facing SAP builder for two-arm randomized trials with a continuous or binary endpoint. Describe the trial and get the ICH E9(R1) estimand, draft SAP text for a covariate-adjusted (standardization) primary analysis following FDA (2023), adjusted and unadjusted sample sizes with an R² sensitivity curve, simulated operating characteristics (type I error, power, coverage, and a misspecified-model stress case), reviewer questions with sources, and a base R script. State is kept in a shareable link. Time-to-event and externally controlled designs are planned.
+
 Entry points: a placement quiz on the landing page, a 45-minute tour (`tour.html`) and a printable teacher's guide (`guide/`).
 
 Estimator lessons carry a "Now in R" drawer (`shared/r-drawer.js`, scripts in `examples/r/`, base R only, with their verified output).
@@ -48,6 +50,7 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 | `science/interference.js` | Exact eight-unit interference model: enumeration of every assignment under Bernoulli, complete and cluster designs; exposure support; exact design contrasts and estimands |
 | `science/marketplace.js` | Two-zone shared-fleet simulator (specified minute loop), request and switchback designs, estimators, sharp-null randomization test, full-policy reference, repeated experiments, and the validated finite-history benchmark |
 | `examples/marketplace/` | Python port of the simulator checked against a shared fixture, SQL metric construction with unserved requests in the denominator, the simulation grid, and the report |
+| `science/trial.js`, `science/trial-sap.js` | For your trial: planning variances and sample sizes by quadrature, the operating-characteristics simulator, and the SAP text, reviewer questions and R script builders |
 | `science/simulation-worker.js` | Seeded repeated experiments, progress messages, immutable run configuration |
 | `labs/` | Laboratory state, controls and linked visual representations; reusable simulation panel |
 | `shared/curriculum.js` | Unit order, roadmap stages, prerequisites and retrieval questions |

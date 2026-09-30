@@ -935,3 +935,37 @@ svg.river.settled .station {
 svg.river.settled .trib {
   opacity: 0.85 !important;
 }
+
+/* For your trial: the regulatory-facing tool, below the route. */
+.for-trial {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 28px;
+  margin: 40px 0 8px;
+  padding: 20px 22px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--s-question);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.for-trial h2 {
+  margin: 4px 0 6px;
+}
+.for-trial p {
+  margin: 0;
+  color: var(--muted);
+}
+.for-trial .course-btn {
+  font-size: 15px;
+  padding: 11px 18px;
+}
+@media (max-width: 640px) {
+  .for-trial {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .for-trial .course-btn {
+    justify-self: start;
+  }
+}

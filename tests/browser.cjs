@@ -121,6 +121,7 @@ async function main() {
   const files = [
     "index.html",
     "glossary.html",
+    "trial/index.html",
     ...fs
       .readdirSync(path.join(root, "lessons"))
       .filter((f) => f.endsWith(".html"))
@@ -141,7 +142,7 @@ async function main() {
       errors.length = 0;
       await nav(file);
       await ev(
-        `Causality.event({type:'settings',value:{theme:${JSON.stringify(theme)},mode:'explore'}});document.documentElement.dataset.theme=${JSON.stringify(theme)};document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'))`,
+        `window.Causality&&Causality.event({type:'settings',value:{theme:${JSON.stringify(theme)},mode:'explore'}});document.documentElement.dataset.theme=${JSON.stringify(theme)};document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'))`,
       );
       await delay(40);
       const info = await ev(
@@ -201,7 +202,7 @@ async function main() {
   });
   await nav("lessons/10-canonical-gradient.html");
   await ev(
-    `Causality.event({type:'settings',value:{mode:'explore',theme:'light'}});document.body.dataset.mode='explore';document.documentElement.dataset.theme='light';window.dispatchEvent(new Event('causality:settings'))`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'explore',theme:'light'}});document.body.dataset.mode='explore';document.documentElement.dataset.theme='light';window.dispatchEvent(new Event('causality:settings'))`,
   );
   await click("#reference-example");
   report.checks.projection = await ev(
@@ -340,7 +341,7 @@ async function main() {
     "histogram total missing",
   );
   await ev(
-    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.querySelector('.sim-results').scrollIntoView({block:'center'})`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.querySelector('.sim-results').scrollIntoView({block:'center'})`,
   );
   await shot("simulation-results");
   await ev(
@@ -369,13 +370,13 @@ async function main() {
     mobile: false,
   });
   await ev(
-    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.getElementById('survival-plot').scrollIntoView({block:'start'})`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.getElementById('survival-plot').scrollIntoView({block:'start'})`,
   );
   await shot("survival-mobile");
   // Exercise the guided route, deep links, keyboard camera and a real animation clock.
   await nav("lessons/10-canonical-gradient.html");
   await ev(
-    `Causality.event({type:'settings',value:{mode:'guided'}});document.body.dataset.mode='guided';window.dispatchEvent(new Event('causality:settings'));location.hash='step-4'`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'guided'}});document.body.dataset.mode='guided';window.dispatchEvent(new Event('causality:settings'));location.hash='step-4'`,
   );
   await delay(80);
   assert(
@@ -509,7 +510,7 @@ async function main() {
   );
   await nav("lessons/10-canonical-gradient.html");
   await ev(
-    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.getElementById('restricted').checked=true;document.getElementById('restricted').dispatchEvent(new Event('input',{bubbles:true}))`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'));document.getElementById('restricted').checked=true;document.getElementById('restricted').dispatchEvent(new Event('input',{bubbles:true}))`,
   );
   await delay(120);
   assert(
@@ -541,7 +542,7 @@ async function main() {
   // Figure settings round-trip through the laboratory store: Share carries them, Reset clears them.
   await nav("lessons/11-inference-lab.html");
   await ev(
-    `Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'))`,
+    `window.Causality&&Causality.event({type:'settings',value:{mode:'explore'}});document.body.dataset.mode='explore';window.dispatchEvent(new Event('causality:settings'))`,
   );
   await ev(
     `(()=>{const s=document.querySelector('[data-figure=dr-plane] select');s.value='g';s.dispatchEvent(new Event('change',{bubbles:true}));const p=document.querySelector('[data-figure=dr-plane] .fig-player input');p.value=1;p.dispatchEvent(new Event('input',{bubbles:true}));const l=document.querySelector('[data-figure=crossfit] select');l.value='linear';l.dispatchEvent(new Event('change',{bubbles:true}));return 1})()`,
@@ -605,7 +606,7 @@ async function main() {
   await click(".reset-lab");
   await nav("lessons/00-causal-roadmap.html#" + sharedQuestion);
   assert(await ev(`document.getElementById('target').value==='atc' && +document.getElementById('estimand-horizon').value===6`), "Shared estimand configuration did not restore the scene");
-  await ev(`Causality.event({type:'settings',value:{mode:'guided'}});document.body.dataset.mode='guided';window.dispatchEvent(new Event('causality:settings'));location.hash='estimand-risk'`);
+  await ev(`window.Causality&&Causality.event({type:'settings',value:{mode:'guided'}});document.body.dataset.mode='guided';window.dispatchEvent(new Event('causality:settings'));location.hash='estimand-risk'`);
   await delay(60);
   assert(await ev(`[...document.querySelectorAll('.lab-step')].filter(p=>!p.hidden).length===1 && !document.getElementById('estimand-risk').hidden`), "Risk deep link did not select its guided step");
   await ev(`location.hash='estimand-survival'`); await delay(60);
@@ -631,6 +632,31 @@ async function main() {
   await ev(`document.querySelector('.practice .answer').value='4.8'`); await click(".practice .check");
   assert((await ev(`document.querySelector('.practice .feedback').textContent`)).startsWith("Correct"), "ATT transfer answer was not accepted");
   report.checks.estimands = "Population weights, equal effects, absolute/relative risks, zero-risk guard, delayed survival, saved/restored/shared questions, guided deep links, playback, reduced motion, reset, and transfer passed.";
+  // For your trial: presets, the binary odds-ratio path, a short simulation feeding the SAP text,
+  // reviewer questions that react to the product type, and a shareable link that restores state.
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 900, deviceScaleFactor: 1, mobile: false });
+  await nav("trial/index.html");
+  await click('[data-preset="drug"]');
+  assert(await ev(`!document.querySelector('[name=p0]').closest('label').hidden && document.querySelector('[name=delta]').closest('label').hidden`), "Binary preset should show rates and hide the continuous effect");
+  await ev(`(()=>{const s=document.querySelector('[name=measure]');s.value='or';s.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
+  assert((await ev(`document.getElementById('sap-doc').textContent`)).includes("non-collapsible"), "Odds ratio SAP text must explain non-collapsibility");
+  const sizes = await ev(`[...document.querySelectorAll('.size-n b')].map(b=>+b.textContent.replace(/,/g,''))`);
+  assert(sizes.length === 2 && sizes[1] < sizes[0], "Adjusted sample size should be smaller than unadjusted: " + sizes);
+  assert(!(await ev(`[...document.querySelectorAll('.rev-q summary')].some(s=>/device trial/.test(s.textContent))`)), "Drug preset should not ask the device question");
+  await ev(`(()=>{const s=document.querySelector('[name=product]');s.value='device';s.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
+  assert(await ev(`[...document.querySelectorAll('.rev-q summary')].some(s=>/device trial/.test(s.textContent))`), "Device product should add the CDRH question");
+  await click("#oc-run");
+  await ev(`new Promise(r=>{const t=setInterval(()=>{if(CausalTrialPage.oc){clearInterval(t);r(true)}},100)})`);
+  assert((await ev(`document.getElementById('sap-doc').textContent`)).includes("Operating characteristics"), "The SAP text should include the simulation table after a run");
+  assert((await ev(`document.querySelectorAll('.oc-table tbody tr').length`)) === 6, "Operating characteristics table should have six rows");
+  assert((await ev(`document.documentElement.scrollWidth`)) <= 391, "For your trial overflows at 390 after the simulation");
+  const link = await ev(`location.href`);
+  await nav("trial/index.html#t=");
+  await cdp("Page.navigate", { url: link });
+  await delay(400);
+  assert(await ev(`document.querySelector('[name=measure]').value==='or' && document.querySelector('[name=product]').value==='device'`), "Share link should restore the trial");
+  report.checks.trial = "Presets, odds-ratio SAP text, sample sizes, device reviewer question, simulation into the SAP, phone width and share link passed.";
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   report.checks.interaction =
     "Guided and legacy navigation, deep links, shared configurations, partial construction, keyboard camera, pause/resume and reduced motion passed.";
   assert(
