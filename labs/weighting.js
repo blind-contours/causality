@@ -13,28 +13,6 @@
   const byId = (id) => document.getElementById(id);
   const f = (n, places = 2) => n === null ? "not defined" : n.toFixed(places);
   const pct = (n) => n === null ? "not defined" : (100 * n).toFixed(1) + "%";
-  // The reading route stays separate from laboratory and course progress state.
-  const chapters = [...document.querySelectorAll(".flow-chapter")];
-  const routeLinks = [...document.querySelectorAll(".basics-contents a")];
-  function markChapter(id) {
-    routeLinks.forEach((a) => {
-      if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "location");
-      else a.removeAttribute("aria-current");
-    });
-  }
-  markChapter(chapters[0].id);
-  if ("IntersectionObserver" in window) {
-    const visible = new Set();
-    const routeObserver = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) visible.add(entry.target);
-        else visible.delete(entry.target);
-      }
-      const current = [...visible].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
-      if (current) markChapter(current.id);
-    }, { rootMargin: "-15% 0px -55% 0px" });
-    chapters.forEach((el) => routeObserver.observe(el));
-  }
   function openAnchor() {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
@@ -44,8 +22,6 @@
     for (let parent = target.parentElement; parent; parent = parent.parentElement)
       if (parent.tagName === "DETAILS") parent.open = true;
     if (insideReveal) requestAnimationFrame(() => target.scrollIntoView({ block: "start", behavior: "auto" }));
-    const chapter = target.closest(".flow-chapter");
-    if (chapter) markChapter(chapter.id);
   }
   window.addEventListener("hashchange", openAnchor);
   window.addEventListener("load", openAnchor, { once: true });
@@ -64,6 +40,7 @@
     const cfg = state.get(), pop = W.population(cfg);
     byId("weight-model-status").textContent = (cfg.scoreMode === "correct" ? "Correct treatment probabilities" : "Constant propensity 0.5") +
       " · " + (cfg.weightMode === "stabilized" ? "stabilized weights" : "unstabilized weights");
+    byId("weight-model-status").hidden = cfg.scoreMode === "correct" && cfg.weightMode === "unstabilized";
     byId("p-high-value").textContent = pct(cfg.pHigh);
     byId("g-low-value").textContent = f(cfg.gLow);
     byId("g-high-value").textContent = f(cfg.gHigh);
@@ -73,9 +50,10 @@
       bar("Untreated: before weighting", pop.arms[0].highShare) +
       bar("Treated: after weighting", pop.arms[1].weightedHighShare) +
       bar("Untreated: after weighting", pop.arms[0].weightedHighShare);
-    const results = [["Observed mean difference", pop.naive], ["Weighted mean difference", pop.ipw], ["Target ATE", pop.truth], ["Largest weight", pop.maxWeight]];
+    const results = [["Observed mean difference", pop.naive], ["Weighted mean difference", pop.ipw]];
     byId("weight-results").innerHTML = results.map(([label, value]) => '<div class="weight-result"><small>' + label + '</small><strong>' + f(value) + '</strong></div>').join("");
-    byId("weight-evidence").textContent = "Effective sample size: treated " + f(pop.arms[1].ess, 1) + " · untreated " + f(pop.arms[0].ess, 1);
+    byId("weight-evidence").textContent = "Largest weight: " + f(pop.maxWeight) + ". Effective sample size: treated " + f(pop.arms[1].ess, 1) + " · untreated " + f(pop.arms[0].ess, 1);
+    byId("weight-evidence").hidden = !pop.supported || pop.maxWeight < 20;
     byId("weight-table").innerHTML = table(
       ["Severity", "Received", "Expected people", "Probability of own treatment (model)", "Weight", "Weighted people"],
       pop.cells.map((c) => [c.x ? "High" : "Low", c.a ? "Treated" : "Untreated", f(c.count, 1), f(c.ownProbability), f(c.weight), f(c.weightedCount, 1)]),
@@ -83,10 +61,10 @@
     ) + table(["Group", "Expected people", "Weighted total", "Effective sample size"], pop.arms.map((a) => [a.a ? "Treated" : "Untreated", f(a.n, 1), f(a.totalWeight, 1), f(a.ess, 1)]), "Representation and weight concentration are different quantities");
     document.querySelectorAll(".weighting-tutorial .table-wrap").forEach((el) => { el.tabIndex = 0; el.setAttribute("role", "region"); el.setAttribute("aria-label", el.querySelector("caption").textContent); });
     let message;
-    if (!pop.supported) message = "Positivity fails for this target: a severity group has no chance of one treatment. No weighted ATE is reported. Upweighting cannot supply the missing treatment history.";
-    else if (cfg.scoreMode === "constant") message = "Giving everyone the same propensity score rescales the existing groups; it does not repair their severity imbalance. If the actual treatment chances are equal across severity, there is no such imbalance to repair.";
-    else message = "Both weighted groups reproduce the target severity mix, and the weighted contrast equals 2 in this exact population calculation. In a finite sample with estimated probabilities, balance and accuracy must be checked.";
-    if (pop.supported && pop.maxWeight >= 20) message += " Rare treatment histories now carry large weights. Notice how the effective sample sizes shrink.";
+    if (!pop.supported) message = "No weighted ATE: a severity group has no chance of one treatment. Weighting cannot supply that missing evidence.";
+    else if (cfg.scoreMode === "constant") message = "Constant scores leave the severity mix unchanged. That is only adequate here when treatment chances do not differ by severity.";
+    else message = "Correct weights reproduce the target severity mix. These are exact population calculations; fitted weights in a sample need balance checks.";
+    if (pop.supported && pop.maxWeight >= 20) message += " Large weights concentrate the evidence in a few people.";
     byId("weight-status").textContent = message;
     byId("weight-status").dataset.status = !pop.supported ? "unsupported" : cfg.scoreMode;
     byId("dr-table").innerHTML = table(["Working models", "Population AIPW", "Target ATE"], [

@@ -23,94 +23,80 @@
   </header>
   <main id="main-content">
     <div class="tutorial-hero">
-      <div class="eyebrow">One idea, five short steps</div>
-      <h1>Why <span>weighting?</span></h1>
+      <h1>Why weighting?</h1>
       <p class="lede">Different people end up in different groups.<br>Before comparing outcomes, let each group represent the same population.</p>
-      <div class="hero-route" aria-label="Our task"><span>Notice selection</span><i aria-hidden="true">→</i><span>Change representation</span><i aria-hidden="true">→</i><span>Compare outcomes</span></div>
     </div>
     <nav class="basics-contents" aria-label="Tutorial sections">
-      <a class="chapter-blue" href="#sampling"><b>1</b><span>Start with people</span></a>
-      <a class="chapter-teal" href="#score"><b>2</b><span>Name the chance</span></a>
-      <a class="chapter-purple" href="#rebalance"><b>3</b><span>Change the mix</span></a>
-      <a class="chapter-orange" href="#diagnostics"><b>4</b><span>Check the result</span></a>
-      <a class="chapter-green" href="#returns"><b>5</b><span>Carry it forward</span></a>
+      <a href="#sampling">Sample</a>
+      <a href="#score">Treatment</a>
+      <a href="#rebalance">Rebalance</a>
+      <a href="#diagnostics">Checks</a>
+      <a href="#returns">Estimators</a>
     </nav>
 
-    <section id="sampling" class="flow-chapter chapter-blue" aria-labelledby="sampling-title">
-      <div class="chapter-head"><span class="chapter-number" aria-hidden="true">01</span><div><div class="eyebrow">Set the target</div><h2 id="sampling-title">Give every person the same say</h2></div></div>
-      <p class="chapter-intro">Three cities. 280 people. We want their average income.</p>
-      <div class="city-cards" aria-label="City populations">
-        <div class="city-small"><span>City A</span><strong>30</strong><small>people</small><div class="city-share" aria-hidden="true"><i style="width:10.7%"></i></div></div>
-        <div class="city-medium"><span>City B</span><strong>90</strong><small>people</small><div class="city-share" aria-hidden="true"><i style="width:32.1%"></i></div></div>
-        <div class="city-large"><span>City C</span><strong>160</strong><small>people</small><div class="city-share" aria-hidden="true"><i style="width:57.1%"></i></div></div>
-      </div>
+    <section id="sampling" class="flow-chapter" aria-labelledby="sampling-title">
+      <h2 id="sampling-title">Give every person the same say</h2>
+      <p class="chapter-intro">We want the average income across three cities with 30, 90 and 160 people.</p>
       <div class="sketch-row">
-        <div class="target-note"><span class="action-label">Whose average?</span><strong>All 280 people</strong><p>A bigger city contributes more people, so it should have more influence.</p><p class="target-value">Population mean <b>≈ 17.5</b></p></div>
-        <figure class="lecture-figure setup-figure"><img src="assets/propensity-weighting/weighted_avg_setup.png" width="1896" height="1020" alt="Three cities with populations 30, 90 and 160 and mean incomes 10.1, 15.4 and 20.0. Their whole-population mean is about 17.5."><figcaption>Average across people, not across cities.</figcaption></figure>
+        <div class="target-note"><p>A bigger city contributes more people, so it should have more influence.</p><p class="target-value">Population mean <b>≈ 17.5</b></p></div>
+        <figure class="lecture-figure setup-figure"><img src="assets/propensity-weighting/weighted_avg_setup.png" width="1896" height="1020" alt="Three cities with populations 30, 90 and 160 and mean incomes 10.1, 15.4 and 20.0. Their whole-population mean is about 17.5."></figure>
       </div>
       <details class="story-reveal">
-        <summary><span class="reveal-verb">Take a sample</span><span>Ten people from each city</span></summary>
+        <summary>Sample ten people from each city</summary>
         <div class="reveal-body">
-          <p class="action-label">Notice what changed</p>
           <p>Each city now supplies one third of the sample. The smallest city has too much influence; the largest has too little.</p>
           <div class="sketch-row">
             <div class="result-note"><span>Give every sampled person equal weight</span><strong>14.6</strong><p>The sample means are 9.5, 14.6 and 19.6. Averaging them equally gives 14.57.</p></div>
             <figure class="lecture-figure sample-figure"><img src="assets/propensity-weighting/weighted_avg_unweighted.png" width="1129" height="1126" loading="lazy" alt="Ten people sampled from each city, with sample means 9.5, 14.6 and 19.6. Equal city influence yields a mean of about 14.6."><figcaption>Equal sample sizes give the cities equal influence.</figcaption></figure>
           </div>
           <details class="story-reveal restore-reveal">
-            <summary><span class="reveal-verb">Restore the mix</span><span>Let people represent their cities</span></summary>
+            <summary>Weight the sample by city size</summary>
             <div class="reveal-body">
-              <p>Each sampled person stands for people from their city.</p>
-              <div class="represent-cards"><div><span>City A</span><b>3 people</b><small>per sampled person</small></div><div><span>City B</span><b>9 people</b><small>per sampled person</small></div><div><span>City C</span><b>16 people</b><small>per sampled person</small></div></div>
+              <p>Each sampled person represents <b>3 people</b> in City A, <b>9</b> in City B and <b>16</b> in City C.</p>
               <div class="sketch-row">
-                <div class="result-note"><span>Give the cities their population shares</span><strong>16.9</strong><p>Now the same observations represent 30, 90 and 160 people. The weighted average is 16.91.</p></div>
-                <figure class="lecture-figure sample-figure"><img src="assets/propensity-weighting/weighted_avg_weighted.png" width="1129" height="1126" loading="lazy" alt="The sample means weighted by city shares 30/280, 90/280 and 160/280 yield about 16.9."><figcaption>Change representation. Keep the observed incomes.</figcaption></figure>
+                <div class="result-note"><span>Give the cities their population shares</span><strong>16.9</strong><p>Restore the cities' population shares while keeping the observed incomes.</p></div>
+                <figure class="lecture-figure sample-figure"><img src="assets/propensity-weighting/weighted_avg_weighted.png" width="1129" height="1126" loading="lazy" alt="The sample means weighted by city shares 30/280, 90/280 and 160/280 yield about 16.9."></figure>
               </div>
               <details class="math-reveal"><summary>Show the arithmetic</summary><div class="reveal-body"><p>Sampling chances: 10/30, 10/90 and 10/160. Inverse chances: 3, 9 and 16.</p><div class="basics-equation">9.5 × 30/280 + 14.6 × 90/280 + 19.6 × 160/280 = 16.91</div><p>The rounded population means imply 17.46. Weighting gets closer here, but the small samples still differ from their cities. It does not promise an exact answer in every sample.</p></div></details>
             </div>
           </details>
         </div>
       </details>
-      <p class="basics-takeaway"><b>The idea to keep:</b> weighting changes who the sample represents.</p>
-      <a class="flow-next" href="#score">Now use that idea for treatment <span aria-hidden="true">→</span></a>
+      <p class="basics-takeaway">Weighting changes who the sample represents.</p>
+      <a class="flow-next" href="#score">Treatment <span aria-hidden="true">→</span></a>
     </section>
 
-    <section id="score" class="flow-chapter chapter-teal" aria-labelledby="score-title">
-      <div class="chapter-head"><span class="chapter-number" aria-hidden="true">02</span><div><div class="eyebrow">Notice selection</div><h2 id="score-title">How did people get into each group?</h2></div></div>
+    <section id="score" class="flow-chapter" aria-labelledby="score-title">
+      <h2 id="score-title">How did people get into each group?</h2>
       <p class="chapter-intro">Severity affects treatment and outcome. If the treated group contains more high-severity people, its outcome reflects both differences.</p>
-      <div class="probability-card"><span class="action-label">Name the chance</span><h3>Propensity score</h3><p>The chance of treatment, given a person's pretreatment covariates.</p><div class="basics-equation">g(X) = P(A = 1 | X)</div></div>
+      <p>The <b>propensity score</b> is the chance of treatment, given a person's pretreatment covariates.</p><div class="basics-equation">g(X) = P(A = 1 | X)</div>
       <details class="math-reveal"><summary>Decode the notation and choose the covariates</summary><div class="reveal-body"><dl class="notation"><dt>A</dt><dd>Treatment: 1 for treated, 0 for untreated.</dd><dt>X</dt><dd>Pretreatment covariates used for adjustment, such as severity.</dd><dt>g(X)</dt><dd>A treatment probability. You may also see it written e(L).</dd></dl><p>We usually estimate it with a treatment model, such as logistic regression. It predicts treatment, not the outcome. Choose adjustment variables using causal knowledge: adding a mediator or collider can create a different problem.</p></div></details>
-      <p class="action-label block-cue">Turn a chance into a weight</p>
       <p>Use the probability of the treatment <em>actually received</em>. An unusual treatment history gets more relative weight.</p>
       <div class="weight-rules">
-        <details class="weight-rule treated-rule"><summary><b>Treated person</b><span>Reveal the weight →</span></summary><div class="reveal-body"><span>1 / g(X)</span><p>If g(X) = 0.25:<br><b>1 / 0.25 = 4</b></p></div></details>
-        <details class="weight-rule untreated-rule"><summary><b>Untreated person</b><span>Reveal the weight →</span></summary><div class="reveal-body"><span>1 / (1 − g(X))</span><p>If g(X) = 0.25:<br><b>1 / 0.75 ≈ 1.33</b></p></div></details>
+        <details class="weight-rule treated-rule"><summary>Treated person</summary><div class="reveal-body"><span>1 / g(X)</span><p>If g(X) = 0.25:<br><b>1 / 0.25 = 4</b></p></div></details>
+        <details class="weight-rule untreated-rule"><summary>Untreated person</summary><div class="reveal-body"><span>1 / (1 − g(X))</span><p>If g(X) = 0.25:<br><b>1 / 0.75 ≈ 1.33</b></p></div></details>
       </div>
       <p class="note">These unstabilized weights are at least 1. “Downweight” means less relative influence; it need not mean a raw weight below 1.</p>
-      <div class="action-label block-cue">Try one yourself</div>
       <fieldset class="weight-check"><legend id="weight-question"></legend><label for="weight-answer">Your weight<input id="weight-answer" type="number" min="0" step="0.01" inputmode="decimal"></label><div class="btns"><button type="button" id="weight-check">Check my calculation</button><button type="button" id="weight-hint">Show the reasoning</button><button type="button" id="weight-new">Try a different case</button></div><p id="weight-feedback" role="status"></p></fieldset>
-      <a class="flow-next" href="#rebalance">Watch the weights change a comparison <span aria-hidden="true">→</span></a>
+      <a class="flow-next" href="#rebalance">Rebalancing <span aria-hidden="true">→</span></a>
     </section>
 
-    <section id="rebalance" class="flow-chapter chapter-purple" aria-labelledby="rebalance-title">
-      <div class="chapter-head"><span class="chapter-number" aria-hidden="true">03</span><div><div class="eyebrow">Reconstruct the population</div><h2 id="rebalance-title">Change the mix before comparing outcomes</h2></div></div>
+    <section id="rebalance" class="flow-chapter" aria-labelledby="rebalance-title">
+      <h2 id="rebalance-title">Change the mix before comparing outcomes</h2>
       <p class="chapter-intro">A new teaching world: two severity groups, 100 people in expectation, and a treatment benefit of 2 for everyone.</p>
-      <div class="lab-instruction"><b>Your move</b><span>Change a treatment chance. Compare the severity mix before and after weighting.</span></div>
       <div class="weight-lab">
         <div class="weight-controls">
-          <h3>Choose who gets treated</h3>
           <label>High-severity share in the target population <output id="p-high-value"></output><input id="p-high" type="range" aria-label="High-severity share in the target population" min="0.1" max="0.9" step="0.05" value="0.5"></label>
           <label>Treatment chance, low severity <output id="g-low-value"></output><input id="g-low" type="range" aria-label="Treatment chance, low severity" min="0" max="1" step="0.01" value="0.2"></label>
           <label>Treatment chance, high severity <output id="g-high-value"></output><input id="g-high" type="range" aria-label="Treatment chance, high severity" min="0" max="1" step="0.01" value="0.8"></label>
-          <details class="math-reveal advanced-controls"><summary>Change the weighting model</summary><div class="reveal-body">
+          <details class="math-reveal advanced-controls"><summary>Model choices and overlap</summary><div class="reveal-body">
             <label>Propensity scores used for weighting<select id="weight-score" aria-label="Propensity scores used for weighting"><option value="correct">Correct probabilities</option><option value="constant">Constant model: 0.5 for everyone</option></select></label>
             <label>Weight numerator<select id="weight-mode" aria-label="Weight numerator"><option value="unstabilized">Unstabilized: numerator 1</option><option value="stabilized">Stabilized: received-treatment share</option></select></label>
+            <div class="btns stress-buttons"><button id="weight-extreme" type="button">Make treatment histories rare</button><button id="weight-absent" type="button">Remove untreated high-severity evidence</button></div>
           </div></details>
-          <p class="action-label block-cue">Try a stress case</p>
-          <div class="btns stress-buttons"><button id="weight-extreme" type="button">Make treatment histories rare</button><button id="weight-absent" type="button">Remove untreated high-severity evidence</button></div>
           <div id="weight-tools"></div>
         </div>
-        <div class="weight-comparison"><h3>See who each group represents</h3><p id="weight-model-status" class="note"></p><div id="weight-bars" class="weight-bars" aria-label="Severity mix before and after weighting"></div><div id="weight-results" class="weight-results"></div><p id="weight-evidence" class="note"></p></div>
+        <div class="weight-comparison"><p id="weight-model-status" class="note"></p><div id="weight-bars" class="weight-bars" aria-label="Severity mix before and after weighting"></div><div id="weight-results" class="weight-results"></div><p id="weight-evidence" class="note"></p></div>
       </div>
       <p id="weight-status" class="basics-takeaway" role="status"></p>
       <details class="math-reveal"><summary>Follow the people and the calculation</summary><div class="reveal-body">
@@ -125,38 +111,36 @@ g &lt;- predict(ps, type = "response")
 w &lt;- ifelse(A == 1, 1/g, 1/(1-g))
 ipw &lt;- weighted.mean(Y[A == 1], w[A == 1]) -
        weighted.mean(Y[A == 0], w[A == 0])</code></pre><p>Observed difference: 3.80. Weighted difference: 2.00. High-severity shares: 0.80/0.20 before, 0.50/0.50 after. This demonstrates point estimation and balance; it does not compute uncertainty with estimated weights.</p></div></details>
-      <a class="flow-next" href="#diagnostics">Check what the weights can and cannot fix <span aria-hidden="true">→</span></a>
+      <a class="flow-next" href="#diagnostics">Checks <span aria-hidden="true">→</span></a>
     </section>
 
-    <section id="diagnostics" class="flow-chapter chapter-orange" aria-labelledby="diagnostics-title">
-      <div class="chapter-head"><span class="chapter-number" aria-hidden="true">04</span><div><div class="eyebrow">Check before you trust</div><h2 id="diagnostics-title">Did the weights do their job?</h2></div></div>
-      <p class="chapter-intro">Look at balance, overlap and assumptions. Predicting treatment well is not the same as building a useful comparison.</p>
-      <details class="story-reveal diagnostic-reveal"><summary><span class="reveal-verb">Check balance</span><span>Do the measured covariates line up?</span></summary><div class="reveal-body">
+    <section id="diagnostics" class="flow-chapter" aria-labelledby="diagnostics-title">
+      <h2 id="diagnostics-title">Did the weights do their job?</h2>
+      <p class="chapter-intro">Predicting treatment well is not the same as building a useful comparison.</p>
+      <details class="story-reveal diagnostic-reveal"><summary>Do the measured covariates balance?</summary><div class="reveal-body">
         <div class="sketch-row"><div><p>Compare covariates before and after weighting. Inspect distributions as well as means.</p><p>Here, adjustment brings the differences closer to zero. A fitted model will not necessarily balance a finite sample.</p></div><figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/love_plot_example.png" width="480" height="384" loading="lazy" alt="A Love plot compares unadjusted and adjusted differences for age, education, first baby, married status and prenatal care. Adjusted points are closer to zero."><figcaption>Each row is a measured covariate. Check whether differences are raw or standardized; the original axis says “Mean Differences”.</figcaption></figure></div>
         <p>A standardized mean difference divides the group-mean difference by a reference standard deviation. Keep that reference fixed before and after adjustment. |SMD| &lt; 0.1 is a common benchmark, not a certificate of causality. A balanced propensity score alone does not establish covariate balance.</p>
       </div></details>
-      <details class="story-reveal diagnostic-reveal"><summary><span class="reveal-verb">Check support</span><span>Who is carrying the evidence?</span></summary><div class="reveal-body">
+      <details class="story-reveal diagnostic-reveal"><summary>Is there enough treatment support?</summary><div class="reveal-body">
         <div class="support-pair"><div><b>A rare history</b><p>A treated person with g(X) = 0.02 has unstabilized weight 50. A few people may carry much of the comparison.</p></div><div><b>A missing history</b><p>If a target stratum has no chance of one treatment, there is nobody to upweight. That is a positivity failure.</p></div></div>
         <p><a href="#rebalance">Try the stress cases above</a>. Watch the effective sample sizes fall as weight concentration increases.</p><div class="basics-equation">Effective sample size = (sum of weights)² / sum of squared weights</div>
         <p>Truncating large weights can change balance and bias. It cannot create missing treatment support.</p>
         <details class="math-reveal"><summary>Another use of the score: matching</summary><div class="reveal-body"><p>Matching selects or weights comparable sets. Matching centered on treated people commonly targets the ATT; dropping treated people can further change the target. Choose the target first.</p><figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/ps_distribution.png" width="480" height="384" loading="lazy" alt="A propensity-score plot separates matched and unmatched treated and control units, showing overlap and excluded observations."><figcaption>A matching example showing overlap and excluded observations, separate from the weighting experiment.</figcaption></figure></div></details>
       </div></details>
-      <details class="story-reveal diagnostic-reveal"><summary><span class="reveal-verb">Check the assumptions</span><span>What lets the contrast be causal?</span></summary><div class="reveal-body">
+      <details class="story-reveal diagnostic-reveal"><summary>What makes the contrast causal?</summary><div class="reveal-body">
         <dl class="assumption-list"><div><dt>Consistency</dt><dd>Treatment is well defined, and observed outcomes correspond to the treatment received.</dd></div><div><dt>Conditional exchangeability</dt><dd>The adjustment covariates suffice to remove confounding.</dd></div><div><dt>Positivity</dt><dd>Each treatment needed by the target has positive probability at each relevant covariate value.</dd></div></dl>
         <p>IPW estimation also needs sufficiently accurate treatment probabilities and statistical regularity. “As if randomized” describes the intended measured balance; weighting does not randomize the study.</p>
       </div></details>
-      <p class="basics-takeaway"><b>Keep the boundary clear:</b> measured balance cannot tell us whether an important confounder was left unmeasured.</p>
-      <a class="flow-next" href="#returns">See where weighting returns <span aria-hidden="true">→</span></a>
+      <p class="basics-takeaway">Measured balance cannot tell us whether an important confounder was left unmeasured.</p>
+      <a class="flow-next" href="#returns">Estimators <span aria-hidden="true">→</span></a>
     </section>
 
-    <section id="returns" class="flow-chapter chapter-green" aria-labelledby="returns-title">
-      <div class="chapter-head"><span class="chapter-number" aria-hidden="true">05</span><div><div class="eyebrow">Carry the idea forward</div><h2 id="returns-title">Keep the weights. Change what they correct.</h2></div></div>
-      <p class="chapter-intro">The same treatment probabilities appear again as our estimators develop.</p>
-      <div class="method-route"><div><span class="action-label">IPW</span><h3>Weight outcomes</h3><p>Let each treatment group represent the target population.</p></div><div><span class="action-label">AIPW</span><h3>Weight prediction errors</h3><p>Predict the outcomes first, then correct using weighted residuals.</p></div><div><span class="action-label">TMLE</span><h3>Target the fit</h3><p>Use the probabilities to guide an update to the outcome model.</p></div></div>
-      <details class="story-reveal"><summary><span class="reveal-verb">Build AIPW</span><span>Predictions plus weighted corrections</span></summary><div class="reveal-body">
+    <section id="returns" class="flow-chapter" aria-labelledby="returns-title">
+      <h2 id="returns-title">Keep the weights. Change what they correct.</h2>
+      <div class="method-route"><div><h3>IPW</h3><p>Weight observed outcomes to represent the target population.</p></div><div><h3>AIPW</h3><p>Predict outcomes, then correct using weighted residuals.</p></div><div><h3>TMLE</h3><p>Use the probabilities to guide an update to the outcome fit.</p></div></div>
+      <details class="story-reveal"><summary>How AIPW combines predictions and residuals</summary><div class="reveal-body">
         <p>A residual is an observed outcome minus its prediction. AIPW combines a predicted contrast with two residual corrections.</p>
-        <div class="aipw-pieces"><div><b>1. Predict a contrast</b><span>m̂₁(X) − m̂₀(X)</span></div></div>
-        <details class="math-reveal"><summary>Add the weighted corrections</summary><div class="reveal-body aipw-pieces"><div><b>2. Correct treated predictions</b><span>+ A / ĝ(X) × {Y − m̂₁(X)}</span></div><div><b>3. Correct untreated predictions</b><span>− (1 − A) / (1 − ĝ(X)) × {Y − m̂₀(X)}</span></div></div></details>
+        <div class="aipw-pieces"><div><b>1. Predict a contrast</b><span>m̂₁(X) − m̂₀(X)</span></div><div><b>2. Correct treated predictions</b><span>+ A / ĝ(X) × {Y − m̂₁(X)}</span></div><div><b>3. Correct untreated predictions</b><span>− (1 − A) / (1 − ĝ(X)) × {Y − m̂₀(X)}</span></div></div>
         <p>Average the resulting contributions. If the outcome model is right, residual corrections average to zero. If the propensity model is right, the corrections can repair a wrong outcome model.</p>
         <details class="math-reveal"><summary>See double robustness in the teaching world</summary><div class="reveal-body"><div id="dr-table"></div><p class="note">Exact population calculations for the two-stratum experiment. Omitting severity uses outcome predictions 3 and 4. Propensity 0.5 is wrong at the start; it is correct if both treatment chances are 0.5. This illustrates consistency, not efficiency or a confidence-interval guarantee.</p></div></details>
       </div></details>

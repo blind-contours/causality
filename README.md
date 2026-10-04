@@ -45,7 +45,7 @@ Guided mode presents one topic at a time; Explore shows all topics. Direct entry
 
 The opening lesson introduces why unequal treatment-group composition motivates propensity-score weighting. Its optional [weighting tutorial](basics/propensity-weighting.html), adapted from Andy Wilson’s PBHLT 7115 lectures 4a and 4b, reuses the original three-city and diagnostic figures with accessible descriptions. An exact two-stratum experiment links representation, inverse probabilities, balance, positivity and AIPW. The page is also linked from the two-strata and clever-covariate lessons; it does not change the 22-lesson route or progress count. Figure provenance is in `basics/assets/propensity-weighting/provenance.json`.
 
-Five colored chapters give the tutorial a short reading route. Native reveals open the sampling story, worked weights, diagnostics, formulas and R example; the original sketches sit beside the explanations at a smaller size. Sources and attribution appear in the footer credits.
+Short sections and native reveals open the sampling story, worked weights, diagnostics, formulas and R example. The original sketches sit beside the explanations at a smaller size. The page uses quiet typography, with color reserved for the severity comparison; sources and attribution appear in the footer credits.
 
 The [foundations review](docs/reviews/2026-10-04/FOUNDATIONS.html) identifies the next useful bridges and places where existing lessons can be linked earlier.
 
