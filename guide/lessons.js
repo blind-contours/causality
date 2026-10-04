@@ -38,7 +38,7 @@
     {
       id: "causal-roadmap",
       background:
-        "None beyond means, risks and a survival curve. This is the entry point for everyone.",
+        "None beyond means, risks and a survival curve. This is the entry point for everyone. The opening lesson now introduces the motivation for propensity-score weighting and links an optional foundations tutorial adapted from Andy Wilson’s lectures 4a and 4b.",
       goals: [
         "Name the parts of an estimand (population, interventions, outcome, horizon, summary measure) and show how each choice changes the number.",
         "State the conditions that let adjustment for severity identify the average treatment effect: consistency, conditional exchangeability and positivity.",

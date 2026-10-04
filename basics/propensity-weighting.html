@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why weighting? From a sample to a fair comparison · Causality</title>
+  <meta name="description" content="A foundations tutorial on propensity scores, inverse probability weighting, balance, and the connection to doubly robust estimation. Adapted from Andy Wilson's Week 4 lectures.">
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="../shared/labs.css">
+  <link rel="stylesheet" href="../shared/course.css">
+  <link rel="stylesheet" href="../shared/weighting.css">
+  <script src="../science/core.js"></script>
+  <script src="../science/weighting.js"></script>
+  <script src="../shared/visuals.js"></script>
+</head>
+<body class="weighting-tutorial">
+<a href="#main-content" class="skip-link">Skip to tutorial</a>
+<div class="wrap">
+  <header class="basics-mast">
+    <a class="basics-brand" href="../index.html"><img src="../icons/icon.svg" width="30" height="30" alt=""><b>Causality</b></a>
+    <nav aria-label="Course"><a href="../lessons/00-causal-roadmap.html#weighting-bridge">Return to the intro</a><a href="../tour.html">Tour</a><a href="../guide/index.html">Teachers</a></nav>
+  </header>
+  <main id="main-content">
+    <div class="eyebrow">Foundations · a bridge from the opening lesson</div>
+    <h1>Why weighting?</h1>
+    <p class="lede">If the treated and untreated groups contain different kinds of people, their outcome difference mixes treatment with those differences. Weighting asks each group to represent the same population before we compare them.</p>
+    <p class="tutorial-credit">Adapted from Andy Wilson's <em>Causal Methods in Public Health</em>, Spring 2026, lectures 4a and 4b. The original lecture sketches are reused below.</p>
+    <nav class="basics-contents" aria-label="Tutorial sections"><a href="#sampling">Start with a sample</a><a href="#score">Name the probability</a><a href="#rebalance">Rebalance the groups</a><a href="#diagnostics">Check the result</a><a href="#returns">Where this returns</a></nav>
+
+    <section id="sampling">
+      <div class="eyebrow">One idea first</div><h2>A sample can give some people too much of a say</h2>
+      <p>Imagine three cities. Their populations are 30, 90, and 160, and their mean incomes differ. We want the average income across all 280 people. An average of the three city means gives each city one third of the answer, although the cities contain very different shares of the population.</p>
+      <figure class="lecture-figure"><img src="assets/propensity-weighting/weighted_avg_setup.png" width="1896" height="1020" alt="Lecture sketch: city populations 30, 90, and 160, with mean incomes 10.1, 15.4, and 20.0. The whole-population mean is approximately 17.5."><figcaption>Lecture 4a: the target is the average across people, not the average across cities. The displayed rounded city means imply a population mean of 17.46, or about 17.5.</figcaption></figure>
+      <h3>Now sample ten people from each city</h3>
+      <p>Every city supplies the same number of observations. A sampled resident of the smallest city now has more influence than their population share warrants. A resident of the largest city has less.</p>
+      <div class="lecture-pair">
+        <figure class="lecture-figure"><img src="assets/propensity-weighting/weighted_avg_unweighted.png" width="1129" height="1126" loading="lazy" alt="Ten people are sampled from each city. Their sample means are 9.5, 14.6, and 19.6. Giving those means equal weight yields approximately 14.6."><figcaption>Equal samples, equal city influence: (9.5 + 14.6 + 19.6) / 3 = 14.57.</figcaption></figure>
+        <figure class="lecture-figure"><img src="assets/propensity-weighting/weighted_avg_weighted.png" width="1129" height="1126" loading="lazy" alt="The same sample means are weighted by city population shares 30/280, 90/280, and 160/280. The weighted estimate is approximately 16.9."><figcaption>Restore the population shares: 9.5 × 30/280 + 14.6 × 90/280 + 19.6 × 160/280 = 16.91.</figcaption></figure>
+      </div>
+      <p>At the person level, the sampling probabilities are 10/30, 10/90, and 10/160. Their inverses are 3, 9, and 16. Each sampled person represents that many people from their city. Divide the weighted outcome total by the weighted person total to get the same 16.91.</p>
+      <p class="basics-takeaway"><b>Weighting changes representation.</b> It does not change anyone's measured income. The weighted estimate is closer to 17.5 here, but still differs because the small samples do not exactly reproduce their cities' means. Weighting does not promise an exact answer in every sample.</p>
+    </section>
+
+    <section id="score">
+      <div class="eyebrow">Use the same idea for treatment</div><h2>Who is underrepresented in each treatment group?</h2>
+      <p>In the opening lesson, severity affects both the chance of treatment and the outcome. The treated group contains more high-severity people. Comparing the two groups directly therefore compares different severity mixes.</p>
+      <p>We need a probability for the process that produced those groups. The <b>propensity score</b> is the chance of receiving treatment given a person's pretreatment covariates.</p>
+      <div class="basics-equation">g(X) = P(A = 1 | X)</div>
+      <dl class="notation"><dt>A</dt><dd>Treatment received: 1 for treated, 0 for untreated.</dd><dt>X</dt><dd>The pretreatment covariates we use for adjustment, such as severity.</dd><dt>g(X)</dt><dd>The propensity score. Andy's lectures call it e(L); the course calls it g(X). These denote the same object.</dd></dl>
+      <p>It is a probability of <em>treatment</em>, not a probability of the outcome. In practice we estimate it from a treatment model, for example logistic regression. We choose adjustment variables using causal knowledge; adding every available variable can include a mediator or collider and create a different problem.</p>
+      <h3>Use the probability of the treatment actually received</h3>
+      <div class="weight-rules"><div><b>If treated</b><span>weight = 1 / g(X)</span></div><div><b>If untreated</b><span>weight = 1 / (1 − g(X))</span></div></div>
+      <p>If g(X) = 0.25, a treated person has weight 4. An untreated person has weight 1/0.75, about 1.33. The unusual treatment history carries more relative weight. These unstabilized weights are at least 1; “downweight” means less influence relative to the other observations, not necessarily a raw weight below 1.</p>
+      <fieldset class="weight-check"><legend id="weight-question"></legend><label for="weight-answer">Your weight<input id="weight-answer" type="number" min="0" step="0.01" inputmode="decimal"></label><div class="btns"><button type="button" id="weight-check">Check my calculation</button><button type="button" id="weight-hint">Show the reasoning</button><button type="button" id="weight-new">Try a different case</button></div><p id="weight-feedback" role="status"></p></fieldset>
+    </section>
+
+    <section id="rebalance">
+      <div class="eyebrow">Try the mechanism</div><h2>Make both groups represent the same severity mix</h2>
+      <p>This is a separate, exact teaching population: 100 people in expectation, two severity groups, and a treatment benefit of 2 for everyone. Without treatment, the mean outcome is 2 in the low-severity group and 5 in the high-severity group. The sliders change who receives treatment; they do not change those outcomes.</p>
+      <p>Start with half high severity, a treatment chance of 0.2 among low-severity people, and 0.8 among high-severity people. There are 10 low-severity and 40 high-severity people in the treated group in expectation. Their inverse weights are 5 and 1.25. The weighted totals become 50 and 50. The untreated group returns to that same mix.</p>
+      <div class="weight-lab">
+        <div class="weight-controls">
+          <label>High-severity share in the target population <output id="p-high-value"></output><input id="p-high" type="range" aria-label="High-severity share in the target population" min="0.1" max="0.9" step="0.05" value="0.5"></label>
+          <label>Treatment chance, low severity <output id="g-low-value"></output><input id="g-low" type="range" aria-label="Treatment chance, low severity" min="0" max="1" step="0.01" value="0.2"></label>
+          <label>Treatment chance, high severity <output id="g-high-value"></output><input id="g-high" type="range" aria-label="Treatment chance, high severity" min="0" max="1" step="0.01" value="0.8"></label>
+          <label>Propensity scores used for weighting<select id="weight-score"><option value="correct">Correct probabilities from this teaching world</option><option value="constant">Constant model: use 0.5 for everyone</option></select></label>
+          <label>Weight numerator<select id="weight-mode"><option value="unstabilized">Unstabilized: numerator 1</option><option value="stabilized">Stabilized: overall chance of the received treatment</option></select></label>
+          <div class="btns"><button id="weight-extreme" type="button">Make treatment histories rare</button><button id="weight-absent" type="button">Remove untreated high-severity evidence</button></div>
+          <div id="weight-tools"></div>
+        </div>
+        <div><div id="weight-bars" class="weight-bars" aria-label="Severity mix before and after weighting"></div><div id="weight-results" class="weight-results"></div></div>
+      </div>
+      <p id="weight-status" class="basics-takeaway" role="status"></p>
+      <div id="weight-table"></div>
+      <p class="note">Counts are exact expected frequencies under the stated population law, not a random sample of 100 real patients. The outcome comparison uses normalized weighted means within each arm. Weighted totals are representation, not new independent patients. Effective sample size is a weight-concentration diagnostic, not an actual count of people.</p>
+      <details><summary>Why does the treatment mechanism cancel?</summary><p>The observed joint distribution factors as f(X) × f(A | X) × f(Y | A, X). Dividing by the correct treatment probability removes the f(A | X) factor from the weighted distribution. After normalization, both treatment arms have the same f(X). The outcome distribution within each (A, X) cell stays the same.</p><p>Stabilized weights use P(A = a) / P(A = a | X). They retain the original overall treatment proportions while still giving both arms the target covariate distribution in this population calculation. Multiplying all weights in one arm by the same constant leaves its normalized mean and effective sample size unchanged.</p></details>
+      <p><b>Connect this to the opening picture.</b> Comparing outcomes within severity and averaging over a common severity distribution is <em>standardization</em>. Weighting reconstructs that common distribution using the observed treatment histories. They express the same identified target at the population level. With fitted models and finite samples, their estimates can differ.</p>
+      <details><summary>Now in R: estimate the score, weight, and check balance</summary><p>The <a href="../examples/r/propensity-weighting.R" download>base R example</a> constructs the starting teaching table, fits a logistic treatment model, and checks the weighted severity mix. No packages or external dataset are required.</p><pre><code>ps &lt;- glm(A ~ X, family = binomial())
+g &lt;- predict(ps, type = "response")
+w &lt;- ifelse(A == 1, 1/g, 1/(1-g))
+ipw &lt;- weighted.mean(Y[A == 1], w[A == 1]) -
+       weighted.mean(Y[A == 0], w[A == 0])</code></pre><p>For this invented table the observed mean difference is 3.80, and the weighted difference is 2.00. The high-severity shares move from 0.80 and 0.20 to 0.50 in both arms. This checks representation and point estimation; it does not compute a standard error for an analysis with estimated weights.</p></details>
+    </section>
+
+    <section id="diagnostics">
+      <div class="eyebrow">Lecture 4b's next question</div><h2>We calculated weights. Did they do their job?</h2>
+      <p>A fitted propensity model is not guaranteed to balance a finite sample. Compare the measured covariates before and after weighting. Look at distributions as well as means, and inspect overlap and the largest weights. Predicting treatment well is not the same objective as obtaining a useful balanced comparison.</p>
+      <figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/love_plot_example.png" width="480" height="384" loading="lazy" alt="Lecture 4b Love plot: unadjusted differences for age, education, first baby, married status, and prenatal care are compared with adjusted differences. The adjusted points lie much closer to zero."><figcaption>Lecture 4b: each row compares a measured covariate before and after adjustment. The original axis says “Mean Differences”; check whether each displayed difference is standardized or raw. A balanced propensity-score row alone does not establish balance of the covariates.</figcaption></figure>
+      <p>A standardized mean difference divides the difference in group means by a reference standard deviation. Keep that reference scale fixed when comparing before and after adjustment. A value such as |SMD| &lt; 0.1 is a common diagnostic benchmark, not a certificate that an effect is causal. Balance on measured variables does not test whether an important common cause was unmeasured.</p>
+      <h3>Rare treatment histories carry a lot of weight</h3>
+      <p>A treated person with g(X) = 0.02 has weight 50. If only a few people provide the evidence for a large part of the target population, the estimate can become unstable. Try the rare-history button above and watch the effective sample sizes fall even though the covariate mix balances in expectation.</p>
+      <div class="basics-equation">Effective sample size = (sum of weights)² / sum of squared weights</div>
+      <p>If a target stratum has no chance of one treatment, weighting has no observations to upweight for that treatment. That is a population positivity failure. Truncating a large weight can change balance and bias; it does not create missing support.</p>
+      <details><summary>Another use of the propensity score: matching</summary><p>Lecture 4b also uses the score to select comparable treated and untreated people. Weighting changes how much observations count; matching selects or weights comparable sets. Matching centered on treated people commonly targets the ATT, and dropping treated people can further change the target population. Choose the target before choosing a method.</p><figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/ps_distribution.png" width="480" height="384" loading="lazy" alt="Lecture 4b propensity-score plot separates matched and unmatched treated and control units. Their locations show overlap and which observations were left unmatched."><figcaption>The original matching plot makes overlap and excluded observations visible. It is a matching diagnostic from the lecture, not an output of the weighting experiment above.</figcaption></figure></details>
+      <h3>What makes the weighted comparison causal?</h3>
+      <ul><li><b>Consistency:</b> the treatment is well defined, and observed outcomes correspond to the treatment received.</li><li><b>Conditional exchangeability:</b> the adjustment covariates suffice to remove confounding of the treatment–outcome comparison.</li><li><b>Positivity:</b> each treatment needed by the target occurs with positive probability at each relevant covariate value.</li></ul>
+      <p>For IPW estimation, we also need sufficiently accurate treatment probabilities and adequate statistical regularity. “As if randomized” describes the intended balance of measured covariates in the weighted population. Weighting does not literally randomize the original study or remove an unmeasured confounder.</p>
+    </section>
+
+    <section id="returns">
+      <div class="eyebrow">Keep this idea as the tools change</div><h2>Weighting comes back inside doubly robust methods</h2>
+      <p>Plain IPW weights the observed outcomes. Augmented IPW, or AIPW, starts with outcome predictions and uses those same inverse treatment probabilities to weight their residuals: the observed outcomes minus their predictions.</p>
+      <div class="aipw-pieces"><div><b>Predict a contrast</b><span>m̂₁(X) − m̂₀(X)</span></div><div><b>Correct treated predictions</b><span>+ A / ĝ(X) × {Y − m̂₁(X)}</span></div><div><b>Correct untreated predictions</b><span>− (1 − A) / (1 − ĝ(X)) × {Y − m̂₀(X)}</span></div></div>
+      <p>Average those patient contributions. If the outcome model is right, the residual corrections average to zero. If the propensity model is right, the corrections can repair a wrong outcome model. This is the population intuition for <b>double robustness</b>: either nuisance model can be correct. It does not remove the identification assumptions, and an ordinary confidence interval needs additional conditions.</p>
+      <div id="dr-table"></div><p class="note">These are exact population calculations for the two-stratum world above. Omitting severity uses predicted outcomes 3 and 4. A constant propensity of 0.5 is wrong for the starting configuration; it becomes correct if both actual treatment chances are 0.5. This is an illustration of the consistency property, not a fitted-model simulation or an efficiency claim.</p>
+      <p>TMLE also uses the propensity score, through the clever covariate, to target an initial outcome fit. We will derive that operation later. Keep the motivation: do not let the people easiest to observe under a treatment decide whose effect we estimate.</p>
+      <div class="return-links"><a class="course-btn" href="../lessons/00-causal-roadmap.html#weighting-bridge">Return to the intro →</a><a href="../lessons/06-two-strata.html">Two strata: why 1/g?</a><a href="../lessons/21-positivity.html">Positivity and weights</a><a href="../lessons/01-one-step-estimator.html">AIPW: predictions plus weighted corrections</a><a href="../lessons/07-clever-covariate.html">The clever covariate and TMLE</a></div>
+    </section>
+    <footer class="tutorial-sources"><h2>For more information</h2><ul><li>Andy Wilson, <em>Causal Methods in Public Health</em>, Spring 2026, Week 4: Introduction to Estimation, IPW and the Propensity Score; Propensity Score Matching and Balance Diagnostics. Original images retained and attributed.</li><li><a href="https://doi.org/10.1093/biomet/70.1.41">Rosenbaum and Rubin (1983): the propensity score as a balancing score</a>.</li><li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4626409/">Austin and Stuart (2015): treatment weighting, overlap and balance diagnostics</a>.</li><li><a href="https://ngreifer.github.io/cobalt/articles/faq.html">cobalt documentation: balance measures and their denominators</a>.</li><li><a href="https://doi.org/10.1080/00031305.2021.2021984">Hines et al. (2022): influence functions and doubly robust estimation</a>.</li></ul><p>This is an optional foundations page. It does not add a required lesson or record course mastery.</p></footer>
+  </main>
+</div>
+<script src="../labs/common.js"></script>
+<script src="../labs/weighting.js"></script>
+</body></html>

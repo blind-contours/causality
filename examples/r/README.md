@@ -15,6 +15,7 @@ every `pkg::fun` named there against a reviewed list.
 
 | File | Lessons | What it reproduces |
 | --- | --- | --- |
+| `propensity-weighting.R` | Optional weighting foundations | An invented two-stratum table: observed difference 3.80, normalized IPW difference 2.00, high-severity shares changing from 0.80/0.20 to 0.50 in both arms. Fits the treatment model and checks balance; point estimation only. |
 | `four-patients.R` | Four Patients | Part 1: plug-in 2.5, correction 0.8125, one-step 3.3125. Part 2 on the same four patients: ΣHr = 3.25, ΣH² = 17.5625, ε̂ = 0.1851, stratum shifts. Part 3: TMLE 2.9858, sd(D̂)/√4 = 0.5141 and the 95% interval, exactly as on the page. |
 | `one-step-ate.R` | The One-Step Estimator | The confounded ATE study of `science/core.js` (true ATE 2): naive difference, g-computation plug-in, IPW, and one-step/AIPW with influence-function SE and 95% CI, under a correct and a wrong outcome model. |
 | `tmle-ate.R` | Where the Clever Covariate Comes From | Same X and A, binary outcome: a hand-rolled TMLE (logistic fluctuation along the clever covariate H(A, X)), influence-function SE, compared with AIPW from the same initial fits. |

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Where to teach the foundations · Instructor review</title>
+  <link rel="icon" href="../../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../../shared/labs.css">
+  <style>.wrap{max-width:880px}section{margin:36px 0}.review-meta{color:var(--muted)}.review-check{padding:14px 18px;background:var(--soft);border-left:3px solid var(--teal)}h2{font-size:28px}h3{font-size:20px}dt{font-weight:600;margin-top:14px}dd{margin:4px 0 14px}code{overflow-wrap:anywhere}.review-links{display:flex;flex-wrap:wrap;gap:12px}</style>
+</head>
+<body><a href="#main-content" class="skip-link">Skip to review</a><main id="main-content" class="wrap">
+  <div class="eyebrow">Instructor review · 4 October 2026</div>
+  <h1>Where to teach the foundations</h1>
+  <p class="lede">Keep the course's geometric ambition. Add small, optional bridges where a learner needs an applied idea before its notation or estimator appears.</p>
+  <p class="review-meta">Review of the current opening, RCT adjustment, one-step, clever-covariate, intercurrent-event, inference, standard-error and survival lessons, plus the glossary. These are teaching recommendations from the source review, not findings from a learner study.</p>
+  <nav class="review-links" aria-label="Review links"><a href="../../../basics/propensity-weighting.html">New weighting tutorial</a><a href="../../../lessons/00-causal-roadmap.html#weighting-bridge">Opening bridge</a><a href="../../../guide/index.html">Teacher's guide</a></nav>
+
+  <section><h2>Completed: weighting before inverse probabilities</h2>
+    <p>The opening now names propensity scores and explains why different treatment-group mixes motivate reweighting. The optional tutorial starts with Andy Wilson's three-city sampling sketches, moves to treatment probabilities and inverse weights, checks balance and support, and carries the idea into AIPW and TMLE. Later estimator pages link back to it.</p>
+    <p>The opening illustration is standardization: compare within severity, then average over a common population. The bridge preserves that distinction and explains weighting as another route to the same identified target. It also distinguishes measured balance from the causal assumptions.</p>
+  </section>
+
+  <section><h2>Next: probability, odds and logit</h2>
+    <dl><dt>Where a learner encounters it</dt><dd><a href="../../../lessons/07-clever-covariate.html">The clever covariate</a>, “For a binary outcome, fluctuate on the logit scale”; also <a href="../../../lessons/16-rct-adjustment.html">Your trial, adjusted</a>, “Binary outcomes: which odds ratio?”</dd>
+    <dt>What is already taught</dt><dd>The binary targeting lesson shows why updated predictions stay inside [0, 1]. The RCT lesson demonstrates conditional versus marginal odds ratios and then standardizes risks.</dd>
+    <dt>The remaining jump</dt><dd>Those arguments use odds, logit, expit and exp(β) before walking a learner through the transformations. A definition beside a formula may not show why a shift on one scale changes a probability on another.</dd>
+    <dt>A short expansion</dt><dd>Begin with 20 events among 100 people: probability 0.20, odds 20/80 = 0.25, log-odds log(0.25) ≈ −1.386. Let the learner move a log-odds value and watch expit return a probability. Then compare risks 0.20 and 0.40: risk ratio 2, odds ratio 2.67. Return to the logistic fluctuation only after this arithmetic.</dd></dl>
+    <p class="review-check"><b>Independent check:</b> give a new probability and ask for its odds and inverse transformation. Ask why adding 0.1 to a probability differs from adding 0.1 to its logit.</p>
+  </section>
+
+  <section><h2>Then: a population average, a sample average and a residual</h2>
+    <dl><dt>Where a learner encounters it</dt><dd><a href="../../../lessons/01-one-step-estimator.html">The one-step estimator</a>, the opening Pϕ̂ and Pₙϕ̂ equation; <a href="../../../lessons/11-inference-lab.html">The inference laboratory</a>, its three-term error decomposition.</dd>
+    <dt>What is already taught</dt><dd>The <a href="../../../glossary.html">glossary</a> defines Pₙf as the empirical average. The inference lab says Pₙ averages the sample and P₀ the true population. The mean-path and four-patient lessons give concrete calculations.</dd>
+    <dt>The remaining jump</dt><dd>The first one-step equation combines a distribution, a fitted distribution, a function of observations and two averaging operators. A learner can know each name and still struggle to read the whole expression.</dd>
+    <dt>A short expansion</dt><dd>Keep one four-row table visible. First calculate an ordinary sample average. Then evaluate a simple function for each row and average those values: that is Pₙf. Show the same function averaged over a known population using its probability weights: that is Pf. Finally give one observed outcome and prediction, calculate Y − m̂, and show how an inverse weight changes that residual's contribution.</dd></dl>
+    <p class="review-check"><b>Independent check:</b> supply a new four-row table, a prediction and treatment probabilities. Ask for one weighted residual and its contribution to the sample average, without revealing the final estimator.</p>
+  </section>
+
+  <section><h2>Bring censoring basics forward</h2>
+    <dl><dt>Where a learner encounters it</dt><dd><a href="../../../lessons/17-intercurrent-events.html">Intercurrent events</a>, “Censoring at an event is a strategy in disguise”, near the start of the learning route.</dd>
+    <dt>What is already taught</dt><dd>That lesson explains the hypothetical strategy and the assumption that people still observed stand in for those censored. Much later, <a href="../../../lessons/12-survival-lab.html">the survival laboratory</a> already has a patient strip, explicit event/censoring marks and a step-by-step risk-set construction.</dd>
+    <dt>The remaining jump</dt><dd>A newcomer is asked to interpret a Kaplan–Meier curve before seeing how an event differs from an observation ending. The important distinction is available, but arrives later.</dd>
+    <dt>A short expansion</dt><dd>Bring forward a small strip of patient timelines: an event at month 3, observation ending at month 3, and observed event-free follow-up through month 6. Ask who contributes to the risk set just before each time. Explain why censoring leaves later status unknown, then reconnect to censoring at crossover and the chosen hypothetical estimand. Reuse the existing survival construction rather than build a second competing demonstration.</dd></dl>
+    <p class="review-check"><b>Independent check:</b> on a new timeline, mark the risk set before an event and explain why a censored patient's later outcome cannot be coded as “no event”.</p>
+  </section>
+
+  <section><h2>Use links where the foundations are already strong</h2>
+    <dl><dt>Standardization and regression adjustment</dt><dd><a href="../../../lessons/16-rct-adjustment.html">Your trial, adjusted</a> already teaches the three moves: fit an outcome model, predict everyone under both arms, average the contrast. It also explains why a logistic arm coefficient differs from a marginal effect. Link the opening's standardization explanation to that scene; an extra numerical row table would be a small optional aid.</dd>
+    <dt>Standard errors and coverage</dt><dd><a href="../../../lessons/20-standard-errors.html">Standard errors you can report</a> already distinguishes the spread across repeated studies from bias and shows interval coverage. The RCT lesson also opens with repeated estimates and intervals. Reuse those explanations; a brief “one dot is a study, not a patient” reminder can help at the first histogram.</dd>
+    <dt>Cross-fitting</dt><dd><a href="../../../lessons/11-inference-lab.html">The inference laboratory</a> already shows sixteen patients, memorized training outcomes and held-out predictions. Link back to this concrete example when the empirical-process term returns.</dd>
+    <dt>Survival differences and RMST</dt><dd>The opening already distinguishes a probability gap from an area with time units. Keep those units visible and return to the same explanation from later survival lessons.</dd></dl>
+    <p class="review-check"><b>Suggested order:</b> build the probability/odds/logit bridge next; then the averaging-and-residual bridge; then bring the censoring construction forward. Keep each optional and give it one fresh arithmetic or interpretation check.</p>
+  </section>
+  <footer class="review-meta"><p>Scope: the weighting bridge and tutorial are implemented in this change. The expansions above are recommendations for subsequent work.</p></footer>
+</main></body></html>

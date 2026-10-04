@@ -1,0 +1,37 @@
+[
+  {
+    "file": "weighted_avg_setup.png",
+    "source": "PBHLT 7115, Spring 2026, Week 4/Session 4a/LaTeX space/images/weighted_avg_setup.png",
+    "sha256": "e1119fe5471b79067b8841802631022bf41aecc2275f5d3cab48882305dad079",
+    "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
+    "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  },
+  {
+    "file": "weighted_avg_unweighted.png",
+    "source": "PBHLT 7115, Spring 2026, Week 4/Session 4a/LaTeX space/images/weighted_avg_unweighted.png",
+    "sha256": "b20d117a8b1a2b7eb7b01dc509fb8a05eea02f2a53099c90d18d8a7d0eafcf83",
+    "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
+    "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  },
+  {
+    "file": "weighted_avg_weighted.png",
+    "source": "PBHLT 7115, Spring 2026, Week 4/Session 4a/LaTeX space/images/weighted_avg_weighted.png",
+    "sha256": "64fd1e99177f1d8c73f59734f270c955cd0146dd4c521d2ba2797052e9010145",
+    "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
+    "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  },
+  {
+    "file": "ps_distribution.png",
+    "source": "PBHLT 7115, Spring 2026, Week 4/Session 4b/LaTeX space/images/ps_distribution.png",
+    "sha256": "6db519ac7b0922960392289c701b45a61ddaab98d6a5836ab93736739622d543",
+    "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
+    "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  },
+  {
+    "file": "love_plot_example.png",
+    "source": "PBHLT 7115, Spring 2026, Week 4/Session 4b/LaTeX space/images/love_plot_example.png",
+    "sha256": "a0881dd3e227c8db15be1a514a943e0146b24d9d6473a1631d840dc627cf5335",
+    "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
+    "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  }
+]

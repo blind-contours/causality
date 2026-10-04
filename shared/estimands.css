@@ -60,3 +60,5 @@
   .estimand-figure .est-small { font-size: 17px; }
   .estimand-figure .est-number { font-size: 20px; }
 }
+
+.foundation-bridge{border-left:3px solid var(--teal);background:var(--soft);padding:18px 22px;border-radius:6px;margin:22px 0}.foundation-bridge h3{font-size:22px;margin-top:0}.foundation-bridge p{max-width:74ch}

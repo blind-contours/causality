@@ -8,6 +8,7 @@ const fs = require("node:fs"),
 const drawer = require("../shared/r-drawer.js");
 const dir = path.resolve(__dirname, "../examples/r");
 const names = [
+  "propensity-weighting",
   "four-patients",
   "one-step-ate",
   "tmle-ate",
