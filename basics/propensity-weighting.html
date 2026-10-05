@@ -3,153 +3,362 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Why weighting? From a sample to a fair comparison · Causality</title>
-  <meta name="description" content="Follow five short steps from unequal samples to propensity weighting, balance checks and doubly robust estimation.">
+  <title>Weighting toward a world without confounding · Causality</title>
+  <meta name="description" content="Weighted averages, standardization and propensity-score weighting as one idea: rebuild the world you would have seen without confounding.">
   <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../shared/labs.css">
-  <link rel="stylesheet" href="../shared/course.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="../shared/weighting.css">
-  <script src="../science/core.js"></script>
   <script src="../science/weighting.js"></script>
-  <script src="../shared/visuals.js"></script>
+  <script src="../shared/mascots.js"></script>
 </head>
-<body class="weighting-tutorial">
-<a href="#main-content" class="skip-link">Skip to tutorial</a>
-<div class="wrap">
-  <header class="basics-mast">
-    <a class="basics-brand" href="../index.html"><img src="../icons/icon.svg" width="30" height="30" alt=""><b>Causality</b></a>
-    <a href="../lessons/00-causal-roadmap.html#weighting-bridge">← Back to the roadmap</a>
-  </header>
-  <main id="main-content">
-    <div class="tutorial-hero">
-      <h1>Why weighting?</h1>
-      <p class="lede">Different people end up in different groups.<br>Before comparing outcomes, let each group represent the same population.</p>
+<body class="wt">
+<a class="wt-skip" href="#main">Skip to content</a>
+<div class="wt-progress" aria-hidden="true"><span></span></div>
+
+<header class="wt-mast">
+  <a class="wt-brand" href="../index.html"><img src="../icons/icon.svg" width="20" height="20" alt="">Causality</a>
+  <span class="wt-crumb">Foundations</span>
+  <a class="wt-back" href="../lessons/00-causal-roadmap.html#weighting-bridge">Roadmap <span aria-hidden="true">↗</span></a>
+</header>
+
+<main id="main">
+
+<section class="wt-hero" aria-labelledby="hero-title">
+  <div class="wt-hero-text">
+    <p class="wt-eyebrow">Foundations · about 10 minutes</p>
+    <h1 id="hero-title">Weighting toward a world without confounding</h1>
+    <p class="wt-lede">Many causal methods try to recover the outcomes we would have seen if treatment had nothing to do with who receives it. Weighting is one of the most common ways to get there, and it builds on the weighted average.</p>
+  </div>
+  <div class="wt-cast"><span class="mascot" data-mood="hello"></span></div>
+</section>
+
+<!-- 01 -->
+<section id="s-mix" class="wt-sec" aria-labelledby="s-mix-title">
+  <header class="wt-sec-head"><span class="wt-num">01</span></header>
+  <h2 id="s-mix-title">An average depends on the mix</h2>
+  <div class="wt-col">
+    <p>Without the new treatment, 20% of low-severity patients in our hospital die and 50% of high-severity patients die. The hospital's death rate is a <span class="term" tabindex="0" aria-describedby="tip-wavg">weighted average<span class="tip" role="tooltip" id="tip-wavg">Multiply each value by its weight and add; the weights sum to 1.</span></span> of those two rates, with each group weighted by its share of patients. Move the slider to change that share.</p>
+  </div>
+  <figure class="wt-fig" id="fig-mix">
+    <div class="mix-stage" aria-hidden="true"></div>
+    <div class="mix-readout">
+      <p class="big-number"><output id="mix-rate">35%</output><span>hospital death rate</span></p>
+      <p class="mono-eq" id="mix-eq">0.50 × 20% + 0.50 × 50% = 35%</p>
     </div>
-    <nav class="basics-contents" aria-label="Tutorial sections">
-      <a href="#sampling">Sample</a>
-      <a href="#score">Treatment</a>
-      <a href="#rebalance">Rebalance</a>
-      <a href="#diagnostics">Checks</a>
-      <a href="#returns">Estimators</a>
-    </nav>
+    <div class="wt-controls">
+      <label class="wt-range" for="mix-share">High-severity share of patients <output id="mix-share-out">50%</output>
+        <input id="mix-share" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
+    </div>
+  </figure>
+</section>
 
-    <section id="sampling" class="flow-chapter" aria-labelledby="sampling-title">
-      <h2 id="sampling-title">Give every person the same say</h2>
-      <p class="chapter-intro">We want the average income across three cities with 30, 90 and 160 people.</p>
-      <div class="sketch-row">
-        <div class="target-note"><p>A bigger city contributes more people, so it should have more influence.</p><p class="target-value">Population mean <b>≈ 17.5</b></p></div>
-        <figure class="lecture-figure setup-figure"><img src="assets/propensity-weighting/weighted_avg_setup.png" width="1896" height="1020" alt="Three cities with populations 30, 90 and 160 and mean incomes 10.1, 15.4 and 20.0. Their whole-population mean is about 17.5."></figure>
-      </div>
-      <details class="story-reveal">
-        <summary>Sample ten people from each city</summary>
-        <div class="reveal-body">
-          <p>Each city now supplies one third of the sample. The smallest city has too much influence; the largest has too little.</p>
-          <div class="sketch-row">
-            <div class="result-note"><span>Give every sampled person equal weight</span><strong>14.6</strong><p>The sample means are 9.5, 14.6 and 19.6. Averaging them equally gives 14.57.</p></div>
-            <figure class="lecture-figure sample-figure"><img src="assets/propensity-weighting/weighted_avg_unweighted.png" width="1129" height="1126" loading="lazy" alt="Ten people sampled from each city, with sample means 9.5, 14.6 and 19.6. Equal city influence yields a mean of about 14.6."><figcaption>Equal sample sizes give the cities equal influence.</figcaption></figure>
-          </div>
-          <details class="story-reveal restore-reveal">
-            <summary>Weight the sample by city size</summary>
-            <div class="reveal-body">
-              <p>Each sampled person represents <b>3 people</b> in City A, <b>9</b> in City B and <b>16</b> in City C.</p>
-              <div class="sketch-row">
-                <div class="result-note"><span>Give the cities their population shares</span><strong>16.9</strong><p>Restore the cities' population shares while keeping the observed incomes.</p></div>
-                <figure class="lecture-figure sample-figure"><img src="assets/propensity-weighting/weighted_avg_weighted.png" width="1129" height="1126" loading="lazy" alt="The sample means weighted by city shares 30/280, 90/280 and 160/280 yield about 16.9."></figure>
-              </div>
-              <details class="math-reveal"><summary>Show the arithmetic</summary><div class="reveal-body"><p>Sampling chances: 10/30, 10/90 and 10/160. Inverse chances: 3, 9 and 16.</p><div class="basics-equation">9.5 × 30/280 + 14.6 × 90/280 + 19.6 × 160/280 = 16.91</div><p>The rounded population means imply 17.46. Weighting gets closer here, but the small samples still differ from their cities. It does not promise an exact answer in every sample.</p></div></details>
-            </div>
-          </details>
+<!-- 02 -->
+<section id="s-standardize" class="wt-sec" aria-labelledby="s-std-title">
+  <header class="wt-sec-head"><span class="wt-num">02</span></header>
+  <h2 id="s-std-title">Comparing groups at the same mix</h2>
+  <div class="wt-col">
+    <p>Now a new treatment arrives. Half of the 100 patients have high severity, and doctors give the treatment mostly to them: 80% of high-severity patients are treated, compared with 20% of low-severity patients. At first glance the treatment looks harmful.</p>
+  </div>
+
+  <figure class="wt-fig" id="fig-std">
+    <div class="std-legend" aria-hidden="true"><span><i class="sw-low"></i>Low severity</span><span><i class="sw-high"></i>High severity</span><span class="std-legend-note">Number inside a bar: death rate in that group</span></div>
+    <div class="std-rows">
+      <div class="std-row" data-arm="1">
+        <div class="std-label"><b>Treated</b><span class="std-count">17 of 50 died</span></div>
+        <div class="std-bar" role="img" aria-label="Treated patients: 20% low severity with 10% deaths, 80% high severity with 40% deaths">
+          <span class="seg seg-low" style="width:20%"><em>10%</em></span><span class="seg seg-high" style="width:80%"><em>40%</em></span>
         </div>
-      </details>
-      <p class="basics-takeaway">Weighting changes who the sample represents.</p>
-      <a class="flow-next" href="#score">Treatment <span aria-hidden="true">→</span></a>
-    </section>
-
-    <section id="score" class="flow-chapter" aria-labelledby="score-title">
-      <h2 id="score-title">How did people get into each group?</h2>
-      <p class="chapter-intro">Severity affects treatment and outcome. If the treated group contains more high-severity people, its outcome reflects both differences.</p>
-      <p>The <b>propensity score</b> is the chance of treatment, given a person's pretreatment covariates.</p><div class="basics-equation">g(X) = P(A = 1 | X)</div>
-      <details class="math-reveal"><summary>Decode the notation and choose the covariates</summary><div class="reveal-body"><dl class="notation"><dt>A</dt><dd>Treatment: 1 for treated, 0 for untreated.</dd><dt>X</dt><dd>Pretreatment covariates used for adjustment, such as severity.</dd><dt>g(X)</dt><dd>A treatment probability. You may also see it written e(L).</dd></dl><p>We usually estimate it with a treatment model, such as logistic regression. It predicts treatment, not the outcome. Choose adjustment variables using causal knowledge: adding a mediator or collider can create a different problem.</p></div></details>
-      <p>Use the probability of the treatment <em>actually received</em>. An unusual treatment history gets more relative weight.</p>
-      <div class="weight-rules">
-        <details class="weight-rule treated-rule"><summary>Treated person</summary><div class="reveal-body"><span>1 / g(X)</span><p>If g(X) = 0.25:<br><b>1 / 0.25 = 4</b></p></div></details>
-        <details class="weight-rule untreated-rule"><summary>Untreated person</summary><div class="reveal-body"><span>1 / (1 − g(X))</span><p>If g(X) = 0.25:<br><b>1 / 0.75 ≈ 1.33</b></p></div></details>
+        <p class="std-rate"><output>34%</output></p>
+        <p class="std-mix">20% low · 80% high</p>
       </div>
-      <p class="note">These unstabilized weights are at least 1. “Downweight” means less relative influence; it need not mean a raw weight below 1.</p>
-      <fieldset class="weight-check"><legend id="weight-question"></legend><label for="weight-answer">Your weight<input id="weight-answer" type="number" min="0" step="0.01" inputmode="decimal"></label><div class="btns"><button type="button" id="weight-check">Check my calculation</button><button type="button" id="weight-hint">Show the reasoning</button><button type="button" id="weight-new">Try a different case</button></div><p id="weight-feedback" role="status"></p></fieldset>
-      <a class="flow-next" href="#rebalance">Rebalancing <span aria-hidden="true">→</span></a>
-    </section>
-
-    <section id="rebalance" class="flow-chapter" aria-labelledby="rebalance-title">
-      <h2 id="rebalance-title">Change the mix before comparing outcomes</h2>
-      <p class="chapter-intro">A new teaching world: two severity groups, 100 people in expectation, and a treatment benefit of 2 for everyone.</p>
-      <div class="weight-lab">
-        <div class="weight-controls">
-          <label>High-severity share in the target population <output id="p-high-value"></output><input id="p-high" type="range" aria-label="High-severity share in the target population" min="0.1" max="0.9" step="0.05" value="0.5"></label>
-          <label>Treatment chance, low severity <output id="g-low-value"></output><input id="g-low" type="range" aria-label="Treatment chance, low severity" min="0" max="1" step="0.01" value="0.2"></label>
-          <label>Treatment chance, high severity <output id="g-high-value"></output><input id="g-high" type="range" aria-label="Treatment chance, high severity" min="0" max="1" step="0.01" value="0.8"></label>
-          <details class="math-reveal advanced-controls"><summary>Model choices and overlap</summary><div class="reveal-body">
-            <label>Propensity scores used for weighting<select id="weight-score" aria-label="Propensity scores used for weighting"><option value="correct">Correct probabilities</option><option value="constant">Constant model: 0.5 for everyone</option></select></label>
-            <label>Weight numerator<select id="weight-mode" aria-label="Weight numerator"><option value="unstabilized">Unstabilized: numerator 1</option><option value="stabilized">Stabilized: received-treatment share</option></select></label>
-            <div class="btns stress-buttons"><button id="weight-extreme" type="button">Make treatment histories rare</button><button id="weight-absent" type="button">Remove untreated high-severity evidence</button></div>
-          </div></details>
-          <div id="weight-tools"></div>
+      <div class="std-row" data-arm="0">
+        <div class="std-label"><b>Untreated</b><span class="std-count">13 of 50 died</span></div>
+        <div class="std-bar" role="img" aria-label="Untreated patients: 80% low severity with 20% deaths, 20% high severity with 50% deaths">
+          <span class="seg seg-low" style="width:80%"><em>20%</em></span><span class="seg seg-high" style="width:20%"><em>50%</em></span>
         </div>
-        <div class="weight-comparison"><p id="weight-model-status" class="note"></p><div id="weight-bars" class="weight-bars" aria-label="Severity mix before and after weighting"></div><div id="weight-results" class="weight-results"></div><p id="weight-evidence" class="note"></p></div>
+        <p class="std-rate"><output>26%</output></p>
+        <p class="std-mix">80% low · 20% high</p>
       </div>
-      <p id="weight-status" class="basics-takeaway" role="status"></p>
-      <details class="math-reveal"><summary>Follow the people and the calculation</summary><div class="reveal-body">
-        <p>Without treatment, mean outcomes are 2 at low severity and 5 at high severity. Treatment adds 2. Changing assignment leaves those outcomes fixed.</p>
-        <p>At the start, the treated group has 10 low-severity and 40 high-severity people in expectation. Weights 5 and 1.25 turn those totals into 50 and 50. The untreated group returns to the same target mix.</p>
-        <div id="weight-table"></div>
-        <p class="note">Exact expected frequencies, not a random sample of real patients. The contrast uses normalized weighted means within each arm. Weighted totals are representation; effective sample size measures weight concentration. Neither is a count of new independent patients.</p>
-      </div></details>
-      <details class="math-reveal"><summary>Why does the treatment mechanism cancel?</summary><div class="reveal-body"><div class="basics-equation">f(X) × f(A | X) × f(Y | A, X)</div><p>Dividing by the correct received-treatment probability removes f(A | X). After normalization, both arms have the same f(X). Outcomes within each (A, X) cell stay the same.</p><p>Stabilized weights use P(A = a) / P(A = a | X). They retain the overall treatment proportions in this population calculation. A constant multiplier within an arm leaves its normalized mean and effective sample size unchanged.</p><p>Standardization instead compares outcomes within covariate groups and averages over the target mix. The two routes express the same identified population target; fitted estimates in finite samples can differ.</p></div></details>
-      <details class="math-reveal"><summary>Now in R: estimate the score, weight, and check balance</summary><div class="reveal-body"><p><a href="../examples/r/propensity-weighting.R" download>Download the base R example</a>. It fits a treatment model and reproduces the starting table, with no packages or external data.</p><pre><code>ps &lt;- glm(A ~ X, family = binomial())
-g &lt;- predict(ps, type = "response")
-w &lt;- ifelse(A == 1, 1/g, 1/(1-g))
-ipw &lt;- weighted.mean(Y[A == 1], w[A == 1]) -
-       weighted.mean(Y[A == 0], w[A == 0])</code></pre><p>Observed difference: 3.80. Weighted difference: 2.00. High-severity shares: 0.80/0.20 before, 0.50/0.50 after. This demonstrates point estimation and balance; it does not compute uncertainty with estimated weights.</p></div></details>
-      <a class="flow-next" href="#diagnostics">Checks <span aria-hidden="true">→</span></a>
-    </section>
+    </div>
+    <p class="std-diff" id="std-diff">Treated minus untreated: <b>+8 points</b></p>
+    <div class="wt-toggle" role="group" aria-label="Which mix to use" id="std-toggle" hidden>
+      <button type="button" data-mix="own" aria-pressed="true">Each group's own mix</button>
+      <button type="button" data-mix="std" aria-pressed="false">Hospital mix · 50/50</button>
+    </div>
+  </figure>
 
-    <section id="diagnostics" class="flow-chapter" aria-labelledby="diagnostics-title">
-      <h2 id="diagnostics-title">Did the weights do their job?</h2>
-      <p class="chapter-intro">Predicting treatment well is not the same as building a useful comparison.</p>
-      <details class="story-reveal diagnostic-reveal"><summary>Do the measured covariates balance?</summary><div class="reveal-body">
-        <div class="sketch-row"><div><p>Compare covariates before and after weighting. Inspect distributions as well as means.</p><p>Here, adjustment brings the differences closer to zero. A fitted model will not necessarily balance a finite sample.</p></div><figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/love_plot_example.png" width="480" height="384" loading="lazy" alt="A Love plot compares unadjusted and adjusted differences for age, education, first baby, married status and prenatal care. Adjusted points are closer to zero."><figcaption>Each row is a measured covariate. Check whether differences are raw or standardized; the original axis says “Mean Differences”.</figcaption></figure></div>
-        <p>A standardized mean difference divides the group-mean difference by a reference standard deviation. Keep that reference fixed before and after adjustment. |SMD| &lt; 0.1 is a common benchmark, not a certificate of causality. A balanced propensity score alone does not establish covariate balance.</p>
-      </div></details>
-      <details class="story-reveal diagnostic-reveal"><summary>Is there enough treatment support?</summary><div class="reveal-body">
-        <div class="support-pair"><div><b>A rare history</b><p>A treated person with g(X) = 0.02 has unstabilized weight 50. A few people may carry much of the comparison.</p></div><div><b>A missing history</b><p>If a target stratum has no chance of one treatment, there is nobody to upweight. That is a positivity failure.</p></div></div>
-        <p><a href="#rebalance">Try the stress cases above</a>. Watch the effective sample sizes fall as weight concentration increases.</p><div class="basics-equation">Effective sample size = (sum of weights)² / sum of squared weights</div>
-        <p>Truncating large weights can change balance and bias. It cannot create missing treatment support.</p>
-        <details class="math-reveal"><summary>Another use of the score: matching</summary><div class="reveal-body"><p>Matching selects or weights comparable sets. Matching centered on treated people commonly targets the ATT; dropping treated people can further change the target. Choose the target first.</p><figure class="lecture-figure diagnostic-figure"><img src="assets/propensity-weighting/ps_distribution.png" width="480" height="384" loading="lazy" alt="A propensity-score plot separates matched and unmatched treated and control units, showing overlap and excluded observations."><figcaption>A matching example showing overlap and excluded observations, separate from the weighting experiment.</figcaption></figure></div></details>
-      </div></details>
-      <details class="story-reveal diagnostic-reveal"><summary>What makes the contrast causal?</summary><div class="reveal-body">
-        <dl class="assumption-list"><div><dt>Consistency</dt><dd>Treatment is well defined, and observed outcomes correspond to the treatment received.</dd></div><div><dt>Conditional exchangeability</dt><dd>The adjustment covariates suffice to remove confounding.</dd></div><div><dt>Positivity</dt><dd>Each treatment needed by the target has positive probability at each relevant covariate value.</dd></div></dl>
-        <p>IPW estimation also needs sufficiently accurate treatment probabilities and statistical regularity. “As if randomized” describes the intended measured balance; weighting does not randomize the study.</p>
-      </div></details>
-      <p class="basics-takeaway">Measured balance cannot tell us whether an important confounder was left unmeasured.</p>
-      <a class="flow-next" href="#returns">Estimators <span aria-hidden="true">→</span></a>
-    </section>
+  <div class="predict" id="std-predict">
+    <div class="react"><span class="mascot" data-mood="worried" id="std-mascot"></span><p class="predict-q">Suppose both groups had the hospital's mix, half low and half high severity. Which would have the lower death rate?</p></div>
+    <div class="wt-chips" role="group" aria-label="Your prediction">
+      <button type="button" data-guess="1">Treated</button>
+      <button type="button" data-guess="0">Untreated</button>
+      <button type="button" data-guess="same">About the same</button>
+    </div>
+    <p class="predict-fb" id="std-feedback" role="status"></p>
+  </div>
 
-    <section id="returns" class="flow-chapter" aria-labelledby="returns-title">
-      <h2 id="returns-title">Keep the weights. Change what they correct.</h2>
-      <div class="method-route"><div><h3>IPW</h3><p>Weight observed outcomes to represent the target population.</p></div><div><h3>AIPW</h3><p>Predict outcomes, then correct using weighted residuals.</p></div><div><h3>TMLE</h3><p>Use the probabilities to guide an update to the outcome fit.</p></div></div>
-      <details class="story-reveal"><summary>How AIPW combines predictions and residuals</summary><div class="reveal-body">
-        <p>A residual is an observed outcome minus its prediction. AIPW combines a predicted contrast with two residual corrections.</p>
-        <div class="aipw-pieces"><div><b>1. Predict a contrast</b><span>m̂₁(X) − m̂₀(X)</span></div><div><b>2. Correct treated predictions</b><span>+ A / ĝ(X) × {Y − m̂₁(X)}</span></div><div><b>3. Correct untreated predictions</b><span>− (1 − A) / (1 − ĝ(X)) × {Y − m̂₀(X)}</span></div></div>
-        <p>Average the resulting contributions. If the outcome model is right, residual corrections average to zero. If the propensity model is right, the corrections can repair a wrong outcome model.</p>
-        <details class="math-reveal"><summary>See double robustness in the teaching world</summary><div class="reveal-body"><div id="dr-table"></div><p class="note">Exact population calculations for the two-stratum experiment. Omitting severity uses outcome predictions 3 and 4. Propensity 0.5 is wrong at the start; it is correct if both treatment chances are 0.5. This illustrates consistency, not efficiency or a confidence-interval guarantee.</p></div></details>
-      </div></details>
-      <p class="basics-takeaway"><b>Double robustness:</b> either nuisance model can be correct. The causal assumptions still apply, and inference needs additional conditions.</p>
-      <div class="return-links"><a class="flow-next" href="../lessons/00-causal-roadmap.html#weighting-bridge">Back to the roadmap <span aria-hidden="true">→</span></a><details class="math-reveal"><summary>Follow this idea into the estimators</summary><div class="reveal-body"><a href="../lessons/06-two-strata.html">Why 1/g?</a><a href="../lessons/21-positivity.html">Positivity and weights</a><a href="../lessons/01-one-step-estimator.html">AIPW</a><a href="../lessons/07-clever-covariate.html">The clever covariate and TMLE</a></div></details></div>
-    </section>
-    <footer class="tutorial-sources"><details class="math-reveal"><summary>Sources and image credits</summary><div class="reveal-body"><p>Original sketches and diagnostic figures: Andy Wilson, <em>Causal Methods in Public Health</em>, Spring 2026, lectures 4a and 4b. Original images retained; descriptions and presentation adapted.</p><ul><li><a href="https://doi.org/10.1093/biomet/70.1.41">Rosenbaum and Rubin (1983): the propensity score</a>.</li><li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4626409/">Austin and Stuart (2015): weighting and balance diagnostics</a>.</li><li><a href="https://ngreifer.github.io/cobalt/articles/faq.html">cobalt: balance measures and denominators</a>.</li><li><a href="https://doi.org/10.1080/00031305.2021.2021984">Hines et al. (2022): influence functions and doubly robust estimation</a>.</li></ul><p>An optional foundations tutorial; reading or revealing an explanation does not record course mastery.</p></div></details></footer>
-  </main>
-</div>
-<script src="../labs/common.js"></script>
+  <div class="after-reveal wt-col" id="std-after" hidden>
+    <p>This is <span class="term" tabindex="0" aria-describedby="tip-direct">direct standardization<span class="tip" role="tooltip" id="tip-direct">Described by the actuary Neison in 1844, who used it to compare death rates across districts with different age structures.</span></span>: apply each group's severity-specific rates to a shared <span class="term" tabindex="0" aria-describedby="tip-standard">standard population<span class="tip" role="tooltip" id="tip-standard">The mix every group is reweighted to. Using the whole hospital as the standard compares treating everyone with treating no one.</span></span>, here the hospital itself. Severity is a <span class="term" tabindex="0" aria-describedby="tip-confounder">confounder<span class="tip" role="tooltip" id="tip-confounder">A common cause of treatment and outcome. Sicker patients are more likely to be treated and more likely to die.</span></span> because it affects both who is treated and who dies, and the reversal is an example of <span class="term" tabindex="0" aria-describedby="tip-simpson">Simpson's paradox<span class="tip" role="tooltip" id="tip-simpson">A comparison that reverses direction when groups with different mixes are combined.</span></span>.</p>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="s-worlds" class="wt-sec" aria-labelledby="s-worlds-title">
+  <header class="wt-sec-head"><span class="wt-num">03</span></header>
+  <h2 id="s-worlds-title">Two potential outcomes for every patient</h2>
+  <div class="wt-col">
+    <p>Standardization answers a what-if question: what would the death rate be if all 100 patients were treated, and what would it be if none were? The difference between those two rates is the <span class="term" tabindex="0" aria-describedby="tip-ate">average treatment effect<span class="tip" role="tooltip" id="tip-ate">ATE = E[Y(1)] − E[Y(0)]: the mean outcome if everyone were treated minus the mean outcome if no one were.</span></span>.</p>
+    <p>In the <span class="term" tabindex="0" aria-describedby="tip-po">potential outcomes<span class="tip" role="tooltip" id="tip-po">The framework goes back to Neyman (1923) for experiments and Rubin (1974) for observational studies.</span></span> framework, each patient has an outcome under treatment, Y(1), and an outcome without it, Y(0). Picture World 1, where everyone is treated, and World 0, where no one is. Each seat in the grids below is the same patient in both worlds, and we see each patient in only one of them.</p>
+  </div>
+
+  <figure class="wt-fig worlds" id="fig-worlds-seen" data-stage="seen">
+    <div class="worlds-pair"></div>
+    <div class="worlds-legend" aria-hidden="true"></div>
+    <p class="worlds-status" role="status">Hover or tap a patient for details.</p>
+  </figure>
+
+  <div class="wt-col">
+    <p>The treated patients are a skewed sample of World 1: 40 of the 50 have high severity, compared with half of the hospital. Each patient's chance of being in that sample is their propensity score.</p>
+  </div>
+  <div class="wt-def">
+    <p class="wt-def-term">Propensity score</p>
+    <p class="wt-def-eq">g(x) = P(A = 1 | X = x)</p>
+    <p>The probability of treatment given covariates x (<span class="term" tabindex="0" aria-describedby="tip-rr">Rosenbaum and Rubin, 1983<span class="tip" role="tooltip" id="tip-rr">If treatment is unconfounded given X, it is also unconfounded given g(X) alone, so one number can carry the adjustment.</span></span>). Here g = 0.2 for low severity and 0.8 for high severity. In real data g is estimated, often with logistic regression.</p>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="s-weight" class="wt-sec" aria-labelledby="s-weight-title">
+  <header class="wt-sec-head"><span class="wt-num">04</span></header>
+  <h2 id="s-weight-title">Inverse probability weighting</h2>
+  <div class="wt-col">
+    <p>Survey statisticians handle unequal sampling chances by weighting each sampled person by one over their chance of selection (<span class="term" tabindex="0" aria-describedby="tip-ht">Horvitz and Thompson, 1952<span class="tip" role="tooltip" id="tip-ht">With known, positive selection probabilities, the weighted sum is unbiased for the population total.</span></span>). A person sampled with probability 1/5 represents 5 people. Propensity score weighting applies the same rule in each world, using the probability of the treatment each patient actually received.</p>
+  </div>
+
+  <div class="rule-card">
+    <div class="rule-col"><p class="rule-who">Treated patient</p><p class="rule-eq">weight = 1 / g(x)</p></div>
+    <div class="rule-col"><p class="rule-who">Untreated patient</p><p class="rule-eq">weight = 1 / (1 − g(x))</p></div>
+    <table class="rule-table">
+      <caption class="sr-only">Weights in the hospital</caption>
+      <thead><tr><th scope="col"></th><th scope="col">Treated</th><th scope="col">Untreated</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><i class="sw-low"></i>Low · g = 0.2</th><td><span class="calc">1 / 0.2 = </span><b>5</b></td><td><span class="calc">1 / 0.8 = </span><b>1.25</b></td></tr>
+        <tr><th scope="row"><i class="sw-high"></i>High · g = 0.8</th><td><span class="calc">1 / 0.8 = </span><b>1.25</b></td><td><span class="calc">1 / 0.2 = </span><b>5</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="wt-fig worlds" id="fig-worlds-rebuild" data-stage="seen">
+    <div class="worlds-pair"></div>
+    <div class="worlds-legend" aria-hidden="true"></div>
+    <div class="worlds-actions">
+      <button type="button" class="wt-btn primary" data-act="rebuild">Apply the weights</button>
+      <button type="button" class="wt-btn" data-act="reset" hidden>Start over</button>
+    </div>
+    <div class="react"><span class="mascot" data-mood="think" id="rebuild-mascot"></span><p class="worlds-status" role="status">Each seen patient will stand in for 1 / (chance of their treatment) patients.</p></div>
+    <p class="worlds-result" hidden>Treatment prevents 10 deaths per 100 patients (25% against 35%), the same answer standardization gave.</p>
+  </figure>
+
+  <div class="after-reveal wt-col" id="rebuild-after" hidden>
+    <p>In this invented hospital these are also the true rates, because within each severity group the treated and untreated patients would have had the same risk under either treatment. The stand-ins reproduce the totals, not which individuals die.</p>
+  </div>
+
+  <fieldset class="quiz" id="quiz">
+    <legend>Your turn</legend>
+    <div class="react"><span class="mascot" data-mood="think" id="quiz-mascot"></span><p id="quiz-q"></p></div>
+    <div class="quiz-row">
+      <label for="quiz-a" class="sr-only">Weight</label>
+      <input id="quiz-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="weight">
+      <button type="button" class="wt-btn" id="quiz-check">Check</button>
+      <button type="button" class="wt-btn quiet" id="quiz-next">Another</button>
+    </div>
+    <p id="quiz-fb" role="status"></p>
+  </fieldset>
+</section>
+
+<!-- 05 -->
+<section id="s-limits" class="wt-sec" aria-labelledby="s-limits-title">
+  <header class="wt-sec-head"><span class="wt-num">05</span></header>
+  <h2 id="s-limits-title">What the weights rely on</h2>
+  <ol class="promises">
+    <li><span class="p-num">1</span><div><p class="p-name"><span class="term" tabindex="0" aria-describedby="tip-exch">Exchangeability<span class="tip" role="tooltip" id="tip-exch">Y(a) is independent of A given X, for each a. The data cannot confirm it; it comes from knowing how treatment was decided.</span></span></p><p>Severity accounts for every shared reason behind treatment and death. If doctors also noticed frailty that nobody recorded, weights based on severity would leave both worlds skewed.</p></div></li>
+    <li><span class="p-num">2</span><div><p class="p-name"><span class="term" tabindex="0" aria-describedby="tip-pos">Positivity<span class="tip" role="tooltip" id="tip-pos">0 &lt; g(x) &lt; 1 for every x that occurs in the target population.</span></span></p><p>Every kind of patient had some chance of each treatment.</p></div></li>
+    <li><span class="p-num">3</span><div><p class="p-name"><span class="term" tabindex="0" aria-describedby="tip-cons">Consistency<span class="tip" role="tooltip" id="tip-cons">If A = a, then Y = Y(a). It assumes one well-defined version of each treatment and no interference between patients.</span></span></p><p>Treatment means the same thing for everyone, and one patient's treatment does not affect another's outcome.</p></div></li>
+  </ol>
+
+  <figure class="wt-fig worlds" id="fig-worlds-positivity" data-stage="rebuilt">
+    <div class="wt-toggle" role="group" aria-label="Positivity">
+      <button type="button" data-pos="off" aria-pressed="true">As before</button>
+      <button type="button" data-pos="on" aria-pressed="false">Treat every high-severity patient</button>
+    </div>
+    <div class="worlds-pair"></div>
+    <div class="worlds-legend" aria-hidden="true"></div>
+    <div class="react"><span class="mascot" data-mood="calm" id="pos-mascot"></span><p class="worlds-status" role="status"></p></div>
+  </figure>
+  <div class="wt-col"><p class="wt-note">Rare treatments cause a milder version of the same problem. If 2% of a group is treated, each treated patient gets weight 50 and the estimate rests on a few people. <a href="#ax-lab">The lab</a> shows this.</p></div>
+</section>
+
+<!-- 06 -->
+<section id="s-family" class="wt-sec" aria-labelledby="s-family-title">
+  <header class="wt-sec-head"><span class="wt-num">06</span></header>
+  <h2 id="s-family-title">Where weighting appears in this course</h2>
+  <ol class="family">
+    <li><a href="../lessons/16-rct-adjustment.html"><span class="f-num">01</span><span class="f-name">Standardization</span><span class="f-what">Model outcomes in each group, then average over the target mix (g-computation).</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/06-two-strata.html"><span class="f-num">02</span><span class="f-name">Inverse probability weighting</span><span class="f-what">Why rarely treated patients carry more weight, from the estimator's side.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/01-one-step-estimator.html"><span class="f-num">03</span><span class="f-name">AIPW</span><span class="f-what">An outcome model corrected with weighted residuals; consistent if either model is right.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/07-clever-covariate.html"><span class="f-num">04</span><span class="f-name">TMLE</span><span class="f-what">Uses the weights as a clever covariate to update the outcome model for the target.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/19-clone-censor-weight.html"><span class="f-num">05</span><span class="f-name">Clone, censor, weight</span><span class="f-what">Weighting for treatment strategies sustained over time.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/23-targeted-survival.html"><span class="f-num">06</span><span class="f-name">Censoring weights</span><span class="f-what">Weighting for patients lost to follow-up.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+    <li><a href="../lessons/21-positivity.html"><span class="f-num">07</span><span class="f-name">Positivity and weights</span><span class="f-what">How large weights get, and what that costs.</span><span class="f-go" aria-hidden="true">→</span></a></li>
+  </ol>
+  <p class="wt-cta"><a class="wt-btn primary" href="../lessons/00-causal-roadmap.html#weighting-bridge">Back to the roadmap <span aria-hidden="true">→</span></a></p>
+</section>
+
+<section id="appendix" class="wt-appendix" aria-labelledby="appendix-title">
+  <header class="wt-sec-head"><span class="wt-num">+</span></header>
+  <h2 id="appendix-title">Appendix</h2>
+  <div class="tabs" role="tablist" aria-label="Appendix">
+    <button role="tab" id="tab-math" aria-controls="ax-math" aria-selected="true">Math</button>
+    <button role="tab" id="tab-lab" aria-controls="ax-lab" aria-selected="false" tabindex="-1">Lab</button>
+    <button role="tab" id="tab-checks" aria-controls="ax-checks" aria-selected="false" tabindex="-1">Diagnostics</button>
+    <button role="tab" id="tab-dr" aria-controls="ax-dr" aria-selected="false" tabindex="-1">AIPW</button>
+    <button role="tab" id="tab-r" aria-controls="ax-r" aria-selected="false" tabindex="-1">In R</button>
+    <button role="tab" id="tab-sketches" aria-controls="ax-sketches" aria-selected="false" tabindex="-1">Sketches</button>
+    <button role="tab" id="tab-sources" aria-controls="ax-sources" aria-selected="false" tabindex="-1">Sources</button>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-math" aria-labelledby="tab-math" tabindex="0">
+    <h3>Why weighting identifies E[Y(1)]</h3>
+    <p>For World 1, under the three assumptions:</p>
+    <ol class="derive">
+      <li><span class="mono">E[ A·Y / g(X) ] = E[ A·Y(1) / g(X) ]</span><span class="why">consistency</span></li>
+      <li><span class="mono">= E[ E[A | X] · E[Y(1) | X] / g(X) ]</span><span class="why">iterated expectation, then exchangeability: Y(1) ⫫ A | X</span></li>
+      <li><span class="mono">= E[ E[Y(1) | X] ] = E[Y(1)]</span><span class="why">positivity: g(X) &gt; 0, and E[A | X] = g(X)</span></li>
+    </ol>
+    <p>The untreated world is the same with 1 − A and 1 − g(X). Standardization targets the same quantity through the g-formula:</p>
+    <p class="display">E[Y(1)] = Σ<sub>x</sub> P(X = x) · E[Y | A = 1, X = x]</p>
+    <h3>In the hospital</h3>
+    <table class="ax-table">
+      <thead><tr><th scope="col"></th><th scope="col">Standardization</th><th scope="col">Weighting</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">World 1</th><td class="mono">0.5 × 10% + 0.5 × 40% = 25%</td><td class="mono">(1 × 5 + 16 × 1.25) / 100 = 25%</td></tr>
+        <tr><th scope="row">World 0</th><td class="mono">0.5 × 20% + 0.5 × 50% = 35%</td><td class="mono">(8 × 1.25 + 5 × 5) / 100 = 35%</td></tr>
+      </tbody>
+    </table>
+    <p>The two agree exactly here because the scores are computed within the same severity groups that standardization uses. With fitted models in real data they usually differ a little.</p>
+    <h3>Horvitz–Thompson and Hájek</h3>
+    <p>Horvitz–Thompson divides the weighted deaths by everyone, n = 100. The normalized (Hájek) version divides by the sum of the weights in each arm. Here both sums are exactly 100, so they agree. In real samples they differ, and the normalized version is usually steadier. The lab reports normalized means.</p>
+    <h3>Stabilized weights</h3>
+    <p>Multiply by the overall share receiving that treatment: <span class="mono">P(A = a) / P(A = a | X)</span>. Within each arm the normalized mean and effective sample size do not change, and weight totals become roughly the group sizes. Stabilization mainly matters for marginal structural models that are not saturated, such as those for treatments over time, where it reduces variance.</p>
+    <h3>A missing-data problem</h3>
+    <p>Keiding and Clayton (2014) note that standardizing to the whole population can be read as an inverse probability weighting method, where the weighting compensates for not observing each person's other exposure state.</p>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-lab" aria-labelledby="tab-lab" tabindex="0" hidden>
+    <h3>Change the hospital</h3>
+    <p class="wt-note">Exact expected values in a population of 100, so a cell can hold a fraction of a person. True effect: −10 points. Settings are remembered in this browser.</p>
+    <div class="lab">
+      <div class="lab-controls">
+        <label class="wt-range" for="lab-p">High-severity share of the hospital <output id="lab-p-out"></output><input id="lab-p" type="range" min="0.1" max="0.9" step="0.05"></label>
+        <label class="wt-range" for="lab-gl">Treatment chance, low severity <output id="lab-gl-out"></output><input id="lab-gl" type="range" min="0" max="1" step="0.01"></label>
+        <label class="wt-range" for="lab-gh">Treatment chance, high severity <output id="lab-gh-out"></output><input id="lab-gh" type="range" min="0" max="1" step="0.01"></label>
+        <label class="wt-select" for="lab-score">Propensity scores used
+          <select id="lab-score"><option value="correct">Correct probabilities</option><option value="constant">Wrong: 0.5 for everyone</option></select></label>
+        <label class="wt-select" for="lab-mode">Weights
+          <select id="lab-mode"><option value="unstabilized">Unstabilized: 1 / P(A = a | X)</option><option value="stabilized">Stabilized: P(A = a) / P(A = a | X)</option></select></label>
+        <div class="wt-chips" role="group" aria-label="Stress cases">
+          <button type="button" id="lab-rare">Rare treatment choices · 2% / 98%</button>
+          <button type="button" id="lab-gone">No untreated high-severity patients</button>
+          <button type="button" id="lab-reset">Reset</button>
+        </div>
+      </div>
+      <div class="lab-out">
+        <div id="lab-bars" class="lab-bars"></div>
+        <div id="lab-results" class="lab-results"></div>
+        <p id="lab-msg" class="lab-msg" role="status"></p>
+        <details class="wt-more"><summary>Cell-by-cell table</summary><div id="lab-table"></div></details>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-checks" aria-labelledby="tab-checks" tabindex="0" hidden>
+    <h3>Diagnostics</h3>
+    <p>In real data the propensity score is estimated, so check what the weights achieved rather than trusting the model that made them.</p>
+    <div class="ax-grid">
+      <div>
+        <p><b>Balance.</b> Compare each measured covariate between arms before and after weighting. A standardized mean difference divides the gap by a reference standard deviation; keep that reference fixed before and after. |SMD| &lt; 0.1 is a common benchmark. Look at distributions, not just means.</p>
+        <p><b>Overlap.</b> Plot the propensity scores by arm. Where one arm is missing, weighting has nothing to work with.</p>
+        <p><b>Weight concentration.</b> <span class="mono">ESS = (Σ w)² / Σ w²</span>, the effective sample size. When a few weights dominate, the ESS falls even though the weighted mix looks perfect.</p>
+        <p><b>Trimming.</b> Truncating extreme weights trades bias for variance. It cannot create missing support, and it can change the population you are describing.</p>
+        <p class="wt-note">Balance on measured covariates says nothing about unmeasured ones.</p>
+      </div>
+      <figure class="ax-fig"><img src="assets/propensity-weighting/love_plot_example.png" width="480" height="384" loading="lazy" alt="A Love plot compares unadjusted and adjusted differences for age, education, first baby, married status and prenatal care. Adjusted points sit closer to zero."><figcaption>A Love plot. Each row is a covariate; adjusted points move toward zero. The axis says "Mean Differences": in cobalt that label can mix standardized differences for continuous covariates with raw differences for binary ones, so check before applying a 0.1 rule.</figcaption></figure>
+      <figure class="ax-fig"><img src="assets/propensity-weighting/ps_distribution.png" width="480" height="384" loading="lazy" alt="Propensity score distributions for matched and unmatched treated and control units, showing overlap and excluded observations."><figcaption>Propensity score overlap, from a matching example. Unmatched units sit where the other arm is thin.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-dr" aria-labelledby="tab-dr" tabindex="0" hidden>
+    <h3>Augmented IPW</h3>
+    <p>AIPW starts from an outcome model's prediction of both worlds and uses the weights only on the prediction errors:</p>
+    <ol class="aipw">
+      <li><span class="mono">m̂₁(X) − m̂₀(X)</span><span class="why">predicted difference for each patient</span></li>
+      <li><span class="mono">+ A / ĝ(X) · {Y − m̂₁(X)}</span><span class="why">fix World 1 with weighted residuals</span></li>
+      <li><span class="mono">− (1 − A) / (1 − ĝ(X)) · {Y − m̂₀(X)}</span><span class="why">fix World 0 the same way</span></li>
+    </ol>
+    <p>Average over patients. If the outcome model is right, the residual corrections average to zero. If the propensity model is right, they repair a wrong outcome model. This property is called double robustness.</p>
+    <div id="dr-table"></div>
+    <p class="wt-note">Exact population values in the hospital, using the lab's current settings. The wrong outcome model ignores severity and predicts each arm's crude death rate. Double robustness concerns consistency only. It does not guarantee efficiency or valid intervals, and it does not address unmeasured confounding.</p>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-r" aria-labelledby="tab-r" tabindex="0" hidden>
+    <h3>The hospital in base R</h3>
+    <p>100 rows, one per patient. Fit the propensity model, weight, and compare with standardization. <a href="../examples/r/propensity-weighting.R" download>Download the script</a>.</p>
+    <pre class="code" id="r-code"><code>n &lt;- c(10, 40, 40, 10); deaths &lt;- c(1, 8, 16, 5)
+d &lt;- data.frame(X = rep(c(0, 0, 1, 1), n), A = rep(c(1, 0, 1, 0), n),
+                Y = unlist(mapply(function(k, m) rep(1:0, c(k, m - k)), deaths, n)))
+ps &lt;- glm(A ~ X, data = d, family = binomial())
+g  &lt;- predict(ps, type = "response")
+w  &lt;- ifelse(d$A == 1, 1 / g, 1 / (1 - g))
+weighted.mean(d$Y[d$A == 1], w[d$A == 1])   # 0.25, World 1
+weighted.mean(d$Y[d$A == 0], w[d$A == 0])   # 0.35, World 0</code></pre>
+    <p class="wt-note">Point estimates and balance only. For uncertainty with estimated weights, see the standard-errors lesson. In practice, <span class="mono">WeightIt::weightit()</span> estimates weights and <span class="mono">cobalt::bal.tab()</span> checks balance.</p>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-sketches" aria-labelledby="tab-sketches" tabindex="0" hidden>
+    <h3>The same idea with three cities</h3>
+    <p>Three cities hold 30, 90 and 160 people, with mean incomes of about 10.1, 15.4 and 20.0. The whole population's mean is about 17.5.</p>
+    <figure class="ax-fig wide"><img src="assets/propensity-weighting/weighted_avg_setup.png" width="1896" height="1020" loading="lazy" alt="Hand-drawn sketch: three cities of 30, 90 and 160 people with mean incomes 10.1, 15.4 and 20.0; overall mean 17.5."></figure>
+    <p>Sample 10 people from each city and average them equally: <b>14.6</b>. The small city gets as much say as the big one. Now weight each sampled person by one over their chance of being sampled: 30/10 = 3, 90/10 = 9 and 160/10 = 16 people. The weighted mean is <b>16.9</b>, much closer to 17.5. The remaining gap is ordinary sampling noise.</p>
+    <div class="ax-grid two">
+      <figure class="ax-fig"><img src="assets/propensity-weighting/weighted_avg_unweighted.png" width="1129" height="1126" loading="lazy" alt="Sketch: ten people sampled per city, sample means 9.5, 14.6 and 19.6, equal-weight mean 14.6."><figcaption>Equal weights: 14.6.</figcaption></figure>
+      <figure class="ax-fig"><img src="assets/propensity-weighting/weighted_avg_weighted.png" width="1129" height="1126" loading="lazy" alt="Sketch: the same sample means weighted by 30/280, 90/280 and 160/280 give 16.9."><figcaption>Population weights: 16.9.</figcaption></figure>
+    </div>
+    <p class="wt-note">Sketches from Andy Wilson's lectures 4a and 4b, <em>Causal Methods in Public Health</em>, Spring 2026. Original images, unmodified.</p>
+  </div>
+
+  <div class="tabpanel" role="tabpanel" id="ax-sources" aria-labelledby="tab-sources" tabindex="0" hidden>
+    <h3>Sources</h3>
+    <ul class="sources">
+      <li>Keiding N, Clayton D (2014). <a href="https://doi.org/10.1214/13-STS453">Standardization and control for confounding in observational studies: a historical perspective</a>. <em>Statistical Science</em> 29(4):529–558. Neison's 1844 direct standardization, and standardization as inverse probability weighting.</li>
+      <li>Horvitz DG, Thompson DJ (1952). <a href="https://doi.org/10.1080/01621459.1952.10483446">A generalization of sampling without replacement from a finite universe</a>. <em>JASA</em> 47(260):663–685.</li>
+      <li>Splawa-Neyman J (1923, translated 1990). <a href="https://doi.org/10.1214/ss/1177012031">On the application of probability theory to agricultural experiments</a>. <em>Statistical Science</em> 5(4):465–472.</li>
+      <li>Rubin DB (1974). <a href="https://doi.org/10.1037/h0037350">Estimating causal effects of treatments in randomized and nonrandomized studies</a>. <em>J Educ Psychol</em> 66(5):688–701.</li>
+      <li>Rosenbaum PR, Rubin DB (1983). <a href="https://doi.org/10.1093/biomet/70.1.41">The central role of the propensity score in observational studies for causal effects</a>. <em>Biometrika</em> 70(1):41–55.</li>
+      <li>Hernán MA, Robins JM. <a href="https://miguelhernan.org/whatifbook">Causal Inference: What If</a>, chapters 2 and 12.</li>
+      <li>Austin PC, Stuart EA (2015). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4626409/">Moving towards best practice when using inverse probability of treatment weighting</a>. <em>Statistics in Medicine</em> 34(28):3661–3679.</li>
+      <li>Greifer N. <a href="https://ngreifer.github.io/cobalt/articles/faq.html">cobalt: balance measures and their denominators</a>.</li>
+      <li>Hines O, Dukes O, Diaz-Ordaz K, Vansteelandt S (2022). <a href="https://doi.org/10.1080/00031305.2021.2021984">Demystifying statistical learning based on efficient influence functions</a>. <em>The American Statistician</em> 76(3):292–304.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="wt-foot">
+  <p>Optional foundations page · Causality. Figures drawn for this page; lecture sketches by Andy Wilson. Code MIT; content CC BY-NC-SA 4.0.</p>
+</footer>
 <script src="../labs/weighting.js"></script>
-</body></html>
+</body>
+</html>
