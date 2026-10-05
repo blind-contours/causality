@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Weighting toward a world without confounding · Causality</title>
+  <title>Rebalancing groups: weighting foundations · Causality</title>
   <meta name="description" content="Weighted averages, standardization and propensity-score weighting as one idea: rebuild the world you would have seen without confounding.">
   <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="../shared/weighting.css">
   <script src="../science/weighting.js"></script>
-  <script src="../shared/mascots.js"></script>
 </head>
 <body class="wt">
 <a class="wt-skip" href="#main">Skip to content</a>
@@ -20,33 +19,24 @@
 <header class="wt-mast">
   <a class="wt-brand" href="../index.html"><img src="../icons/icon.svg" width="20" height="20" alt="">Causality</a>
   <span class="wt-crumb">Foundations</span>
-  <a class="wt-back" href="../lessons/00-causal-roadmap.html#weighting-bridge">Roadmap <span aria-hidden="true">↗</span></a>
+  <a class="wt-back" data-return href="../lessons/00-causal-roadmap.html#weighting-bridge"><span aria-hidden="true">← </span><span class="wt-back-label">Back to the roadmap</span></a>
 </header>
 
 <main id="main">
 
-<section class="wt-hero" aria-labelledby="hero-title">
-  <div class="wt-hero-text">
-    <p class="wt-eyebrow">Foundations · about 10 minutes</p>
-    <h1 id="hero-title">Weighting toward a world without confounding</h1>
-    <p class="wt-lede">Many causal methods try to recover the outcomes we would have seen if treatment had nothing to do with who receives it. Weighting is one of the most common ways to get there, and it builds on the weighted average.</p>
-  </div>
-  <div class="wt-cast"><span class="mascot" data-mood="hello"></span></div>
-</section>
-
-<!-- 01 -->
-<section id="s-mix" class="wt-sec" aria-labelledby="s-mix-title">
-  <header class="wt-sec-head"><span class="wt-num">01</span></header>
-  <h2 id="s-mix-title">An average depends on the mix</h2>
+<section id="s-mix" class="wt-hero" aria-labelledby="hero-title">
+  <p class="wt-eyebrow">Optional · about 10 minutes</p>
+  <h1 id="hero-title">Averages depend on the mix</h1>
+  <dl class="wt-premise">
+    <div><dt>One source of the problem</dt><dd>Imbalanced groups. Treated and untreated patients differ in who they include, so comparing them directly can mislead.</dd></div>
+    <div><dt>Intuitive remedy</dt><dd>Rebalance the groups so both look like the same population.</dd></div>
+  </dl>
   <div class="wt-col">
-    <p>Without the new treatment, 20% of low-severity patients in our hospital die and 50% of high-severity patients die. The hospital's death rate is a <span class="term" tabindex="0" aria-describedby="tip-wavg">weighted average<span class="tip" role="tooltip" id="tip-wavg">Multiply each value by its weight and add; the weights sum to 1.</span></span> of those two rates, with each group weighted by its share of patients. Move the slider to change that share.</p>
+    <p>Rebalancing works because an average depends on the mix of people behind it. Without the new treatment, 20% of low-severity patients in our hospital die and 50% of high-severity patients die. The hospital's death rate is a <span class="term" tabindex="0" aria-describedby="tip-wavg">weighted average<span class="tip" role="tooltip" id="tip-wavg">Multiply each value by its weight and add; the weights sum to 1.</span></span> of those two rates, with each group weighted by its share of patients. Move the slider to change that share.</p>
   </div>
   <figure class="wt-fig" id="fig-mix">
     <div class="mix-stage" aria-hidden="true"></div>
-    <div class="mix-readout">
-      <p class="big-number"><output id="mix-rate">35%</output><span>hospital death rate</span></p>
-      <p class="mono-eq" id="mix-eq">0.50 × 20% + 0.50 × 50% = 35%</p>
-    </div>
+    <p class="mono-eq" id="mix-eq" aria-live="polite">Hospital death rate: 0.50 × 20% + 0.50 × 50% = 35%</p>
     <div class="wt-controls">
       <label class="wt-range" for="mix-share">High-severity share of patients <output id="mix-share-out">50%</output>
         <input id="mix-share" type="range" min="0" max="1" step="0.01" value="0.5">
@@ -55,9 +45,9 @@
   </figure>
 </section>
 
-<!-- 02 -->
+<!-- 01 -->
 <section id="s-standardize" class="wt-sec" aria-labelledby="s-std-title">
-  <header class="wt-sec-head"><span class="wt-num">02</span></header>
+  <header class="wt-sec-head"><span class="wt-num">01</span></header>
   <h2 id="s-std-title">Comparing groups at the same mix</h2>
   <div class="wt-col">
     <p>Now a new treatment arrives. Half of the 100 patients have high severity, and doctors give the treatment mostly to them: 80% of high-severity patients are treated, compared with 20% of low-severity patients. At first glance the treatment looks harmful.</p>
@@ -91,7 +81,7 @@
   </figure>
 
   <div class="predict" id="std-predict">
-    <div class="react"><span class="mascot" data-mood="worried" id="std-mascot"></span><p class="predict-q">Suppose both groups had the hospital's mix, half low and half high severity. Which would have the lower death rate?</p></div>
+    <p class="predict-q">Suppose both groups had the hospital's mix, half low and half high severity. Which would have the lower death rate?</p>
     <div class="wt-chips" role="group" aria-label="Your prediction">
       <button type="button" data-guess="1">Treated</button>
       <button type="button" data-guess="0">Untreated</button>
@@ -105,23 +95,18 @@
   </div>
 </section>
 
-<!-- 03 -->
+<!-- 02 -->
 <section id="s-worlds" class="wt-sec" aria-labelledby="s-worlds-title">
-  <header class="wt-sec-head"><span class="wt-num">03</span></header>
+  <header class="wt-sec-head"><span class="wt-num">02</span></header>
   <h2 id="s-worlds-title">Two potential outcomes for every patient</h2>
   <div class="wt-col">
     <p>Standardization answers a what-if question: what would the death rate be if all 100 patients were treated, and what would it be if none were? The difference between those two rates is the <span class="term" tabindex="0" aria-describedby="tip-ate">average treatment effect<span class="tip" role="tooltip" id="tip-ate">ATE = E[Y(1)] − E[Y(0)]: the mean outcome if everyone were treated minus the mean outcome if no one were.</span></span>.</p>
-    <p>In the <span class="term" tabindex="0" aria-describedby="tip-po">potential outcomes<span class="tip" role="tooltip" id="tip-po">The framework goes back to Neyman (1923) for experiments and Rubin (1974) for observational studies.</span></span> framework, each patient has an outcome under treatment, Y(1), and an outcome without it, Y(0). Picture World 1, where everyone is treated, and World 0, where no one is. Each seat in the grids below is the same patient in both worlds, and we see each patient in only one of them.</p>
+    <p>In the <span class="term" tabindex="0" aria-describedby="tip-po">potential outcomes<span class="tip" role="tooltip" id="tip-po">The framework goes back to Neyman (1923) for experiments and Rubin (1974) for observational studies.</span></span> framework, each patient has an outcome under treatment, Y(1), and an outcome without it, Y(0). Picture World 1, where everyone is treated, and World 0, where no one is. We see each patient in only one of them.</p>
   </div>
 
-  <figure class="wt-fig worlds" id="fig-worlds-seen" data-stage="seen">
-    <div class="worlds-pair"></div>
-    <div class="worlds-legend" aria-hidden="true"></div>
-    <p class="worlds-status" role="status">Hover or tap a patient for details.</p>
-  </figure>
 
   <div class="wt-col">
-    <p>The treated patients are a skewed sample of World 1: 40 of the 50 have high severity, compared with half of the hospital. Each patient's chance of being in that sample is their propensity score.</p>
+    <p>The treated patients are therefore a skewed sample of World 1. As the bars above show, 40 of the 50 have high severity, compared with half of the hospital. Each patient's chance of being in that sample is their propensity score.</p>
   </div>
   <div class="wt-def">
     <p class="wt-def-term">Propensity score</p>
@@ -130,9 +115,9 @@
   </div>
 </section>
 
-<!-- 04 -->
+<!-- 03 -->
 <section id="s-weight" class="wt-sec" aria-labelledby="s-weight-title">
-  <header class="wt-sec-head"><span class="wt-num">04</span></header>
+  <header class="wt-sec-head"><span class="wt-num">03</span></header>
   <h2 id="s-weight-title">Inverse probability weighting</h2>
   <div class="wt-col">
     <p>Survey statisticians handle unequal sampling chances by weighting each sampled person by one over their chance of selection (<span class="term" tabindex="0" aria-describedby="tip-ht">Horvitz and Thompson, 1952<span class="tip" role="tooltip" id="tip-ht">With known, positive selection probabilities, the weighted sum is unbiased for the population total.</span></span>). A person sampled with probability 1/5 represents 5 people. Propensity score weighting applies the same rule in each world, using the probability of the treatment each patient actually received.</p>
@@ -151,6 +136,7 @@
     </table>
   </div>
 
+  <div class="wt-col"><p>In the grids below, each seat is one patient, shown in both worlds. Empty seats are outcomes we never see.</p></div>
   <figure class="wt-fig worlds" id="fig-worlds-rebuild" data-stage="seen">
     <div class="worlds-pair"></div>
     <div class="worlds-legend" aria-hidden="true"></div>
@@ -158,7 +144,7 @@
       <button type="button" class="wt-btn primary" data-act="rebuild">Apply the weights</button>
       <button type="button" class="wt-btn" data-act="reset" hidden>Start over</button>
     </div>
-    <div class="react"><span class="mascot" data-mood="think" id="rebuild-mascot"></span><p class="worlds-status" role="status">Each seen patient will stand in for 1 / (chance of their treatment) patients.</p></div>
+    <p class="worlds-status" role="status">Hover or tap a seen patient for details.</p>
     <p class="worlds-result" hidden>Treatment prevents 10 deaths per 100 patients (25% against 35%), the same answer standardization gave.</p>
   </figure>
 
@@ -166,22 +152,11 @@
     <p>In this invented hospital these are also the true rates, because within each severity group the treated and untreated patients would have had the same risk under either treatment. The stand-ins reproduce the totals, not which individuals die.</p>
   </div>
 
-  <fieldset class="quiz" id="quiz">
-    <legend>Your turn</legend>
-    <div class="react"><span class="mascot" data-mood="think" id="quiz-mascot"></span><p id="quiz-q"></p></div>
-    <div class="quiz-row">
-      <label for="quiz-a" class="sr-only">Weight</label>
-      <input id="quiz-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="weight">
-      <button type="button" class="wt-btn" id="quiz-check">Check</button>
-      <button type="button" class="wt-btn quiet" id="quiz-next">Another</button>
-    </div>
-    <p id="quiz-fb" role="status"></p>
-  </fieldset>
 </section>
 
-<!-- 05 -->
+<!-- 04 -->
 <section id="s-limits" class="wt-sec" aria-labelledby="s-limits-title">
-  <header class="wt-sec-head"><span class="wt-num">05</span></header>
+  <header class="wt-sec-head"><span class="wt-num">04</span></header>
   <h2 id="s-limits-title">What the weights rely on</h2>
   <ol class="promises">
     <li><span class="p-num">1</span><div><p class="p-name"><span class="term" tabindex="0" aria-describedby="tip-exch">Exchangeability<span class="tip" role="tooltip" id="tip-exch">Y(a) is independent of A given X, for each a. The data cannot confirm it; it comes from knowing how treatment was decided.</span></span></p><p>Severity accounts for every shared reason behind treatment and death. If doctors also noticed frailty that nobody recorded, weights based on severity would leave both worlds skewed.</p></div></li>
@@ -196,14 +171,14 @@
     </div>
     <div class="worlds-pair"></div>
     <div class="worlds-legend" aria-hidden="true"></div>
-    <div class="react"><span class="mascot" data-mood="calm" id="pos-mascot"></span><p class="worlds-status" role="status"></p></div>
+    <p class="worlds-status" role="status"></p>
   </figure>
   <div class="wt-col"><p class="wt-note">Rare treatments cause a milder version of the same problem. If 2% of a group is treated, each treated patient gets weight 50 and the estimate rests on a few people. <a href="#ax-lab">The lab</a> shows this.</p></div>
 </section>
 
-<!-- 06 -->
+<!-- 05 -->
 <section id="s-family" class="wt-sec" aria-labelledby="s-family-title">
-  <header class="wt-sec-head"><span class="wt-num">06</span></header>
+  <header class="wt-sec-head"><span class="wt-num">05</span></header>
   <h2 id="s-family-title">Where weighting appears in this course</h2>
   <ol class="family">
     <li><a href="../lessons/16-rct-adjustment.html"><span class="f-num">01</span><span class="f-name">Standardization</span><span class="f-what">Model outcomes in each group, then average over the target mix (g-computation).</span><span class="f-go" aria-hidden="true">→</span></a></li>
@@ -214,7 +189,7 @@
     <li><a href="../lessons/23-targeted-survival.html"><span class="f-num">06</span><span class="f-name">Censoring weights</span><span class="f-what">Weighting for patients lost to follow-up.</span><span class="f-go" aria-hidden="true">→</span></a></li>
     <li><a href="../lessons/21-positivity.html"><span class="f-num">07</span><span class="f-name">Positivity and weights</span><span class="f-what">How large weights get, and what that costs.</span><span class="f-go" aria-hidden="true">→</span></a></li>
   </ol>
-  <p class="wt-cta"><a class="wt-btn primary" href="../lessons/00-causal-roadmap.html#weighting-bridge">Back to the roadmap <span aria-hidden="true">→</span></a></p>
+  <p class="wt-cta"><a class="wt-btn primary" data-return href="../lessons/00-causal-roadmap.html#weighting-bridge"><span aria-hidden="true">← </span><span class="wt-back-label">Back to the roadmap</span></a></p>
 </section>
 
 <section id="appendix" class="wt-appendix" aria-labelledby="appendix-title">

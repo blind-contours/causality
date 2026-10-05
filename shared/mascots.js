@@ -1,4 +1,7 @@
-/* The page's one guide: a Greek letter drawn as a stick figure, in the
+/* Parked: not loaded by any page at the moment. Its styles were removed from
+ * shared/weighting.css; see commit 745facb for the last version that used it.
+ *
+ * The page's one guide: a Greek letter drawn as a stick figure, in the
  * hand-drawn, warm-clay style of the Tao of RWD mascots. It reacts to what the
  * reader does; it never carries content that is not also in the text.
  *

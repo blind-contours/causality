@@ -5,7 +5,7 @@
  */
 (function () {
   "use strict";
-  const W = CausalWeighting, M = CausalMascots, WORLD = W.MORTALITY;
+  const W = CausalWeighting, WORLD = W.MORTALITY;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -26,7 +26,6 @@
     if (["light", "dark"].includes(theme)) document.documentElement.dataset.theme = theme;
   } catch {}
 
-  M.mount(document);
 
   /* ── Small utilities ─────────────────────────────────── */
   function onResize(fn) {
@@ -95,15 +94,14 @@
   (function mixFigure() {
     const fig = $("#fig-mix"), stage = $(".mix-stage", fig), input = $("#mix-share");
     const RATES = [risk(0, 0), risk(1, 0)];
-    let share = +input.value, last = null, tiltTimer;
+    let share = +input.value;
     function layout() {
       const width = Math.max(300, Math.min(stage.clientWidth || 640, 960));
-      const H = 238, L = 28, R = width - 28, beamY = 118;
+      const H = 166, L = 28, R = width - 28, beamY = 118;
       const x = (v) => L + (v / 0.6) * (R - L);
       const ticks = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6].filter((v, i) => width > 520 || i % 2 === 0);
       stage.innerHTML =
         `<svg viewBox="0 0 ${width} ${H}" width="${width}" height="${H}" role="presentation">` +
-        `<line class="ground" x1="0" x2="${width}" y1="${H - 17}" y2="${H - 17}"/>` +
         ticks.map((v) => `<line class="tick" x1="${x(v)}" x2="${x(v)}" y1="${beamY + 3}" y2="${beamY + 9}"/><text x="${x(v)}" y="${beamY + 22}" text-anchor="middle">${Math.round(v * 100)}%</text>`).join("") +
         [0, 1].map((s) =>
           `<text class="lbl" x="${x(RATES[s])}" y="16" text-anchor="middle">${s ? "HIGH SEVERITY" : "LOW SEVERITY"}</text>` +
@@ -112,7 +110,7 @@
           `<circle class="${s ? "w-high" : "w-low"}" data-w="${s}" cx="${x(RATES[s])}" cy="${beamY}" r="0"/>`).join("") +
         `<line class="beam" x1="${L}" x2="${R}" y1="${beamY}" y2="${beamY}"/>` +
         `<g class="mover"><polygon class="fulcrum" points="0,${beamY + 2} -11,${beamY + 22} 11,${beamY + 22}"/>` +
-        M.svg({ mood: "hello", x: -32, y: beamY + 25, size: 60 }) + `</g></svg>`;
+        `<text class="lbl fulcrum-lbl" x="0" y="${beamY + 40}" text-anchor="middle"></text></g></svg>`;
       fig._x = x; fig._beamY = beamY;
       update(true);
     }
@@ -128,19 +126,9 @@
       if (instant) mover.style.transition = "none";
       mover.style.transform = `translateX(${x(rate)}px)`;
       if (instant) { mover.getBoundingClientRect(); mover.style.transition = ""; }
-      if (last !== null && !instant && !reduce()) {
-        const beam = stage.querySelector(".m-arms");
-        if (beam) {
-          const tilt = Math.max(-16, Math.min(16, (rate - last) * 260));
-          beam.style.transform = `rotate(${tilt}deg)`;
-          clearTimeout(tiltTimer);
-          tiltTimer = setTimeout(() => (beam.style.transform = "rotate(0deg)"), 260);
-        }
-      }
-      last = rate;
-      $("#mix-rate").textContent = pct(rate);
+      stage.querySelector(".fulcrum-lbl").textContent = pct(rate);
       $("#mix-share-out").textContent = pct(share);
-      $("#mix-eq").textContent = `${(1 - share).toFixed(2)} × 20% + ${share.toFixed(2)} × 50% = ${pct(rate)}`;
+      $("#mix-eq").textContent = `Hospital death rate: ${(1 - share).toFixed(2)} × 20% + ${share.toFixed(2)} × 50% = ${pct(rate)}`;
     }
     input.addEventListener("input", () => { share = +input.value; update(false); });
     layout();
@@ -182,7 +170,6 @@
       predict.classList.add("done");
       $$("[data-guess]", predict).forEach((o) => { o.setAttribute("aria-pressed", String(o === b)); o.setAttribute("aria-disabled", "true"); });
       $("#std-feedback").textContent = FEEDBACK[b.dataset.guess];
-      M.mood($("#std-mascot"), "surprised");
       toggle.hidden = false;
       bringIntoView(fig);
       setTimeout(() => {
@@ -354,9 +341,6 @@
       (fig.id === "fig-worlds-seen" ? "" : `<span>${dot("alive high", "ghost")}${dot("died high", "ghost")}Faded: stand-ins created by the weights</span>`);
   };
 
-  const seenFig = $("#fig-worlds-seen");
-  legend(seenFig);
-  worldsFigure(seenFig, {});
 
   const rebuildFig = $("#fig-worlds-rebuild");
   legend(rebuildFig);
@@ -371,15 +355,13 @@
   $('[data-act="rebuild"]', rebuildFig).addEventListener("click", () => {
     rb._set({ stage: "rebuilt", animate: true });
     $(".worlds-status", rebuildFig).textContent = "Each empty seat now holds a faded stand-in copied from a seen patient with the same severity. Hover or tap a seen patient to see their weight.";
-    M.mood($("#rebuild-mascot"), "cheer");
     $("#rebuild-after").hidden = false;
     $('[data-act="reset"]', rebuildFig).focus({ preventScroll: true });
     bringIntoView($(".worlds-pair", rebuildFig));
   });
   $('[data-act="reset"]', rebuildFig).addEventListener("click", () => {
     rb._set({ stage: "seen" });
-    $(".worlds-status", rebuildFig).textContent = "Each seen patient will stand in for 1 / (chance of their treatment) patients.";
-    M.mood($("#rebuild-mascot"), "think");
+    $(".worlds-status", rebuildFig).textContent = "Hover or tap a seen patient for details.";
     $('[data-act="rebuild"]', rebuildFig).focus({ preventScroll: true });
   });
 
@@ -391,7 +373,6 @@
       $(".worlds-status", posFig).innerHTML = broken
         ? "World 0 cannot be rebuilt. There is no untreated high-severity patient to weight, and the weight 1 / (1 − 1) has no value, so the data alone <b>cannot identify</b> the average treatment effect. An outcome model could extrapolate to those seats, but nothing in the data could check it."
         : "Both worlds rebuilt: 25% and 35%. Use the toggle to treat every high-severity patient.";
-      M.mood($("#pos-mascot"), broken ? "worried" : "calm");
     },
   });
   $$(".wt-toggle button", posFig).forEach((b) => b.addEventListener("click", () => {
@@ -399,36 +380,6 @@
     pf._set({ stage: "rebuilt", gHigh: b.dataset.pos === "on" ? 1 : 0.8, animate: true });
     bringIntoView($(".worlds-pair", posFig));
   }));
-
-  /* ── Quick check ─────────────────────────────────────── */
-  (function quiz() {
-    const cases = [{ g: 0.25, a: 1 }, { g: 0.25, a: 0 }, { g: 0.1, a: 1 }, { g: 0.8, a: 0 }, { g: 0.5, a: 1 }];
-    const face = $("#quiz-mascot");
-    let k = 0;
-    const own = (c) => (c.a ? c.g : 1 - c.g);
-    function ask() {
-      const c = cases[k], chance = pct(c.g), article = /^(8|11|18)/.test(chance) ? "an" : "a";
-      $("#quiz-q").textContent = `${c.a ? "A treated" : "An untreated"} patient had ${article} ${chance} chance of treatment. What weight do they get?`;
-      $("#quiz-a").value = "";
-      $("#quiz-fb").textContent = "";
-      M.mood(face, "think");
-    }
-    $("#quiz-check").addEventListener("click", () => {
-      const c = cases[k], raw = $("#quiz-a").value.trim(), v = Number(raw), want = 1 / own(c);
-      let msg, mood = "think";
-      if (raw === "" || !Number.isFinite(v)) msg = "Type a number first.";
-      else if (Math.abs(v - want) <= 0.04) {
-        msg = `Yes: 1 / ${trim(own(c))} = ${trim(want)}. This patient counts as ${trim(want)} people.` + (c.a ? "" : " Untreated patients use 1 − g.");
-        mood = "cheer";
-      } else if (!c.a && Math.abs(v - 1 / c.g) <= 0.04) msg = `That used the chance of treatment. This patient was untreated, so use 1 − ${trim(c.g)} = ${trim(1 - c.g)}.`;
-      else msg = "Use one over the chance of the treatment this patient actually got.";
-      $("#quiz-fb").textContent = msg;
-      M.mood(face, mood);
-    });
-    $("#quiz-a").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#quiz-check").click(); });
-    $("#quiz-next").addEventListener("click", () => { k = (k + 1) % cases.length; ask(); });
-    ask();
-  })();
 
   /* ── Appendix tabs ───────────────────────────────────── */
   const tabs = $$('.tabs [role="tab"]');
@@ -469,10 +420,45 @@
     }
   }
   addEventListener("hashchange", openHash);
+  /* In-page links replace the hash instead of adding history entries, so the
+   * back link below can return to the lesson with one step back. */
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
-    if (a && a.hash && a.hash === location.hash) { e.preventDefault(); openHash(); }
+    if (!a || !a.hash) return;
+    e.preventDefault();
+    history.replaceState(null, "", a.hash);
+    openHash();
+    if (a.hash === "#main") $("#main").focus({ preventScroll: true });
   });
+
+  /* Route back to wherever the reader came from: ?from= names the entry point.
+   * When the previous history entry is that lesson, step back so it keeps its
+   * guided step, revealed beats and scroll position. */
+  (function returnRoute() {
+    const ROUTES = {
+      roadmap: ["../lessons/00-causal-roadmap.html", "Back to the roadmap"],
+      bridge: ["../lessons/00-causal-roadmap.html#weighting-bridge", "Back to the roadmap"],
+      "two-strata": ["../lessons/06-two-strata.html", "Back to Two strata, one step"],
+      "clever-covariate": ["../lessons/07-clever-covariate.html", "Back to the clever covariate"],
+    };
+    let from = null;
+    try { from = new URLSearchParams(location.search).get("from"); } catch {}
+    const [href, label] = ROUTES[from] || ROUTES.bridge, target = new URL(href, location.href);
+    $$("[data-return]").forEach((a) => {
+      a.href = href;
+      const text = a.querySelector(".wt-back-label");
+      if (text) text.textContent = label;
+      a.addEventListener("click", (e) => {
+        try {
+          const ref = new URL(document.referrer);
+          if (ref.origin === location.origin && ref.pathname === target.pathname && history.length > 1) {
+            e.preventDefault();
+            history.back();
+          }
+        } catch {}
+      });
+    });
+  })();
   openHash();
 
   /* ── Appendix lab ────────────────────────────────────── */

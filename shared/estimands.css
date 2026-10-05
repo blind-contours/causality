@@ -62,3 +62,10 @@
 }
 
 .foundation-bridge{border-left:3px solid var(--teal);background:var(--soft);padding:18px 22px;border-radius:6px;margin:22px 0}.foundation-bridge h3{font-size:22px;margin-top:0}.foundation-bridge p{max-width:74ch}
+/* Side link to the optional weighting foundations page (lesson 00). Floats beside the title on
+   wide screens; on narrow screens it sits above the title as a single line. */
+.side-link{display:block;margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--or);font-size:15px;line-height:1.4;max-width:34rem}
+.side-link-kicker{display:block;font:500 11px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.side-link a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:3px;font-weight:500}
+.side-link a:hover{color:var(--or)}
+@media (min-width:1100px){.side-link{float:right;width:17rem;margin:6px 0 18px 32px}}
