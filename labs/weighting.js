@@ -97,7 +97,7 @@
     let share = +input.value;
     function layout() {
       const width = Math.max(300, Math.min(stage.clientWidth || 640, 960));
-      const H = 166, L = 28, R = width - 28, beamY = 118;
+      const H = 150, L = 28, R = width - 28, beamY = 118;
       const x = (v) => L + (v / 0.6) * (R - L);
       const ticks = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6].filter((v, i) => width > 520 || i % 2 === 0);
       stage.innerHTML =
@@ -109,8 +109,7 @@
           `<line class="stem" data-stem="${s}" x1="${x(RATES[s])}" x2="${x(RATES[s])}" y1="40" y2="${beamY}"/>` +
           `<circle class="${s ? "w-high" : "w-low"}" data-w="${s}" cx="${x(RATES[s])}" cy="${beamY}" r="0"/>`).join("") +
         `<line class="beam" x1="${L}" x2="${R}" y1="${beamY}" y2="${beamY}"/>` +
-        `<g class="mover"><polygon class="fulcrum" points="0,${beamY + 2} -11,${beamY + 22} 11,${beamY + 22}"/>` +
-        `<text class="lbl fulcrum-lbl" x="0" y="${beamY + 40}" text-anchor="middle"></text></g></svg>`;
+        `<g class="mover"><polygon class="fulcrum" points="0,${beamY + 2} -11,${beamY + 22} 11,${beamY + 22}"/></g></svg>`;
       fig._x = x; fig._beamY = beamY;
       update(true);
     }
@@ -126,9 +125,9 @@
       if (instant) mover.style.transition = "none";
       mover.style.transform = `translateX(${x(rate)}px)`;
       if (instant) { mover.getBoundingClientRect(); mover.style.transition = ""; }
-      stage.querySelector(".fulcrum-lbl").textContent = pct(rate);
+      $("#mix-rate").textContent = pct(rate);
       $("#mix-share-out").textContent = pct(share);
-      $("#mix-eq").textContent = `Hospital death rate: ${(1 - share).toFixed(2)} × 20% + ${share.toFixed(2)} × 50% = ${pct(rate)}`;
+      $("#mix-eq").textContent = `${(1 - share).toFixed(2)} × 20% + ${share.toFixed(2)} × 50% = ${pct(rate)}`;
     }
     input.addEventListener("input", () => { share = +input.value; update(false); });
     layout();
@@ -341,6 +340,9 @@
       (fig.id === "fig-worlds-seen" ? "" : `<span>${dot("alive high", "ghost")}${dot("died high", "ghost")}Faded: stand-ins created by the weights</span>`);
   };
 
+  const seenFig = $("#fig-worlds-seen");
+  legend(seenFig);
+  worldsFigure(seenFig, {});
 
   const rebuildFig = $("#fig-worlds-rebuild");
   legend(rebuildFig);
@@ -361,7 +363,7 @@
   });
   $('[data-act="reset"]', rebuildFig).addEventListener("click", () => {
     rb._set({ stage: "seen" });
-    $(".worlds-status", rebuildFig).textContent = "Hover or tap a seen patient for details.";
+    $(".worlds-status", rebuildFig).textContent = "Each seen patient will stand in for 1 / (chance of their treatment) patients.";
     $('[data-act="rebuild"]', rebuildFig).focus({ preventScroll: true });
   });
 
@@ -380,6 +382,32 @@
     pf._set({ stage: "rebuilt", gHigh: b.dataset.pos === "on" ? 1 : 0.8, animate: true });
     bringIntoView($(".worlds-pair", posFig));
   }));
+
+  /* ── Quick check ─────────────────────────────────────── */
+  (function quiz() {
+    const cases = [{ g: 0.25, a: 1 }, { g: 0.25, a: 0 }, { g: 0.1, a: 1 }, { g: 0.8, a: 0 }, { g: 0.5, a: 1 }];
+    let k = 0;
+    const own = (c) => (c.a ? c.g : 1 - c.g);
+    function ask() {
+      const c = cases[k], chance = pct(c.g), article = /^(8|11|18)/.test(chance) ? "an" : "a";
+      $("#quiz-q").textContent = `${c.a ? "A treated" : "An untreated"} patient had ${article} ${chance} chance of treatment. What weight do they get?`;
+      $("#quiz-a").value = "";
+      $("#quiz-fb").textContent = "";
+    }
+    $("#quiz-check").addEventListener("click", () => {
+      const c = cases[k], raw = $("#quiz-a").value.trim(), v = Number(raw), want = 1 / own(c);
+      let msg;
+      if (raw === "" || !Number.isFinite(v)) msg = "Type a number first.";
+      else if (Math.abs(v - want) <= 0.04) {
+        msg = `Yes: 1 / ${trim(own(c))} = ${trim(want)}. This patient counts as ${trim(want)} people.` + (c.a ? "" : " Untreated patients use 1 − g.");
+      } else if (!c.a && Math.abs(v - 1 / c.g) <= 0.04) msg = `That used the chance of treatment. This patient was untreated, so use 1 − ${trim(c.g)} = ${trim(1 - c.g)}.`;
+      else msg = "Use one over the chance of the treatment this patient actually got.";
+      $("#quiz-fb").textContent = msg;
+    });
+    $("#quiz-a").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#quiz-check").click(); });
+    $("#quiz-next").addEventListener("click", () => { k = (k + 1) % cases.length; ask(); });
+    ask();
+  })();
 
   /* ── Appendix tabs ───────────────────────────────────── */
   const tabs = $$('.tabs [role="tab"]');
