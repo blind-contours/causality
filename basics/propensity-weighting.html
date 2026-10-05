@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../shared/weighting.css">
-  <script src="../science/weighting.js"></script>
+  <link rel="stylesheet" href="../shared/weighting.css?v=6">
+  <script src="../science/weighting.js?v=6"></script>
 </head>
 <body class="wt">
 <a class="wt-skip" href="#main">Skip to content</a>
@@ -34,6 +34,9 @@
       <div><dt>Intuitive remedy</dt><dd>Rebalance the groups so both look like the same population.</dd></div>
     </dl>
   </div>
+  <figure class="wt-emblem">
+    <img src="assets/propensity-weighting/yin-and-yang.png" width="640" height="640" alt="Hand-painted yin-yang with causal notation: E[Y¹ − Y⁰ | X] in the light half and {Y, A, X} in the dark half.">
+  </figure>
 </section>
 
 <!-- 01 -->
@@ -168,17 +171,17 @@
     <p>In this invented hospital these are also the true rates, because within each severity group the treated and untreated patients would have had the same risk under either treatment. The stand-ins reproduce the totals, not which individuals die.</p>
   </div>
 
-  <fieldset class="quiz" id="quiz">
-    <legend>Your turn</legend>
-    <p id="quiz-q"></p>
+  <section class="quiz" id="quiz" aria-labelledby="quiz-title">
+    <p class="quiz-kicker" id="quiz-title">Check yourself</p>
+    <p class="quiz-q" id="quiz-q">A treated patient had a 25% chance of treatment. What weight does this patient get?</p>
     <div class="quiz-row">
-      <label for="quiz-a" class="sr-only">Weight</label>
-      <input id="quiz-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="weight">
+      <label class="quiz-label" for="quiz-a">Weight =</label>
+      <input id="quiz-a" type="number" inputmode="decimal" min="0" step="0.01" autocomplete="off">
       <button type="button" class="wt-btn" id="quiz-check">Check</button>
-      <button type="button" class="wt-btn quiet" id="quiz-next">Another</button>
     </div>
-    <p id="quiz-fb" role="status"></p>
-  </fieldset>
+    <p class="quiz-fb" id="quiz-fb" role="status">Use the chance of the treatment this patient actually received.</p>
+    <button type="button" class="wt-link" id="quiz-next">Try another patient <span aria-hidden="true">→</span></button>
+  </section>
 </section>
 
 <!-- 05 -->
@@ -359,8 +362,8 @@ weighted.mean(d$Y[d$A == 0], w[d$A == 0])   # 0.35, World 0</code></pre>
 </main>
 
 <footer class="wt-foot">
-  <p>Optional foundations page · Causality. Figures drawn for this page; lecture sketches by Andy Wilson. Code MIT; content CC BY-NC-SA 4.0.</p>
+  <p>Optional foundations page · Causality. Figures drawn for this page; yin-yang from the Tao of RWD; lecture sketches by Andy Wilson. Code MIT; content CC BY-NC-SA 4.0.</p>
 </footer>
-<script src="../labs/weighting.js"></script>
+<script src="../labs/weighting.js?v=6"></script>
 </body>
 </html>

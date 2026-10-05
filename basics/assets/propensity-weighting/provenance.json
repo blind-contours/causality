@@ -33,5 +33,13 @@
     "sha256": "a0881dd3e227c8db15be1a514a943e0146b24d9d6473a1631d840dc627cf5335",
     "credit": "Andy Wilson, Causal Methods in Public Health lecture materials",
     "adaptation": "Original image bytes retained; accessible descriptions and explanatory captions added in the tutorial."
+  },
+  {
+    "file": "yin-and-yang.png",
+    "source": "tao-of-rwd/brand/public/images/yin-and-yang.png (the Tao of RWD site, tao-rwd.com)",
+    "sha256_of_source": "5667c1c2584028158263bb447c15e91065c106af22c989ccb6ec8b4a41cd97de",
+    "sha256": "8f78791a0cbc57c67a20384a05d8cb525aebf0879cf0906a454b64d5d24580f3",
+    "credit": "Tao of RWD, hand-painted yin-yang with causal notation",
+    "adaptation": "Converted to grayscale and resized from 1280 to 640 px for the page header; otherwise unchanged."
   }
 ]

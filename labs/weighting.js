@@ -386,26 +386,30 @@
   /* ── Quick check ─────────────────────────────────────── */
   (function quiz() {
     const cases = [{ g: 0.25, a: 1 }, { g: 0.25, a: 0 }, { g: 0.1, a: 1 }, { g: 0.8, a: 0 }, { g: 0.5, a: 1 }];
+    const HINT = "Use the chance of the treatment this patient actually received.";
     let k = 0;
     const own = (c) => (c.a ? c.g : 1 - c.g);
     function ask() {
       const c = cases[k], chance = pct(c.g), article = /^(8|11|18)/.test(chance) ? "an" : "a";
-      $("#quiz-q").textContent = `${c.a ? "A treated" : "An untreated"} patient had ${article} ${chance} chance of treatment. What weight do they get?`;
+      $("#quiz-q").textContent = `${c.a ? "A treated" : "An untreated"} patient had ${article} ${chance} chance of treatment. What weight does this patient get?`;
       $("#quiz-a").value = "";
-      $("#quiz-fb").textContent = "";
+      $("#quiz-fb").textContent = HINT;
+      $("#quiz-fb").dataset.state = "";
     }
     $("#quiz-check").addEventListener("click", () => {
       const c = cases[k], raw = $("#quiz-a").value.trim(), v = Number(raw), want = 1 / own(c);
-      let msg;
-      if (raw === "" || !Number.isFinite(v)) msg = "Type a number first.";
+      let msg, state = "wrong";
+      if (raw === "" || !Number.isFinite(v)) { msg = "Type a number first."; state = ""; }
       else if (Math.abs(v - want) <= 0.04) {
-        msg = `Yes: 1 / ${trim(own(c))} = ${trim(want)}. This patient counts as ${trim(want)} people.` + (c.a ? "" : " Untreated patients use 1 − g.");
-      } else if (!c.a && Math.abs(v - 1 / c.g) <= 0.04) msg = `That used the chance of treatment. This patient was untreated, so use 1 − ${trim(c.g)} = ${trim(1 - c.g)}.`;
-      else msg = "Use one over the chance of the treatment this patient actually got.";
+        msg = `Right: 1 / ${trim(own(c))} = ${trim(want)}, so this patient counts as ${trim(want)} people.`;
+        state = "right";
+      } else if (!c.a && Math.abs(v - 1 / c.g) <= 0.04) msg = `That uses the chance of treatment, but this patient was untreated. Use 1 − ${trim(c.g)} = ${trim(1 - c.g)} instead.`;
+      else msg = `Not quite. This patient ${c.a ? "was treated" : "was untreated"}, so the chance to use is ${trim(own(c))}.`;
       $("#quiz-fb").textContent = msg;
+      $("#quiz-fb").dataset.state = state;
     });
     $("#quiz-a").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#quiz-check").click(); });
-    $("#quiz-next").addEventListener("click", () => { k = (k + 1) % cases.length; ask(); });
+    $("#quiz-next").addEventListener("click", () => { k = (k + 1) % cases.length; ask(); $("#quiz-a").focus(); });
     ask();
   })();
 
